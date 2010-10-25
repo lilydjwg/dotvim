@@ -1,0 +1,8 @@
+alias
+LD_PRELOAD
+dirname
+bindkey
+command
+export
+mkdir
+--exclude

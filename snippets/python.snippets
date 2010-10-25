@@ -1,0 +1,53 @@
+snippet #!
+	#!/usr/bin/env python3
+	# vim:fileencoding=utf-8
+
+snippet from
+	from ${1} import ${2}
+snippet s
+	self
+snippet self
+	self.${1:attr} = $1${2}
+snippet main
+	if __name__ == '__main__':
+	  ${1}
+snippet ok
+	print('Everything is ok.')
+snippet dbg
+	print('HereItIs.')
+# 使用 code 来 debug
+snippet cdb
+	import code
+	code.interact(local=locals())
+snippet tb
+	import traceback
+	traceback.print_exc()
+snippet err
+	file=sys.stderr
+snippet op
+	os.path.
+snippet opa
+	os.path.abspath(
+snippet opd
+	os.path.isdir(
+snippet ope
+	os.path.exists(
+snippet opf
+	os.path.isfile(
+snippet opj
+	os.path.join(
+snippet opl
+	os.path.islink(
+snippet ops
+	os.path.split(
+snippet opu
+	os.path.expanduser(
+snippet .
+	self.
+# 简短的用法信息
+snippet usage
+	print('用法: %s ${1}' % os.path.split((sys.argv[0]))[1])
+	
+# __magic__
+snippet _
+	__${1:init}__${2}

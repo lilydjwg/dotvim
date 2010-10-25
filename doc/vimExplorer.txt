@@ -1,0 +1,542 @@
+*VimExplorer*          A powerful file manager               v0.98
+
+
+                     VimExplorer Reference Manual
+                  by Ming Bai (mbbill AT gmail.com)
+
+
+==============================================================================
+CONTENTS                                        *VimExplorer-contents*
+
+1.  Intro.......................................|VimExplorer-start|
+2.  Functionality...............................|VimExplorer-functionality|
+    2.1  Tree Panel Hotkeys.....................|VimExplorer-treehotkey|
+    2.2  File Panel Hotkeys.....................|VimExplorer-filehotkey|
+    2.3  Commands...............................|VimExplorer-commands|
+3.  Directory Browsing..........................|VimExplorer-browse|
+    3.1  Tree Browsing..........................|VimExplorer-treebrowse|
+    3.2  File Browsing..........................|VimExplorer-filebrowse|
+    3.3  Forward and Backward...................|VimExplorer-forbackward|
+    3.4  Favorites..............................|VimExplorer-favorite|
+    3.5  Temp Marks.............................|VimExplorer-tempmark|
+4.  Marks.......................................|VimExplorer-mark|
+    4.1  Single File Marks......................|VimExplorer-marksingle|
+    4.2  Visual Marks...........................|VimExplorer-markvisual|
+    4.3  Regexp Marks...........................|VimExplorer-markregexp|
+5.  File operations.............................|VimExplorer-fileoperation|
+    5.1  Create.................................|VimExplorer-new|
+    5.2  Move...................................|VimExplorer-move|
+    5.3  Delete.................................|VimExplorer-delete|
+    5.4  Diff...................................|VimExplorer-diff|
+    5.5  Search.................................|VimExplorer-search|
+    5.6  Other Operations.......................|VimExplorer-otherfileopt|
+6.  Other Functionalities.......................|VimExplorer-otherfuncs|
+7.  Customization...............................|VimExplorer-customize|
+    7.1  Normal Options.........................|VimExplorer-custnormal|
+    7.2  Hotkey Customization...................|VimExplorer-custhotkey|
+    7.3  Command Customization..................|VimExplorer-custcommand|
+8.  The Author..................................|VimExplorer-author|
+9.  Problems and Fixes..........................|VimExplorer-problems|
+10. Changelog...................................|VimExplorer-changelog|
+11. TODO........................................|VimExplorer-todo|
+
+
+==============================================================================
+1.  Intro                                       *VimExplorer-start*
+
+What is VimExplorer ?
+VimExplorer is a file manager, it can do a lot of file operations such as
+copy, delete, move, preview, search and so on. Also it has a variety of other
+capacities and customization abilities.
+
+You can start VimExplorer by the following command:
+>
+        :VE
+<
+Then it will ask you for the starting directory, default is the current path.
+>
+        VimExplorer (directory): /home/username/
+<
+You can change it to some other directories or just push "Enter" to start it.
+
+The second approach to start VimExplorer:
+>
+        :VE [directory]
+<
+Example:
+>
+        :VE /usr/src/
+<
+Now, VimExplorer will start using the path '/usr/src/'. When you are typing
+the path, <tab> and <ctrl-d> will help you to complete the path automatically.
+After all of these operations, you can see a new tab which has two panels
+within it, one is the "Tree Panel" and the other is "File Panel". From now you
+will have a happy journey using the powerful file manager.
+
+
+==============================================================================
+2.  Functionality                               *VimExplorer-functionality*
+
+2.1  Tree Panel Hotkeys                         *VimExplorer-treehotkey*
+
+Member of |VEConf_treeHotkey|, refer to section 7.2 .
+
+Mapping                        Key             Description~
+help                    ?               Help.
+toggleNode              <cr>            Open/Close/Switch to current node.
+toggleNodeMouse         <2-LeftMouse>   Open/Close/Switch to current node.
+refresh                 r               Refresh the tree panel.
+favorite                f               View favorite folder list.
+addToFavorite           F               Add the folder under cursor to
+                                        favorite list. If no path under
+                                        cursor, use current working path.
+browseHistory           b               View browse history.
+toggleFilePanel         t               Toggle the file panel.
+toUpperDir              <bs>            Go to upper directory.
+switchPanel             <c-tab>         Switch to File Panel.
+gotoPath                <c-g>           Change to another path.
+quitVE                  Q               Quit VimExplorer.
+
+2.2  File Panel Hotkeys                         *VimExplorer-filehotkey*
+
+Member of |VEConf_fileHotkey|, refer to section 7.2 .
+
+Mapping                 Default         Description~
+help                    ?               Help.
+itemClicked             <cr>            Enter the directory or open the file
+                                        by default association.
+itemClickMouse          <2-LeftMouse>   Enter the directory or open the file
+                                        by default association.
+refresh                 r               Refresh.
+toggleTreePanel         t               Toggle the Tree Panel.
+toggleModes             i               Toggle file sort mode (type/data/file
+                                        extension).
+newFile                 +f              Create a new file.
+newDirectory            +d              Create a new directory.
+switchPanel             <c-tab>         Switch to the Tree Panel.
+quitVE                  Q               Quit VimExplorer.
+toggleHidden            H               Toggle show hidden files.(files start
+                                        with '.')
+search                  g/              Search.
+markPlace               m{a-z}          Put current path to register(a-z).
+gotoPlace               '{a-z}          Jump to path in register(a-z).
+viewMarks               J               View path in register.
+toUpperDir              <bs>            Go to upper directory.
+gotoForward             <c-i>           Forward.
+gotoBackward            <c-o>           Backward.
+favorite                f               View favorite folder list.
+addToFavorite           F               Add the folder under cursor to
+                                        favorite list. If no path under
+                                        cursor, use current working path.
+browseHistory           b               View browse history.
+gotoPath                <c-g>           Change to another path.
+rename                  R               Rename the file under cursor.
+yankSingle              yy              Copy file under cursor.
+cutSingle               xx              Cut file under cursor.
+showYankList            yl              Show clipboard.
+deleteSingle            dd              Delete file under cursor.
+openPreview             u               Preview.
+closePreview            U               Close the preview panel.
+toggleSelectUp          <s-space>       Move the cursor up and mark/unmark the
+                                        file under cursor.
+toggleSelectDown        <space>         Mark/unmark the file under cursor and
+                                        move the cursor down.
+markViaRegexp           Mr              Mark via regular expression.
+markVimFiles            Mv              Mark all vim files.
+markDirectory           Md              Mark all directories.
+markExecutable          Me              Mark all executable files.
+clearSelect             Mc              Clear all marks.
+deleteSelected          sd              Delete marked files.
+yankSelected            sy              Copy marked files.
+cutSelected             sx              Cut marked files.
+tabViewMulti            se              Edit every marked file in separate
+                                        tabs.
+paste                   p               Paste.
+diff2files              =               Diff two files.
+tabView                 e               Edit file in new tab.
+openRenamer             ;r              Open Renamer (Note 1)
+startShell              ;c              Start a shell from current path.
+startExplorer           ;e              Start another file
+                                        manager(nautilus,konquer,explorer.exe).
+
+Visual Mode Hotkeys~
+visualSelect            <space>         Mark files.
+visualDelete            d               Delete files.
+visualYank              y               Copy files.
+visualCut               x               Cut files.
+tabView                 e               View files in new tabs.
+
+2.3  Commands                                   *VimExplorer-commands*
+>
+    VE
+<
+Start VimExplorer.
+
+>
+    VEC
+<
+Close VimExplorer, Hotkey |Q| has the same ability.
+
+==============================================================================
+3.  Directory Browsing                          *VimExplorer-browse*
+
+3.1  Tree Browsing                              *VimExplorer-treebrowse*
+
+Press "Enter" on one tree node will change the path and add the new path to
+browse history. By default, if a directory has it's own child directories, |+|
+will be displayed before it's name, and It will cause a little performance
+lost.  If you don't need this feature ,set the following variable to zero can
+disable it.
+>
+    let VEConf_showFolderStatus = 0
+<
+There are some differences between win32 and other platforms. In win32, there
+are several root nodes (such as C:\,D:\), but one root node (/) in other
+platforms.
+
+3.2  File Browsing                              *VimExplorer-filebrowse*
+
+The file panel consist of two parts: the path in the top and the following
+file list. Every line of the file list consist from the following regions:
+
+[*] {file-name}         [file-size] {permission} {modify-time}
+
+The file panel can sort by type, file name and date. Hotkey |i| is used to
+cycle between these modes. Default sort mode controlled by following variable:
+>
+    VEConf_filePanelSortType
+
+<
+See Customization section for more details.
+
+3.3  Forward and Backward                       *VimExplorer-forbackward*
+
+When using "Enter" switch to an new folder, the path will be add to browse
+history. Then you can use |<c-o>| and |<c-i>| to go backward and forward.
+Hotkey |b| is used to list all browse history, select by number or mouse can
+take you directory to that path.
+
+By default, the depth of browse history is 100. Controled by this variable:
+>
+    VEConf_browseHistory
+<
+
+3.4  Favorites                                  *VimExplorer-favorite*
+
+The favorite folder list is saved to the file $HOME/.ve_favorite . It will be
+updated when new folder is added to favorite by hotkey |F|. The format of
+".ve_favorite" is very simple: every line is a path, so edit it is quite
+easy.
+
+3.5  Temp Marks                                 *VimExplorer-tempmark*
+
+Just like the favorites, |ma| put current path into register 'a', and |'a| can
+jump to the path. |J| is used to list every non empty register. All paths in
+register will disappear after VimExplorer exists.
+
+==============================================================================
+4.  Marks                                       *VimExplorer-mark*
+
+The simplest way is to press <space> upon a file. There will be a '*' before
+marked files and also be displayed in a different color.
+There are three way to mark files:
+
+4.1  Single File Marks                          *VimExplorer-marksingle*
+
+<space>    Invert selection, move the cursor down.
+<s-space>  Move the cursor up, then invert selection.
+Just like most of vim commands, 5<space> will mark 5 files start from current
+cursor.
+
+4.2  Visual Marks                               *VimExplorer-markvisual*
+
+<space> in visual mode will invert selected these files.
+
+4.3  Regexp Marks                               *VimExplorer-markregexp*
+
+Hotkey: |Mr|
+Only the file name is the target of regexp match. Example:
+>
+    Mark file (regexp): ^abc.*\.vim$
+<
+It will mark all vim scripts start with abc. The following functionalities is
+derived from this feature:
+|Mv|  mark all vim scripts.
+|Me|  mark all executable files.
+|Md|  mark all directories.
+and |Mc| to clear all marks.
+
+==============================================================================
+5.  File Operations                             *VimExplorer-fileoperation*
+
+5.1  Create                                     *VimExplorer-new*
+
+|+f| and |+d| is used to create new files and directories.
+
+5.2  Move                                       *VimExplorer-move*
+
+There are several hotkey used to copy/cut files:
+|yy| and |sy| in normal mode ,|y| in visual mode is to copy file.
+|xx| and |sx| in normal mode ,|x| in visual mode is to cut file.
+|p| paste file.
+Note that the clipboard is shared between all VimExplorers ,you can cut in one
+VE tab and paste in another.
+If you want to view the clipboard, |yl| can be help.
+
+5.3  Delete                                     *VimExplorer-delete*
+
+|dd| in normal mode and |d| in visual mode. Feel good?
+
+5.4  Diff                                       *VimExplorer-diff*
+
+|=| is used to diff 2 files, so make sure you have selected 2 files before
+using this command.
+
+5.5  Search                                     *VimExplorer-search*
+
+Just like / ,but the pattern here is not the regexp in vim, it will be
+expended by shell.
+
+5.6  Other Operations                           *VimExplorer-otherfileopt*
+
+|e| |R| |u| and so on ... Refer to section 2.2
+
+==============================================================================
+6.  Other Functionalities                       *VimExplorer-otherfuncs*
+
+|;r| |;c| |;e| and so on ...Rever to section 2.2
+
+==============================================================================
+7.  Customization                               *VimExplorer-customize*
+
+7.1  Normal Options                             *VimExplorer-custnormal*
+
+Common Options~
+
+|g:VEConf_systemEncoding|           It controls the encoding of vim calling
+                                    function system(). If your system encoding
+                                    is different from '&encoding', set this
+                                    value to system encoding.  Example: let
+                                    g:VEConf_systemEncoding = 'utf-8'
+                                    ,Default: '' (empty)
+
+|g:VEConf_win32Disks|               The default value is all 26 volumes. Set this
+                                    value to fit your system can increase the
+                                    startup speed. If you are not using
+                                    Microsoft Windows, ignore it.  Example:
+                                    let VEConf_win32Disks =
+                                    ["A:","B:","C:","D:"]
+
+|g:VEConf_browseHistory|            Depth of browse history.  Default: 100
+
+|g:VEConf_previewSplitLocation|     Split location of preview panel. Optional
+                                    parameters are:
+                                    "belowright","topleft","leftabove","botright".
+                                    Default: "belowright"
+
+|g:VEConf_showHiddenFiles|          Show hidden files, 1: show,0: hide. Default: 1
+
+|g:VEConf_externalExplorer|         Name of the external file explorer. You can
+                                    set this value according to you system.
+                                    Default: "explorer.exe"(win32) "nautilus"
+                                    (gnome)
+
+|g:VEConf_sortCaseSensitive|        0: not case sensitive  1: case sensitive
+                                    Default: 1
+
+|g:VEConf_favorite|                 Favorite folder file name. Always stored in
+                                    $HOME.  Default: ".ve_favorite"
+
+|g:VEConf_overWriteExisting|        Ask when over write existing files.
+                                    0: ask  1: always over write  2: always
+                                    not over write Default: 0
+
+|g:VEConf_usingKDE|                 If set to 1, use "kfmclient"
+|g:VEConf_usingGnome|               If set to 1, use "gnome-open"
+
+Tree Panel Options~
+
+|g:VEConf_showFolderStatus|         It controls show '+' before the folders which
+                                    have their own child folders. If it is set
+                                    to 1, every folder will have a '+'.
+                                    Default: 1
+
+|g:VEConf_treePanelWidth|           Width of tree panel. Default: 30
+
+|g:VEConf_treePanelSplitMode|       Split mode of tree panel. Default: "vertical"
+
+|g:VEConf_treePanelSplitLocation|   Split location of tree panel, Optional
+                                    parameters: "belowright" , "topleft" ,
+                                    "leftabove" , "botright", Default:
+                                    "leftabove"
+
+|g:VEConf_treeSortDirection|        Sort direction. 1: A-Z  0: Z-A. Default: 1
+
+File Panel Options~
+
+|g:VEConf_fileGroupSortDirection|   Sort direction. 1: A-Z  0: Z-A, Default: 1
+
+|g:VEConf_fileDeleteConfirm|        Confirm when deleting a file. 1: confirm  2:
+                                    no confirm. Default: 1
+
+|g:VEConf_filePanelWidth|           Width of file panel. Default: 40
+
+|g:VEConf_filePanelSplitMode|       Split mode of file panel. Default: "vertical"
+
+|g:VEConf_filePanelSplitLocation|   Split location of file panel, Optional
+                                    parameters: "belowright" , "topleft" ,
+                                    "leftabove" , "botright" ,Default:
+                                    "leftabove"
+
+|g:VEConf_filePanelSortType|        File sort type. 1: sort by name  2: sort by
+                                    time  3: sort by type, Default: 3
+
+|g:VEConf_showFileSizeInMKB|        1: Show file size in MKB format. 0: always
+                                    show file size in byte.
+
+|g:VEConf_filePanelFilter|          Filter of the file panel, which will be
+                                    passed to glob() function. Example:
+                                    let g:VEConf_filePanelFilter = '*.txt'
+
+7.2  Hotkey Customization                       *VimExplorer-custhotkey*
+
+All user defined hotkeys are controlled by the two dicts:
+|g:VEConf_treeHotkey|    and    |g:VEConf_fileHotkey|
+Example:
+>
+    let g:VEConf_treeHotkey = {}
+    let g:VEConf_treeHotkey.help = '??'
+    let g:VEConf_treeHotkey.quitVE = 'qq'
+    let g:VEConf_treeHotkey.switchPanel = '<s-tab>'
+<
+All definable hotkeys and their default bindings refer to section 2 .
+
+7.3.  Command Customization                     *VimExplorer-custcommand*
+
+VimExplorer supports three types of command interface:
+single file hotkeys and actions, multi file hotkeys and actions and normal
+hotkeys and actions.
+They are controlled by these variables:
+
+    |VEConf_singleFileActions|    |VEConf_singleFileHotKeys|
+
+    |VEConf_multiFileActions|     |VEConf_multiFileHotKeys|
+
+    |VEConf_normalActions|        |VEConf_normalHotKeys|
+
+All of them are dicts. Example:
+>
+    let VEConf_normalActions = {}
+    let VEConf_normalHotKeys = {}
+    let VEConf_normalHotKeys['test1'] = 'T1'
+    function! VEConf_normalActions['test1']()
+        Renamer
+    endfunction
+<
+"test1" is the key. VimExplorer will bind the hotkey and corresponding actions
+automatically.
+>
+    let VEConf_singleFileActions = {}
+    let VEConf_singleFileHotKeys = {}
+    let VEConf_singleFileHotKeys['test2'] = 'T2'
+    function! VEConf_singleFileActions['test2'](path)
+        call VEPlatform.system("notepad.exe " . VEPlatform.escape(a:path))
+    endfunction
+<
+Here, parameter "path" is the path of file under cursor.
+>
+    let VEConf_multiFileActions = {}
+    let VEConf_multiFileHotKeys = {}
+    let VEConf_multiFileHotKeys['test3'] = 'T3'
+    function! VEConf_multiFileActions['test3'](fileList)
+        for i in a:fileList
+            call VEPlatform.start("nautilus " . i)
+        endfor
+    endfunction
+<
+Parameter "fileList" consists of all paths of marked files.
+In addition, VimExplorer provides some platform independent functions:
+>
+    VEPlatform.start(path)
+    VEPlatform.system(cmd)
+    VEPlatform.copyfile(filename,topath)
+    VEPlatform.search(filename,path)
+    VEPlatform.deleteSingle(path)
+<
+These functions can be used in user defined actions.
+
+
+
+
+==============================================================================
+8.  The Author                                  *VimExplorer-author*
+
+If you found a bug, or have some suggestions , mail me.
+
+mail: mbbill<AT>gmail<Dot>com
+
+==============================================================================
+9.  Problems and Fixes                          *VimExplorer-problems*
+
+                                                *VimExplorer-p1*
+P1.  Case sensitive in Win32.
+     At present, the path in win32 is case sensitive. Pay attention to this
+     when starting VE, editing the favorite list or using <c-g> to change
+     path. A good suggestion is using <tab> or <ctrl-d> to complete path
+     automatically.
+
+                                                *VimExplorer-p2*
+P2.  'wildignre' option cause some files disappeared.
+     If 'wildignore' is not empty, glob() function will not return files
+     matching the file pattern listed in it, then you may find some files
+     disappeared in the file panel.
+
+
+
+==============================================================================
+10. Changelog                                   *VimExplorer-changelog*
+
+0.95
+    -   Initial release.
+
+0.96
+    -   Bug fix: VE_normalAction not found.
+
+0.97
+    -   Change the behaviour of hotkey 'F', now it adds the path under cursor to
+        favorite list. If no path under cursor, use current working path
+        instead.(Thanks to Vincent Wang)
+    -   Bug fix: escape ' %#' for path.
+    -   Add options |g:VEConf_usingKDE| and |g:VEConf_usingGnome| for starting
+        program in *nix environment.
+    -   Check if the script is already loaded, thanks to Dennis Hostetler.
+    -   Change default g:VEConf_systemEncoding to '' (empty).
+    -   Bug fix: favorite selection out of range.
+0.98
+    -   Add option VEConf_filePanelFilter.
+    -   Bug fix: Escape <space> in command 'e' 'se' 'u' and '='.
+    -   Bug fix: 'Cut' and 'Paste' command causes file lost.
+    -   Change the default hotkey 'M' and 'B' to 'm','J'.
+    -   Change forward and backward hotkey to |<c-o>| and |<c-i>|(<tab>).
+    -   Change hotkey |<tab>| to |<c-tab>|.
+    -   Change hotkey |mr| |mv| |md| |me| |mc| to |Mr| |Mv| |Md| |Me| |Mc|.
+    -   When GUI is running, use confirm() to pop a dialog instead of input().
+
+==============================================================================
+11. TODO                                        *VimExplorer-todo*
+    -   More clipboard.
+    -   Diff files in different directories.
+    -   Remember the cursor place when switch between directories.
+    -   Two panel mode, just like TotalCommand.
+    -   Diff directories.
+    -   Browse via e.g. FTP, SCP ... directorys on a server.
+
+==============================================================================
+Note 1:
+Renamer is a good plugin used to rename files. The author is John Orr. It can
+be found here:
+http://www.vim.org/scripts/script.php?script_id=1721
+
+
+
+ vim:tw=78:ts=8:ft=help:norl:

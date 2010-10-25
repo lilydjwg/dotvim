@@ -1,0 +1,26 @@
+\documentclass[a4paper,11pt,titlepage]{article}
+% \usepackage[margin=4cm]{geometry}
+% \usepackage{CJK}
+\usepackage{CJKutf8}
+% 这个在 hyperref 包中可以用中文标题了
+\usepackage[unicode,pdfborder={0 0 0}]{hyperref}
+% unicode 让标题支持 Unicode
+\begin{document}
+\begin{CJK}{UTF8}{gbsn}
+
+\title{}
+\author{}
+\date{\today}
+\maketitle
+
+\tableofcontents
+% 这里不能有中文
+\clearpage
+
+\section{}
+
+
+\end{CJK}
+\end{document}
+
+% vim:tw=78:fo-=c:isk+=-,'

@@ -1,0 +1,4 @@
+shared
+PHONY
+LDFLAGS
+CFLAGS

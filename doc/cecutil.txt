@@ -1,0 +1,204 @@
+*cecutil.txt*	DrChip's Utilities				Sep 04, 2007
+
+Author:  Charles E. Campbell, Jr.  <NdrOchip@ScampbellPfamily.AbizM>
+	  (remove NOSPAM from Campbell's email first)
+Copyright: (c) 2004-2006 by Charles E. Campbell, Jr.	*cecutil-copyright*
+           The VIM LICENSE applies to cecutil.vim and cecutil.txt
+           (see |copyright|) except use "cecutil" instead of "Vim"
+	   No warranty, express or implied.  Use At-Your-Own-Risk.
+
+==============================================================================
+1. Contents					*cecutil* *cecutil-contents*
+
+	1. Contents.................: |cecutil-contents|
+	2. Positioning..............: |cecutil-posn|
+	3. Marks....................: |cecutil-marks|
+	4. Maps.....................: |cecutil-maps|
+	5. History..................: |cecutil-history|
+
+==============================================================================
+2. Positioning				*cecutil-posn*	*cecutil-position*
+
+    let winposn= SaveWinPosn()				*cecutil-savewinposn*
+
+	This operation will save window position in winposn variable and
+	on a (buffer local) b:winposn{} stack.
+
+    call SaveWinPosn()
+
+	This function will save window position in b:winposn{b:iwinposn}
+
+    let winposn= SaveWinPosn(0)
+
+	This operation will _only_ save the window position in winposn variable.
+	Ie. the window position will not appear on the b:winposn{} stack.  You 
+	will then need to use RestoreWinPosn(winposn) to restore to this window
+	position.
+
+    call RestoreWinPosn()				*cecutil-restorewinposn*
+
+	This function call will use the local buffer b:winposn{} stack to
+	restore the last window position saved therein.  It will also
+	pop the stack.
+
+    call RestoreWinPosn(winposn)
+
+	This function call will use the winposn variable and restore
+	the window position accordingly.  It will also search the
+	stack and remove any similar entry from the stack.
+
+			*cecutil-map* *cecutil-cmd* *cecutil-swp* *cecutil-rwp*
+    \swp : save current window position (uses the b:winposn{} stack)
+    :SWP   like \swp, but provided as a command
+
+    \rwp : restore window position      (uses the b:winposn{} stack)
+    :RWP   like \rwp, but provided as a command
+
+==============================================================================
+3. Marks						*cecutil-marks*
+
+    call SaveMark(markname)				*cecutil-savemark*
+    let savemark= SaveMark(markname)
+    SM markname >
+
+		ex. call SaveMark("a")
+		let savemarkb= SaveMark("b")
+		:SM a
+<
+	This function saves a string in the global variable g:savemark_{markname}
+	which contains sufficient information to completely restore the position
+	of a mark.  It also returns that string.
+
+   call RestoreMark(markname)				*cecutil-restoremark*
+   call RestoreMark(savemark)
+
+	This function either takes a single-character string (ex. "a") and uses
+	g:savemark_{markname} to restore the mark position or assumes that
+	the string passed to it is a SaveMark() string (and uses it to restore
+	the mark). >
+
+		ex. call RestoreMark("a")
+		    call RestoreMark(savemarkb)
+		    :RM a
+<
+
+   call DestroyMark(markname)				*cecutil-destroymark*
+
+	The DestroyMark() function completely removes a mark.  It does this
+	by saving the window position, copying line one, putting the
+	to-be-destroyed mark on that new line, deleting the new line, and
+	then restoring the window position.  The windows' modified status
+	is preserved. >
+
+		ex. call DestroyMark("a")
+		    :DM a
+<
+
+==============================================================================
+4.Maps							*cecutil-maps*
+							*cecutil-saveusermaps*
+    call SaveUserMaps(mapmode,maplead,mapchx,suffix)
+
+	This function sets up a script-variable (ie. a variable that can
+	generally be accessed only from within cecutil's own functions;
+	see |s:|) called s:restoremap.  The selected user's maps are appended
+	to this variable; the RestoreUserMaps() (|cecutil-restoreusermaps|)
+	function uses the contents of this variable to restore user maps.
+
+		mapmode	- see :help maparg for its list (see |maparg()|) >
+			  ex. "n" = Normal
+<			  Will now accept an optional leading "u"; if present,
+			  SaveUserMaps() will save and unmap (otherwise, it
+			  will save only)
+		mapchx	- "<something>" handled as a single map item. >
+			  ex. "<left>"
+<       		- "string" a string of single letters which are actually
+			  multiple two-letter maps
+		maplead - the maps are assumed to have the form >
+				maplead . each_character_in_string
+<			  ex. maplead="\" and mapchx="abc" saves mappings for >
+			    \a, \b, and \c
+<			  Of course, if maplead is "", then for mapchx="abc",
+			  mappings for just a, b, and c are saved.
+			- :something  handled as a single map item, w/o the ":" >
+			  ex.  mapchx= ":abc"
+<			  will save the user mapping for "abc"
+		suffix  - a string unique to your plugin >
+			  ex.  suffix= "DrawIt"
+<
+	Some examples follow: >
+
+		call SaveUserMaps("n","","webWEBjklh$0%;,nN","HiMtchBrkt")
+<		normal mode maps for w, e, b, W, E, B, j, k, l, etc
+		(if any) are all saved in the variable
+		s:restoremaps_HiMtchBrkt >
+
+		call SaveUserMaps("n","","<up>","DrawIt")
+<		the normal mode map (if any) for the <up> key is saved in
+		the variable s:restoremaps_DrawIt >
+
+		call SaveUserMaps("n","",":F(","HiMtchBrkt")
+<		the normal mode map for F( (if any) is saved in the
+		variable s:restoremaps_HiMtchBrkt
+
+    call RestoreUserMaps(suffix)
+
+    	The usermaps saved by SaveUserMaps() with the given suffix will be
+	restored (ie. s:restoremaps_{suffix}).  Example: >
+
+		call RestoreUserMaps("HiMtchBrkt")
+<		will restore all user maps redefined for the HiMtchBrkt plugin
+
+
+==============================================================================
+5. History						*cecutil-history* {{{1
+
+	v17 Sep 04, 2007 : * new function, QArgSplitter(), included
+	v16 Oct 30, 2006 : * com -> com! so AsNeeded is happier
+	    Feb 12, 2007   * fixed a bug where :somemap (a map of "somemap")
+			     did not use the optional mapleader (so it'd be
+			     a map of "\somemap", if "\" is the mapleader).
+			     (problem pointed out by Michael Zhang)
+	v15 Jan 25, 2006 : * bypass for report option for DestroyMark() included
+	                   * SaveWinPosn() and RestoreWinPosn() now handle an
+			     empty buffer
+			   * b:(varname) now use b:cecutil_(varname)
+			   * map restoration improved
+	v14 Jan 23, 2006 : * bypasses for si, so, and siso options included
+	    Jan 25, 2006   * SaveUserMaps' mapmode argument, heretofore just
+	                     a single letter (see |maparg()|), now accepts a
+			     leading "u".  If present, SaveUserMaps() will
+			     do an unmap.
+	v13 Jan 12, 2006 : * SaveUserMaps() was saving user maps but then also
+	                     unmap'ing them.  HiMtchBrkt needed to append a
+	                     function call to maps, not overwrite them.  So
+	                     the new SaveUserMaps() just saves user maps,
+	                     leaving their definitions in place.
+	   Jan 18, 2006    * keepjumps used to avoid jumplist changes when
+	                     using SaveWinPosn() and RestoreWinPosn()
+	v12 Dec 29, 2005 : * bugfix (affected Mines.vim)
+	v11 Dec 29, 2005 : * two new functions (SaveUserMaps() and
+	                     RestoreUserMaps() )
+	v10 Nov 22, 2005 : * SaveWinPosn bugfix
+	v9  Jun 02, 2005 : * <q-args> produces a "" argument when there are
+	                     no arguments, which caused difficulties.  Fixed.
+	v8  Apr 22, 2005 : * <q-args> used to handle marknames with commands
+	                     Thus, :DM a  will delete mark a
+	v7  Mar 10, 2005 : * removed zO from saved window position; caused
+	                     problems with ftplugin/currfunc.vim
+	                   * doing a SWP and RWP on an empty buffer produced
+	                     "empty buffer" messages; now these are ignored
+	    Apr 13, 2005   * command (SWP RWP MP SP etc) now have -bar so
+	                     that the "|" can be used to chain such commands
+	v6  Feb 17, 2005 : * improved SaveMark() and RestoreMark()
+	v5  Jan 18, 2005 : * s:loaded_winposn changed to g:loaded_cecutil
+	v4  Oct 25, 2004 : * changed com! to com so that error messages will
+	                     be given when there's a command-name conflict
+	v3  May 19, 2004 : * bugfix: the sequence \swp\rwp wasn't working right
+	                   * bugfix: \swp...\rwp was echoing the current
+	                     line when the \rwp should've been silent
+	                   * improved Dfunc/Decho/Dret debugging
+
+
+==============================================================================
+vim:tw=78:ts=8:ft=help:fdm=marker

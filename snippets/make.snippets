@@ -1,0 +1,12 @@
+snippet o
+	${1:file}: $1.o
+		$(CC) $(CFLAGS) $(LIBS) $< -o $@
+	${2}
+snippet c
+	${1:file}.o: $1.c
+		$(CC) $(CFLAGS) -c $<
+	${2}
+snippet sc
+	${1:file}.so: $1.c
+		$(CC) $(CFLAGS) -shared $< -o $@
+	${2}
