@@ -361,6 +361,7 @@ set guioptions=acit
 if v:lang =~ '^zh'
   set helplang=cn
 endif
+set keywordprg=:help
 set mousemodel=popup
 " 没必要，而且很多时候 = 表示赋值
 set isfname-==
