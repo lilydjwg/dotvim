@@ -772,6 +772,8 @@ function! s:Grep(bang,arg) abort
   try
     execute cd.'`=s:repo().tree()`'
     let &grepprg = s:repo().git_command('--no-pager', 'grep', '-n')
+    " 有时指定 --git-dir 会没有输出
+    let &grepprg = substitute(&grepprg, '--git-dir=\S\+\s', '', '')
     let &grepformat = '%f:%l:%m'
     exe 'grep! '.escape(matchstr(a:arg,'\v\C.{-}%($|[''" ]\@=\|)@='),'|')
     let list = getqflist()
