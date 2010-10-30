@@ -1,4 +1,5 @@
 parentsUntil
+removeClass
 getJSON
 addClass
 prependTo
