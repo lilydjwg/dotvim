@@ -399,7 +399,6 @@ if Lilydjwg_haswin32()
   let g:undodir = expand("$TMP/vimundo")
   let g:vimfiles = expand("$VIM/vimfiles")
   set errorfile=$TMP/error
-  nmap <F8> :mks! $VIM/
   " Win 程序 [[[3
   "   用默认的程序打开文件
   nmap <C-S-F5> :!"%"<CR>
@@ -411,7 +410,6 @@ else
   let g:undodir = expand("~/tmpfs/.vimundo")
   let g:vimfiles = expand("~/.vim")
   set errorfile=~/tmpfs/error
-  nmap <F8> :mks! ~/temp/
   let my_diary_file = expand('~/private/diary/2010.rj')
   cmap <C-T> ~/tmpfs/
   " cron 的目录不要备份
@@ -480,6 +478,7 @@ nmap <F4> :ls<CR>:buffer
 nmap <F6> :cnext<CR>
 nmap <S-F6> :cprevious<CR>
 nmap <silent> <F9> :enew<CR>
+nmap <F8> :GundoToggle<CR>
 nmap <F11> :next<CR>
 nmap <S-F11> :previous<CR>
 nmap <S-F12> :!ctags -R --c++-kinds=+p --fields=+iaS --extra=+q .<CR>
