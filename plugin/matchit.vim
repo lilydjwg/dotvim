@@ -1,1 +1,1 @@
-/usr/share/vim/vim72/macros/matchit.vim
+/usr/local/share/vim/vim73/macros/matchit.vim
