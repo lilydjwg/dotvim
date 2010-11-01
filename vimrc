@@ -478,7 +478,7 @@ nmap <F4> :ls<CR>:buffer
 nmap <F6> :cnext<CR>
 nmap <S-F6> :cprevious<CR>
 nmap <silent> <F9> :enew<CR>
-nmap <F8> :GundoToggle<CR>
+nmap <silent> <F8> :GundoToggle<CR>
 nmap <F11> :next<CR>
 nmap <S-F11> :previous<CR>
 nmap <S-F12> :!ctags -R --c++-kinds=+p --fields=+iaS --extra=+q .<CR>
