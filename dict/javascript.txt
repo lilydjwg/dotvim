@@ -1,4 +1,5 @@
 document
+Array
 getTime
 FileReader
 clearTimeout
