@@ -1,3 +1,4 @@
+scriptencoding utf-8
 " ========================================================================
 " 依云(lilydjwg) 的 vimrc
 " 我的博客： http://lilydjwg.is-programmer.com/
@@ -386,16 +387,8 @@ endif
 " Linux 与 Windows [[[2
 if Lilydjwg_haswin32()
   let g:LustyExplorerSuppressRubyWarning = 1
-  " Win 编码 [[[3
-  set shellslash
-  set encoding=utf-8
-  set fileencoding=cp936
-  language messages zh_CN.UTF-8
-  set termencoding=cp936
-  set langmenu=chinese_gb.936
-  source $VIMRUNTIME/delmenu.vim
-  source $VIMRUNTIME/menu.vim
   " Win 路径 [[[3
+  set shellslash
   let g:undodir = expand("$TMP/vimundo")
   let g:vimfiles = expand("$VIM/vimfiles")
   set errorfile=$TMP/error

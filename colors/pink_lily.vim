@@ -1,3 +1,4 @@
+scriptencoding utf-8
 " 本配色方案由 gui2term.py 程序增加彩色终端支持。
 " Colorscheme created with ColorSchemeEditor v1.2.2
 " Name: pink
