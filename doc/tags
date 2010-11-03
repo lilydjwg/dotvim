@@ -111,6 +111,7 @@ EnhancedCommentify()	EnhancedCommentify.txt	/*EnhancedCommentify()*
 ExtractSnips()	snipMate.txt	/*ExtractSnips()*
 ExtractSnipsFile()	snipMate.txt	/*ExtractSnipsFile()*
 Filename()	snipMate.txt	/*Filename()*
+FinishRecovery	recoverPlugin.txt	/*FinishRecovery*
 Gundo-contents	gundo.txt	/*Gundo-contents*
 GundoBugs	gundo.txt	/*GundoBugs*
 GundoChangelog	gundo.txt	/*GundoChangelog*
@@ -136,6 +137,9 @@ OmniCpp_SelectFirstItem	omnicppcomplete.txt	/*OmniCpp_SelectFirstItem*
 OmniCpp_ShowAccess	omnicppcomplete.txt	/*OmniCpp_ShowAccess*
 OmniCpp_ShowPrototypeInAbbr	omnicppcomplete.txt	/*OmniCpp_ShowPrototypeInAbbr*
 OmniCpp_ShowScopeInAbbr	omnicppcomplete.txt	/*OmniCpp_ShowScopeInAbbr*
+RecoverPlugin-misc	recoverPlugin.txt	/*RecoverPlugin-misc*
+RecoverPluginFinish	recoverPlugin.txt	/*RecoverPluginFinish*
+RecoverPluginHelp	recoverPlugin.txt	/*RecoverPluginHelp*
 ResetSnippets()	snipMate.txt	/*ResetSnippets()*
 Tlist_Get_Tag_Prototype_By_Line()	taglist.txt	/*Tlist_Get_Tag_Prototype_By_Line()*
 Tlist_Get_Tagname_By_Line()	taglist.txt	/*Tlist_Get_Tagname_By_Line()*
@@ -681,6 +685,11 @@ omnicppcomplete	omnicppcomplete.txt	/*omnicppcomplete*
 omnicppcomplete.txt	omnicppcomplete.txt	/*omnicppcomplete.txt*
 pi_netrw.txt	pi_netrw.txt	/*pi_netrw.txt*
 rcp	pi_netrw.txt	/*rcp*
+recover-feedback	recoverPlugin.txt	/*recover-feedback*
+recover-history	recoverPlugin.txt	/*recover-history*
+recover-manual	recoverPlugin.txt	/*recover-manual*
+recover.vim	recoverPlugin.txt	/*recover.vim*
+recoverPlugin	recoverPlugin.txt	/*recoverPlugin*
 rsync	pi_netrw.txt	/*rsync*
 s:netrw_passwd	pi_netrw.txt	/*s:netrw_passwd*
 scp	pi_netrw.txt	/*scp*
