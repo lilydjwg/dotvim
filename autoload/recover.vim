@@ -2,7 +2,7 @@
 " ---------------------------------------------------------------
 " Author: Christian Brabandt <cb@256bit.org>
 " Version: 0.11
-" Last Change: Thu, 21 Oct 2010 22:57:10 +0200
+" Last Change:  2010-11-03
 " Script:  http://www.vim.org/scripts/script.php?script_id=3068
 " License: VIM License
 " GetLatestVimScripts: 3068 9 :AutoInstall: recover.vim
@@ -40,12 +40,14 @@ endfu
 
 fu! recover#ConfirmSwapDiff() "{{{1
 	call inputsave()
-	let p = confirm("Swap File found: Diff buffer? ", "&Yes\n&No")
+	let p = confirm("Swap File found: Diff buffer? ", "&Yes\n&No\n&Delete", 2)
 	call inputrestore()
 	if p == 1
 	    let v:swapchoice='r'
 	    let b:swapname=v:swapname
 	    call recover#AutoCmdBRP(1)
+	elseif p == 3
+	    let v:swapchoice='d'
 	endif
 endfun
 
