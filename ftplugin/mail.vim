@@ -1,10 +1,11 @@
 " Vim script file
 " FileType:     mail
 " Author:       lilydjwg <lilydjwg@gmail.com>
-" Last Change:  2010-10-19
+" Last Change:  2010-11-06
 
 setlocal tw=70
 setlocal formatoptions=tcroqn2mM1
+setlocal foldmethod=syntax
 
 imap <buffer> <BS> <C-R>=Lilydjwg_checklist_bs('\v^\>+ +$')<CR>
 
