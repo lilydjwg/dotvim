@@ -598,7 +598,7 @@ endif
 " .vimrc 有可能是软链接
 exe 'command Set tabe ' . resolve($MYVIMRC)
 " 删除当前文件
-command Delete call delete(expand('%'))
+command Delete call delete(expand('%'))|bd
 command -range AP <line1>,<line2>call Lilydjwg_AP()
 " TODO better implement
 command -range=% ClsXML <line1>,<line2>!tidy -utf8 -iq -xml
