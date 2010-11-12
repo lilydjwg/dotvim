@@ -16,6 +16,7 @@ try
   source $VIMRUNTIME/vimrc_example.vim
 catch
 endtry
+runtime macros/matchit.vim
 "]]]
 " 我的设置
 " 函数[[[1
