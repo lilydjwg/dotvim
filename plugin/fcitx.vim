@@ -1,14 +1,14 @@
-﻿" fcitx.vim  记住插入模式小企鹅输入法的状态
+" fcitx.vim  记住插入模式小企鹅输入法的状态
 " Author:       lilydjwg
 " Maintainer:   lilydjwg
-" Last Change:  2010年2月25日
+" Last Change:  2010-11-15
 " ---------------------------------------------------------------------
 " Load Once:
 if (has("win32") || has("win95") || has("win64") || has("win16"))
   " Windows 下不要载入
   finish
 endif
-if &cp || exists("g:loaded_fcitx")
+if &cp || exists("g:loaded_fcitx") || !executable("fcitx-remote")
   finish
 endif
 let s:keepcpo = &cpo
