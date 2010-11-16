@@ -644,6 +644,7 @@ let tlist_vimwiki_settings = 'wiki;h:headers'
 let tlist_tex_settings = 'latex;h:headers'
 let tlist_wiki_settings = 'wiki;h:headers'
 let tlist_diff_settings = 'diff;f:file'
+let tlist_gitcommit_settings = 'gitcommit;f:file'
 let tlist_privoxy_settings = 'privoxy;s:sections'
 "  来源 http://gist.github.com/476387
 let tlist_html_settings = 'html;h:Headers;o:IDs;c:Classes'
