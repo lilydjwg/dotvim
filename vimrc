@@ -20,6 +20,25 @@ runtime macros/matchit.vim
 "]]]
 " 我的设置
 " 函数[[[1
+"   更改缩进[[[2
+function Lilydjwg_reindent(...)
+  if a:0 != 2
+    echoerr "需要两个参数"
+  endif
+  let save_et = &et
+  let save_ts = &ts
+  try
+    let &ts = a:1
+    set noet
+    retab!
+    let &ts = a:2
+    set et
+    retab!
+  finally
+    let &et = save_et
+    let &ts = save_ts
+  endtry
+endfunction
 "   将当前窗口置于屏幕中间（全屏时用）[[[2
 function CenterFull()
   on
@@ -600,6 +619,7 @@ endif
 exe 'command Set tabe ' . resolve($MYVIMRC)
 " 删除当前文件
 command Delete call delete(expand('%'))
+command -nargs=+ Reindent call Lilydjwg_reindent(<f-args>)
 command -range AP <line1>,<line2>call Lilydjwg_AP()
 " TODO better implement
 command -range=% ClsXML <line1>,<line2>!tidy -utf8 -iq -xml
