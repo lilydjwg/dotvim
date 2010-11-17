@@ -1,7 +1,7 @@
 " EnhancedCommentify.vim
 " Maintainer:	Meikel Brandmeyer <Brandels_Mikesh@web.de>
 " Version:	2.3
-" Last Change:  2010-10-23
+" Last Change:  2010-11-17
 
 " License:
 " Copyright (c) 2008 Meikel Brandmeyer, Frankfurt am Main
@@ -782,7 +782,7 @@ function s:GetFileTypeSettings(ft)
 		\ 'psf\|ptcap\|r\|radiance\|ratpoison\|readline\remind\|'.
 		\ 'ruby\|screen\|sed\|sm\|snnsnet\|snnspat\|snnsres\|spec\|'.
 		\ 'squid\|terminfo\|tidy\|tli\|tsscl\|vgrindefs\|vrml\|'.
-		\ 'fstab\|' .
+		\ 'fstab\|privoxy\|' .
 		\ 'wget\|wml\|xf86conf\|xmath\|nginx\|gas\|debsources\)$'
 	let b:ECcommentOpen = '#'
 	let b:ECcommentClose = ''
