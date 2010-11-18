@@ -530,6 +530,7 @@ function! s:RunGrepRecursive(cmd_name, grep_cmd, action, ...)
             return
         endif
     endif
+    let g:Grep_Default_Filelist = filepattern
 
     let txt = filepattern . ' '
     let find_file_pattern = ''
@@ -774,6 +775,7 @@ function! s:RunGrep(cmd_name, grep_cmd, action, ...)
             return
         endif
     endif
+    let g:Grep_Default_Filelist = filenames
 
     " Add /dev/null to the list of filenames, so that grep print the
     " filename and linenumber when grepping in a single file
