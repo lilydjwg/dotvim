@@ -1,6 +1,6 @@
 CC=gcc
-CFLAGS=-g -Wall -I$(HOME)/scripts/c/include
-LDFLAGS=-lpthread
+CFLAGS=-g -Wall
+LDFLAGS=
 
 .PHONY: all clean
 
