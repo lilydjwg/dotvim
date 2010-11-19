@@ -1,4 +1,5 @@
 BufRead
+omnifunc
 shell_error
 SignColumn
 PreProc
