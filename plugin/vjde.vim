@@ -159,17 +159,17 @@ if v:version>=700
     "au BufNewFile,BufRead,BufEnter *.htm set cfu=VjdeHTMLFun0 | let g:vjde_tag_loader=VjdeTagLoaderGet("html",g:vjde_install_path."/vjde/tlds/html.def")
     "au BufNewFile,BufRead,BufEnter *.xsl set cfu=VjdeHTMLFun0 | let g:vjde_tag_loader=VjdeTagLoaderGet("xsl",g:vjde_install_path."/vjde/tlds/xsl.def")
     "au BufNewFile,BufRead,BufEnter *.xsd set cfu=VjdeHTMLFun0 | let g:vjde_tag_loader=VjdeTagLoaderGet("xsl",g:vjde_install_path."/vjde/tlds/xsd.def")
-    au BufNewFile,BufRead,BufEnter *.java set cfu=VjdeCompletionFun0 
+    au BufNewFile,BufRead,BufEnter *.java set omnifunc=VjdeCompletionFun0 
     "| inoremap <buffer> <expr> <f1> VjdeJavaDoc()
 
-    au BufNewFile,BufRead,BufEnter *.jsp set cfu=VjdeCompletionFun0  
+    au BufNewFile,BufRead,BufEnter *.jsp set omnifunc=VjdeCompletionFun0  
     "| let g:vjde_tag_loader=VjdeTagLoaderGet("html",g:vjde_install_path."/vjde/tlds/html.def")
 
     "au! CursorHold *.java nested call java_previewer.CFU()
 
     for item in split(g:vjde_jsp_exts,';')
 	    if strlen(item)==0 | continue | endif
-	    exec 'au BufNewFile,BufRead,BufEnter *.'.item.' set cfu=VjdeCompletionFun0 '
+	    exec 'au BufNewFile,BufRead,BufEnter *.'.item.' set omnifunc=VjdeCompletionFun0 '
             exec 'au BufNewFile,BufRead,BufEnter *.'.item.' imap <buffer> '.g:vjde_completion_key.' <Esc>:call java_previewer.CFU(":")<CR>a'
             exec 'au BufNewFile,BufRead,BufEnter *.'.item.' set ft=jsp'
     endfor
