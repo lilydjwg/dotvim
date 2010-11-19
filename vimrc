@@ -603,7 +603,7 @@ vmap <C-j> :m'>+<cr>`<my`>mzgv`yo`z
 vmap <C-k> :m'<-2<cr>`>my`<mzgv`yo`z
 " 自动命令[[[1
 "   自动关闭预览窗口（不能用在命令窗口，所以指定了文件类型）
-autocmd InsertLeave	*.c,*.cpp,*.h,*.php,*.py,scripts/py/* if pumvisible() == 0|pclose|endif
+autocmd InsertLeave	*.c,*.cpp,*.h,*.php,*.py,*.java,scripts/py/* if pumvisible() == 0|pclose|endif
 autocmd VimEnter,ColorScheme	* call Lilydjwg_remark()
 autocmd BufReadCmd *.maff call zip#Browse(expand("<amatch>"))
 "   见 ft-syntax-omni
