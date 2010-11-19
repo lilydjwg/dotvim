@@ -1,9 +1,10 @@
 " Vim script file
 " FileType:     Java
 " Author:       lilydjwg <lilydjwg@gmail.com>
-" Last Change:  2010年2月3日
+" Last Change:  2010-11-19
 
 " ---------------------------------------------------------------------
+inoremap <buffer> <silent> . .<C-X><C-O>
 " 编译/运行设定
 compiler javac
 nmap <buffer> <silent> <C-CR> :update<CR>:make %<CR>
