@@ -1,4 +1,12 @@
 ActionEvent
+JPanel
+GridLayout
+Object
+JTable
+Dimension
+setPreferredScrollableViewportSize
+setFillsViewportHeight
+JScrollPane
 ActionListener
 Applet
 Boolean
