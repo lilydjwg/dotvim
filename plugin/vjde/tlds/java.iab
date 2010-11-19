@@ -1,0 +1,121 @@
+// Note: I will put the cursor on the first '|'
+// class header {{{1
+template fora ; for loop with array
+body
+for ( int i = 0 ; i <  |.length ; i++ ) {
+	
+}
+endt
+template forae ; for loop with array,loop variable
+parameter loopvar ; loop variable
+body
+for ( int %{loopvar} = 0 ; %{loopvar} <  |.length ; %{loopvar}++ ) {
+	
+}
+endt
+template fore ; for loop with each
+parameter vartype ; type of the element
+body
+for ( %{vartype} item : | ) {
+}
+endt
+template foren ; for loop with Enumeration
+parameter vartype ;the type of the element
+body
+for ( Enumeration elements = |.elements() ; elements.hasMoreElements();  ) {
+	%{vartype} element = (%{vartype}) elements.nextElement();
+	%{VIM::command('call Vjde_import_check("java.util.Enumeration")')}
+}
+endt
+template forb ; for block
+body
+for ( | ; ; ) {
+}
+endt
+template fori ; for block whith iterator
+param vartype ;the type of each object
+body
+for ( Iterator iter = |.iterator() ; iter.hasNext() ; ) {
+	%{vartype} it = (%{vartype}) iter.next();
+	%{VIM::command('call Vjde_import_check("java.util.Iterator")')}
+}
+endt
+template forie ; for block with iterator with jdk1.5
+param vartype ;the type of each object
+body
+for ( Iterator iter = |.iterator() ; iter.hasNext() ; ) {
+	%{vartype} it =  iter.next();
+	%{VIM::command('call Vjde_import_check("java.util.Iterator")')}
+}
+endt
+template if ; if block
+body
+if ( | ) {
+	
+}
+endt
+template while ; while block
+body
+while ( | ) {
+	
+}
+endt
+template whilee ; while loop for elements
+parameter vartype ;the type of the element
+body
+while (  elements.hasMoreElements()  ) {
+	%{vartype} element = (%{vartype}) elements.nextElement();
+}
+endt
+template do ; do-while block
+body
+do {
+	|
+}while( );
+endt
+template ife ; if block
+body
+if ( | ) {
+}
+else {
+}
+endt
+template try ; try block
+body
+try {
+	|
+}
+catch( ex) {
+	ex.printStackTrace();
+}
+endt
+template tryf ; try - finally block
+body
+try {
+	|
+}
+catch( ex) {
+	ex.printStackTrace();
+}
+finally {
+}
+endt
+template switchb ; switch block
+body
+switch( | ) {
+	case 0:
+		break;
+	default:
+}
+endt
+template sop ; switch block
+body
+System.out.println(|);
+endt
+template sep ; switch block
+body
+System.err.println(|);
+endt
+
+// vim: ft=vjde:fdm=marker
+

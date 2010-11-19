@@ -1,0 +1,86 @@
+private enum BOOLEAN {
+	true,false
+}
+private enum INTEGER {
+}
+private enum STYLE {
+	box-insert,
+	box-paddad,
+	groove-bottom,
+	groove-left,
+	groove-rigth,
+	groove-top,
+	inset,
+	outset,
+	outset-top-bottom
+}
+public tag XUL_Element {
+	attr align {
+	start,center,end,baseline,stretch
+	}
+	attr BOOLEAN allowevents;
+	attr BOOLEAN allownegativeassertions;
+	attr class;
+	attr BOOLEAN coalesceduplicatearcs;
+	attr BOOLEAN collapsed;
+	attr BOOLEAN container;
+	attr containment;
+	attr context;
+	attr contextmenu;
+	attr datasources;
+	attr BOOLEAN debug;
+	attr dir {
+		normal,reverse
+	}
+	attr BOOLEAN empty;
+	attr equalsize {
+		always,never
+	}
+	attr flags {
+		dont-test-empty,dont-build-content
+	}
+	attr INTEGER flex;
+	attr INTEGER height;
+	attr BOOLEAN hidden;
+	attr id;
+	attr insertafter;
+	attr insertbefore;
+	attr INTEGER left;
+	attr INTEGER maxheight;
+	attr INTEGER maxwidth;
+	attr menu;
+	attr INTEGER minheight;
+	attr INTEGER minwidth;
+	attr mousethrough {
+		always,never
+	}
+	attr observes;
+	attr ordinal;
+	attr orient {
+		horizontal,vertical
+	}
+	attr pack {
+		start,center,end
+	}
+	attr persist;
+	attr popup;
+	attr position;
+	attr ref;
+	attr removeelement;
+	attr sortDirection {
+		ascending,descending,natural
+	}
+	attr sortResource;
+	attr sortResource2;
+	attr statustext;
+	attr style;
+	attr template;
+	attr tooltip;
+	attr tooltiptext;
+	attr top;
+	attr uri;
+	attr wait;
+-	attr cursor;
+	attr width;
+
+}

@@ -1,0 +1,25 @@
+
+public tag author   { 
+}
+public tag deprecated  { 
+}
+public tag exception  { 
+}
+public tag param  { 
+}
+public tag return  { 
+}
+public tag see  { 
+}
+public tag serial  { 
+}
+public tag serialData  { 
+}
+public tag serialField  { 
+}
+public tag since  { 
+}
+public tag throws  { 
+}
+public tag version  { 
+}

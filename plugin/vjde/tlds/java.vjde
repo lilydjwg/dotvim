@@ -1,0 +1,169 @@
+// class header {{{1
+template ClassHeader
+parameter classname ;the name of class
+body
+\/*
+ * %{classname}.java 1.00 %{Time.now}
+ *
+ * 版权信息
+ */
+endt
+
+//class footer {{{1
+template ClassFooter
+body
+\// vim: ft=java
+endt
+//new class template {{{1
+template NewClass ;this is a new class wizard used template
+parameter classname ;the name of the class
+parameter package ;the name of package
+body
+
+%ClassHeader%
+
+package %{package};
+
+
+\/**
+ * 类注释
+ * @version 1.00 
+ * @author 
+ */
+public class %{classname} {
+	/* 类实现描述 */
+}
+%ClassFooter%
+
+endtemplate
+//new class with main {{{1
+template NewClassWithMain ;this is a new class wizard used template
+parameter classname ;the name of the class
+parameter package ;the name of package
+body
+
+%ClassHeader%
+
+package %{package};
+
+public class %{classname} {
+        public static void main(String[] args) {
+        }
+}
+%ClassFooter%
+endtemplate
+
+// new interface {{{1
+template NewInterface ;new inferface for java
+parameter classname ;the name of the class
+parameter package ;the name of package
+body
+
+%ClassHeader%
+
+package %{package};
+
+public interface %{classname} {
+}
+%ClassFooter%
+
+endt
+
+//new java member {{{1
+template NewMember ;Generate a member field of class
+parameter type ;the type of variable
+parameter name ;variable name
+body
+\   //
+\   private %{type} %{name} ;
+\   /**
+     * get the value of %{name}
+     * @return a %{type} value of %{name}
+     */
+    public %{type} get%{@paras["name"].value[0,1].upcase+@paras["name"].value[1..-1]}() {
+        return %{name};
+    }
+
+\   /**
+     * set a new value to %{name}
+     * @param %{name}
+     */
+    public void set%{paras["name"].value[0,1].upcase+paras["name"].value[1..-1]}(%{type} %{name}_n) {
+        this.%{name} = %{name}_n;
+    }
+
+endtemplate
+template Singleton ; Create singleton functions
+body
+private static %{VIM::evaluate('expand("%:t:r")')} instance = null;
+private %{VIM::evaluate('expand("%:t:r")')}() {
+}
+public synchronized static %{VIM::evaluate('expand("%:t:r")')} getInstance() {
+	if ( instance == null) {
+		instance = new %{VIM::evaluate('expand("%:t:r")')}();
+	}
+	return instance;
+}
+endt
+//junit test case {{{1
+template JUnitTestCase ;
+param testclass ;the name of class for test 
+param classname ;the name of class
+param package ;the name of package
+body
+
+%ClassHeader%
+
+package %{package};
+
+import junit.framework.*;
+\/**
+ *
+ * Test code for class %{testclass} .
+ */
+public class %{classname} extends TestCase {
+	%{testclass} testobj = null;
+	protected void setUp() {
+	}
+	public static TestSuite suite() {
+		/*
+		 * the type safe way
+		 *
+		TestSuite suite= new TestSuite();
+		suite.addTest(
+			new SimpleTest("add") {
+				 protected void runTest() { testAdd(); }
+			}
+		);
+
+		suite.addTest(
+			new SimpleTest("testDivideByZero") {
+				 protected void runTest() { testDivideByZero(); }
+			}
+		);
+		return suite;
+		*/
+
+		/*
+		 * the dynamic way
+		 */
+		return new TestSuite(%{classname}.class);
+	}
+	%{VIM::command('call s:AddMethods()')}
+
+	public static void main (String[] args) {
+		junit.textui.TestRunner.run(suite());
+	}
+}
+
+%ClassFooter%
+endt
+
+// test {{{1
+template Testfor 
+body
+test started2 '  this is a test20 
+{VIM::command('call append(line("$"),"add by vim".expand("%:p")."wfc")')}
+test ended
+endt
+// vim: ft=vjde:fdm=marker
