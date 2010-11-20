@@ -1,4 +1,6 @@
 AF_INET
+cssselect
+rfind
 AF_UNIX
 AssertionError
 AttributeError
