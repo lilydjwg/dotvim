@@ -298,7 +298,7 @@ endfor
 augroup vimwiki
   autocmd!
   for ext in keys(extensions)
-    exe 'autocmd BufEnter *'.ext.' call s:setup_buffer_enter()'
+    exe 'autocmd BufWinEnter *'.ext.' call s:setup_buffer_enter()'
     exe 'autocmd BufLeave,BufHidden *'.ext.' call s:setup_buffer_leave()'
     " lilydjwg: 不要自动设置文件类型；.wiki 不一定是 vimwiki
     " exe 'autocmd BufNewFile,BufRead, *'.ext.' setlocal filetype=vimwiki'
