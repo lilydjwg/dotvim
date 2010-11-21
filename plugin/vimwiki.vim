@@ -289,17 +289,19 @@ for wiki in g:vimwiki_list
   endif
 endfor
 
-augroup filetypedetect
-  " clear FlexWiki's stuff
-  au! * *.wiki
-augroup end
+" lilydjwg: What do you wanna do?
+" augroup filetypedetect
+"  clear FlexWiki's stuff
+"   au! * *.wiki
+" augroup end
 
 augroup vimwiki
   autocmd!
   for ext in keys(extensions)
     exe 'autocmd BufEnter *'.ext.' call s:setup_buffer_enter()'
     exe 'autocmd BufLeave,BufHidden *'.ext.' call s:setup_buffer_leave()'
-    exe 'autocmd BufNewFile,BufRead, *'.ext.' setlocal filetype=vimwiki'
+    " lilydjwg: 不要自动设置文件类型；.wiki 不一定是 vimwiki
+    " exe 'autocmd BufNewFile,BufRead, *'.ext.' setlocal filetype=vimwiki'
 
     " ColorScheme could have or could have not a
     " VimwikiHeader1..VimwikiHeader6 highlight groups. We need to refresh

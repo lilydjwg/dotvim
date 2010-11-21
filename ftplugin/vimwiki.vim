@@ -335,6 +335,8 @@ nnoremap <buffer> O :call vimwiki_lst#kbd_oO('O')<CR>a
 " Table mappings
 if g:vimwiki_table_auto_fmt
   inoremap <expr> <buffer> <Tab> vimwiki_tbl#kbd_tab()
+  " lilydjwg: 更改下键映射，不要占用 snipMate 的 Tab
+  inoremap <expr> <buffer> <Space><Tab> vimwiki_tbl#kbd_tab()
   inoremap <expr> <buffer> <S-Tab> vimwiki_tbl#kbd_shift_tab()
 endif
 
