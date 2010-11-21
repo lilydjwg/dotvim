@@ -2,7 +2,7 @@
 " Description: Highlight several words in different colors simultaneously. 
 "
 " Copyright:   (C) 2005-2008 by Yuheng Xie
-"              (C) 2008-2009 by Ingo Karkat
+"              (C) 2008-2010 by Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'. 
 "
 " Maintainer:  Ingo Karkat <ingo@karkat.de> 
@@ -10,8 +10,18 @@
 " Dependencies:
 "  - SearchSpecial.vim autoload script (optional, for improved search messages). 
 "
-" Version:     2.3.2
+" Version:     2.4.0
 " Changes:
+" 13-Jul-2010, Ingo Karkat
+" - ENH: The MarkSearch mappings (<Leader>[*#/?]) add the original cursor
+"   position to the jump list, like the built-in [/?*#nN] commands. This allows
+"   to use the regular jump commands for mark matches, like with regular search
+"   matches. 
+"
+" 19-Feb-2010, Andy Wokula
+" - BUG: Clearing of an accidental zero-width match (e.g. via :Mark \zs) results
+"   in endless loop. Thanks to Andy Wokula for the patch. 
+"
 " 17-Nov-2009, Ingo Karkat + Andy Wokula
 " - BUG: Creation of literal pattern via '\V' in {Visual}<Leader>m mapping
 "   collided with individual escaping done in <Leader>m mapping so that an
@@ -244,6 +254,9 @@ function! mark#CurrentMark()
 				if b < col(".") && col(".") <= e
 					return [g:mwWord[i], [line("."), (b + 1)]]
 				endif
+				if b == e
+					break
+				endif
 				let start = e
 			endwhile
 		endif
@@ -379,7 +392,20 @@ function! s:Search( pattern, isBackward, currentMarkPosition, searchType )
 	" mark; that's why we exclude a possible wrap-around via v:count1 == 1. 
 	let l:isStuckAtCurrentMark = ([l:line, l:col] == a:currentMarkPosition && v:count1 == 1)
 	if l:line > 0 && ! l:isStuckAtCurrentMark
+		let l:matchPosition = getpos('.')
+
+		" Open fold at the search result, like the built-in commands. 
 		normal! zv
+
+		" Add the original cursor position to the jump list, like the
+		" [/?*#nN] commands. 
+		" Implementation: Memorize the match position, restore the view to the state
+		" before the search, then jump straight back to the match position. This
+		" also allows us to set a jump only if a match was found. (:call
+		" setpos("''", ...) doesn't work in Vim 7.2) 
+		call winrestview(l:save_view)
+		normal! m'
+		call setpos('.', l:matchPosition)
 
 		if l:isWrapped
 			call s:WrapMessage(a:searchType, a:pattern, a:isBackward)
