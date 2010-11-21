@@ -475,12 +475,14 @@ local_markfilelist	pi_netrw.txt	/*local_markfilelist*
 mark-configuration	mark.txt	/*mark-configuration*
 mark-dependencies	mark.txt	/*mark-dependencies*
 mark-description	mark.txt	/*mark-description*
+mark-highlighting	mark.txt	/*mark-highlighting*
 mark-history	mark.txt	/*mark-history*
 mark-ideas	mark.txt	/*mark-ideas*
 mark-installation	mark.txt	/*mark-installation*
 mark-integration	mark.txt	/*mark-integration*
 mark-known-problems	mark.txt	/*mark-known-problems*
 mark-limitations	mark.txt	/*mark-limitations*
+mark-searching	mark.txt	/*mark-searching*
 mark-todo	mark.txt	/*mark-todo*
 mark-usage	mark.txt	/*mark-usage*
 mark.txt	mark.txt	/*mark.txt*

@@ -44,7 +44,7 @@ RELATED WORKS *
 ==============================================================================
 USAGE								  *mark-usage*
 
-Highlighting:
+HIGHLIGHTING 						   *mark-highlighting*
 
 <Leader>m		Mark or unmark the word under the cursor, similar to
 			the |star| command. 
@@ -61,7 +61,8 @@ Highlighting:
 			'smartcase' setting, only 'ignorecase'. 
 :Mark			Clear all marks. 
 
-Searching:
+
+SEARCHING						      *mark-searching*
 
 [count]*         [count]#
 [count]<Leader>* [count]<Leader>#
@@ -90,6 +91,9 @@ Searching:
 			search does not jump to the beginning of the current
 			mark (like the built-in search), but to the previous
 			mark. The entire mark text is treated as one entity. 
+
+			You can use Vim's |jumplist| to go back to previous
+			mark matches and the position before a mark search. 
 
 ==============================================================================
 INSTALLATION						   *mark-installation*
@@ -149,10 +153,27 @@ Taken from an alternative implementation at
 http://vim.wikia.com/wiki/Highlight_multiple_words: 
 - Allow to specify the highlight group number via :Mark [n] {regexp}
 - Use keys 1-9 on the numeric keypad to toggle a highlight group number. 
-- Persist the patterns in a uppercase global variable across Vim sessions. 
+- Persist the patterns in a uppercase global variable across Vim sessions.
+  (Request from Mun Johl, 16-Apr-2010.) 
+  Can be somewhat emulated by placing something like this in |vimrc|: >
+    runtime plugin/mark.vim
+    Mark foo
+    Mark bar
+< or defining a custom command a la: >
+    command -bar MyMarks execute "Mark foo" | execute "Mark bar"
 
 ==============================================================================
 HISTORY								*mark-history*
+
+2.4.0	13-Jul-2010
+- ENH: The MarkSearch mappings (<Leader>[*#/?]) add the original cursor
+  position to the jump list, like the built-in [/?*#nN] commands. This allows
+  to use the regular jump commands for mark matches, like with regular search
+  matches. 
+
+2.3.3	19-Feb-2010
+- BUG: Clearing of an accidental zero-width match (e.g. via :Mark \zs) results
+  in endless loop. Thanks to Andy Wokula for the patch. 
 
 2.3.2	17-Nov-2009
 - BUG: Creation of literal pattern via '\V' in {Visual}<Leader>m mapping
@@ -238,7 +259,8 @@ Last version published by Yuheng Xie on vim.org.
 Initial version published by Yuheng Xie on vim.org. 
 
 ==============================================================================
-Copyright: (C) 2009 by Ingo Karkat
+Copyright: (C) 2005-2008 by Yuheng Xie
+           (C) 2008-2010 by Ingo Karkat
 The VIM LICENSE applies to this script; see|copyright|. 
 
 Maintainer:	Ingo Karkat <ingo@karkat.de>
