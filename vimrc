@@ -475,6 +475,9 @@ else
   endif
 endif
 " 不同的 Vim 版本 [[[2
+if has("conceal")
+  set concealcursor=nc
+endif
 if has("persistent_undo")
   let &undodir=g:undodir
   if !isdirectory(&undodir)
