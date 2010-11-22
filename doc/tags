@@ -29,6 +29,7 @@
 :ColorSchemeEditor	ColorSchemeEditor.txt	/*:ColorSchemeEditor*
 :Explore	pi_netrw.txt	/*:Explore*
 :Hexplore	pi_netrw.txt	/*:Hexplore*
+:HighlightTags	easytags.txt	/*:HighlightTags*
 :Mark	mark.txt	/*:Mark*
 :MatchDebug	matchit.txt	/*:MatchDebug*
 :NetrwClean	pi_netrw.txt	/*:NetrwClean*
@@ -52,6 +53,7 @@
 :TlistUndebug	taglist.txt	/*:TlistUndebug*
 :TlistUnlock	taglist.txt	/*:TlistUnlock*
 :TlistUpdate	taglist.txt	/*:TlistUpdate*
+:UpdateTags	easytags.txt	/*:UpdateTags*
 :VWS	vimwiki.txt	/*:VWS*
 :Vexplore	pi_netrw.txt	/*:Vexplore*
 :Vimwiki2HTML	vimwiki.txt	/*:Vimwiki2HTML*
@@ -319,6 +321,7 @@ cs	surround.txt	/*cs*
 dav	pi_netrw.txt	/*dav*
 davs	pi_netrw.txt	/*davs*
 ds	surround.txt	/*ds*
+easytags.txt	easytags.txt	/*easytags.txt*
 fetch	pi_netrw.txt	/*fetch*
 ftp	pi_netrw.txt	/*ftp*
 fugitive	fugitive.txt	/*fugitive*
@@ -371,6 +374,13 @@ g:bufExplorerSortBy	bufexplorer.txt	/*g:bufExplorerSortBy*
 g:bufExplorerSplitBelow	bufexplorer.txt	/*g:bufExplorerSplitBelow*
 g:bufExplorerSplitOutPathName	bufexplorer.txt	/*g:bufExplorerSplitOutPathName*
 g:bufExplorerSplitRight	bufexplorer.txt	/*g:bufExplorerSplitRight*
+g:easytags_always_enabled	easytags.txt	/*g:easytags_always_enabled*
+g:easytags_autorecurse	easytags.txt	/*g:easytags_autorecurse*
+g:easytags_cmd	easytags.txt	/*g:easytags_cmd*
+g:easytags_file	easytags.txt	/*g:easytags_file*
+g:easytags_include_members	easytags.txt	/*g:easytags_include_members*
+g:easytags_on_cursorhold	easytags.txt	/*g:easytags_on_cursorhold*
+g:easytags_resolve_links	easytags.txt	/*g:easytags_resolve_links*
 g:netrw_alto	pi_netrw.txt	/*g:netrw_alto*
 g:netrw_altv	pi_netrw.txt	/*g:netrw_altv*
 g:netrw_browse_split	pi_netrw.txt	/*g:netrw_browse_split*
