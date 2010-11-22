@@ -1,11 +1,10 @@
 " Vim script file
 " FileType:     git commit
 " Author:       lilydjwg <lilydjwg@gmail.com>
-" Last Change:  2010-11-21
+" Last Change:  2010-11-22
 
 " ---------------------------------------------------------------------
-"  自动排版
-setlocal fo+=a
+"  排版
 setlocal fo-=c
 "  置于第一行
 0
