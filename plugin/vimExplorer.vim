@@ -2,7 +2,7 @@
 " File:         VimExplorer.vim
 " Brief:        VE - the File Manager within Vim!
 " Authors:      Ming Bai <mbbill AT gmail DOT com>
-" Last Change:  2007-08-08 15:17:46
+" Last Change:  2010-11-23
 " Version:      0.98
 " Licence:      LGPL
 "
@@ -1012,7 +1012,7 @@ function! s:VENode.toggle(path)
             let nodeName = matchstr(childPath,'^.\{-}\/')
         endif
         if !has_key(self.childs,nodeName)
-            echoerr "path error"
+            return
         endif
         let self.isopen = 1
         call self.childs[nodeName].toggle(childPath)
@@ -1043,7 +1043,6 @@ function! s:VENode.openPath(path)
             call self.updateNode()
         endif
         if !has_key(self.childs,nodeName) "refreshed and still can not find the path.
-            echoerr "Path error!"
             return
         else
             let self.isopen = 1
