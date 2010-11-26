@@ -365,6 +365,7 @@ else
 endif
 " set 相关[[[1
 "   一般设置[[[2
+set softtabstop=2
 set viminfo='100,:10000,<50,s10,h
 set history=10000
 set wildmenu
