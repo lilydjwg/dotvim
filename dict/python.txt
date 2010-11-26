@@ -1,4 +1,5 @@
 AF_INET
+defaultdict
 cssselect
 rfind
 AF_UNIX
