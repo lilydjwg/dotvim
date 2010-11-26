@@ -9,14 +9,13 @@ setlocal iskeyword+=.
 setlocal iskeyword+=/
 setlocal iskeyword+=:
 
-syn match ngxComment ' *#.*$'
 syn match ngxVariable '\$\w\w*'
 syn match ngxVariableBlock '\$\w\w*' contained
 syn match ngxVariableString '\$\w\w*' contained
-"lilydjwg: # 开头的是注释
-syn region ngxBlock start=+^\(\s*#\)\@!+ end=+{+ contains=ngxDirectiveBlock,ngxVariableBlock,ngxString oneline
+syn region ngxBlock start=+^+ end=+{+ contains=ngxComment,ngxDirectiveBlock,ngxVariableBlock,ngxString oneline
 syn region ngxString start=+"+ end=+"+ skip=+\\\\\|\\"+ contains=ngxVariableString oneline
 syn region ngxString start=+'+ end=+'+ skip=+\\\\\|\\'+ contains=ngxVariableString oneline
+syn match ngxComment ' *#.*$'
 
 syn keyword ngxBoolean on
 syn keyword ngxBoolean off
