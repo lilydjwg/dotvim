@@ -717,6 +717,9 @@ let g:VEConf_showHiddenFiles = 0
 "   不要占用 ' 的映射
 let g:VEConf_fileHotkey = {}
 let g:VEConf_fileHotkey.gotoPlace = '`'
+let g:VEConf_fileHotkey.help = '<F1>'
+let g:VEConf_treeHotkey = {}
+let g:VEConf_treeHotkey.help = '<F1>'
 "   VimIm，不要更改弹出菜单的颜色[[[2
 let g:vimim_menu_color = 1
 "   vimwiki[[[2
