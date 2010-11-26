@@ -1,7 +1,7 @@
 " Vim script file
 " FileType:     C/C++
 " Author:       lilydjwg
-" Last Change:  2009年12月1日
+" Last Change:  2010-11-26
 
 " ---------------------------------------------------------------------
 " Load Once:
@@ -72,6 +72,9 @@ nmap <buffer> <C-CR> :CPP<CR>
 nmap <buffer> <S-F5> :!%:p:r<CR>
 
 command -buffer CS call Lilydjwg_c_noCStyle()
+" 改注释为 /* ... */ （为了某些 C 语言）
+command! -buffer TCC %s/\/\/\s*\(.*\)/\/\* \1 \*\//g
+command! -buffer TCPP %s=\v/\*\s*(.*)\s*\*/=// \1=g
 
 " 为 scim-fcitx 而添加 2010年2月16日
 " command! -buffer -nargs=+ GREP lcd ~/源代码/scim-fcitx|gr <args> scim-1.4.9/**/*.{cpp,h,c} fcitx/src/*.{cpp,h}|cw
