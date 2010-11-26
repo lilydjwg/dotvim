@@ -1,9 +1,9 @@
 " Vim script file
 " FileType:     C
 " Author:       lilydjwg
-" Last Change:  2009年12月14日
+" Last Change:  2010-11-26
 
-if &ft != 'c' " 这不要让 C++ 文件执行
+if &ft != 'c' && expand('%:e') != 'h'  " 这不要让 C++ 文件执行
   finish
 endif
 
