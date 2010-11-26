@@ -471,6 +471,8 @@ g:vimwiki_w32_dir_enc	vimwiki.txt	/*g:vimwiki_w32_dir_enc*
 g:vjde_taglib_uri	vjde.txt	/*g:vjde_taglib_uri*
 global_markfilelist	pi_netrw.txt	/*global_markfilelist*
 gundo.txt	gundo.txt	/*gundo.txt*
+gundo_disable	gundo.txt	/*gundo_disable*
+gundo_help	gundo.txt	/*gundo_help*
 gundo_preview_bottom	gundo.txt	/*gundo_preview_bottom*
 gundo_preview_height	gundo.txt	/*gundo_preview_height*
 gundo_right	gundo.txt	/*gundo_right*
