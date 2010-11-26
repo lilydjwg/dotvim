@@ -28,4 +28,5 @@ augroup filetypedetect
   au BufNewFile,BufRead $HOME/.vim/dict/*.txt,$VIM/vimfiles/dict/*.txt	setf dict
   au BufNewFile,BufRead /lib/udev/rules.d/*		setf udevrules
   au BufNewFile,BufRead fcitx_skin.conf,*fcitx*/config	setf dosini
+  au BufRead		*tmux.conf			setf tmux
 augroup END
