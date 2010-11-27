@@ -409,7 +409,7 @@ endif
 if Lilydjwg_haswin32()
   let g:LustyExplorerSuppressRubyWarning = 1
   " Win 路径 [[[3
-  set shellslash
+  let g:VEConf_favorite = expand("$VIM/vimfiles/ve_favorite")
   let g:undodir = expand("$TMP/vimundo")
   let g:vimfiles = expand("$VIM/vimfiles")
   set errorfile=$TMP/error
@@ -419,8 +419,12 @@ if Lilydjwg_haswin32()
   command Hex silent !winhex '%'
   command SHELL silent cd %:p:h|silent exe "!cmd"|silent cd -
   command Nautilus silent !explorer %:p:h
+  " Win 配置 [[[3
+  command FScreen simalt ~x
+  command Fscreen simalt ~r
 else
   " Linux 路径 [[[3
+  let g:VEConf_favorite = expand("~/.vim/ve_favorite")
   let g:undodir = expand("~/tmpfs/.vimundo")
   let g:vimfiles = expand("~/.vim")
   set errorfile=~/tmpfs/error
@@ -437,6 +441,9 @@ else
   command SHELL silent cd %:p:h|silent exe '!setsid gnome-terminal'|silent cd -
   command Nautilus silent !nautilus %:p:h
   autocmd BufWritePost    * call Lilydjwg_chmodx()
+  " Linux 配置 [[[3
+  command FScreen winpos 0 0|set lines=40|set columns=172
+  command Fscreen set lines=40|set columns=88
 endif
 " 状态栏：先设置好编码。不然乱码 [[[3
 " 缓冲区号 文件名 行数 修改 帮助 只读 编码 换行符 BOM ======== 字符编码 位置 
@@ -649,9 +656,6 @@ command Win setl ff=dos fenc=gb18030
 "   以第一行的文字为名保存当前文件
 command TSave call Lilydjwg_TSave()
 command -nargs=? -complete=file RSplit vs <args>|normal <C-W>L<C-W>w
-command Fscreen set lines=40|set columns=88
-command FScreen winpos 0 0|set lines=40|set columns=172
-"   适用于全屏时的 'go' 设置
 command SQuote %s/“\|”\|″/"/ge|%s/‘\|’\|′/'/ge
 command RJ silent call Lilydjwg_edit_diary()
 "   载入 snippets
@@ -712,8 +716,8 @@ let g:netrw_list_hide = '^\.[^.].*'
 "   tasklist[[[2
 let g:tlTokenList = ["FIXME", "TODO", "XXX", "NotImplemented"]
 "   vimExplorer[[[2
-let g:VEConf_favorite = ".vim/ve_favorite"
 let g:VEConf_showHiddenFiles = 0
+"   另见平台相关部分
 "   不要占用 ' 的映射
 let g:VEConf_fileHotkey = {}
 let g:VEConf_fileHotkey.gotoPlace = '`'
