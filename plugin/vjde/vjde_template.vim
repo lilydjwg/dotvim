@@ -39,7 +39,7 @@ function! VjdeNewClass(type,...) "{{{2
         let pkg=a:1
     end
     if (cn !~ '[^ \t@$.;+\-*%&\|\^(){}/]\+') 
-        echo 'Invalide Class Name:'.cn
+        echo 'Invalid Class Name:'.cn
         return 
     end
     if len(pkg)>0
@@ -76,7 +76,7 @@ func! VjdeJUnitCase(...)
         let pkg=a:1
     end
     if (cn !~ '[^ \t@$.;+\-*%&\|\^(){}/]\+') 
-        echo 'Invalide Class Name:'.cn
+        echo 'Invalid Class Name:'.cn
         return 
     end
     if len(pkg)>0
