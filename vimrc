@@ -665,7 +665,7 @@ command Path VE %:p:h
 command -nargs=1 Enc e ++bad=keep ++enc=<args> %
 command CenterFull call CenterFull()
 "   Awesome 下全屏时有点 bug，这里将之加回去
-command Larger :set lines+=1 columns+=1
+command Larger :set lines+=1
 " 其它命令[[[1
 "   gundo[[[2
 let gundo_preview_bottom = 1
