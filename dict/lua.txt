@@ -1,1 +1,6 @@
 function
+coroutine
+create
+require
+assert
+local
