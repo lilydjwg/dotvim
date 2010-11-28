@@ -6,7 +6,11 @@
 " ---------------------------------------------------------------------
 inoremap <buffer> <silent> . .<C-X><C-O>
 " 编译/运行设定
-let &l:makeprg = 'javac -encoding ' . &fenc
+if &fenc
+  let &l:makeprg = 'javac -encoding ' . &fenc
+else
+  setlocal makeprg=javac
+endif
 setlocal errorformat=%E%f:%l:\ %m,%-Z%p^,%+C%.%#,%-G.%#
 
 nmap <buffer> <silent> <C-CR> :update<CR>:make %<CR>
