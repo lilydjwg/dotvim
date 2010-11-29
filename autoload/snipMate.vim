@@ -78,11 +78,18 @@ fun s:ProcessSnippet(snip)
 	" Evaluate eval (`...`) expressions.
 	" Using a loop here instead of a regex fixes a bug with nested "\=".
 	if stridx(snippet, '`') != -1
-		while match(snippet, '`.\{-}`') != -1
-			let snippet = substitute(snippet, '`.\{-}`',
-						\ substitute(eval(matchstr(snippet, '`\zs.\{-}\ze`')),
-						\ "\n\\%$", '', ''), '')
-		endw
+		let new = []
+		let snip = split(snippet, '`', 1)
+		let isexp = 0
+		for i in snip
+			if isexp
+				call add(new, substitute(eval(i), "\n\\%$", '', ''))
+			else
+				call add(new, i)
+			endif
+			let isexp = !isexp
+		endfor
+		let snippet = join(new, '')
 		let snippet = substitute(snippet, "\r", "\n", 'g')
 	endif
 
