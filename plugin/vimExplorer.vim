@@ -1574,7 +1574,7 @@ function! s:VEFilePanel.sortByType()
     "                 "c:\\nn.txt"
     "                 ]
     " }
-    let keys = ['#Directory', '#Files', '#Hidden files']
+    let keys = ['#Directory', '#Hidden files', '#Files']
     for i in self.fileList
         " i ("c:\\ddd\\eee.fff")
         if isdirectory(i)
@@ -1624,7 +1624,7 @@ function! s:VEFilePanel.sortByType()
             " so it can keep dir in the top
             if !has_key(fileGroup,"$".fileExtension)
                 let fileGroup["$".fileExtension] = []
-                call insert(keys, "$".fileExtension, -1)
+                call add(keys, "$".fileExtension)
             endif
             call add(fileGroup["$".fileExtension],i)
         endif
