@@ -2826,6 +2826,7 @@ function! s:InstallDocumentation(full_name, revision)
 
     " Create a new buffer & read in the plugin file (me):
     setl nomodeline
+    setl ff=unix
     exe 'enew!'
     exe 'r ' . l:plugin_file
 
