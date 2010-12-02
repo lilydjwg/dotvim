@@ -2826,6 +2826,7 @@ function! s:InstallDocumentation(full_name, revision)
 
     " Create a new buffer & read in the plugin file (me):
     setl nomodeline
+    let l:ff = &ff
     setl ff=unix
     exe 'enew!'
     exe 'r ' . l:plugin_file
@@ -2862,6 +2863,8 @@ function! s:InstallDocumentation(full_name, revision)
 
     " Build help tags:
     exe 'helptags ' . l:vim_doc_path
+    let &ff = l:ff
+    setl nomodified
 
     return 1
 endfunction
