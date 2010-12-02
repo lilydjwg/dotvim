@@ -417,7 +417,7 @@ if Lilydjwg_haswin32()
   "   用默认的程序打开文件
   nmap <C-S-F5> :!"%"<CR>
   command Hex silent !winhex '%'
-  command SHELL silent cd %:p:h|silent exe "!cmd"|silent cd -
+  command SHELL silent cd %:p:h|silent exe "!start cmd"|silent cd -
   command Nautilus silent !explorer %:p:h
   " Win 配置 [[[3
   command FScreen simalt ~x
