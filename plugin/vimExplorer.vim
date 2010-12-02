@@ -103,7 +103,7 @@ endif
 if exists("g:VEConf_favorite")
     let VEConf.favorite = g:VEConf_favorite
 else
-    let VEConf.favorite = ".ve_favorite"
+    let VEConf.favorite = expand("~/.ve_favorite")
 endif
 
 "Overwrite existing files.
@@ -2635,7 +2635,7 @@ endfunction
 
 "Favorite
 function! VE_GotoFavorite()
-    let fav_filename = g:VEPlatform.getHome() . g:VEConf.favorite
+    let fav_filename = g:VEConf.favorite
     if findfile(fav_filename)=='' || !filereadable(fav_filename)
         return
     endif
@@ -2660,7 +2660,7 @@ function! VE_AddToFavorite(where)
         " if no path name under cursor, use current working path
         let cwd = pathUnderCursor
     endif
-    let fav_filename = g:VEPlatform.getHome() . g:VEConf.favorite
+    let fav_filename = g:VEConf.favorite
     let fav = []
     if findfile(fav_filename) != ''
         if !filereadable(fav_filename)
