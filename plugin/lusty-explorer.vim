@@ -395,6 +395,14 @@ module VIM
     s.gsub(/[\]\[.~"^$\\*]/,'\\\\\0')
   end
 
+  def self.strwidth(s)
+    if exists?("*strwidth") then
+      return evaluate("strwidth('#{s}')").to_i
+    else
+      return s.length
+    end
+  end
+
   class Buffer
     def modified?
       VIM::nonzero? VIM::evaluate("getbufvar(#{number()}, '&modified')")
@@ -1797,7 +1805,7 @@ class Display
 
           if col_index < col_count - 1
             # Add spacer to the width of the column
-            rows[i] << (" " * (column_width - VIM::evaluate("strwidth('#{string}')")))
+            rows[i] << (" " * (column_width - VIM::strwidth(string)))
             rows[i] << @@COLUMN_SEPARATOR
           end
         end
@@ -1874,8 +1882,8 @@ class Display
       column_widths = []
       total_width = 0
       strings.each_slice(optimal_row_count) do |column|
-        s = column.max { |a, b| VIM::evaluate("strwidth('#{a}')").to_i <=> VIM::evaluate("strwidth('#{b}')").to_i }
-	column_width = VIM::evaluate("strwidth('#{s}')").to_i
+        s = column.max { |a, b| VIM::strwidth(a) <=> VIM::strwidth(b) }
+	column_width = VIM::strwidth(s)
         total_width += column_width
 
         break if total_width > max_width
