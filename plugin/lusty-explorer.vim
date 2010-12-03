@@ -1797,7 +1797,7 @@ class Display
 
           if col_index < col_count - 1
             # Add spacer to the width of the column
-            rows[i] << (" " * (column_width - string.length))
+            rows[i] << (" " * (column_width - VIM::evaluate("strwidth('#{string}')")))
             rows[i] << @@COLUMN_SEPARATOR
           end
         end
@@ -1874,7 +1874,8 @@ class Display
       column_widths = []
       total_width = 0
       strings.each_slice(optimal_row_count) do |column|
-        column_width = column.max { |a, b| a.length <=> b.length }.length
+        s = column.max { |a, b| VIM::evaluate("strwidth('#{a}')").to_i <=> VIM::evaluate("strwidth('#{b}')").to_i }
+	column_width = VIM::evaluate("strwidth('#{s}')").to_i
         total_width += column_width
 
         break if total_width > max_width
