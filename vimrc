@@ -354,7 +354,7 @@ function Lilydjwg_remark()
   highlight def MarkWord5  ctermbg=Magenta  ctermfg=Black  guibg=#FFB3FF    guifg=Black
   highlight def MarkWord6  ctermbg=Blue     ctermfg=Black  guibg=#9999FF    guifg=Black
 endfunction
-if v:version > 702
+if exists("*strwidth")
   function Strwidth(s)
     return strwidth(a:s)
   endfunction
