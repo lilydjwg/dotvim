@@ -1,4 +1,7 @@
 AF_INET
+getattr
+setattr
+hasattr
 defaultdict
 cssselect
 rfind
