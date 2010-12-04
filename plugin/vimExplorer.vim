@@ -1304,7 +1304,7 @@ function! s:VETreePanel.createActions()
     exec "nnoremap <silent> <buffer> " . g:VEConf.treePanelHotkey.quitVE .         " :call VEDestroy()<cr>"
     " autocmd
     au! * <buffer>
-    au BufEnter <buffer>  call VE_SyncDir()
+    au BufEnter <buffer>  call VE_SyncDir() | call g:VEConf.treePanelSyntax()
     " Status line
     setlocal statusline=%{getcwd()}
 endfunction
@@ -2034,6 +2034,7 @@ function! s:VEFilePanel.createActions()
     " Auto commands
     au! * <buffer>
     au BufEnter <buffer>  call VE_SyncDir()
+    au BufEnter <buffer>  call VE_SyncDir() | call g:VEConf.filePanelSyntax()
     " Status line
     setlocal statusline=%{VE_GetStatusFileName()}%=[%{getcwd()}]\ %{strftime(\"\%Y-\%m-\%d\ \%H:\%M\")}
 endfunction
