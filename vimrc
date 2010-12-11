@@ -667,6 +667,10 @@ command CenterFull call CenterFull()
 "   Awesome 下全屏时有点 bug，这里将之加回去
 command Larger :set lines+=1
 " 其它命令[[[1
+"   DirDiff[[[2
+let g:DirDiffDynamicDiffText = 1
+let g:DirDiffExcludes = "*~,*.swp"
+let g:DirDiffWindowSize = 20
 "   SuperTab[[[2
 let g:SuperTabLongestEnhanced = 1
 let g:SuperTabDefaultCompletionType = "context"
