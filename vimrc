@@ -667,6 +667,9 @@ command CenterFull call CenterFull()
 "   Awesome 下全屏时有点 bug，这里将之加回去
 command Larger :set lines+=1
 " 其它命令[[[1
+"   SuperTab[[[2
+let g:SuperTabLongestEnhanced = 1
+let g:SuperTabDefaultCompletionType = "context"
 "   gundo[[[2
 let gundo_preview_bottom = 1
 "   bufexplorer[[[2
