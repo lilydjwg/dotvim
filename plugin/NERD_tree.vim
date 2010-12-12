@@ -3520,6 +3520,29 @@ function! s:activateNode(forceKeepWindowOpen)
     endif
 endfunction
 
+"FUNCTION: s:toggleNode() {{{2
+function! s:toggleNode()
+    let treenode = s:TreeFileNode.GetSelected()
+    if treenode != {}
+        if treenode.path.isDirectory
+            call treenode.toggleOpen()
+            call s:renderView()
+            call treenode.putCursorHere(0, 0)
+        else
+            let parent = treenode.path.getParent()
+            let treenode = b:NERDTreeRoot.findNode(parent)
+            call treenode.close()
+            call s:renderView()
+            call treenode.putCursorHere(0, 0)
+        endif
+    else
+        let bookmark = s:Bookmark.GetSelected()
+        if !empty(bookmark)
+            call bookmark.activate()
+        endif
+    endif
+endfunction
+
 "FUNCTION: s:bindMappings() {{{2
 function! s:bindMappings()
     " set up mappings and commands for this buffer
@@ -3530,6 +3553,7 @@ function! s:bindMappings()
     exec "nnoremap <silent> <buffer> ". g:NERDTreeMapActivateNode . " :call <SID>activateNode(0)<cr>"
     exec "nnoremap <silent> <buffer> ". g:NERDTreeMapOpenSplit ." :call <SID>openEntrySplit(0,0)<cr>"
     exec "nnoremap <silent> <buffer> <cr> :call <SID>activateNode(0)<cr>"
+    exec "nnoremap <silent> <buffer> <space> :call <SID>toggleNode()<cr>"
 
     exec "nnoremap <silent> <buffer> ". g:NERDTreeMapPreview ." :call <SID>previewNode(0)<cr>"
     exec "nnoremap <silent> <buffer> ". g:NERDTreeMapPreviewSplit ." :call <SID>previewNode(1)<cr>"
