@@ -410,6 +410,7 @@ if Lilydjwg_haswin32()
   let g:LustyExplorerSuppressRubyWarning = 1
   " Win 路径 [[[3
   let g:VEConf_favorite = expand("$VIM/vimfiles/ve_favorite")
+  let g:NERDTreeBookmarksFile = expand("$VIM/vimfiles/NERDTreeBookmarks")
   let g:undodir = expand("$TMP/vimundo")
   let g:vimfiles = expand("$VIM/vimfiles")
   set errorfile=$TMP/error
@@ -425,6 +426,7 @@ if Lilydjwg_haswin32()
 else
   " Linux 路径 [[[3
   let g:VEConf_favorite = expand("~/.vim/ve_favorite")
+  let g:NERDTreeBookmarksFile = expand("~/.vim/NERDTreeBookmarks")
   let g:undodir = expand("~/tmpfs/.vimundo")
   let g:vimfiles = expand("~/.vim")
   set errorfile=~/tmpfs/error
@@ -526,7 +528,7 @@ nmap tw :call Lilydjwg_toggle_ambiwidth()<CR>
 "     w 开头 [[[3
 nmap wc :set cursorline!<CR>
 nmap wd :diffsplit 
-nmap wf :FilesystemExplorer<CR>
+nmap wf :NERDTreeToggle<CR>
 nmap wn :set number!<CR>
 nnoremap <silent> wt :TlistToggle<CR>
 "     - 开头 [[[3
@@ -667,6 +669,10 @@ command CenterFull call CenterFull()
 "   Awesome 下全屏时有点 bug，这里将之加回去
 command Larger :set lines+=1
 " 其它命令[[[1
+"   NERDTree[[[2
+let g:NERDTreeMapToggleZoom = 'a'
+let g:NERDTreeMapToggleHidden = 'h'
+"   另见平台相关部分
 "   DirDiff[[[2
 let g:DirDiffDynamicDiffText = 1
 let g:DirDiffExcludes = "*~,*.swp"
