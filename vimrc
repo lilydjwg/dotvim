@@ -20,6 +20,16 @@ runtime macros/matchit.vim
 "]]]
 " 我的设置
 " 函数[[[1
+"   切换显示行号/相对行号/不显示
+function Lilydjwg_toggle_number()
+  if &nu
+    set rnu
+  elseif &rnu
+    set nornu
+  else
+    set nu
+  endif
+endfunction
 "   更改缩进[[[2
 function Lilydjwg_reindent(...)
   if a:0 != 2
@@ -529,7 +539,7 @@ nmap tw :call Lilydjwg_toggle_ambiwidth()<CR>
 nmap wc :set cursorline!<CR>
 nmap wd :diffsplit 
 nmap wf :NERDTreeToggle<CR>
-nmap wn :set number!<CR>
+nmap <silent> wn :call Lilydjwg_toggle_number()<CR>
 nnoremap <silent> wt :TlistToggle<CR>
 "     - 开头 [[[3
 nmap -+ :set nomodified<CR>
