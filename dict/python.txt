@@ -1,4 +1,5 @@
 AF_INET
+NameError
 getattr
 setattr
 hasattr
