@@ -643,7 +643,7 @@ endif
 " 自定义命令[[[1
 " 对齐 xxx: xxx （两栏）
 " .vimrc 有可能是软链接
-exe 'command Set tabe ' . resolve($MYVIMRC)
+exe 'command Set tabe ' . escape(resolve($MYVIMRC), ' ')
 " 删除当前文件
 command Delete call delete(expand('%'))
 command -nargs=+ Reindent call Lilydjwg_reindent(<f-args>)
