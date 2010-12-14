@@ -132,7 +132,7 @@ function LookFurther(down)
   endif
 endfunction
 inoremap <silent> <C-Y> <C-R><C-R>=LookFurther(0)<CR>
-" 反向的 <M-y> 设置在 plugin/escalt.vim 里
+inoremap <silent> <M-y> <C-R><C-R>=LookFurther(1)<CR>
 " 对齐 xxx: xxx （两栏） [[[2
 function Lilydjwg_AP() range
   if getline('.') =~ '^\s'
@@ -295,7 +295,7 @@ function! CleverTab()
 endfunction
 " 为了 snipMate 改成 <C-J>
 inoremap <C-J> <C-R>=CleverTab()<CR>
-" 反向的 <M-j> 设置在 plugin/escalt.vim 里
+inoremap <M-j> <C-N>
 "  用火狐打开链接[[[2
 function Lilydjwg_open_url()
   let s:url = Lilydjwg_get_pattern_at_cursor('\v(https?://|ftp://|file:/{3}|www\.)(\w|[.-])+(:\d+)?(/(\w|[~@#$%^&+=/.?:-])+)?')
@@ -474,9 +474,6 @@ else
   " 这里两者都需要。只前者标题会重复，只后者会乱码
   set t_fs=(B
   set t_IE=(B
-  " 代替 Esc
-  noremap <Esc><Esc> <Esc>
-  inoremap <Esc><Esc> <Esc>
   if &term =~ "256color"
     " 在不同模式下使用不同颜色的光标
     if &term =~ "xterm"
@@ -549,6 +546,15 @@ nmap -syn :exe 'tabe '.g:vimfiles.'/syntax/'.&ft.'.vim'<CR>
 nmap -int :exe 'tabe '.g:vimfiles.'/indent/'.&ft.'.vim'<CR>
 "     显示高亮组 [[[4
 nnoremap wh :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<' . synIDattr(synID(line("."),col("."),0),"name") . "> lo<" . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
+"     Alt 组合键 [[[3
+nmap <M-m> :MRU 
+nmap <silent> <M-f> :echo expand('%:p')<CR>
+" 打开草稿
+nmap <unique> <silent> <M-s> <Plug>ShowScratchBuffer
+"     lusty-explorer [[[4
+nmap <M-b> :LustyBufferExplorer<CR>
+nmap <M-g> :LustyBufferGrep<CR>
+nmap <M-l> :LustyFilesystemExplorerFromHere<CR>
 "     其它开头的 [[[3
 nmap <silent> <C-Tab> :tabnew<CR>
 nmap <BS> <C-O>
@@ -565,6 +571,7 @@ nmap d<CR> :%s/\r//eg<CR>``
 nmap cac :call Lilydjwg_changeColor()<CR>
 "   imap [[[2
 inoremap <S-CR> <CR>    
+inoremap <M-c> <C-R>=Lilydjwg_colorpicker()<CR>
 imap <S-BS> <C-W>
 cmap <S-BS> <C-W>
 "     日期和时间 [[[3
@@ -590,6 +597,11 @@ cmap <C-P> <Up>
 cmap <C-N> <Down>
 cnoremap <Left> <Space><BS><Left>
 cnoremap <Right> <Space><BS><Right>
+"   g[jk] [[[2
+nmap <M-j> gj
+nmap <M-k> gk
+vmap <M-j> gj
+vmap <M-k> gk
 "   surround [[[2
 "      比起 c，我更喜欢用 s
 xmap c <Plug>Vsurround

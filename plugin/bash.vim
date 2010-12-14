@@ -1,6 +1,6 @@
 " bash.vim      插入/命令模式下 bash 式键映射
 " Author:       lilydjwg <lilydjwg@gmail.com>
-" Last Change:  2009年12月23日
+" Last Change:  2010年12月14日
 " ---------------------------------------------------------------------
 " Load Once:
 if &cp || exists("g:loaded_bash")
@@ -20,30 +20,16 @@ function Bash_killline_cmd()
   " 命令模式 kill 一行剩余的字符，返回 <C-U> 加应显示的字符串[[[2
   return strpart(getcmdline(), 0, getcmdpos()-1)
 endfunction
-function Bash_console()
-  cnoremap <Esc>b <S-Left>
-  cnoremap <Esc>f <S-Right>
-  cnoremap <Esc>h <Del>
-  cmap <silent> <Esc>d <C-\>eBash_killline_cmd()<CR>
-  inoremap <Esc>b <S-Left>
-  inoremap <Esc>f <S-Right>
-  imap <silent> <Esc>d <C-R>=Bash_killline()<CR>
-  inoremap <Esc>h <Del>
-endfunction
-function Bash_unconsole()
-  try
-    cunmap <Esc>b
-    cunmap <Esc>f
-    cunmap <Esc>h
-    cunmap <Esc>d
-    iunmap <Esc>b
-    iunmap <Esc>f
-    iunmap <Esc>d
-    iunmap <Esc>h
-  catch /E31/ " 没有这个映射
-  endtry
-endfunction
-function Bash_gui()
+function Bash_setup()
+  cnoremap <C-B> <Left>
+  cnoremap <C-F> <Right>
+  cnoremap <C-A> <C-B>
+  inoremap <C-A> <Home>
+  inoremap <C-E> <End>
+  inoremap <C-B> <Left>
+  inoremap <C-F> <Right>
+  inoremap <C-P> <Up>
+  inoremap <C-N> <Down>
   cnoremap <M-b> <S-Left>
   cnoremap <M-f> <S-Right>
   cnoremap <M-h> <Del>
@@ -55,22 +41,8 @@ function Bash_gui()
   inoremap <M-h> <Del>
 endfunction
 " ---------------------------------------------------------------------
-" Autocmds:
-autocmd GUIEnter * call Bash_unconsole() | call Bash_gui()
-" ---------------------------------------------------------------------
-" General Maps:
-cnoremap <C-B> <Left>
-cnoremap <C-F> <Right>
-cnoremap <C-A> <C-B>
-inoremap <C-A> <Home>
-inoremap <C-E> <End>
-inoremap <C-B> <Left>
-inoremap <C-F> <Right>
-inoremap <C-P> <Up>
-inoremap <C-N> <Down>
-if !has("gui_running")
-  call Bash_console()
-endif
+"  Call Functions:
+call Bash_setup()
 " ---------------------------------------------------------------------
 "  Restoration And Modelines:
 let &cpo= s:keepcpo
