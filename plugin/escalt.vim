@@ -18,23 +18,8 @@ function Escalt_console()
   for i in range(97, 122)
     exe "set <M-".nr2char(i).">=\<Esc>".nr2char(i)
   endfor
-  " 代替 Esc
-  noremap <Esc><Esc> <Esc>
-  inoremap <Esc><Esc> <Esc>
+  set ttimeoutlen=50
 endfunction
-function Escalt_unconsole()
-  for i in range(65, 90)
-    exe "set <M-".nr2char(i).">=".nr2char(i+0x80)
-  endfor
-  for i in range(97, 122)
-    exe "set <M-".nr2char(i).">=".nr2char(i+0x80)
-  endfor
-  nunmap <Esc><Esc>
-  iunmap <Esc><Esc>
-endfunction
-" ---------------------------------------------------------------------
-" Autocmds:
-autocmd GUIEnter * call Escalt_unconsole()
 " ---------------------------------------------------------------------
 " Call Functions:
 call Escalt_console()
