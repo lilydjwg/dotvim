@@ -249,6 +249,9 @@ endfunction
 function Lilydjwg_toggle_color()
   let colors = ['pink_lily', 'lilypink', 'darkBlue', 'spring2']
   " spring2 是增加了彩色终端支持的 spring
+  if !exists("g:colors_name")
+    let g:colors_name = 'pink_lily'
+  endif
   let i = index(colors, g:colors_name)
   let i = (i+1) % len(colors)
   exe 'colorscheme ' . get(colors, i)
