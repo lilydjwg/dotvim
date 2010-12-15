@@ -1,6 +1,6 @@
 " escalt.vim    控制台下让用 <M-x> 也可用
 " Author:       lilydjwg <lilydjwg@gmail.com>
-" Last Change:  2010年12月14日
+" Last Change:  2010年12月15日
 " ---------------------------------------------------------------------
 " Load Once:
 if &cp || exists("g:loaded_escalt") || has("gui_running")
@@ -22,6 +22,10 @@ function Escalt_console()
 endfunction
 " ---------------------------------------------------------------------
 " Call Functions:
+" without the following, in xterm(-256color), eg <F1> -> ÏP, not ^[OP
+set nottybuiltin
+let &term=&term
+" Call this after term reset
 call Escalt_console()
 " ---------------------------------------------------------------------
 "  Restoration And Modelines:
