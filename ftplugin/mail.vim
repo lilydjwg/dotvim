@@ -19,10 +19,5 @@ EOP
   return msg
 endfunction
 
-if has("gui_running")
-  imap <buffer> <M-g> <C-R>=<SID>getEncodedHeader("gb2312")<CR>
-  imap <buffer> <M-u> <C-R>=<SID>getEncodedHeader("utf-8")<CR>
-else
-  imap <buffer> <Esc>g <C-R>=<SID>getEncodedHeader("gb2312")<CR>
-  imap <buffer> <Esc>u <C-R>=<SID>getEncodedHeader("utf-8")<CR>
-endif
+imap <buffer> <M-g> <C-R>=<SID>getEncodedHeader("gb2312")<CR>
+imap <buffer> <M-u> <C-R>=<SID>getEncodedHeader("utf-8")<CR>
