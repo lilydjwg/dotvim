@@ -18,6 +18,7 @@ function! s:MakeJava()
   let &l:makeprg = oldmakeprg
 endfunction
 
+setlocal omnifunc=javacomplete#Complete
 nmap <buffer> <silent> <C-CR> :update<CR>:call <SID>MakeJava()<CR>
 " 如果用 cd，就可能覆盖掉本缓冲区的情况值
 " 不回到原先的目录了，为了能够看到显示的信息
