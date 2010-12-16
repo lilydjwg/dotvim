@@ -714,9 +714,6 @@ let g:NERDTreeMapToggleHidden = 'h'
 let g:DirDiffDynamicDiffText = 1
 let g:DirDiffExcludes = "*~,*.swp"
 let g:DirDiffWindowSize = 20
-"   SuperTab[[[2
-let g:SuperTabLongestEnhanced = 1
-let g:SuperTabDefaultCompletionType = "context"
 "   gundo[[[2
 let gundo_preview_bottom = 1
 "   bufexplorer[[[2
