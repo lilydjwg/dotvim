@@ -20,7 +20,18 @@ runtime macros/matchit.vim
 "]]]
 " 我的设置
 " 函数[[[1
-"   切换显示行号/相对行号/不显示
+"   检查当前目录附近是否有 tags 文件[[[2
+function Lilydjwg_checktags(file)
+  let path = fnamemodify(a:file, ':p:h')
+  while path != '/'
+    if filereadable(path.'/tags')
+      let &l:tags = path.'/tags'
+      break
+    endif
+    let path = fnamemodify(path, ':h')
+  endwhile
+endfunction
+"   切换显示行号/相对行号/不显示 [[[2
 function Lilydjwg_toggle_number()
   if &nu
     set rnu
@@ -230,7 +241,7 @@ function Lilydjwg_get_pattern_at_cursor(pat)
     else
       let cont = match(line, a:pat, contn)
     endif
-  endwh
+  endwhile
   if ebeg >= 0
     return strpart(line, ebeg, elen)
   else
@@ -249,6 +260,9 @@ endfunction
 function Lilydjwg_toggle_color()
   let colors = ['pink_lily', 'lilypink', 'darkBlue', 'spring2']
   " spring2 是增加了彩色终端支持的 spring
+  if !exists("g:colors_name")
+    let g:colors_name = 'pink_lily'
+  endif
   let i = index(colors, g:colors_name)
   let i = (i+1) % len(colors)
   exe 'colorscheme ' . get(colors, i)
@@ -645,6 +659,7 @@ autocmd InsertLeave	* if s:cmdwin == 0 && pumvisible() == 0|pclose|endif
 autocmd VimEnter,ColorScheme	* call Lilydjwg_remark()
 autocmd BufReadCmd *.maff call zip#Browse(expand("<amatch>"))
 autocmd BufReadPost	* let &l:sts = &l:sw
+autocmd BufReadPost	* call Lilydjwg_checktags(expand("<amatch>"))
 "   见 ft-syntax-omni
 if has("autocmd") && exists("+omnifunc")
   autocmd Filetype *
@@ -699,9 +714,6 @@ let g:NERDTreeMapToggleHidden = 'h'
 let g:DirDiffDynamicDiffText = 1
 let g:DirDiffExcludes = "*~,*.swp"
 let g:DirDiffWindowSize = 20
-"   SuperTab[[[2
-let g:SuperTabLongestEnhanced = 1
-let g:SuperTabDefaultCompletionType = "context"
 "   gundo[[[2
 let gundo_preview_bottom = 1
 "   bufexplorer[[[2

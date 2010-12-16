@@ -2,8 +2,8 @@
 " What Is This: Display marks at lines with compilation error.
 " File: cuteErrorMarker.vim
 " Author: Vincent Berthoux <twinside@gmail.com>
-" Last Change: 2010 jan. 17
-" Version: 1.4.3
+" Last Change: 2010 oct 12
+" Version: 1.5
 " Thanks:
 " Require:
 "   set nocompatible
@@ -12,13 +12,18 @@
 " Usage:
 "      :MarkErrors
 "        Place markers near line from the error list
+"
 "      :CleanupMarkErrors
 "        Remove all the markers
-"       show calendar in normal mode
+"
 "      :RemoveErrorMarkersHook
 "        Remove the autocommand for sign placing
+"
 "      :make
 "        Place marker automatically by default
+"
+"      :grep
+"        Place search marke automatically by default
 "
 " Additional:
 "     * if you don't want the automatic placing of markers
@@ -29,6 +34,8 @@
 "       let g:cuteerrors_no_baloons = 1
 "
 " ChangeLog:
+"     * 1.5  :- Added marks for grep search
+"     * 1.4.4:- Changed sign highlighting
 "     * 1.4.3:- Changing 'sign' verification mode
 "     * 1.4.2:- Avoid loading script if :signs command is not available.
 "     * 1.4.1:- No checking that the balloon option is present
@@ -78,6 +85,8 @@ endif
 
 if has("win32")
     let s:ext = '.ico'
+elseif has("gui_mac")
+    let s:ext = '.xpm'
 else
     let s:ext = '.png'
 endif
@@ -94,14 +103,26 @@ endif
 let s:signId = 33000
 let s:signCount = 0
 
-exec 'sign define errhere text=[X icon=' . escape( globpath( &rtp, 'signs/err' . s:ext ), ' \' )
-exec 'sign define warnhere text=/! icon=' . escape( globpath( &rtp, 'signs/warn' . s:ext ), ' \' )
+fun! s:RefreshErrorHighlight() "{{{
+    hi CuteErrorMarkerErrorColor term=bold ctermfg=white ctermbg=red guifg=white guibg=red
+    hi CuteErrorMarkerWarningColor term=bold ctermfg=black ctermbg=yellow guifg=black guibg=yellow
+    hi CuteErrorMarkerInfoColor term=bold ctermfg=White ctermbg=blue guifg=white guibg=blue
+endfunction "}}}
+
+" We call it here to be sure of it's existence.
+call s:RefreshErrorHighlight()
+
+exec 'sign define errhere texthl=CuteErrorMarkerErrorColor text=[X icon=' . escape( globpath( &rtp, 'signs/err' . s:ext ), ' \' )
+exec 'sign define warnhere texthl=CuteErrorMarkerWarningColor  text=/! icon=' . escape( globpath( &rtp, 'signs/warn' . s:ext ), ' \' )
+exec 'sign define infohere texthl=CuteErrorMarkerInfoColor text=(? icon=' . escape( globpath( &rtp, 'signs/info' . s:ext ), ' \' )
 
 fun! PlaceErrorMarkersHook() "{{{
     augroup cuteerrors
         " au !
-        au QuickFixCmdPre make call CleanupMarkErrors()
-        au QuickFixCmdPost make call MarkErrors()
+        au QuickFixCmdPre *make call CleanupMarkErrors()
+        au QuickFixCmdPost *make call MarkErrors('err')
+        au QuickFixCmdPre *grep* call CleanupMarkErrors()
+        au QuickFixCmdPost *grep* call MarkErrors('search')
     augroup END
 endfunction "}}}
 
@@ -111,7 +132,11 @@ fun! RemoveErrorMarkersHook() "{{{
     augroup END
 endfunction "}}}
 
-fun! s:SelectClass( error ) "{{{
+fun! s:SelectClass( kind, error ) "{{{
+	if a:kind == 'search'
+		return 'infohere'
+    endif
+
     if a:error =~ '\cwarning'
         return 'warnhere'
     else
@@ -124,7 +149,9 @@ endfunction "}}}
 " s:errBallons :: [ (BufNumber, LinNumber, text) ]
 let s:errBalloons = []
 
-fun! MarkErrors() "{{{
+fun! MarkErrors( kind ) "{{{
+    call s:RefreshErrorHighlight()
+
     let errList = getqflist()
     let s:errBalloons = []
 
@@ -135,7 +162,7 @@ fun! MarkErrors() "{{{
             if matchedBuf >= 0
                 let s:signCount = s:signCount + 1
                 let id = s:signId + s:signCount
-                let errClass = s:SelectClass( error.text )
+                let errClass = s:SelectClass( a:kind, error.text )
 
                 call add( s:errBalloons, [error.bufnr, error.lnum, error.text] )
                 let toPlace = 'sign place ' . id
@@ -188,6 +215,6 @@ if exists("+ballooneval") && !exists("g:cuteerrors_no_baloons")
     set balloonexpr=CuteErrorBalloon()
 endif
 
-command! MarkErrors call MarkErrors()
+command! MarkErrors call MarkErrors('err')
 command! CleanupMarkErrors call CleanupMarkErrors()
 
