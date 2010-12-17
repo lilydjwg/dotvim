@@ -341,7 +341,7 @@ endif
 "There are some examples:
 "Open current file using vim in a new tab.
 let VEConf_singleFileHotKeys['openInNewTab'] = VEConf.filePanelHotkey.tabView
-function! VEConf_singleFileActions['openInNewTab'](path)
+function VEConf_singleFileActions['openInNewTab'](path)
     if !isdirectory(a:path)
         exec "tabe " . g:VEPlatform.escape(a:path)
     else
@@ -351,27 +351,27 @@ endfunction
 
 "Renamer is a very good plugin.
 let VEConf_normalHotKeys['openRenamer'] = VEConf.filePanelHotkey.openRenamer
-function! VEConf_normalActions['openRenamer']()
+function VEConf_normalActions['openRenamer']()
     Renamer
 endfunction
 
 "start shell in current directory.
 let VEConf_normalHotKeys['startShell'] = VEConf.filePanelHotkey.startShell
-function! VEConf_normalActions['startShell']()
+function VEConf_normalActions['startShell']()
     call g:VEPlatform.startShell()
 endfunction
 
 "start file explorer in current directory
 "(nautilus,konquer,Explorer.exe and so on).
 let VEConf_normalHotKeys['startExplorer'] = VEConf.filePanelHotkey.startExplorer
-function! VEConf_normalActions['startExplorer']()
+function VEConf_normalActions['startExplorer']()
     call g:VEPlatform.startExplorer()
 endfunction
 
 "Delete multiple files.
 "Multiple file name are contained in the fileList.
 let VEConf_multiFileHotKeys['openMultiFilesWithVim'] = VEConf.filePanelHotkey.tabViewMulti
-function! VEConf_multiFileActions['openMultiFilesWithVim'](fileList)
+function VEConf_multiFileActions['openMultiFilesWithVim'](fileList)
     if empty(a:fileList)
         return
     endif
@@ -382,7 +382,7 @@ endfunction
 
 "#######################################################################
 "Syntax and highlight configuration.
-function! VEConf.treePanelSyntax()
+function VEConf.treePanelSyntax()
     syn clear
     syn match Question "^.*Press ? for help.*$" "Host name
     syn match WarningMsg "\[[A-Z]:[\\/]\]" "root node name
@@ -390,7 +390,7 @@ function! VEConf.treePanelSyntax()
     syn match SpecialKey "^.*\[current\]$" "current folder
 endfunction
 
-function! VEConf.filePanelSyntax()
+function VEConf.filePanelSyntax()
     syntax clear
     syn match Type "\[ .* \]" "group
     syn match Comment '\t.\{10}' "file size
@@ -420,7 +420,7 @@ let VEPlatform = {}
 "it's a static class, no constructor
 
 "has win
-function! VEPlatform.haswin32()
+function VEPlatform.haswin32()
     if (has("win32") || has("win95") || has("win64") || has("win16"))
         return 1
     else
@@ -429,7 +429,7 @@ function! VEPlatform.haswin32()
 endfunction
 
 "return a path always end with slash.
-function! VEPlatform.getcwd()
+function VEPlatform.getcwd()
     let path = getcwd()
     if g:VEPlatform.haswin32() && !&ssl
         if path[-1:] != "\\"
@@ -444,7 +444,7 @@ function! VEPlatform.getcwd()
 endfunction
 
 "get home path, end with a slash
-function! VEPlatform.getHome()
+function VEPlatform.getHome()
     if g:VEPlatform.haswin32() && !&ssl
         if $HOME[-1:] != "\\"
             return $HOME . "\\"
@@ -460,7 +460,7 @@ function! VEPlatform.getHome()
     endif
 endfunction
 
-function! VEPlatform.escape(path)
+function VEPlatform.escape(path)
     if g:VEPlatform.haswin32()
         return escape(a:path,'%#')
     else
@@ -469,7 +469,7 @@ function! VEPlatform.escape(path)
 endfunction
 
 "start a program and then return to vim, no wait.
-function! VEPlatform.start(path)
+function VEPlatform.start(path)
     let convPath = self.escape(a:path)
     "escape() function will do iconv to the string, so call it
     "before iconv().
@@ -496,7 +496,7 @@ function! VEPlatform.start(path)
     return 1
 endfunction
 
-function! VEPlatform.system(cmd)
+function VEPlatform.system(cmd)
     "can not escape here! example: 'rm -r blabla\ bbb'
     "let convCmd = escape(a:cmd,' %#')
     let convCmd = a:cmd
@@ -508,7 +508,7 @@ function! VEPlatform.system(cmd)
 endfunction
 
 " Return successful copyed file list.
-function! VEPlatform.copyMultiFile(fileList,topath)
+function VEPlatform.copyMultiFile(fileList,topath)
     let boverWrite = g:VEConf.overWriteExisting
     let retList = []
     for i in a:fileList
@@ -576,7 +576,7 @@ function! VEPlatform.copyMultiFile(fileList,topath)
     return retList
 endfunction
 
-function! VEPlatform.copyfile(filename,topath)
+function VEPlatform.copyfile(filename,topath)
     let filename = self.escape(a:filename)
     let topath = self.escape(a:topath)
     if g:VEPlatform.haswin32()
@@ -601,7 +601,7 @@ function! VEPlatform.copyfile(filename,topath)
     endif
 endfunction
 
-function! VEPlatform.mkdir(path)
+function VEPlatform.mkdir(path)
     if g:VEConf.systemEncoding != ''
         let convPath = iconv(a:path,&encoding,g:VEConf.systemEncoding)
     else
@@ -610,7 +610,7 @@ function! VEPlatform.mkdir(path)
     return mkdir(convPath)
 endfunction
 
-function! VEPlatform.mkfile(filename)
+function VEPlatform.mkfile(filename)
     if findfile(a:filename) != '' || isdirectory(a:filename)
         return 0
     endif
@@ -621,7 +621,7 @@ function! VEPlatform.mkfile(filename)
     endif
 endfunction
 
-function! VEPlatform.executable(filename)
+function VEPlatform.executable(filename)
     if isdirectory(a:filename)
         return 0
     endif
@@ -632,7 +632,7 @@ function! VEPlatform.executable(filename)
     endif
 endfunction
 
-function! VEPlatform.search(filename,path)
+function VEPlatform.search(filename,path)
     if a:filename == '.' || a:filename == '..'
         return []
     else
@@ -640,7 +640,7 @@ function! VEPlatform.search(filename,path)
     endif
 endfunction
 
-function! VEPlatform.globpath(path)
+function VEPlatform.globpath(path)
     if g:VEConf.showHiddenFiles
         let tmp = globpath(a:path,"*") . "\n" . globpath(a:path,".[^.]*") "need to cut . and ..
         " can not show files start with .. such as ..foo , :(
@@ -656,7 +656,7 @@ function! VEPlatform.globpath(path)
 endfunction
 
 "globpath used in file panel, including filter.
-function! VEPlatform.globpath_file(path)
+function VEPlatform.globpath_file(path)
     if g:VEConf.filePanelFilter != ''
         return globpath(a:path,g:VEConf.filePanelFilter)
     endif
@@ -674,7 +674,7 @@ function! VEPlatform.globpath_file(path)
     endif
 endfunction
 
-function! VEPlatform.cdToPath(path)
+function VEPlatform.cdToPath(path)
     try
         "In win32, VE can create folder starts with space. So ...
         exec "lcd " . escape(a:path,' %#')
@@ -683,7 +683,7 @@ function! VEPlatform.cdToPath(path)
     endtry
 endfunction
 
-function! VEPlatform.startShell()
+function VEPlatform.startShell()
     if g:VEPlatform.haswin32()
         !start cmd.exe
     else
@@ -693,7 +693,7 @@ function! VEPlatform.startShell()
     endif
 endfunction
 
-function! VEPlatform.startExplorer()
+function VEPlatform.startExplorer()
     let pwd = self.escape(g:VEPlatform.getcwd())
     if g:VEPlatform.haswin32()
         let pwd = substitute(pwd,'/',"\\",'g')
@@ -703,7 +703,7 @@ function! VEPlatform.startExplorer()
     endif
 endfunction
 
-function! VEPlatform.getRoot(rootDict)
+function VEPlatform.getRoot(rootDict)
     if g:VEPlatform.haswin32()
         "Create new root list.
         let newRootList = []
@@ -743,7 +743,7 @@ function! VEPlatform.getRoot(rootDict)
     endif
 endfunction
 
-function! VEPlatform.pathToName(path)
+function VEPlatform.pathToName(path)
     let time = strftime("%Y-%m-%d %H:%M:%S",getftime(a:path))
     let size = getfsize(a:path)
     let perm = getfperm(a:path)
@@ -773,7 +773,7 @@ function! VEPlatform.pathToName(path)
     return name . "\t" . tail
 endfunction
 
-function! VEPlatform.getUpperDir(path)
+function VEPlatform.getUpperDir(path)
     if g:VEPlatform.haswin32() && !&ssl
         return substitute(a:path,'\\\zs[^\\]\+\\$','','g')
     else
@@ -782,7 +782,7 @@ function! VEPlatform.getUpperDir(path)
 endfunction
 
 "default choice and return value:    1:YES 0:NO
-function! VEPlatform.confirm(text,defaultChoice)
+function VEPlatform.confirm(text,defaultChoice)
     if a:defaultChoice
         let ret = confirm(a:text,"&Yes\n&No",1)
     else
@@ -811,7 +811,7 @@ endfunction
 
 "delete a single file or directory
 "return 0:failed  1:success
-function! VEPlatform.deleteSingle(path)
+function VEPlatform.deleteSingle(path)
     if !isdirectory(a:path)
         if g:VEConf.fileDeleteConfirm && !self.confirm("Delete file: ".a:path,1)
             echo " "
@@ -837,7 +837,7 @@ endfunction
 
 "delete multiple files/directory.
 "return 0:failed  1:success
-function! VEPlatform.deleteMultiple(fileList)
+function VEPlatform.deleteMultiple(fileList)
     if g:VEConf.fileDeleteConfirm && !self.confirm("Are you sure to delete selected file(s) ?",1)
         echo " "
         return 0
@@ -850,7 +850,7 @@ function! VEPlatform.deleteMultiple(fileList)
     return 1
 endfunction
 
-function! VEPlatform.delete(name)
+function VEPlatform.delete(name)
     if isdirectory(a:name)
         "I have no idea how to judge if it is succeed :(
         if g:VEPlatform.haswin32()
@@ -867,7 +867,7 @@ function! VEPlatform.delete(name)
     endif
 endfunction
 
-function! VEPlatform.select(list,title)
+function VEPlatform.select(list,title)
     let selectList = deepcopy(a:list)
     if len(selectList) == 0
         return
@@ -886,7 +886,7 @@ endfunction
 
 " This is not a member of VEPlatform, because sort()
 " can not use dict function.
-function! VEPlatform_sortCompare(t1,t2)
+function VEPlatform_sortCompare(t1,t2)
     if g:VEConf.sortCaseSensitive
         return a:t1 ==# a:t2 ? 0 : a:t1 ># a:t2 ? 1 : -1
     else
@@ -905,7 +905,7 @@ let s:VENode.hasOwnChilds = 0
 let s:VENode.childs = {}
 
 "Object Constructor
-function! s:VENode.init(path)
+function s:VENode.init(path)
     let self.path = a:path
     if g:VEPlatform.haswin32() && !&ssl
         let self.name = matchstr(a:path,'[^\\]*\\$','','g')
@@ -915,7 +915,7 @@ function! s:VENode.init(path)
 endfunction
 
 "Refresh tree node
-function! s:VENode.updateNode()
+function s:VENode.updateNode()
     "Once a node is updated, it means that the node has been opened.
     let self.isopen = 1
     "Create new dir list
@@ -979,7 +979,7 @@ endfunction
 "Toggle open/close status of one node
 "the path should end with '\' such as c:\aaa\bbb\
 "example "c:\\aaa\\bbb\\" "aaa\\bbb\\" "bbb\\"
-function! s:VENode.toggle(path)
+function s:VENode.toggle(path)
     if g:VEPlatform.haswin32() && !&ssl
         let childPath = substitute(a:path,'^.\{-}\\','','g')
     else
@@ -1007,7 +1007,7 @@ endfunction
 "Open the giving path
 "the path should end with '\' such as c:\aaa\bbb\
 "example "c:\\aaa\\bbb\\" "aaa\\bbb\\" "bbb\\"
-function! s:VENode.openPath(path)
+function s:VENode.openPath(path)
     if g:VEPlatform.haswin32() && !&ssl
         let childPath = substitute(a:path,'^.\{-}\\','','g')
     else
@@ -1038,7 +1038,7 @@ endfunction
 
 
 "Draw the tree, depend on the status of every tree node.
-function! s:VENode.draw(tree,depth)
+function s:VENode.draw(tree,depth)
     if self.hasOwnChilds == 0
         let name = repeat(' ',a:depth*2).'  '.self.name
         call add(a:tree,[name,self.path])
@@ -1073,14 +1073,14 @@ let s:VETree.content = []
 let s:VETree.rootNodes = {}
 
 "Object Constructor
-function! s:VETree.init()
+function s:VETree.init()
     call g:VEPlatform.getRoot(self.rootNodes)
     "for i in keys(self.rootNodes)
     "    call self.rootNodes[i].updateNode()
     "endfor
 endfunction
 
-function! s:VETree.togglePath(path)
+function s:VETree.togglePath(path)
     if g:VEPlatform.haswin32() && !&ssl
         let rootNodeName = matchstr(a:path,'^.\{-}\\')
     else
@@ -1089,7 +1089,7 @@ function! s:VETree.togglePath(path)
     call self.rootNodes[rootNodeName].toggle(a:path)
 endfunction
 
-function! s:VETree.openPath(path)
+function s:VETree.openPath(path)
     if g:VEPlatform.haswin32() && !&ssl
         let rootNodeName = matchstr(a:path,'^.\{-}\\')
     else
@@ -1099,7 +1099,7 @@ function! s:VETree.openPath(path)
 endfunction
 
 " fill self.content
-function! s:VETree.draw()
+function s:VETree.draw()
     let keys = sort(keys(self.rootNodes),"VEPlatform_sortCompare")
     if g:VEConf.treeSortDirection == 0
         call reverse(keys)
@@ -1109,7 +1109,7 @@ function! s:VETree.draw()
     endfor
 endfunction
 
-function! s:VETree.update(path)
+function s:VETree.update(path)
     call g:VEPlatform.getRoot(self.rootNodes)
     "toggle twice to update current directory
     call self.togglePath(a:path)
@@ -1131,7 +1131,7 @@ let s:VETreePanel.splitMode = ''
 let s:VETreePanel.splitLocation = ''
 
 "Object Constructor
-function! s:VETreePanel.init(name,path)
+function s:VETreePanel.init(name,path)
     let self.name = "VETreePanel" . a:name
     let self.path = a:path
     let self.width = g:VEConf.treePanelWidth
@@ -1142,7 +1142,7 @@ function! s:VETreePanel.init(name,path)
     call self.tree.openPath(a:path)
 endfunction
 
-function! s:VETreePanel.setFocus()
+function s:VETreePanel.setFocus()
     let VETreeWinNr = bufwinnr(self.name)
     if VETreeWinNr != -1
         exec VETreeWinNr . " wincmd w"
@@ -1157,7 +1157,7 @@ function! s:VETreePanel.setFocus()
 endfunction
 
 "Sync the tree with filesystem and refresh the tree panel
-function! s:VETreePanel.refresh()
+function s:VETreePanel.refresh()
     if !self.setFocus()
         return
     endif
@@ -1166,7 +1166,7 @@ function! s:VETreePanel.refresh()
 endfunction
 
 "Draw the dir tree but do not sync the tree with filesystem
-function! s:VETreePanel.drawTree()
+function s:VETreePanel.drawTree()
     if !self.setFocus()
         return
     endif
@@ -1201,7 +1201,7 @@ function! s:VETreePanel.drawTree()
 endfunction
 
 "Show tree panel
-function! s:VETreePanel.show()
+function s:VETreePanel.show()
     if self.setFocus()
         return
     endif
@@ -1232,7 +1232,7 @@ function! s:VETreePanel.show()
 endfunction
 
 "Hide tree panel
-function! s:VETreePanel.hide()
+function s:VETreePanel.hide()
     if !self.setFocus()
         return
     else
@@ -1244,11 +1244,11 @@ function! s:VETreePanel.hide()
     endif
 endfunction
 
-function! s:VETreePanel.getPathUnderCursor(num)
+function s:VETreePanel.getPathUnderCursor(num)
     return self.tree.content[a:num][1]
 endfunction
 
-function! s:VETreePanel.nodeClicked(num)
+function s:VETreePanel.nodeClicked(num)
     if self.tree.content[a:num][1] == ""
         return
     endif
@@ -1264,7 +1264,7 @@ function! s:VETreePanel.nodeClicked(num)
     call self.drawTree()
 endfunction
 
-function! s:VETreePanel.pathChanged(path)
+function s:VETreePanel.pathChanged(path)
     if self.path == a:path
         return
     endif
@@ -1274,7 +1274,7 @@ function! s:VETreePanel.pathChanged(path)
     call self.drawTree()
 endfunction
 
-function! s:VETreePanel.createActions()
+function s:VETreePanel.createActions()
     exec "nnoremap <silent> <buffer> " . g:VEConf.treePanelHotkey.help .           " :tab h VimExplorer<cr>"
     exec "nnoremap <silent> <buffer> " . g:VEConf.treePanelHotkey.toggleNode .     " :call VE_OnTreeNodeClick()<cr>"
     exec "nnoremap <silent> <buffer> " . g:VEConf.treePanelHotkey.toggleNodeMouse. " :call VE_OnTreeNodeClick()<cr>"
@@ -1294,7 +1294,7 @@ function! s:VETreePanel.createActions()
     setlocal statusline=%{getcwd()}
 endfunction
 
-function! s:VETreePanel.createSyntax()
+function s:VETreePanel.createSyntax()
     if !self.setFocus()
         return
     endif
@@ -1318,7 +1318,7 @@ let s:VEFilePanel.width = 0
 let s:VEFilePanel.splitMode = ""
 let s:VEFilePanel.splitLocation = ""
 
-function! s:VEFilePanel.init(name,path)
+function s:VEFilePanel.init(name,path)
     let self.name = "VEFilePanel".a:name
     let self.path = a:path
     let self.splitMode = g:VEConf.filePanelSplitMode
@@ -1326,7 +1326,7 @@ function! s:VEFilePanel.init(name,path)
     let self.width = g:VEConf.filePanelWidth
 endfunction
 
-function! s:VEFilePanel.show()
+function s:VEFilePanel.show()
     if self.setFocus()
         return
     endif
@@ -1354,14 +1354,14 @@ function! s:VEFilePanel.show()
     call self.createSyntax()
 endfunction
 
-function! s:VEFilePanel.only()
+function s:VEFilePanel.only()
     if !self.setFocus()
         return
     endif
     only
 endfunction
 
-function! s:VEFilePanel.hide()
+function s:VEFilePanel.hide()
     if !self.setFocus()
         return
     else
@@ -1371,14 +1371,14 @@ function! s:VEFilePanel.hide()
     endif
 endfunction
 
-function! s:VEFilePanel.refresh()
+function s:VEFilePanel.refresh()
     call self.getFileListFromCwd()
     call self.updateDisplayList()
     call self.drawList()
 endfunction
 
 "Draw the displayList on the screen.
-function! s:VEFilePanel.drawList()
+function s:VEFilePanel.drawList()
     if !self.setFocus()
         return
     endif
@@ -1411,7 +1411,7 @@ function! s:VEFilePanel.drawList()
 endfunction
 
 "Update the displayList.
-function! s:VEFilePanel.updateDisplayList()
+function s:VEFilePanel.updateDisplayList()
     if g:VEConf.filePanelSortType == 1
         call self.sortByName()
     elseif g:VEConf.filePanelSortType == 2
@@ -1421,7 +1421,7 @@ function! s:VEFilePanel.updateDisplayList()
     endif
 endfunction
 
-function! s:VEFilePanel.toggleModes()
+function s:VEFilePanel.toggleModes()
     if g:VEConf.filePanelSortType < 2
         let g:VEConf.filePanelSortType = g:VEConf.filePanelSortType + 1
     else
@@ -1431,12 +1431,12 @@ function! s:VEFilePanel.toggleModes()
     call self.drawList()
 endfunction
 
-function! s:VEFilePanel.getFileListFromCwd()
+function s:VEFilePanel.getFileListFromCwd()
     let self.fileList = split(g:VEPlatform.globpath_file(self.path),"\n")
 endfunction
 
 " 1
-function! s:VEFilePanel.sortByName()
+function s:VEFilePanel.sortByName()
     let fileGroup = {}
     " example
     " {
@@ -1477,7 +1477,7 @@ function! s:VEFilePanel.sortByName()
 endfunction
 
 " 2
-function! s:VEFilePanel.sortByTime()
+function s:VEFilePanel.sortByTime()
     let fileGroup = {}
     " example
     " {
@@ -1546,7 +1546,7 @@ endfunction
 "endfunction
 
 " 0
-function! s:VEFilePanel.sortByType()
+function s:VEFilePanel.sortByType()
     let fileGroup = {}
     " example
     " {
@@ -1640,7 +1640,7 @@ function! s:VEFilePanel.sortByType()
     endif
 endfunction
 
-function! s:VEFilePanel.pathChanged(path)
+function s:VEFilePanel.pathChanged(path)
     if self.path == a:path
         return
     endif
@@ -1652,7 +1652,7 @@ function! s:VEFilePanel.pathChanged(path)
     "If path changed, set the cursor to the middle of the screen.
 endfunction
 
-function! s:VEFilePanel.setFocus()
+function s:VEFilePanel.setFocus()
     let VEFileWinNr = bufwinnr(self.name)
     if VEFileWinNr != -1
         exec VEFileWinNr . " wincmd w"
@@ -1670,7 +1670,7 @@ function! s:VEFilePanel.setFocus()
     endif
 endfunction
 
-function! s:VEFilePanel.itemClicked(line)
+function s:VEFilePanel.itemClicked(line)
     let path = self.displayList[a:line][1]
     if path == ''
         return
@@ -1684,7 +1684,7 @@ function! s:VEFilePanel.itemClicked(line)
     endif
 endfunction
 
-function! s:VEFilePanel.itemPreview(line)
+function s:VEFilePanel.itemPreview(line)
     let path = self.displayList[a:line][1]
     if path == ''
         return
@@ -1692,7 +1692,7 @@ function! s:VEFilePanel.itemPreview(line)
     exec g:VEConf.previewSplitLocation . " pedit " . g:VEPlatform.escape(path)
 endfunction
 
-function! s:VEFilePanel.singleFileAction(line,actionName)
+function s:VEFilePanel.singleFileAction(line,actionName)
     let path = self.displayList[a:line][1]
     if path == ''
         return
@@ -1700,15 +1700,15 @@ function! s:VEFilePanel.singleFileAction(line,actionName)
     call g:VEConf_singleFileActions[a:actionName](path)
 endfunction
 
-function! s:VEFilePanel.normalAction(actionName)
+function s:VEFilePanel.normalAction(actionName)
     call g:VEConf_normalActions[a:actionName]()
 endfunction
 
-function! s:VEFilePanel.multiAction(actionName)
+function s:VEFilePanel.multiAction(actionName)
     call g:VEConf_multiFileActions[a:actionName](self.selectedFiles)
 endfunction
 
-function! s:VEFilePanel.deleteSingle(line)
+function s:VEFilePanel.deleteSingle(line)
     let path = self.displayList[a:line][1]
     if path == ''
         return
@@ -1721,7 +1721,7 @@ function! s:VEFilePanel.deleteSingle(line)
     endif
 endfunction
 
-function! s:VEFilePanel.deleteSelectedFiles()
+function s:VEFilePanel.deleteSelectedFiles()
     if empty(self.selectedFiles)
         return
     endif
@@ -1730,7 +1730,7 @@ function! s:VEFilePanel.deleteSelectedFiles()
     endif
 endfunction
 
-function! s:VEFilePanel.toggleSelect(direction)
+function s:VEFilePanel.toggleSelect(direction)
     if a:direction == "up"
         exec "norm " . "\<up>"
     endif
@@ -1750,12 +1750,12 @@ function! s:VEFilePanel.toggleSelect(direction)
     endif
 endfunction!
 
-function! s:VEFilePanel.clearSelect()
+function s:VEFilePanel.clearSelect()
     let self.selectedFiles = []
     call self.drawList()
 endfunction
 
-function! s:VEFilePanel.visualSelect(firstLine,lastLine)
+function s:VEFilePanel.visualSelect(firstLine,lastLine)
     for line in range(a:firstLine,(a:lastLine>=len(self.displayList)?(len(self.displayList)-1):a:lastLine))
         let path = self.displayList[line][1]
         if path == ''
@@ -1771,7 +1771,7 @@ function! s:VEFilePanel.visualSelect(firstLine,lastLine)
     call self.drawList()
 endfunction
 
-function! s:VEFilePanel.visualDelete(firstLine,lastLine)
+function s:VEFilePanel.visualDelete(firstLine,lastLine)
     let displayList = []
     for line in range(a:firstLine,(a:lastLine>=len(self.displayList)?(len(self.displayList)-1):a:lastLine))
         let path = self.displayList[line][1]
@@ -1788,7 +1788,7 @@ function! s:VEFilePanel.visualDelete(firstLine,lastLine)
     endif
 endfunction
 
-function! s:VEFilePanel.visualYank(firstLine,lastLine,mode)
+function s:VEFilePanel.visualYank(firstLine,lastLine,mode)
     let displayList = []
     for line in range(a:firstLine,(a:lastLine>=len(self.displayList)?(len(self.displayList)-1):a:lastLine))
         let path = self.displayList[line][1]
@@ -1806,7 +1806,7 @@ function! s:VEFilePanel.visualYank(firstLine,lastLine,mode)
     call s:VEContainer.showClipboard()
 endfunction
 
-function! s:VEFilePanel.yankSingle(mode)
+function s:VEFilePanel.yankSingle(mode)
     let line = line(".") - 1
     let path = self.displayList[line][1]
     if path != ''
@@ -1817,7 +1817,7 @@ function! s:VEFilePanel.yankSingle(mode)
     call s:VEContainer.showClipboard()
 endfunction
 
-function! s:VEFilePanel.paste()
+function s:VEFilePanel.paste()
     if s:VEContainer.yankMode == '' || s:VEContainer.clipboard == []
         return
     endif
@@ -1833,7 +1833,7 @@ function! s:VEFilePanel.paste()
     "call s:VEContainer.showClipboard()
 endfunction!
 
-function! s:VEFilePanel.markViaRegexp(regexp)
+function s:VEFilePanel.markViaRegexp(regexp)
     if a:regexp == ''
         echohl Special
         let regexp = input("Mark files (regexp): ")
@@ -1855,7 +1855,7 @@ function! s:VEFilePanel.markViaRegexp(regexp)
     call self.drawList()
 endfunction
 
-function! s:VEFilePanel.markExecutable()
+function s:VEFilePanel.markExecutable()
     let self.selectedFiles = []
     for i in self.displayList
         if g:VEPlatform.executable(i[1])
@@ -1865,7 +1865,7 @@ function! s:VEFilePanel.markExecutable()
     call self.drawList()
 endfunction
 
-function! s:VEFilePanel.newFile()
+function s:VEFilePanel.newFile()
     echohl Special
     let filename = input("Create file : ",self.path,"file")
     echohl None
@@ -1881,7 +1881,7 @@ function! s:VEFilePanel.newFile()
     endif
 endfunction
 
-function! s:VEFilePanel.newDirectory()
+function s:VEFilePanel.newDirectory()
     if !exists("*mkdir")
         echoerr "mkdir feature not found!"
     endif
@@ -1900,7 +1900,7 @@ function! s:VEFilePanel.newDirectory()
     endif
 endfunction
 
-function! s:VEFilePanel.rename(line)
+function s:VEFilePanel.rename(line)
     let path = self.displayList[a:line][1]
     if path == ''
         return
@@ -1924,7 +1924,7 @@ function! s:VEFilePanel.rename(line)
     endif
 endfunction
 
-function! s:VEFilePanel.search()
+function s:VEFilePanel.search()
     echohl Special
     let filename = input("Search : ")
     echohl None
@@ -1938,7 +1938,7 @@ function! s:VEFilePanel.search()
     call self.drawList()
 endfunction
 
-function! s:VEFilePanel.statusFileName()
+function s:VEFilePanel.statusFileName()
     let line = line(".") - 1
     let fname = self.displayList[line][1]
     "let fname = substitute(fname,self.path,'','g')
@@ -1946,7 +1946,7 @@ function! s:VEFilePanel.statusFileName()
     return fname
 endfunction
 
-function! s:VEFilePanel.createActions()
+function s:VEFilePanel.createActions()
     exec "nnoremap <silent> <buffer> " . g:VEConf.filePanelHotkey.help .           " :tab h VimExplorer<cr>"
     exec "nnoremap <silent> <buffer> " . g:VEConf.filePanelHotkey.switchPanel .    " <c-w><c-w>"
     exec "nnoremap <silent> <buffer> " . g:VEConf.filePanelHotkey.itemClicked .    " :call VE_OnFileItemClick()<cr>"
@@ -2024,7 +2024,7 @@ function! s:VEFilePanel.createActions()
     setlocal statusline=%{VE_GetStatusFileName()}%=[%{getcwd()}]\ %{strftime(\"\%Y-\%m-\%d\ \%H:\%M\")}
 endfunction
 
-function! s:VEFilePanel.createSyntax()
+function s:VEFilePanel.createSyntax()
     let VEFileWinNr = bufwinnr(self.name)
     if VEFileWinNr != -1
         exec VEFileWinNr . " wincmd w"
@@ -2034,7 +2034,7 @@ function! s:VEFilePanel.createSyntax()
     call g:VEConf.filePanelSyntax()
 endfunction
 
-function! s:VEFilePanel.getPathUnderCursor(num)
+function s:VEFilePanel.getPathUnderCursor(num)
     return self.displayList[a:num][1]
 endfunction
 
@@ -2120,7 +2120,7 @@ let s:VEFrameWork.pathHistory = []
 let s:VEFrameWork.pathPosition = -1
 
 "Object Constructor
-function! s:VEFrameWork.init(name,path)
+function s:VEFrameWork.init(name,path)
     let self.name = "VEFrameWork".a:name
     let self.filePanel = deepcopy(s:VEFilePanel)
     let self.treePanel = deepcopy(s:VETreePanel)
@@ -2132,7 +2132,7 @@ function! s:VEFrameWork.init(name,path)
     let self.pathPosition += 1
 endfunction
 
-function! s:VEFrameWork.show()
+function s:VEFrameWork.show()
     tabnew
     call self.filePanel.show()
     call self.filePanel.only() "so,here it means filePanel should be displayed first
@@ -2144,7 +2144,7 @@ endfunction
 
 "Switch to another path, it will change the forward/backward
 "history.
-function! s:VEFrameWork.gotoPath(path)
+function s:VEFrameWork.gotoPath(path)
     call self.treePanel.pathChanged(a:path)
     call self.filePanel.pathChanged(a:path)
     if len(self.pathHistory) > self.pathPosition+1
@@ -2159,7 +2159,7 @@ function! s:VEFrameWork.gotoPath(path)
 endfunction
 
 "Forward and backward
-function! s:VEFrameWork.gotoForward()
+function s:VEFrameWork.gotoForward()
     if self.pathPosition >= len(self.pathHistory) ||
                 \ self.pathPosition < 0 ||
                 \ empty(self.pathHistory)
@@ -2175,7 +2175,7 @@ function! s:VEFrameWork.gotoForward()
     call self.filePanel.pathChanged(self.pathHistory[self.pathPosition])
 endfunction
 
-function! s:VEFrameWork.gotoBackward()
+function s:VEFrameWork.gotoBackward()
     if self.pathPosition >= len(self.pathHistory) ||
                 \ self.pathPosition < 0 ||
                 \ empty(self.pathHistory)
@@ -2192,7 +2192,7 @@ function! s:VEFrameWork.gotoBackward()
 endfunction
 
 "Object destructor
-function! s:VEFrameWork.destroy()
+function s:VEFrameWork.destroy()
     call self.filePanel.hide()
     call self.treePanel.hide()
 endfunction
@@ -2210,7 +2210,7 @@ let s:VEContainer.clipboard = [] "shared clipboard
 let s:VEContainer.yankMode = ''  "cut or yank
 let s:VEContainer.markPlaces = {}
 
-function! vimExplorer#VENew(path)
+function vimExplorer#VENew(path)
     let frameName = '_' . substitute(reltimestr(reltime()),'\.','','g')
     if a:path == ''
         echohl Special
@@ -2239,7 +2239,7 @@ function! vimExplorer#VENew(path)
     endwhile
 endfunction
 
-function! VEDestroy()
+function VEDestroy()
     let winName = matchstr(bufname("%"),'_[^_]*$')
     if has_key(s:VEContainer,winName)
         call s:VEContainer[winName].destroy()
@@ -2247,7 +2247,7 @@ function! VEDestroy()
     endif
 endfunction
 
-function! s:VEContainer.showClipboard()
+function s:VEContainer.showClipboard()
     echohl Special
     let msg = len(self.clipboard) . " files in clipboard, Mode: " . self.yankMode . ", "
     let msg = msg . '(press ' . g:VEConf.filePanelHotkey.showYankList . ' to show file list)'
@@ -2256,7 +2256,7 @@ function! s:VEContainer.showClipboard()
 endfunction
 
 " Get path name under cursor
-function! VE_getPathUnderCursor(where)
+function VE_getPathUnderCursor(where)
     let winName = matchstr(bufname("%"),'_[^_]*$')
     let path = ''
     if has_key(s:VEContainer,winName)
@@ -2281,7 +2281,7 @@ endfunction
 "TreePanel command handlers
 "----------------------------
 "Node click event
-function! VE_OnTreeNodeClick()
+function VE_OnTreeNodeClick()
     let winName = matchstr(bufname("%"),'_[^_]*$')
     if has_key(s:VEContainer,winName)
         call s:VEContainer[winName].treePanel.nodeClicked(line(".")-1)
@@ -2289,7 +2289,7 @@ function! VE_OnTreeNodeClick()
 endfunction
 
 "Refresh tree command
-function! VE_TreeRefresh()
+function VE_TreeRefresh()
     let winName = matchstr(bufname("%"),'_[^_]*$')
     if has_key(s:VEContainer,winName)
         call s:VEContainer[winName].treePanel.refresh()
@@ -2299,7 +2299,7 @@ endfunction
 "FilePanel command handlers
 "----------------------------
 "Item click event.
-function! VE_OnFileItemClick()
+function VE_OnFileItemClick()
     let winName = matchstr(bufname("%"),'_[^_]*$')
     if has_key(s:VEContainer,winName)
         call s:VEContainer[winName].filePanel.itemClicked(line(".")-1)
@@ -2307,7 +2307,7 @@ function! VE_OnFileItemClick()
 endfunction
 
 "Open preview.
-function! VE_OnFileOpenPreview()
+function VE_OnFileOpenPreview()
     let winName = matchstr(bufname("%"),'_[^_]*$')
     if has_key(s:VEContainer,winName)
         call s:VEContainer[winName].filePanel.itemPreview(line(".")-1)
@@ -2315,7 +2315,7 @@ function! VE_OnFileOpenPreview()
 endfunction
 
 "Refresh the panel.
-function! VE_RefreshFilePanel()
+function VE_RefreshFilePanel()
     let winName = matchstr(bufname("%"),'_[^_]*$')
     if has_key(s:VEContainer,winName)
         call s:VEContainer[winName].filePanel.refresh()
@@ -2323,7 +2323,7 @@ function! VE_RefreshFilePanel()
 endfunction
 
 "User defined single file actions.
-function! VE_SingleFileAction(actionName)
+function VE_SingleFileAction(actionName)
     let winName = matchstr(bufname("%"),'_[^_]*$')
     if has_key(s:VEContainer,winName)
         call s:VEContainer[winName].filePanel.singleFileAction((line(".")-1),a:actionName)
@@ -2331,7 +2331,7 @@ function! VE_SingleFileAction(actionName)
 endfunction
 
 "User defined normal actions.
-function! VE_NormalAction(actionName)
+function VE_NormalAction(actionName)
     let winName = matchstr(bufname("%"),'_[^_]*$')
     if has_key(s:VEContainer,winName)
         call s:VEContainer[winName].filePanel.normalAction(a:actionName)
@@ -2339,7 +2339,7 @@ function! VE_NormalAction(actionName)
 endfunction
 
 "Multiple file actions.
-function! VE_MultiFileAction(actionName)
+function VE_MultiFileAction(actionName)
     let winName = matchstr(bufname("%"),'_[^_]*$')
     if has_key(s:VEContainer,winName)
         call s:VEContainer[winName].filePanel.multiAction(a:actionName)
@@ -2347,7 +2347,7 @@ function! VE_MultiFileAction(actionName)
 endfunction
 
 "Delete single file or directory.
-function! VE_DeleteSingle()
+function VE_DeleteSingle()
     let winName = matchstr(bufname("%"),'_[^_]*$')
     if has_key(s:VEContainer,winName)
         call s:VEContainer[winName].filePanel.deleteSingle(line(".")-1)
@@ -2355,7 +2355,7 @@ function! VE_DeleteSingle()
 endfunction
 
 "Rename file or dir
-function! VE_Rename()
+function VE_Rename()
     let winName = matchstr(bufname("%"),'_[^_]*$')
     if has_key(s:VEContainer,winName)
         call s:VEContainer[winName].filePanel.rename(line(".")-1)
@@ -2363,7 +2363,7 @@ function! VE_Rename()
 endfunction
 
 "Toggle select a file in file panel.
-function! VE_ToggleSelectFile(direction)
+function VE_ToggleSelectFile(direction)
     let winName = matchstr(bufname("%"),'_[^_]*$')
     if has_key(s:VEContainer,winName)
         call s:VEContainer[winName].filePanel.toggleSelect(a:direction)
@@ -2371,7 +2371,7 @@ function! VE_ToggleSelectFile(direction)
 endfunction
 
 "Clear selection.
-function! VE_ClearSelectFile()
+function VE_ClearSelectFile()
     let winName = matchstr(bufname("%"),'_[^_]*$')
     if has_key(s:VEContainer,winName)
         call s:VEContainer[winName].filePanel.clearSelect()
@@ -2379,7 +2379,7 @@ function! VE_ClearSelectFile()
 endfunction
 
 "Toggle sort mode
-function! VE_ToggleModes()
+function VE_ToggleModes()
     let winName = matchstr(bufname("%"),'_[^_]*$')
     if has_key(s:VEContainer,winName)
         call s:VEContainer[winName].filePanel.toggleModes()
@@ -2387,7 +2387,7 @@ function! VE_ToggleModes()
 endfunction
 
 "Mark via regexp
-function! VE_MarkViaRegexp(regexp)
+function VE_MarkViaRegexp(regexp)
     let winName = matchstr(bufname("%"),'_[^_]*$')
     if has_key(s:VEContainer,winName)
         call s:VEContainer[winName].filePanel.markViaRegexp(a:regexp)
@@ -2395,7 +2395,7 @@ function! VE_MarkViaRegexp(regexp)
 endfunction
 
 "Mark executable files.
-function! VE_MarkExecutable()
+function VE_MarkExecutable()
     let winName = matchstr(bufname("%"),'_[^_]*$')
     if has_key(s:VEContainer,winName)
         call s:VEContainer[winName].filePanel.markExecutable()
@@ -2403,7 +2403,7 @@ function! VE_MarkExecutable()
 endfunction
 
 "create file
-function! VE_NewFile()
+function VE_NewFile()
     let winName = matchstr(bufname("%"),'_[^_]*$')
     if has_key(s:VEContainer,winName)
         call s:VEContainer[winName].filePanel.newFile()
@@ -2411,7 +2411,7 @@ function! VE_NewFile()
 endfunction
 
 "create directory
-function! VE_NewDirectory()
+function VE_NewDirectory()
     let winName = matchstr(bufname("%"),'_[^_]*$')
     if has_key(s:VEContainer,winName)
         call s:VEContainer[winName].filePanel.newDirectory()
@@ -2419,7 +2419,7 @@ function! VE_NewDirectory()
 endfunction
 
 "delete selected files.
-function! VE_DeleteSelectedFiles()
+function VE_DeleteSelectedFiles()
     let winName = matchstr(bufname("%"),'_[^_]*$')
     if has_key(s:VEContainer,winName)
         call s:VEContainer[winName].filePanel.deleteSelectedFiles()
@@ -2427,7 +2427,7 @@ function! VE_DeleteSelectedFiles()
 endfunction
 
 "delete selected files.
-function! VE_YankSelectedFiles(mode)
+function VE_YankSelectedFiles(mode)
     let winName = matchstr(bufname("%"),'_[^_]*$')
     if has_key(s:VEContainer,winName)
         let s:VEContainer.clipboard = s:VEContainer[winName].filePanel.selectedFiles
@@ -2436,21 +2436,21 @@ function! VE_YankSelectedFiles(mode)
     call s:VEContainer.showClipboard()
 endfunction
 
-function! VE_YankSingle(mode)
+function VE_YankSingle(mode)
     let winName = matchstr(bufname("%"),'_[^_]*$')
     if has_key(s:VEContainer,winName)
         call s:VEContainer[winName].filePanel.yankSingle(a:mode)
     endif
 endfunction
 
-function! VE_Paste()
+function VE_Paste()
     let winName = matchstr(bufname("%"),'_[^_]*$')
     if has_key(s:VEContainer,winName)
         call s:VEContainer[winName].filePanel.paste()
     endif
 endfunction
 
-function! VE_FileSearch()
+function VE_FileSearch()
     let winName = matchstr(bufname("%"),'_[^_]*$')
     if has_key(s:VEContainer,winName)
         call s:VEContainer[winName].filePanel.search()
@@ -2460,7 +2460,7 @@ endfunction
 
 "visual mode functions.
 "visual select
-function! VE_VisualSelect() range
+function VE_VisualSelect() range
     let winName = matchstr(bufname("%"),'_[^_]*$')
     if has_key(s:VEContainer,winName)
         call s:VEContainer[winName].filePanel.visualSelect(a:firstline-1,a:lastline-1)
@@ -2468,7 +2468,7 @@ function! VE_VisualSelect() range
 endfunction
 
 "visual delete
-function! VE_VisualDelete() range
+function VE_VisualDelete() range
     let winName = matchstr(bufname("%"),'_[^_]*$')
     if has_key(s:VEContainer,winName)
         call s:VEContainer[winName].filePanel.visualDelete(a:firstline-1,a:lastline-1)
@@ -2476,14 +2476,14 @@ function! VE_VisualDelete() range
 endfunction
 
 "visual yank
-function! VE_VisualYank(mode) range
+function VE_VisualYank(mode) range
     let winName = matchstr(bufname("%"),'_[^_]*$')
     if has_key(s:VEContainer,winName)
         call s:VEContainer[winName].filePanel.visualYank(a:firstline-1,a:lastline-1,a:mode)
     endif
 endfunction
 
-function! VE_ShowYankList()
+function VE_ShowYankList()
     if s:VEContainer.clipboard == []
         return
     endif
@@ -2495,7 +2495,7 @@ endfunction
 "Common command handlers
 "--------------------------
 "get file name for status line.
-function! VE_GetStatusFileName()
+function VE_GetStatusFileName()
     let winName = matchstr(bufname("%"),'_[^_]*$')
     if has_key(s:VEContainer,winName)
         return s:VEContainer[winName].filePanel.statusFileName()
@@ -2505,16 +2505,16 @@ function! VE_GetStatusFileName()
 endfunction
 
 "mark palce
-function! VE_MarkPlace(char)
+function VE_MarkPlace(char)
     let s:VEContainer.markPlaces[a:char] = g:VEPlatform.getcwd()
 endfunction
 
 "goto marked place
-function! VE_MarkSwitchTo(char)
+function VE_MarkSwitchTo(char)
     call VE_GotoPath(s:VEContainer.markPlaces[a:char])
 endfunction
 
-function! VE_MarkList()
+function VE_MarkList()
     let list = []
     let letter = char2nr('a')
     while letter <= char2nr('z')
@@ -2526,7 +2526,7 @@ function! VE_MarkList()
 endfunction
 
 "Toggle tree panel.
-function! VE_ToggleTreePanel()
+function VE_ToggleTreePanel()
     let winName = matchstr(bufname("%"),'_[^_]*$')
     if has_key(s:VEContainer,winName)
         if s:VEContainer[winName].treePanel.setFocus()
@@ -2539,7 +2539,7 @@ function! VE_ToggleTreePanel()
 endfunction
 
 "Toggle file panel.
-function! VE_ToggleFilePanel()
+function VE_ToggleFilePanel()
     let winName = matchstr(bufname("%"),'_[^_]*$')
     if has_key(s:VEContainer,winName)
         if s:VEContainer[winName].filePanel.setFocus()
@@ -2552,13 +2552,13 @@ function! VE_ToggleFilePanel()
     exec g:VEConf.treePanelWidth . " wincmd |"
 endfunction
 
-function! VE_ClosePreviewPanel()
+function VE_ClosePreviewPanel()
     pclose
 endfunction
 
 
 "Go to upper directory.
-function! VE_ToUpperDir()
+function VE_ToUpperDir()
     let winNr = bufwinnr('%')
     let winName = matchstr(bufname("%"),'_[^_]*$')
     if has_key(s:VEContainer,winName)
@@ -2574,7 +2574,7 @@ function! VE_ToUpperDir()
 endfunction
 
 "Path change event
-function! VE_GotoPath(path)
+function VE_GotoPath(path)
     if !isdirectory(a:path)
         return
     endif
@@ -2587,7 +2587,7 @@ function! VE_GotoPath(path)
 endfunction
 
 "Used in <c-g>
-function! VE_OpenPath()
+function VE_OpenPath()
     echohl Special
     let workPath = input("Change path to (directory): ",'',"file")
     echohl None
@@ -2600,7 +2600,7 @@ function! VE_OpenPath()
 endfunction
 
 "Goto forward
-function! VE_GotoForward()
+function VE_GotoForward()
     let winNr = bufwinnr('%')
     let winName = matchstr(bufname("%"),'_[^_]*$')
     if has_key(s:VEContainer,winName)
@@ -2610,7 +2610,7 @@ function! VE_GotoForward()
 endfunction
 
 "Goto backward
-function! VE_GotoBackward()
+function VE_GotoBackward()
     let winNr = bufwinnr('%')
     let winName = matchstr(bufname("%"),'_[^_]*$')
     if has_key(s:VEContainer,winName)
@@ -2620,7 +2620,7 @@ function! VE_GotoBackward()
 endfunction
 
 "Favorite
-function! VE_GotoFavorite()
+function VE_GotoFavorite()
     let fav_filename = g:VEConf.favorite
     if findfile(fav_filename)=='' || !filereadable(fav_filename)
         return
@@ -2633,7 +2633,7 @@ function! VE_GotoFavorite()
     call VE_GotoPath(fav[result])
 endfunction
 
-function! VE_AddToFavorite(where)
+function VE_AddToFavorite(where)
     let winNr = bufwinnr('%')
     let winName = matchstr(bufname("%"),'_[^_]*$')
     if has_key(s:VEContainer,winName)
@@ -2673,7 +2673,7 @@ function! VE_AddToFavorite(where)
 endfunction
 
 "forward and backward history
-function! VE_BrowseHistory()
+function VE_BrowseHistory()
     let winNr = bufwinnr('%')
     let winName = matchstr(bufname("%"),'_[^_]*$')
     if has_key(s:VEContainer,winName)
@@ -2690,7 +2690,7 @@ function! VE_BrowseHistory()
 endfunction
 
 "sync directory
-function! VE_SyncDir()
+function VE_SyncDir()
     let winNr = bufwinnr('%')
     let winName = matchstr(bufname("%"),'_[^_]*$')
     if has_key(s:VEContainer,winName)
@@ -2700,7 +2700,7 @@ function! VE_SyncDir()
 endfunction
 
 "diff 2 files
-function! VE_Diff()
+function VE_Diff()
     let winNr = bufwinnr('%')
     let winName = matchstr(bufname("%"),'_[^_]*$')
     if has_key(s:VEContainer,winName)
@@ -2715,7 +2715,7 @@ function! VE_Diff()
 endfunction
 
 "toggle show hidden files
-function! VE_ToggleHidden()
+function VE_ToggleHidden()
     let winNr = bufwinnr('%')
     let winName = matchstr(bufname("%"),'_[^_]*$')
     if has_key(s:VEContainer,winName)
@@ -2725,5 +2725,5 @@ function! VE_ToggleHidden()
     endif
 endfunction
 
-command! -nargs=0 -complete=file VEC   call VEDestroy()
+command! -nargs=0 VEC   call VEDestroy()
 
