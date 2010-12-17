@@ -299,17 +299,6 @@ vim.command("let ret = '"+l+"'")
 EOF
   exe 'normal gvs' . ret
 endfunction
-"   在插入模式下用Tab实现补全[[[2
-function! CleverTab()
-  if strpart(getline('.'), 0, col('.')-1)
-    return "\<C-J>"
-  else
-    return "\<C-P>"
-  endif
-endfunction
-" 为了 snipMate 改成 <C-J>
-inoremap <C-J> <C-R>=CleverTab()<CR>
-inoremap <M-j> <C-N>
 "  用火狐打开链接[[[2
 function Lilydjwg_open_url()
   let s:url = Lilydjwg_get_pattern_at_cursor('\v(https?://|ftp://|file:/{3}|www\.)(\w|[.-])+(:\d+)?(/(\w|[~@#$%^&+=/.?:-])+)?')
@@ -586,6 +575,8 @@ nmap cac :call Lilydjwg_changeColor()<CR>
 "   imap [[[2
 inoremap <S-CR> <CR>    
 inoremap <M-c> <C-R>=Lilydjwg_colorpicker()<CR>
+inoremap <C-J> <C-P>
+inoremap <M-j> <C-N>
 imap <S-BS> <C-W>
 cmap <S-BS> <C-W>
 "     日期和时间 [[[3
