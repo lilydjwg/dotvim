@@ -17,6 +17,20 @@ function Escalt_console()
       exe "set <M-".nr2char(i).">=\<Esc>".nr2char(i)
     endfor
     set ttimeoutlen=50
+    if &term =~ 'xterm'
+      set <F1>=OP
+      set <F2>=OQ
+      set <F3>=OR
+      set <F4>=OS
+      set <Home>=OH
+      set <End>=OF
+    endif
+    for i in ["", "c", "i", "x"]
+      exe i . "map Ï1;2P <S-F1>"
+      exe i . "map Ï1;2Q <S-F2>"
+      exe i . "map Ï1;2R <S-F3>"
+      exe i . "map Ï1;2S <S-F4>"
+    endfor
   catch /E518/
     " No suck options on Windows etc
   endtry
