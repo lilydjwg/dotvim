@@ -14,7 +14,7 @@ function! Lilydjwg_rl_play()
     echohl None
   else
     echo '打开流媒体URL：' . url
-    if !Lilydjwg_haswin32()
+    if !(has("win32") || has("win64"))
       call system("setsid mplayer -channels 2 '" . url . "' &")
     else
       echohl WarningMsg

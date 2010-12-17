@@ -248,14 +248,6 @@ function Lilydjwg_get_pattern_at_cursor(pat)
     return ""
   endif
 endfunction
-"  平台判断[[[2
-function Lilydjwg_haswin32()
-  if (has("win32") || has("win95") || has("win64") || has("win16"))
-    return 1
-  else
-    return 0
-  endif
-endfunction
 "   切换配色方案[[[2
 function Lilydjwg_toggle_color()
   let colors = ['pink_lily', 'lilypink', 'darkBlue', 'spring2']
@@ -308,7 +300,7 @@ function Lilydjwg_open_url()
     echohl None
   else
     echo '打开URL：' . s:url
-    if !Lilydjwg_haswin32()
+    if !(has("win32") || has("win64"))
       " call system("gnome-open " . s:url)
       call system("setsid firefox '" . s:url . "' &")
     else
@@ -419,7 +411,7 @@ if has('arabic')
   set noarabicshape
 endif
 " Linux 与 Windows [[[2
-if Lilydjwg_haswin32()
+if has("win32") || has("win64")
   let g:LustyExplorerSuppressRubyWarning = 1
   " Win 路径 [[[3
   let g:VEConf_favorite = expand("$VIM/vimfiles/ve_favorite")
@@ -738,7 +730,7 @@ let g:html_indent_inctags = "html,body,head,tbody,p,li,dd,marquee"
 let g:html_indent_script1 = "inc"
 let g:html_indent_style1 = "inc"
 "   mru[[[2
-if Lilydjwg_haswin32()
+if has("win32") || has("win64")
   let MRU_File = '$VIM/vimfiles/vim_mru_files'
 else
   let MRU_File = '~/.vim/vim_mru_files'
