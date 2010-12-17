@@ -15,10 +15,10 @@
 "               Rajendra Badapanda, cho45, Simo Salminen, Sami Samhuri,
 "               Matt Tolton, Björn Winckler, sowill, David Brown
 "               Brett DiFrischia, Ali Asad Lotia, Kenneth Love, Ben Boeckel,
-"               robquant, lilydjwg, Martin Wache
+"               robquant, lilydjwg, Martin Wache, Johannes Holzfuß
 "
-" Release Date: July 21, 2010
-"      Version: 3.1.1
+" Release Date: December 16, 2010
+"      Version: 4.0
 "
 "        Usage:
 "                 <Leader>lf  - Opens the filesystem explorer.
@@ -226,17 +226,8 @@ if !has("ruby") || version < 700
   finish
 endif
 
-" if ! &hidden
-"   echohl WarningMsg
-"   echo "You are running with 'hidden' mode off.  LustyExplorer may"
-"   echo "sometimes emit error messages in this mode -- you should turn"
-"   echo "it on, like so:\n"
 
-"   echo "   :set hidden\n"
 
-"   echo "Even better, put this in your .vimrc file."
-"   echohl none
-" endif
 
 let g:loaded_lustyexplorer = "yep"
 
@@ -408,6 +399,10 @@ module VIM
   class Buffer
     def modified?
       VIM::nonzero? VIM::evaluate("getbufvar(#{number()}, '&modified')")
+    end
+
+    def listed?
+      VIM::nonzero? VIM::evaluate("getbufvar(#{number()}, '&buflisted')")
     end
 
     def self.obj_for_bufnr(n)
@@ -675,12 +670,13 @@ class Entry
     @label = label
   end
 
+  # NOTE: very similar to BufferStack::shorten_paths()
   def self.compute_buffer_entries()
     buffer_entries = []
 
     $le_buffer_stack.numbers.each do |n|
       o = VIM::Buffer.obj_for_bufnr(n)
-      next if o.nil?
+      next if (o.nil? or not o.listed?)
       buffer_entries << self.new(o, n)
     end
 
@@ -820,6 +816,28 @@ class Explorer
           @selected_index = \
             (@selected_index - 1) % @current_sorted_matches.size
           refresh_mode = :no_recompute
+        when 6                # C-f (select right)
+	  columns = (@current_sorted_matches.size.to_f / @rows.to_f).ceil
+	  cur_column = @selected_index / @rows
+	  cur_row = @selected_index % @rows
+	  new_column = (cur_column + 1) % columns
+	  if (new_column + 1) * (cur_row + 1) > @current_sorted_matches.size then
+	    new_column = 0
+	  end
+          @selected_index = \
+	    new_column * @rows + cur_row
+          refresh_mode = :no_recompute
+        when 2                # C-b (select left)
+	  columns = (@current_sorted_matches.size.to_f / @rows.to_f).ceil
+	  cur_column = @selected_index / @rows
+	  cur_row = @selected_index % @rows
+	  new_column = (cur_column - 1) % columns
+	  if (new_column + 1) * (cur_row + 1) > @current_sorted_matches.size then
+	    new_column = columns - 2
+	  end
+          @selected_index = \
+	    new_column * @rows + cur_row
+          refresh_mode = :no_recompute
         when 15               # C-o choose in new horizontal split
           choose(:new_split)
         when 20               # C-t choose in new tab
@@ -862,7 +880,7 @@ class Explorer
 
       on_refresh()
       highlight_selected_index() if VIM::has_syntax?
-      @display.print @current_sorted_matches.map { |x| x.label }
+      @rows = @display.print @current_sorted_matches.map { |x| x.label }
       @prompt.print Display.max_width
     end
 
@@ -1843,6 +1861,8 @@ class Display
       VIM::command "#{map} <C-w>    :call <SID>#{prefix}KeyPressed(23)<CR>"
       VIM::command "#{map} <C-n>    :call <SID>#{prefix}KeyPressed(14)<CR>"
       VIM::command "#{map} <C-p>    :call <SID>#{prefix}KeyPressed(16)<CR>"
+      VIM::command "#{map} <C-f>    :call <SID>#{prefix}KeyPressed(6)<CR>"
+      VIM::command "#{map} <C-b>    :call <SID>#{prefix}KeyPressed(2)<CR>"
       VIM::command "#{map} <C-o>    :call <SID>#{prefix}KeyPressed(15)<CR>"
       VIM::command "#{map} <C-t>    :call <SID>#{prefix}KeyPressed(20)<CR>"
       VIM::command "#{map} <C-v>    :call <SID>#{prefix}KeyPressed(22)<CR>"
@@ -1884,6 +1904,7 @@ class Display
       end
 
       print_rows(rows, truncated)
+      row_count
     end
 
     def close
@@ -2265,8 +2286,11 @@ class BufferStack
 
   private
     def cull!
-      # Remove empty buffers.
-      @stack.delete_if { |x| not VIM::evaluate_bool("bufexists(#{x})") }
+      # Remove empty and unlisted buffers.
+      @stack.delete_if { |x|
+        not (VIM::evaluate_bool("bufexists(#{x})") and
+             VIM::evaluate_bool("getbufvar(#{x}, '&buflisted')"))
+      }
     end
 
     # NOTE: very similar to Entry::compute_buffer_entries()
