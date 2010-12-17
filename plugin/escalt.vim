@@ -12,13 +12,17 @@ set cpo&vim
 " ---------------------------------------------------------------------
 " Functions:
 function Escalt_console()
-  for i in range(65, 90)
-    exe "set <M-".nr2char(i).">=\<Esc>".nr2char(i)
-  endfor
-  for i in range(97, 122)
-    exe "set <M-".nr2char(i).">=\<Esc>".nr2char(i)
-  endfor
-  set ttimeoutlen=50
+  try
+    for i in range(65, 90)
+      exe "set <M-".nr2char(i).">=\<Esc>".nr2char(i)
+    endfor
+    for i in range(97, 122)
+      exe "set <M-".nr2char(i).">=\<Esc>".nr2char(i)
+    endfor
+    set ttimeoutlen=50
+  catch /E518/
+    " No suck options on Windows etc
+  endtry
 endfunction
 " ---------------------------------------------------------------------
 " Call Functions:
