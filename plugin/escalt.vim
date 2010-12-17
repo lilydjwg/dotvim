@@ -13,10 +13,7 @@ set cpo&vim
 " Functions:
 function Escalt_console()
   try
-    for i in range(65, 90)
-      exe "set <M-".nr2char(i).">=\<Esc>".nr2char(i)
-    endfor
-    for i in range(97, 122)
+    for i in range(65, 90) + range(97, 122)
       exe "set <M-".nr2char(i).">=\<Esc>".nr2char(i)
     endfor
     set ttimeoutlen=50
@@ -26,10 +23,6 @@ function Escalt_console()
 endfunction
 " ---------------------------------------------------------------------
 " Call Functions:
-" without the following, in xterm(-256color), eg <F1> -> ÏP, not ^[OP
-set nottybuiltin
-let &term=&term
-" Call this after term reset
 call Escalt_console()
 " ---------------------------------------------------------------------
 "  Restoration And Modelines:
