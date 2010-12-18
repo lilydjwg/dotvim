@@ -76,6 +76,7 @@ endf
 fun s:ProcessSnippet(snip)
 	let snippet = a:snip
 	" Evaluate eval (`...`) expressions.
+	" Backquotes prefixed with a backslash "\" are ignored.
 	" Using a loop here instead of a regex fixes a bug with nested "\=".
 	if stridx(snippet, '`') != -1
 		let new = []
