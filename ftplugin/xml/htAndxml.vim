@@ -22,9 +22,4 @@ endfunction
 
 set softtabstop=2
 
-if has("gui_running")
-  imap <buffer> <silent> <M-/> <C-R>=Lilydjwg_xml_skipTag()<CR>
-else
-  imap <buffer> <silent> <Esc>/ <C-R>=Lilydjwg_xml_skipTag()<CR>
-endif
-
+imap <buffer> <silent> <M-/> <C-R>=Lilydjwg_xml_skipTag()<CR>
