@@ -6,6 +6,3 @@
 setlocal shiftwidth=2
 setlocal softtabstop=0
 inoremap <buffer> <CR> <CR><Tab>
-
-setlocal fdm=expr
-setlocal fde=getline(v:lnum)!~'^\\t\\\\|^$'?'>1':1
