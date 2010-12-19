@@ -384,7 +384,7 @@ endfunction
 "Syntax and highlight configuration.
 function VEConf.treePanelSyntax()
     syn clear
-    syn match Question "^.*Press ? for help.*$" "Host name
+    syn match Question "^.*Press .* for help.*$" "Host name
     syn match WarningMsg "\[[A-Z]:[\\/]\]" "root node name
     syn match Identifier "^\s*\zs[+-]" "+-
     syn match SpecialKey "^.*\[current\]$" "current folder
@@ -1173,7 +1173,7 @@ function s:VETreePanel.drawTree()
     if !empty(self.tree.content)
         call remove(self.tree.content,0,-1)
     endif
-    call add(self.tree.content,[hostname() . "  (Press ? for help)",""])
+    call add(self.tree.content,[hostname() . "  (Press ". g:VEConf.treePanelHotkey.help ." for help)",""])
     call self.tree.draw()
     let tree = []
     let lineNr = line(".")
