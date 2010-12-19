@@ -1,4 +1,6 @@
 getElementsByTagName
+querySelector
+querySelectorAll
 nodeType
 ownerDocument
 createTextNode
