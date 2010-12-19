@@ -85,6 +85,8 @@ Mapping                        Key             Description~
 help                    ?               Help.
 toggleNode              <cr>            Open/Close/Switch to current node.
 toggleNodeMouse         <2-LeftMouse>   Open/Close/Switch to current node.
+toggleHidden            H               Toggle show hidden files.(files start
+                                        with '.')
 refresh                 r               Refresh the tree panel.
 favorite                f               View favorite folder list.
 addToFavorite           F               Add the folder under cursor to

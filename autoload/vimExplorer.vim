@@ -212,6 +212,7 @@ let VEConf.treePanelHotkey = {}
 let VEConf.treePanelHotkey.help            = '?'
 let VEConf.treePanelHotkey.toggleNode      = '<cr>'
 let VEConf.treePanelHotkey.toggleNodeMouse = '<2-LeftMouse>'
+let VEConf.treePanelHotkey.toggleHidden    = 'H'
 let VEConf.treePanelHotkey.refresh         = 'r'
 let VEConf.treePanelHotkey.favorite        = 'f'
 let VEConf.treePanelHotkey.addToFavorite   = 'F'
@@ -1984,7 +1985,7 @@ function s:VEFilePanel.createActions()
     exec "nnoremap <silent> <buffer> " . g:VEConf.filePanelHotkey.gotoPath .       " :call VE_OpenPath()<cr>"
     exec "nnoremap <silent> <buffer> " . g:VEConf.filePanelHotkey.diff2files .     " :call VE_Diff()<cr>"
     exec "nnoremap <silent> <buffer> " . g:VEConf.filePanelHotkey.quitVE .         " :call VEDestroy()<cr>"
-    exec "nnoremap <silent> <buffer> " . g:VEConf.filePanelHotkey.toggleHidden .   " :call VE_ToggleHidden()<cr>"
+    exec "nnoremap <silent> <buffer> " . g:VEConf.filePanelHotkey.toggleHidden .   " :call VE_ToggleHidden('file')<cr>"
     exec "nnoremap <silent> <buffer> " . g:VEConf.filePanelHotkey.search .         " :call VE_FileSearch()<cr>"
 
     let letter = char2nr('a')
@@ -2722,13 +2723,16 @@ function VE_Diff()
 endfunction
 
 "toggle show hidden files
-function VE_ToggleHidden()
+function VE_ToggleHidden(which)
     let winNr = bufwinnr('%')
     let winName = matchstr(bufname("%"),'_[^_]*$')
     if has_key(s:VEContainer,winName)
         let g:VEConf.showHiddenFiles = !g:VEConf.showHiddenFiles
         call s:VEContainer[winName].treePanel.refresh()
         call s:VEContainer[winName].filePanel.refresh()
+	if a:which == 'tree'
+	    wincmd w
+	endif
     endif
 endfunction
 
