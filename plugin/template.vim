@@ -32,6 +32,7 @@ function LoadTemplate(read)
     sil exe 'read ' . fname
     " 删除空行
     normal ggdd
+    setlocal nomodified
   endif
   exe "command! -buffer Template :tabe " . fname
 endfunction
