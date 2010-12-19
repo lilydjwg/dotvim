@@ -84,7 +84,7 @@ Member of |VEConf_treeHotkey|, refer to section 7.2 .
 Mapping                        Key             Description~
 help                    ?               Help.
 toggleNode              <cr>            Open/Close/Switch to current node.
-toggleNodeMouse         <2-LeftMouse>   Open/Close/Switch to current node.
+toggleNodeMouse*        <2-LeftMouse>   Open/Close/Switch to current node.
 toggleHidden            H               Toggle show hidden files.(files start
                                         with '.')
 refresh                 r               Refresh the tree panel.
@@ -98,6 +98,8 @@ toUpperDir              <bs>            Go to upper directory.
 switchPanel             <c-tab>         Switch to File Panel.
 gotoPath                <c-g>           Change to another path.
 quitVE                  Q               Quit VimExplorer.
+
+Note: <CR> always toggleNode, even if it has been customized.
 
 2.2  File Panel Hotkeys                         *VimExplorer-filehotkey*
 

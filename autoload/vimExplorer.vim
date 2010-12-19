@@ -1278,6 +1278,8 @@ endfunction
 function s:VETreePanel.createActions()
     exec "nnoremap <silent> <buffer> " . g:VEConf.treePanelHotkey.help .           " :tab h VimExplorer<cr>"
     exec "nnoremap <silent> <buffer> " . g:VEConf.treePanelHotkey.toggleNode .     " :call VE_OnTreeNodeClick()<cr>"
+    exec "nnoremap <silent> <buffer> <cr> :call VE_OnTreeNodeClick()<cr>"
+    exec "nnoremap <silent> <buffer> " . g:VEConf.treePanelHotkey.toggleHidden .   " :call VE_ToggleHidden('tree')<cr>"
     exec "nnoremap <silent> <buffer> " . g:VEConf.treePanelHotkey.toggleNodeMouse. " :call VE_OnTreeNodeClick()<cr>"
     exec "nnoremap <silent> <buffer> " . g:VEConf.treePanelHotkey.refresh .        " :call VE_TreeRefresh()<cr>"
     exec "nnoremap <silent> <buffer> " . g:VEConf.treePanelHotkey.toggleFilePanel ." :call VE_ToggleFilePanel()<cr>"
