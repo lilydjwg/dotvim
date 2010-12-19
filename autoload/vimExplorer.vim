@@ -2569,6 +2569,7 @@ function VE_ToUpperDir()
             return
         endif
         call VE_GotoPath(upperPath)
+	call VE_SelectPath(path)
     endif
     exec winNr . "wincmd w"
 endfunction
@@ -2584,6 +2585,12 @@ function VE_GotoPath(path)
     if has_key(s:VEContainer,winName)
         call s:VEContainer[winName].gotoPath(path)
     endif
+endfunction
+
+"Select the specified path
+function VE_SelectPath(path)
+    normal gg
+    call search('^\V  ' . fnamemodify(a:path, ":h:t") . '/')
 endfunction
 
 "Used in <c-g>
@@ -2727,3 +2734,4 @@ endfunction
 
 command! -nargs=0 VEC   call VEDestroy()
 
+" vim:se sw=4:
