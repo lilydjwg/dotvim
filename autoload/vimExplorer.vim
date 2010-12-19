@@ -465,7 +465,7 @@ function VEPlatform.escape(path)
     if g:VEPlatform.haswin32()
         return escape(a:path,'%#')
     else
-        return escape(a:path,' %#')
+        return escape(a:path,'() %#')
     endif
 endfunction
 
