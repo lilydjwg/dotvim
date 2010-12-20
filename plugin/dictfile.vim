@@ -12,15 +12,17 @@ let g:loaded_dictfile = 1
 set cpo&vim
 " ---------------------------------------------------------------------
 " Variables:
-if (has("win32") || has("win95") || has("win64") || has("win16"))
-  let s:dictfilePrefix = '$VIM/vimfiles/dict/'
-else
-  let s:dictfilePrefix = '~/.vim/dict/'
+if !exists("g:dictfilePrefix")
+  if (has("win32") || has("win64"))
+    let g:dictfilePrefix = '$VIM/vimfiles/dict/'
+  else
+    let g:dictfilePrefix = '~/.vim/dict/'
+  endif
 endif
 " ---------------------------------------------------------------------
 " Functions:
 function SetDictFile(ft)
-  let fname = s:dictfilePrefix . a:ft . '.txt'
+  let fname = g:dictfilePrefix . a:ft . '.txt'
   let fname = expand(fname)
   if filereadable(fname)
     exe "setlocal dict+=" . escape(fname, ' \')
@@ -43,7 +45,15 @@ function OpenDict(ft)
   if ft == ''
     let ft = &ft
   endif
-  exe 'tabe '.s:dictfilePrefix.ft.'.txt|setlocal complete=w,b'
+  exe 'tabe '.g:dictfilePrefix.ft.'.txt|setlocal complete=w,b'
+endfunction
+function s:AddCurrent()
+  let name = g:dictfilePrefix . '_.txt'
+  let word = expand("<cword>")
+  let f = readfile(name)
+  let f = add(f, word)
+  call writefile(f, name)
+  echon word . " has been added to dict file."
 endfunction
 " ---------------------------------------------------------------------
 " Autocmds:
@@ -51,6 +61,10 @@ au BufReadPost,BufNewFile,FileType	* call SetDictFilePre()
 " ---------------------------------------------------------------------
 " Commands:
 command -nargs=? Dict silent call OpenDict("<args>")
+" ---------------------------------------------------------------------
+" Setup:
+exe "set dict+=" . escape(g:dictfilePrefix . '_.txt', ' \')
+nmap <unique> <silent> g<Space> :call <SID>AddCurrent()<CR>
 " ---------------------------------------------------------------------
 "  Restoration And Modelines:
 let &cpo = s:keepcpo

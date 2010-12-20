@@ -418,6 +418,7 @@ if has("win32") || has("win64")
   let g:NERDTreeBookmarksFile = expand("$VIM/vimfiles/NERDTreeBookmarks")
   let g:undodir = expand("$TMP/vimundo")
   let g:vimfiles = expand("$VIM/vimfiles")
+  let g:dictfilePrefix = expand('$VIM/vimfiles/dict/')
   set errorfile=$TMP/error
   " Win 程序 [[[3
   "   用默认的程序打开文件
@@ -434,6 +435,7 @@ else
   let g:NERDTreeBookmarksFile = expand("~/.vim/NERDTreeBookmarks")
   let g:undodir = expand("~/tmpfs/.vimundo")
   let g:vimfiles = expand("~/.vim")
+  let g:dictfilePrefix = expand('~/.vim/dict/')
   set errorfile=~/tmpfs/error
   let my_diary_file = expand('~/private/diary/2010.rj')
   cmap <C-T> ~/tmpfs/
