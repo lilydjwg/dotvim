@@ -2002,9 +2002,11 @@ function s:VEFilePanel.createActions()
 endfunction
 
 function VE_ShowSymlink()
-    let winName = matchstr(bufname("%"),'_[^_]*$')
-    if has_key(s:VEContainer,winName)
-        call s:VEContainer[winName].filePanel.showSymlink()
+    if !g:VEPlatform.haswin32()
+	let winName = matchstr(bufname("%"),'_[^_]*$')
+	if has_key(s:VEContainer,winName)
+	    call s:VEContainer[winName].filePanel.showSymlink()
+	endif
     endif
 endfunction
 
@@ -2015,7 +2017,7 @@ function s:VEFilePanel.showSymlink()
 	echohl PreProc
 	echon 'Symlink: '
 	echohl Normal
-	echon resolve(path)
+	echon substitute(system("readlink " . shellescape(path)), "\n", '', 'g')
     else
 	echo ''
     endif
