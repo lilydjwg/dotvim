@@ -398,6 +398,7 @@ function VEConf.filePanelSyntax()
     syn match Comment '\d\{4}-\d\{2}-\d\{2}\ \d\{2}:\d\{2}:\d\{2}' "time
     syn match Special '^Path: .*$' "path
     syn match WarningMsg '^\~*$' "line
+    syn match PreProc '^ @.*\t\@=' "symlinks
     syn match Function '^.*[\\/]' "directory
     syn match Search '^\*.*$'  "selectedFiles
     syn match LineNr '[rwx-]\{9}' "perm
@@ -771,7 +772,13 @@ function VEPlatform.pathToName(path)
         endif
     endif
     let tail = printf("%10.10s ".perm . ' ' .time,size==0?'':size)
-    return name . "\t" . tail
+    let realpath = resolve(a:path)
+    if realpath == a:path
+	let prefix = '  '
+    else
+	let prefix = ' @'
+    endif
+    return prefix . name . "\t" . tail
 endfunction
 
 function VEPlatform.getUpperDir(path)
@@ -1475,7 +1482,7 @@ function s:VEFilePanel.sortByName()
     call add(self.displayList,[repeat("~",100),''])
     call add(self.displayList,['[ Sort by name ]',''])
     for i in keys
-        call add(self.displayList,["  " . g:VEPlatform.pathToName(fileGroup[i]),fileGroup[i]])
+        call add(self.displayList,[g:VEPlatform.pathToName(fileGroup[i]),fileGroup[i]])
     endfor
 endfunction
 
@@ -1511,44 +1518,10 @@ function s:VEFilePanel.sortByTime()
     call add(self.displayList,[repeat("~",100),''])
     call add(self.displayList,['[ Sort by time ]',''])
     for i in keys
-        call add(self.displayList,["  " . g:VEPlatform.pathToName(fileGroup[i]),fileGroup[i]])
+        call add(self.displayList,[g:VEPlatform.pathToName(fileGroup[i]),fileGroup[i]])
     endfor
 endfunction
 
-" 3 not implemented yet
-"function! s:VEFilePanel.sortBySize()
-"    let fileGroup = {}
-"    " example
-"    " {
-"    "  "name" : "path"
-"    " }
-"    for i in self.fileList
-"        let time = strftime("%Y-%m-%d %H:%M:%S",getftime(i))
-"        let time = time . i "let the key of dict unique
-"        if isdirectory(i)
-"            " add # before directory to sort separately.
-"            " need??
-"            "let time = '#' . time
-"            if i[-1:] != "\\"
-"                let i = i . "\\"
-"            endif
-"        endif
-"        let fileGroup[time] = i
-"    endfor
-"    let keys = sort(keys(fileGroup))
-"    if !g:VEConf.fileGroupSortDirection
-"        call reverse(keys)
-"    endif
-"    let self.displayList = []
-"    call add(self.displayList,["Path:  ".self.path,''])
-"    call add(self.displayList,[repeat("~",100),''])
-"    call add(self.displayList,['[ Sort by time ]',''])
-"    for i in keys
-"        call add(self.displayList,["  " . g:VEPlatform.pathToName(fileGroup[i]),fileGroup[i]])
-"    endfor
-"endfunction
-
-" 0
 function s:VEFilePanel.sortByType()
     let fileGroup = {}
     " example
@@ -1634,7 +1607,7 @@ function s:VEFilePanel.sortByType()
             call reverse(fileGroup[i])
         endif
         for j in fileGroup[i]
-            call add(self.displayList,["  " . g:VEPlatform.pathToName(j),j])
+            call add(self.displayList,[g:VEPlatform.pathToName(j),j])
         endfor
         call add(self.displayList,[" ",''])
     endfor
@@ -2023,10 +1996,30 @@ function s:VEFilePanel.createActions()
     au! * <buffer>
     au BufEnter <buffer>  call VE_SyncDir()
     au BufEnter <buffer>  call VE_SyncDir() | call g:VEConf.filePanelSyntax()
+    au CursorMoved <buffer> call VE_ShowSymlink()
     " Status line
     setlocal statusline=%{VE_GetStatusFileName()}%=[%{getcwd()}]\ %{strftime(\"\%Y-\%m-\%d\ \%H:\%M\")}
 endfunction
 
+function VE_ShowSymlink()
+    let winName = matchstr(bufname("%"),'_[^_]*$')
+    if has_key(s:VEContainer,winName)
+        call s:VEContainer[winName].filePanel.showSymlink()
+    endif
+endfunction
+
+function s:VEFilePanel.showSymlink()
+    if getline('.') =~ '^.@'
+	let line = line(".") - 1
+	let path = self.displayList[line][1]
+	echohl PreProc
+	echon 'Symlink: '
+	echohl Normal
+	echon resolve(path)
+    else
+	echo ''
+    endif
+endfunction
 function s:VEFilePanel.createSyntax()
     let VEFileWinNr = bufwinnr(self.name)
     if VEFileWinNr != -1
@@ -2199,11 +2192,6 @@ function s:VEFrameWork.destroy()
     call self.filePanel.hide()
     call self.treePanel.hide()
 endfunction
-
-
-
-
-
 
 "####################################################
 "global variables and functions {{{1
@@ -2740,4 +2728,4 @@ endfunction
 
 command! -nargs=0 VEC   call VEDestroy()
 
-" vim:se sw=4:
+" vim:se sw=4 fdm=marker:
