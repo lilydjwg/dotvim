@@ -1,4 +1,5 @@
 getElementsByTagName
+addEventListener
 querySelector
 querySelectorAll
 nodeType
