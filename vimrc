@@ -34,11 +34,11 @@ endfunction
 "   切换显示行号/相对行号/不显示 [[[2
 function Lilydjwg_toggle_number()
   if &nu
-    set rnu
+    setl rnu
   elseif &rnu
-    set nornu
+    setl nornu
   else
-    set nu
+    setl nu
   endif
 endfunction
 "   更改缩进[[[2
