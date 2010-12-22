@@ -582,6 +582,8 @@ imap <F2> <C-X><C-O>
 imap <F3> <C-X><C-F>
 imap <S-F3> <C-X><C-L>
 imap <F7> <C-R>=Lilydjwg_dictcomplete()<CR>
+"     补全最长项
+inoremap <expr> <C-L> pumvisible()?"\<C-E>\<C-N>":"\<C-N>"
 "   vmap [[[2
 vnoremap <Leader># "9y?<C-R>='\V'.substitute(escape(@9,'\?'),'\n','\\n','g')<CR><CR>
 vnoremap <Leader>* "9y/<C-R>='\V'.substitute(escape(@9,'\/'),'\n','\\n','g')<CR><CR>
