@@ -1,0 +1,9 @@
+subgraph
+style
+label
+box
+shape
+circle
+ellipse
+plaintext
+triangle

@@ -1,4 +1,6 @@
 document
+require
+replace
 Array
 getTime
 FileReader

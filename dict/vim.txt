@@ -1,4 +1,5 @@
 BufRead
+substitute
 omnifunc
 shell_error
 SignColumn
