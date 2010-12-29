@@ -487,6 +487,13 @@ else
     colorscheme default
     " 在终端下自动加载vimim输入法
     runtime so/vimim.vim
+    " 在Linux文本终端下非插入模式显示块状光标
+    if &term == "linux"
+       set t_ve+=[?6c
+       autocmd InsertEnter * set t_ve-=[?6c
+       autocmd InsertLeave * set t_ve+=[?6c
+       autocmd VimLeave * set t_ve-=[?6c
+    endif
   endif
 endif
 " 不同的 Vim 版本 [[[2
