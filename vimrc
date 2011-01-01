@@ -679,7 +679,7 @@ command -nargs=1 -complete=customlist,Lilydjwg_complete_So So runtime so/<args>.
 command -nargs=1 -complete=command ReadCommand redir @">|exe "<args>"|normal $p:redir END<CR>
 command -nargs=1 Delmark delm <args>|wviminfo!
 "   删除空行
-command DBlank g/^\s*$/d|nohls
+command -range=% DBlank <line1>,<line2>g/^\s*$/d|nohls
 command SBlank %s/\v(^\s*$\n){2,}/\r/g
 "   删除拖尾的空白
 command TWS %s/\s\+$//|nohls|normal ``
