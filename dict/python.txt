@@ -1,4 +1,5 @@
 AF_INET
+buffering
 NameError
 getattr
 setattr

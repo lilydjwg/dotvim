@@ -1,4 +1,5 @@
 subgraph
+diamond
 style
 label
 box
