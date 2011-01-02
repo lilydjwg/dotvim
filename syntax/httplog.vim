@@ -1,7 +1,7 @@
 " Vim syntax file
 " FileType:     Access log of Apache, nginx, etc
 " Author:       lilydjwg <lilydjwg@gmail.com>
-" Last Change:  2010-10-04
+" Last Change:  2011年1月2日
 " ---------------------------------------------------------------------
 
 syntax clear
@@ -9,7 +9,7 @@ syntax case match
 
 syn match httplogIP	/\v^[[:xdigit:].:]+/ contains=httplogLocal,httplogLAN
 syn match httplogTime	/\v\s\zs\[[^]]+\]\ze\s/
-syn match httplogPage	/\v\s\zs"(GET|POST|HEAD) [^"]+"\ze\s/
+syn match httplogPage	/\v\s\zs"(GET|POST|HEAD|PUT|DELETE) [^"]+"\ze\s/
 syn match httplogResult	/\v\s\zs[1-4]\d{2}\ze\s\d+/
 syn match httplogError	/\v\s\zs5\d{2}\ze\s\d+/
 syn match httplogRef	/\v\s\zs"(http[^"]+|-)"\ze\s/
