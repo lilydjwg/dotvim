@@ -64,7 +64,7 @@ let s:SpaceInfront = '^\s*<'
 let s:EndofName = '\($\|\s\|>\)'
 
 " Buffer variables                                                  {{{1
-let b:emptyTags='^\(img\|input\|param\|frame\|br\|hr\|meta\|link\|base\|area\)$'
+let b:emptyTags='^\(area\|base\|br\|col\|command\|embed\|hr\|img\|input\|keygen\|link\|meta\|param\|source\|track\|wbr\)$'
 let b:firstWasEndTag = 0
 let b:html_mode =((&filetype =~ 'x\?html') && !exists("g:xml_no_html"))
 let b:haveAtt = 0
@@ -607,7 +607,11 @@ fun! s:CloseTagFun()
     normal! h
 		if s:TagUnderCursor()
 			if b:firstWasEndTag == 0
-				exe "normal! 2f>s\<Cr>\<Esc>Ox\<Esc>>>$x"
+        if exists('b:did_indent') && b:did_indent == 1
+          exe "normal! 2f>s\<Cr>\<Esc>Ox\<Esc>$x"
+        else
+          exe "normal! 2f>s\<Cr>\<Esc>Ox\<Esc>>>$x"
+        en
 				start!
 				retu
 			en
