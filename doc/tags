@@ -234,6 +234,9 @@ OmniCpp_ShowScopeInAbbr	omnicppcomplete.txt	/*OmniCpp_ShowScopeInAbbr*
 RecoverPlugin-misc	recoverPlugin.txt	/*RecoverPlugin-misc*
 RecoverPluginFinish	recoverPlugin.txt	/*RecoverPluginFinish*
 RecoverPluginHelp	recoverPlugin.txt	/*RecoverPluginHelp*
+ReloadAllSnippets()	snipMate.txt	/*ReloadAllSnippets()*
+ReloadSnippets()	snipMate.txt	/*ReloadSnippets()*
+ResetAllSnippets()	snipMate.txt	/*ResetAllSnippets()*
 ResetSnippets()	snipMate.txt	/*ResetSnippets()*
 Tlist_Get_Tag_Prototype_By_Line()	taglist.txt	/*Tlist_Get_Tag_Prototype_By_Line()*
 Tlist_Get_Tagname_By_Line()	taglist.txt	/*Tlist_Get_Tagname_By_Line()*
@@ -832,6 +835,7 @@ snipMate-expandtab	snipMate.txt	/*snipMate-expandtab*
 snipMate-features	snipMate.txt	/*snipMate-features*
 snipMate-filename	snipMate.txt	/*snipMate-filename*
 snipMate-indenting	snipMate.txt	/*snipMate-indenting*
+snipMate-license	snipMate.txt	/*snipMate-license*
 snipMate-placeholders	snipMate.txt	/*snipMate-placeholders*
 snipMate-remap	snipMate.txt	/*snipMate-remap*
 snipMate-settings	snipMate.txt	/*snipMate-settings*
