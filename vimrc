@@ -680,6 +680,8 @@ command -nargs=1 -complete=command ReadCommand redir @">|exe "<args>"|normal $p:
 command -nargs=1 Delmark delm <args>|wviminfo!
 "   删除空行
 command -range=% DBlank <line1>,<line2>g/^\s*$/d|nohls
+"   某个 pattern 出现的次数
+command -range=% -nargs=1 Count <line1>,<line2>s/<args>//gn|nohls
 command SBlank %s/\v(^\s*$\n){2,}/\r/g
 "   删除拖尾的空白
 command TWS %s/\s\+$//|nohls|normal ``
