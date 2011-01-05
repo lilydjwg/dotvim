@@ -3,7 +3,7 @@
 " Last Change:  2010年12月15日
 " ---------------------------------------------------------------------
 " Load Once:
-if &cp || exists("g:loaded_escalt") || has("gui_running")
+if &cp || exists("g:loaded_escalt") || has("gui_running") || has("win32") || has("win64")
   finish
 endif
 let s:keepcpo = &cpo
