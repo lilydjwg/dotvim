@@ -26,7 +26,7 @@ fu! <SID>Init() "{{{1
     " On which keywords to trigger, comma separated list of keywords
     let s:attach_check = 'attach,attachment,angehängt,Anhang'
     let s:attach_check .= exists("g:attach_check_keywords") ? 
-	\ g:attach_check_keywords : ''
+	\ ','.g:attach_check_keywords : ''
 
     " Enable Autocommand per default
     let s:load_autocmd = exists("g:checkattach_autocmd") ? 
@@ -71,6 +71,7 @@ fu! <SID>CheckAttach()"{{{2
     let oldPos=winsaveview()
     let val = join(split(escape(s:attach_check,' \.+*'), ','),'\|')
     1
+    call search('^$')
     if search('\c\%('.val.'\)','W')
 	" Delete old highlighting, don't pollute buffer with matches
 	if exists("s:matchid")
@@ -124,7 +125,7 @@ endfun
 " Define commands that will disable and enable the plugin. "{{{1
 command! EnableCheckAttach  :call <SID>TriggerAuCmd(1)
 command! DisableCheckAttach :call <SID>TriggerAuCmd(0)
-command! -nargs=+ -complete=file  AttachFile1 :call <SID>AttachFile(<q-args>)
+command! -nargs=+ -complete=file  AttachFile :call <SID>AttachFile(<q-args>)
 
 " call Autocommand when loading mail
 call <SID>TriggerAuCmd(s:load_autocmd)
