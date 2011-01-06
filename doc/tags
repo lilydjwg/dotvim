@@ -46,7 +46,10 @@
 'snippets'	snipMate.txt	/*'snippets'*
 .snippet	snipMate.txt	/*.snippet*
 .snippets	snipMate.txt	/*.snippets*
+:AttachFile	CheckAttach.txt	/*:AttachFile*
 :ColorSchemeEditor	ColorSchemeEditor.txt	/*:ColorSchemeEditor*
+:DisableCheckAttach	CheckAttach.txt	/*:DisableCheckAttach*
+:EnableCheckAttach	CheckAttach.txt	/*:EnableCheckAttach*
 :Explore	pi_netrw.txt	/*:Explore*
 :Hexplore	pi_netrw.txt	/*:Hexplore*
 :Mark	mark.txt	/*:Mark*
@@ -112,6 +115,10 @@ AnsiEsc-history	AnsiEsc.txt	/*AnsiEsc-history*
 AnsiEsc-manual	AnsiEsc.txt	/*AnsiEsc-manual*
 AnsiEsc.txt	AnsiEsc.txt	/*AnsiEsc.txt*
 CSE_DebugMode	ColorSchemeEditor.txt	/*CSE_DebugMode*
+CheckAttach	CheckAttach.txt	/*CheckAttach*
+CheckAttach-copyright	CheckAttach.txt	/*CheckAttach-copyright*
+CheckAttach-history	CheckAttach.txt	/*CheckAttach-history*
+CheckAttach.txt	CheckAttach.txt	/*CheckAttach.txt*
 ColorSchemeEditor	ColorSchemeEditor.txt	/*ColorSchemeEditor*
 ColorSchemeEditor-background	ColorSchemeEditor.txt	/*ColorSchemeEditor-background*
 ColorSchemeEditor-bugs	ColorSchemeEditor.txt	/*ColorSchemeEditor-bugs*

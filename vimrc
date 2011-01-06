@@ -703,6 +703,8 @@ command CenterFull call CenterFull()
 "   Awesome 下全屏时有点 bug，这里将之加回去
 command Larger :set lines+=1
 " 其它命令[[[1
+"   mail_CheckAttach.vim [[[2
+let g:attach_check_keywords = '附件'
 "   NERDTree[[[2
 let g:NERDTreeMapToggleZoom = 'a'
 let g:NERDTreeMapToggleHidden = 'h'
