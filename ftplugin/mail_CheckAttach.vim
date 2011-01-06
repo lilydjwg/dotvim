@@ -72,7 +72,7 @@ fu! <SID>CheckAttach()"{{{2
     let val = join(split(escape(s:attach_check,' \.+*'), ','),'\|')
     1
     call search('^$')
-    if search('\c\%('.val.'\)','W')
+    if search('^[^>].*\c\%('.val.'\)','W')
 	" Delete old highlighting, don't pollute buffer with matches
 	if exists("s:matchid")
 	    "for i in s:matchid | call matchdelete(i) | endfor
