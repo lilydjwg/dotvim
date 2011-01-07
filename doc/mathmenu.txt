@@ -1,0 +1,342 @@
+*mathmenu.txt* DrChip's Math Keymap and Menu			Mar 04, 2010
+
+Author:  Charles E. Campbell, Jr.  <NdrOchip@ScampbellPfamily.AbizM>
+Copyright: (c) 2009 by Charles E. Campbell, Jr.			*mathmenu-copyright*
+	   NO WARRANTY, EXPRESS OR IMPLIED.  USE AT-YOUR-OWN-RISK.
+           The VIM LICENSE applies to keytab/math.vim,
+	   plugin/mathmenuPlugin.vim, autoload/mathmenu.vim, and
+	   doc/mathmenu.txt (see |copyright|) except use "mathmenu"
+	   instead of "Vim".
+
+==============================================================================
+1. Contents						*mathmenu* *mathmenu-contents*
+
+   1. Contents..........................................|mathmenu-contents|
+   2. Usage.............................................|mathmenu-usage|
+      Superscripting and Subscripting Maps..............|mathmenu-maps|
+      Greekify Map......................................|mathmenu-greekify|
+      The Menu..........................................|mathmenu-menu|
+        capitals........................................|mathmenu-capitals|
+        lowercase.......................................|mathmenu-lowercase|
+        superscripts....................................|mathmenu-superscripts|
+        subscripts......................................|mathmenu-subscripts|
+        fractions.......................................|mathmenu-fractions|
+        arrows..........................................|mathmenu-arrows|
+        grouping........................................|mathmenu-grouping|
+        misc............................................|mathmenu-misc|
+        operators.......................................|mathmenu-operators|
+        relationals.....................................|mathmenu-relationals|
+        sets............................................|mathmenu-sets|
+        box characters..................................|mathmenu-box|
+      The Keymap........................................|mathmenu-keymap|
+   3. History...........................................|mathmenu-history|
+
+==============================================================================
+2. Usage						*mathmenu-usage*
+
+The mathmenu and keymap are designed for utf-8 scriptencoding.  If the symbols
+herein don't appear correctly, and you're encoding is utf-8, then try other
+fonts.  I haven't found a good Windows font yet (ie. one that supports all the
+characters in the tables below) -- please let me know if you know of one.
+I'm using "Luxi Mono Bold" with Linux.  (set guifont=Luxi\ Mono\ Bold\ 10)
+
+
+SUPERSCRIPTING AND SUBSCRIPTING MAPS			*mathmenu-maps*
+
+There are two maps which take visually selected text and converts supported
+characters to superscripts or subscripts, respectively. >
+
+	Superscripting:  ^
+	Subscripting  :  _
+<
+
+GREEKIFY MAP						*mathmenu-greekify*
+							*mathmenu-mathstart*
+The "&" key transforms visually selected roman characters, a-z and A-Z,
+converting them to associated Greek characters.  The "greekify",
+superscripting, and subscripting maps are enabled with >
+
+	:MathStart
+<
+If you would prefer to have mathmenu start up with visual-mode math maps
+available, put MathStart into a ~/.vim/after/plugin/mathmenu.vim file.
+
+
+THE MENU						*mathmenu-menu*
+
+With mathmenuPlugin.vim in your plugin directory, a minimalist menu appears
+as >
+	DrChip.MathKeys.Enable
+You may change the top-level menu label (ie. "DrChip");
+see |mathmenu-g:DrChipTopLvlMenu|.
+
+Once enabled, there are eleven subcategories (and a Disable).  These
+subcategories are only active when vim is insert, replace, or
+ex- modes.
+
+	    Capitals      Fractions  Operators
+	    LowerCase     Arrows     Relationals
+	    Superscripts  Grouping   Sets
+	    Subscripts    Misc
+
+Each category contains a number of symbols which you may select with the
+mouse.  See |mathmenu-keymap| to learn how to use the keymap shorthand.
+
+GREEK CAPITALS 						*mathmenu-capitals*
+	Name	Keymap	Character	Name	Keymap	Character
+	Alpha	GA	Α		Mu	GM	Μ
+	Beta	GB	Β		Nu	GN	Ν
+	Psi	GC	Ψ		Omikron	GO	Ο
+	Delta	GD	Δ		Pi	GP	Π
+	Epsilon	GE	Ε		Rho	GR	Ρ
+	Phi	GF	Φ		Sigma	GS	Σ
+	Gamma	GG	Γ		Tau	GT	Τ
+	Eta	GH	Η		Theta	GU	Θ
+	Iota	GI	Ι		Omega	GV	Ω
+	Xi	GJ	Ξ		Chi	GX	Χ
+	Kappa	GK	Κ		Upsilon	GY	Υ
+	Lambda	GL	Λ		Zeta	GZ	Ζ
+
+GREEK LOWER CASE					*mathmenu-lowercase*
+	Name	Keymap	Character	Name	Keymap	Character
+	alpha	a	α              	xi	j	ξ
+	beta	b	β              	omicron	o	ο
+	gamma	g	γ              	pi	p	π
+	delta	d	δ              	varpi	vp	ϖ
+	epsilon	e	ϵ              	rho	r	ρ
+     varepsilon	ve	ε              	varrho	vr	ϱ
+	zeta	z	ζ              	sigma	s	σ
+	eta	h	η            varsigma	vs	ς
+	theta	u	θ              	tau	t	τ
+     vartheta	vu	ϑ              	upsilon	y	υ
+	iota	i	ι              	phi	f	φ
+	kappa	k	κ              	varphi	vf	ϕ
+	lambda	l	λ              	chi	x	χ
+	mu	m	μ              	psi	c	ψ
+	nu	n	ν              	omega	w	ω
+
+SUPERSCRIPTS					*mathmenu-superscripts*
+	Keymap	Character	Keymap	Character	Keymap	Character
+	^0	⁰		^d	ᵈ		^A	ᴬ
+	^1	¹		^e	ᵉ		^B	ᴮ
+	^2	²		^f	ᶠ		^D	ᴰ
+	^3	³		^g	ᵍ		^E	ᴱ
+	^4	⁴		^h	ʰ		^G	ᴳ
+	^5	⁵		^i	ⁱ		^H	ᴴ
+	^6	⁶		^j	ʲ		^I	ᴵ
+	^7	⁷		^k	ᵏ		^J	ᴶ
+	^8	⁸		^l	ˡ		^K	ᴷ
+	^9	⁹		^m	ᵐ		^L	ᴸ
+	^+	⁺		^n	ⁿ		^M	ᴹ
+	^-	⁻		^o	ᵒ		^N	ᴺ
+	^<	˂		^p	ᵖ		^O	ᴼ
+	^>	˃		^r	ʳ		^P	ᴾ
+	^/	ˊ		^s	ˢ		^R	ᴿ
+	^^	˄		^t	ᵗ		^T	ᵀ
+	^(	⁽		^u	ᵘ		^U	ᵁ
+	^)	⁾		^v	ᵛ		^W	ᵂ
+	^,	ʾ		^x	ˣ
+	^a	ᵃ		^w	ʷ
+	^b	ᵇ		^y	ʸ
+	^c	ᶜ		^z	ᶻ
+
+SUBSCRIPTS					*mathmenu-subscripts*
+	Keymap	Character	Keymap	Character
+	_0	₀        	_(	₍
+	_1	₁        	_)	₎
+	_2	₂        	_^	‸
+	_3	₃        	_a	ₐ
+	_4	₄        	_e	ₑ
+	_5	₅        	_i	ᵢ
+	_6	₆        	_o	ₒ
+	_7	₇        	_r	ᵣ
+	_8	₈        	_u	ᵤ
+	_9	₉        	_v	ᵥ
+	_+	₊        	_x	ₓ
+	_-	₋
+
+FRACTIONS					*mathmenu-fractions*
+	Keymap	Character	Keymap	Character
+	F12	½               F45	⅘
+	F13	⅓               F16	⅙
+	F23	⅔               F56	⅚
+	F14	¼               F18	⅛
+	F34	¾               F38	⅜
+	F15	⅕               F58	⅝
+	F25	⅖               F78	⅞
+	F35	⅗
+
+ARROWS							*mathmenu-arrows*
+	Keymap	Character	Keymap	Character
+	-<	⟵		IFF	⟺
+	->	⟶		\|-<	↤
+	<->	↔		\|->	↦
+	=<	⟸		\|=<	⟽
+	=>	⟹		\|=>	⟾
+
+GROUPING SYMBOLS					*mathmenu-grouping*
+	Keymap	Character	Keymap	Character
+	[[	⟦		M]	⎥
+	]]	⟧		B]	⎦
+	2[	⟦		U{	⎧
+	2]	⟧		M{	⎨
+	B<	〈		B{	⎩
+	B>	〉		U}	⎫
+	U(	⎛		M}	⎬
+	M(	⎜		B}	⎭
+	B(	⎝		V(	︵
+	U)	⎞		V)	︶
+	M)	⎟		V[	︹
+	B)	⎠		V]	︺
+	U[	⎡		V{	︷
+	M[	⎢		V}	︸
+	B[	⎣		V<	︿
+	U]	⎤		V>	﹀
+
+MISCELLANEOUS						*mathmenu-misc*
+	Keymap	Character	Keymap	Character
+	ARC	⌒		RC	⌉
+	QED	∎		LF	⌊
+	QED	‣		RF	⌋
+	INF	∞		__	⎯
+	ANG	∡		--	─
+	|...	⋮		==	═
+	...	⋯		HB	―
+	/...	⋰		VB	┃
+	\...	⋱		BB	‖
+	DU	⠁		SH	ℋ
+	DM	⠂		SI	ℑ
+	DD	⡀		SL	ℒ
+	LC	⌈		SR	ℜ
+
+OPERATORS					*mathmenu-operators*
+	Keymap	Character	Keymap	Character	Keymap	Character
+	O\.	⨀ 		Scw	∲		P2	″
+	O+	⨁ 		Sccw	∳		P3	‴
+	Ox	⨂ 		PD	∂
+	U\.	⨃ 		JN	⨝
+	U+	⨄ 		TF	∴
+	IN	∩ 		BC	∵
+	UN	∪ 		PAR	∥
+	CAP	∩ 		NPAR	∦
+	CUP	∪ 		SUM	∑
+	SQCAP	⨅ 		USUM	⎲
+	SQCUP	⨆ 		BSUM	⎳
+	X	⨉ 		PRD	∏
+	MUL	× 		RING	∘
+	1S	∫ 		BU	∙
+	2S	∬ 		AST	∗
+	3S	∭ 		LA	⁎
+	4S	⨌ 		SQRT	√
+	US	⌠ 		CUBR	∛
+	MS	⎮ 		FORR	∜
+	BS	⌡ 		DEL	∆
+	S-	⨍ 		GRAD	∇
+	S=	⨎ 		NAB	∇
+	S/	⨏ 		DIAM	⋄
+	So	∮ 		R/	∕
+	SSo	∯ 		L/	∖
+	SSSo	∰		P1	′
+
+RELATIONAL SYMBOLS					*mathmenu-relationals*
+	Keymap	Character	Keymap	Character
+	<=	≤		><	≷
+	\>=	≥		!=	≠
+	<~	⪝		ID	≡
+	>~	⪞		EQV	≍
+	<<	⟪		JOIN	⋈
+	>>	⟫		NID	≢
+	~	∼		O+	⊕
+	N~	≁		O-	⊖
+	R~	∽		Ox	⊗
+	-~	≂		O/	⊘
+	~-	≃		O\.	⊙
+	=~	≅		Oo	⊚
+	!~-	≄		+-	±
+	~~	≈		-+	∓
+	=\.	≐		PERP	⊥
+	EST	≙		PROP	∝
+	!~~	≉		PREC	≺
+	<>	≶		SUCC	≻
+
+SETS						*mathmenu-sets*
+	Keymap	Character	Keymap	Character
+	SUB	⊂		EMP	∅
+	NSUB	⊄		EL	∈
+	ESUB	⊆		NEL	∉
+	NESUB	⊈		C	ℂ
+	SUP	⊃		H	ℍ
+	NSUP	⊅		N	ℕ
+	ESUP	⊇		R	ℝ
+	NESUP	⊉		Q	ℚ
+	LAND	∧		Z	ℤ
+	LOR	∨		ALL	∀
+	EX	∃		*	∗
+	NEX	∄
+
+BOX CHARACTERS						*mathmenu-box*
+	Keymap	Character	Keymap	Character
+	B-	─               HD|	┇ 
+	B|	│               HBUL	┏ 
+	DSH-	┄               HBDL	┗ 
+	DSH|	┆               HBUR	┓ 
+	BUL	┌               HBDR	┛ 
+	BDL	└               HC+	╋ 
+	BUR	┐               HCl	┫ 
+	BDR	┘               HCr	┣ 
+	C+	┼               HCd	┳ 
+	Cl	┤               HCu	┻ 
+	Cr	├               D-	═ 
+	Cd	┬               D|	║ 
+	Cu	┴               DUL	╔ 
+	HB-	━               DDL	╚ 
+	HB|	┃               DUR	╗ 
+	HD-	┅               DDR	╝ 
+
+THE KEYMAP						*mathmenu-keymap*
+
+Each symbol is associated with a shorthand sequence of keys which are
+supported by the math keymap.  You may use these sequences after
+enabling them with: >
+
+	:set kmp=math
+
+You may find the following two maps of use: >
+
+    imap <silent> <c-F6>	<c-o>:if &kmp == ""<bar>
+      \set kmp=math<bar>
+      \else<bar>
+      \set kmp=<bar>
+      \endif<bar>
+      \echo "kmp<".&kmp.">"<cr>
+    nmap <silent> <c-F6>	:if &kmp == ""<bar>
+      \set kmp=math<bar>
+      \else<bar>
+      \set kmp=<bar>
+      \endif<bar>
+      \echo "kmp<".&kmp.">"<cr>
+
+These set the ctrl-F6 key to toggle between the math keymap and no keymap;
+if you're accustomed to another keymap, just modify the maps above where
+they say "set kmp=<bar>" to "set kmp=YOUR-PREFERRED-KEYMAP".
+
+OPTIONS						*mathmenu-options*
+
+	*mathmenu-g:DrChipTopLvlMenu*
+
+	 The variable g:DrChipTopLvlMenu = "DrChip." by default.  You may
+	 change this variable in your .vimrc so that the menus reside under
+	 a different top-level name.
+
+
+==============================================================================
+3. History						*mathmenu-history*
+
+  3 : Mar 04, 2010 * more symbols and maps
+  2 : Nov 06, 2009 * more symbols and ex-mode support
+      Dec 02, 2009 * :MathStart command now starts mathmode
+  1 : Jul 28, 2009 * initial release
+
+==============================================================================
+Modelines:
+vim:tw=78:ts=8:ft=help:fdm=marker:nomod:
