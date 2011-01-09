@@ -640,6 +640,9 @@ else
   imap <S-ScrollWheelDown> <ScrollWheelRight>
   imap <S-ScrollWheelUp> <ScrollWheelLeft>
 endif
+"     Shift+鼠标中键[[[2
+nnoremap <silent> <S-MiddleMouse> "+P
+inoremap <silent> <S-MiddleMouse> <C-R>+
 "     上下移动一行文字[[[2
 nmap <C-j> mz:m+<cr>`z
 nmap <C-k> mz:m-2<cr>`z
