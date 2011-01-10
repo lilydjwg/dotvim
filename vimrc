@@ -640,6 +640,9 @@ else
   imap <S-ScrollWheelDown> <ScrollWheelRight>
   imap <S-ScrollWheelUp> <ScrollWheelLeft>
 endif
+"     Shift+鼠标中键[[[2
+nnoremap <silent> <S-MiddleMouse> "+P
+inoremap <silent> <S-MiddleMouse> <C-R>+
 "     上下移动一行文字[[[2
 nmap <C-j> mz:m+<cr>`z
 nmap <C-k> mz:m-2<cr>`z
@@ -703,6 +706,8 @@ command CenterFull call CenterFull()
 "   Awesome 下全屏时有点 bug，这里将之加回去
 command Larger :set lines+=1
 " 其它命令[[[1
+"   mail_CheckAttach.vim [[[2
+let g:attach_check_keywords = '附件'
 "   NERDTree[[[2
 let g:NERDTreeMapToggleZoom = 'a'
 let g:NERDTreeMapToggleHidden = 'h'

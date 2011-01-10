@@ -1,4 +1,5 @@
 FALSE
+O_LARGEFILE
 gtk_window_set_keep_above
 GTK_WIN_POS_NONE
 GTK_WIN_POS_CENTER
