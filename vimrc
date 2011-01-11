@@ -571,7 +571,6 @@ nmap 'm :MarksBrowser<CR>
 nmap :: :!
 nmap cd :silent lcd %:p:h<CR>:echo expand('%:p:h')<CR>
 nmap gb :setl fenc=gb18030<CR>
-nmap z<Space> i <ESC>
 nmap d<CR> :%s/\r//eg<CR>``
 nmap cac :call Lilydjwg_changeColor()<CR>
 "   imap [[[2

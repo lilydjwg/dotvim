@@ -47,13 +47,13 @@ function OpenDict(ft)
   endif
   exe 'tabe '.g:dictfilePrefix.ft.'.txt|setlocal complete=w,b'
 endfunction
-function s:AddCurrent()
-  let name = g:dictfilePrefix . '_.txt'
+function s:AddCurrent(file)
+  let name = g:dictfilePrefix . a:file
   let word = expand("<cword>")
   let f = readfile(name)
   let f = add(f, word)
   call writefile(f, name)
-  echon word . " has been added to dict file."
+  echon word . " has been added to " . a:file
 endfunction
 " ---------------------------------------------------------------------
 " Autocmds:
@@ -64,7 +64,8 @@ command -nargs=? Dict silent call OpenDict("<args>")
 " ---------------------------------------------------------------------
 " Setup:
 exe "set dict+=" . escape(g:dictfilePrefix . '_.txt', ' \')
-nmap <unique> <silent> g<Space> :call <SID>AddCurrent()<CR>
+nmap <unique> <silent> g<Space> :call <SID>AddCurrent("_.txt")<CR>
+nmap <unique> <silent> z<Space> :call <SID>AddCurrent(&ft . ".txt")<CR>
 " ---------------------------------------------------------------------
 "  Restoration And Modelines:
 let &cpo = s:keepcpo
