@@ -577,6 +577,7 @@ fun! manpageview#ManPageView(viamap,bknum,...) range
 	endif
      exe cmdmod.'silent!  %s/.\b//ge'
     endif
+	1d
 	setlocal ro nomod noswf
    endif
 
