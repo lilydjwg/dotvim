@@ -6,6 +6,7 @@
 " ---------------------------------------------------------------------
 "  Settings And Mappings:
 setlocal isk-=-
+setlocal keywordprg=:help
 imap <silent> <buffer> <BS> <C-R>=Lilydjwg_checklist_bs('\v^\s*"\s*$')<CR>
 " ---------------------------------------------------------------------
 " Vim Modeline:
