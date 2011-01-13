@@ -896,7 +896,8 @@ function! s:MRU_Refresh_Menu()
     let &cpoptions = old_cpoptions
 endfunction
 
-" lilydjwg: 检查文件是否存在的函数
+" MRU_Check                             {{{1
+" lilydjwg: 检查文件是否存在
 function s:MRU_Check()
   call filter(s:MRU_files, 'filereadable(v:val)')
   call s:MRU_SaveList()
