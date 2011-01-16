@@ -107,6 +107,13 @@
 :VimwikiToggleListItem	vimwiki.txt	/*:VimwikiToggleListItem*
 :VimwikiUISelect	vimwiki.txt	/*:VimwikiUISelect*
 :VimwikiVSplitLink	vimwiki.txt	/*:VimwikiVSplitLink*
+<Leader>#	mark.txt	/*<Leader>#*
+<Leader>/	mark.txt	/*<Leader>\/*
+<Leader>?	mark.txt	/*<Leader>?*
+<Leader>m	mark.txt	/*<Leader>m*
+<Leader>n	mark.txt	/*<Leader>n*
+<Leader>r	mark.txt	/*<Leader>r*
+<Leader>star	mark.txt	/*<Leader>star*
 Align-copyright	Align.txt	/*Align-copyright*
 AnsiEsc	AnsiEsc.txt	/*AnsiEsc*
 AnsiEsc-contents	AnsiEsc.txt	/*AnsiEsc-contents*
@@ -645,7 +652,6 @@ mark-highlighting	mark.txt	/*mark-highlighting*
 mark-history	mark.txt	/*mark-history*
 mark-ideas	mark.txt	/*mark-ideas*
 mark-installation	mark.txt	/*mark-installation*
-mark-integration	mark.txt	/*mark-integration*
 mark-known-problems	mark.txt	/*mark-known-problems*
 mark-limitations	mark.txt	/*mark-limitations*
 mark-searching	mark.txt	/*mark-searching*
@@ -936,6 +942,8 @@ taglist-using	taglist.txt	/*taglist-using*
 taglist.txt	taglist.txt	/*taglist.txt*
 vS	surround.txt	/*vS*
 v_:B	vis.txt	/*v_:B*
+v_<Leader>m	mark.txt	/*v_<Leader>m*
+v_<Leader>r	mark.txt	/*v_<Leader>r*
 v_[%	matchit.txt	/*v_[%*
 v_]%	matchit.txt	/*v_]%*
 v_a%	matchit.txt	/*v_a%*
