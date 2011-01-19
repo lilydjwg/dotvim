@@ -194,3 +194,9 @@ timedelta
 today
 traceback
 urllib
+UserWarning
+httpsession
+getroot
+fromstring
+Queue
+xpath
