@@ -2,7 +2,7 @@
 " Description: Highlight several words in different colors simultaneously. 
 "
 " Copyright:   (C) 2005-2008 by Yuheng Xie
-"              (C) 2008-2010 by Ingo Karkat
+"              (C) 2008-2011 by Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'. 
 "
 " Maintainer:  Ingo Karkat <ingo@karkat.de> 
@@ -10,8 +10,13 @@
 " Dependencies:
 "  - SearchSpecial.vim autoload script (optional, for improved search messages). 
 "
-" Version:     2.4.0
+" Version:     2.4.1
 " Changes:
+" 13-Jan-2011, Ingo Karkat
+" - FIX: Using a named register for capturing the visual selection on
+"   {Visual}<Leader>m and {Visual}<Leader>r clobbered the unnamed register. Now
+"   using the unnamed register. 
+"
 " 13-Jul-2010, Ingo Karkat
 " - ENH: The MarkSearch mappings (<Leader>[*#/?]) add the original cursor
 "   position to the jump list, like the built-in [/?*#nN] commands. This allows
@@ -83,10 +88,13 @@ function! mark#MarkCurrentWord()
 endfunction
 
 function! s:GetVisualSelection()
-	let save_a = @a
-	silent normal! gv"ay
-	let res = @a
-	let @a = save_a
+	let save_clipboard = &clipboard
+	set clipboard= " Avoid clobbering the selection and clipboard registers. 
+	let save_reg = @@
+	silent normal! gvy
+	let res = @@
+	let @@ = save_reg
+	let &clipboard = save_clipboard
 	return res
 endfunction
 function! mark#GetVisualSelectionAsLiteralPattern()

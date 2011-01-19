@@ -389,7 +389,6 @@ set guioptions=acit
 if v:lang =~ '^zh'
   set helplang=cn
 endif
-set keywordprg=:help
 set mousemodel=popup
 " 没必要，而且很多时候 = 表示赋值
 set isfname-==
@@ -571,7 +570,6 @@ nmap 'm :MarksBrowser<CR>
 nmap :: :!
 nmap cd :silent lcd %:p:h<CR>:echo expand('%:p:h')<CR>
 nmap gb :setl fenc=gb18030<CR>
-nmap z<Space> i <ESC>
 nmap d<CR> :%s/\r//eg<CR>``
 nmap cac :call Lilydjwg_changeColor()<CR>
 "   imap [[[2

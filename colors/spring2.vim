@@ -14,52 +14,54 @@
 
 set background=light
 
-hi clear
-
 " Version control
 if version > 580
-    hi clear
-    if exists("syntax_on")
-        syntax reset
-    endif
+  hi clear
+  if exists("syntax_on")
+	syntax reset
+  endif
 endif
 
 let colors_name = "spring2"
 
 " Common
-hi Normal           guifg=#000000   guibg=#cce8cf   gui=NONE ctermfg=16 ctermbg=151 cterm=none
-hi Visual           guibg=#ccffff                   gui=NONE ctermbg=195 cterm=none
-hi Cursor           guifg=#f5deb3   guibg=#2f4f4f   gui=NONE ctermfg=223 ctermbg=66 cterm=none
-hi Cursorline       guibg=#ccffff ctermbg=195 cterm=none
-hi lCursor          guifg=#000000   guibg=#ffffff   gui=NONE
-hi LineNr           guifg=#1060a0   guibg=#e0e0e0   gui=NONE ctermfg=25 ctermbg=254 cterm=none
-hi Title            guifg=#202020   guibg=NONE      gui=bold ctermfg=234 ctermbg=none cterm=bold
-hi Underlined       guifg=#202020   guibg=NONE      gui=underline ctermfg=234 ctermbg=151 cterm=underline
+highlight Normal       ctermbg=151           cterm=none           guibg=#cce8cf gui=none           ctermfg=16  guifg=#000000
+highlight Visual       guibg=#ccffff         gui=none             ctermbg=195   cterm=none
+highlight Cursor       ctermbg=66            cterm=none           guibg=#2f4f4f gui=none           ctermfg=223 guifg=#f5deb3
+highlight Cursorline   guibg=#ccffff         ctermbg=195          cterm=none
+hi        lCursor      guifg=#000000         guibg=#ffffff        gui=NONE
+highlight LineNr       ctermbg=254           cterm=none           guibg=#e0e0e0 gui=none           ctermfg=25  guifg=#1060a0
+highlight Title        cterm=bold            gui=bold             ctermfg=234   guifg=#202020
+highlight Underlined   cterm=underline       gui=underline        ctermfg=234   guifg=#202020
 
 " Split
-hi StatusLine       guifg=#f5deb3   guibg=#2f4f4f   gui=bold ctermfg=223 ctermbg=66 cterm=bold
-hi StatusLineNC     guifg=#f5deb3   guibg=#2f4f4f   gui=NONE ctermfg=223 ctermbg=66 cterm=none
-hi VertSplit        guifg=#2f4f4f   guibg=#2f4f4f   gui=NONE ctermfg=66 ctermbg=66 cterm=none
+highlight StatusLine   ctermbg=66            cterm=bold           guibg=#2f4f4f gui=bold           ctermfg=223 guifg=#f5deb3
+highlight StatusLineNC ctermbg=66            cterm=none           guibg=#2f4f4f gui=none           ctermfg=223 guifg=#f5deb3
+highlight VertSplit    ctermbg=66            cterm=none           guibg=#2f4f4f gui=none           ctermfg=66  guifg=#2f4f4f
 
 " Folder
-hi Folded           guifg=#006699   guibg=#e0e0e0   gui=NONE ctermfg=24 ctermbg=254 cterm=none
+highlight Folded       ctermbg=254           cterm=none           guibg=#e0e0e0 gui=none           ctermfg=24  guifg=#006699
 
 " Syntax
-hi Type             guifg=#009933   guibg=NONE      gui=bold ctermfg=28 ctermbg=151 cterm=bold
-hi Define           guifg=#1060a0   guibg=NONE      gui=bold ctermfg=25 ctermbg=151 cterm=bold
-hi Comment          guifg=#1e90ff   guibg=NONE      gui=NONE ctermfg=33 ctermbg=151 cterm=none
-hi Constant         guifg=#a07040   guibg=NONE      gui=NONE ctermfg=137 ctermbg=151 cterm=none
-hi String           guifg=#a07040   guibg=NONE      gui=NONE ctermfg=137 ctermbg=151 cterm=none
-hi Number           guifg=#cd0000   guibg=NONE      gui=NONE ctermfg=160 ctermbg=151 cterm=none
-hi Statement        guifg=#fc548f   guibg=NONE      gui=bold ctermfg=204 ctermbg=151 cterm=bold
+highlight Type         cterm=bold            gui=bold             ctermfg=28    guifg=#009933
+highlight Define       cterm=bold            gui=bold             ctermfg=25    guifg=#1060a0
+highlight Comment      cterm=none            gui=none             ctermfg=33    guifg=#1e90ff
+highlight Constant     cterm=none            gui=none             ctermfg=137   guifg=#a07040
+highlight String       cterm=none            gui=none             ctermfg=137   guifg=#a07040
+highlight Number       cterm=none            gui=none             ctermfg=160   guifg=#cd0000
+highlight Statement    cterm=bold            gui=bold             ctermfg=204   guifg=#fc548f
 
 " Others
-hi PreProc          guifg=#1060a0    guibg=NONE     gui=NONE ctermfg=25 ctermbg=151 cterm=none
-hi Error            guifg=#ff0000    guibg=#ffffff  gui=bold,underline ctermfg=196 ctermbg=231 cterm=bold,underline
-hi Todo             guifg=#a0b0c0    guibg=NONE     gui=bold,underline ctermfg=103 ctermbg=151 cterm=bold,underline
-hi Special          guifg=#8B038D    guibg=NONE     gui=NONE ctermfg=90 ctermbg=151 cterm=none
-hi SpecialKey       guifg=#d8a080    guibg=#e8e8e8  gui=NONE ctermfg=180 ctermbg=254 cterm=none
+highlight PreProc      cterm=none            gui=none             ctermfg=25    guifg=#1060a0
+highlight Error        ctermbg=231           cterm=bold,underline guibg=#ffffff gui=bold,underline ctermfg=196 guifg=#ff0000
+highlight Todo         cterm=bold,underline  gui=bold,underline   ctermfg=103   guifg=#a0b0c0
+highlight Special      cterm=none            gui=none             ctermfg=90    guifg=#8b038d
+highlight SpecialKey   ctermbg=254           cterm=none           guibg=#e8e8e8 gui=none           ctermfg=180 guifg=#d8a080
 
+if v:version >= 700
+          highlight    TabLine               guibg=#dce8dc        gui=none      ctermbg=254        cterm=none
+          highlight    TabLineFill           guifg=#e8e8e8        ctermfg=254
+endif
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 " vim:tabstop=4

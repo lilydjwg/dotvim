@@ -281,7 +281,7 @@ endfunction
 
 function! s:is_js()
 	" lilydjwg: 这样判断文件类型会更好
-	return &ft == "javascript"
+	return &ft == "javascript" || &ft == "json"
 	" return expand("%:e") == "js"
 endfunction
 
