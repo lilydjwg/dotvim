@@ -6,7 +6,7 @@
 if &cp || exists("g:loaded_pyconsole")
   finish
 endif
-if !has("python") && !has("python3")
+if !has("python")
   echohl ErrorMsg
   echomsg "PyConsole.vim needs vim with +python feature!"
   echohl None
