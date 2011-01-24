@@ -200,3 +200,5 @@ getroot
 fromstring
 Queue
 xpath
+getnext
+tostring

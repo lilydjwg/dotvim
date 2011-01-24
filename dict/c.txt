@@ -71,3 +71,4 @@ typedef
 unsigned
 wnck_window_get
 wnck_window_get_xid
+regex_t
