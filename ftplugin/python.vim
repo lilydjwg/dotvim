@@ -1,10 +1,10 @@
 " Vim script file
 " FileType:     python
 " Author:       lilydjwg
-" Last Change:  2010-10-28
+" Last Change:  2011年1月24日
 " eval code {{{1
 if !exists('b:python_did_once')
-  python << EOF
+  python3 << EOF
 import vim
 
 def EvaluateCurrentRange():
