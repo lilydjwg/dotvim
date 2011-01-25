@@ -277,7 +277,7 @@ function Lilydjwg_hexchar()
     return
   endif
   let str = substitute(chars, '%', '\\x', 'g')
-  exe 'py print ''' . str . ''''
+  exe 'echo "'. str . '"'
 endfunction
 "   字符 -> %xx，取代当前选区 [[[2
 function Lilydjwg_strhex(str)
