@@ -21,24 +21,11 @@ if v:version < '703'"{{{
     finish
 endif"}}}
 
-if has('python')"{{{
+if has('python3')"{{{
     let s:has_supported_python = 1
-
-python << ENDPYTHON
-import sys
-import vim
-if sys.version_info[:2] < (2, 4):
-    vim.command('let s:has_supported_python = 0')
-ENDPYTHON
-
-    " Python version is too old
-    if !s:has_supported_python
-        echo  "Gundo requires that Vim be compiled with Python 2.4+"
-        finish
-    endif
 else
     " no Python support
-    echo  "Gundo requires that Vim be compiled with Python 2.4+"
+    echo  "This modified version of gundo requires that Vim be compiled with Python 3.0+"
     finish
 endif"}}}
 
@@ -61,7 +48,9 @@ endif"}}}
 "}}}
 
 "{{{ Mercurial's graphlog code
-python << ENDPYTHON
+python3 << ENDPYTHON
+import io
+
 def asciiedges(seen, rev, parents):
     """adds edge info to changelog DAG walk suitable for ascii()"""
     if rev not in seen:
@@ -328,8 +317,8 @@ def ascii(buf, state, type, char, text, coldata):
 
 def generate(dag, edgefn, current):
     seen, state = [], [0, 0]
-    buf = Buffer()
-    for node, parents in list(dag):
+    buf = io.StringIO()
+    for node, parents in dag:
         if node.time:
             age_label = age(int(node.time))
         else:
@@ -340,12 +329,12 @@ def generate(dag, edgefn, current):
         else:
             char = 'o'
         ascii(buf, state, 'C', char, [line], edgefn(seen, node, parents))
-    return buf.b
+    return buf.getvalue()
 ENDPYTHON
 "}}}
 
 "{{{ Mercurial age function
-python << ENDPYTHON
+python3 << ENDPYTHON
 import time
 
 agescales = [("year", 3600 * 24 * 365),
@@ -383,7 +372,7 @@ ENDPYTHON
 "}}}
 
 "{{{ Python Vim utility functions
-python << ENDPYTHON
+python3 << ENDPYTHON
 import vim
 
 normal = lambda s: vim.command('normal %s' % s)
@@ -438,15 +427,8 @@ ENDPYTHON
 "}}}
 
 "{{{ Python undo tree data structures and functions
-python << ENDPYTHON
+python3 << ENDPYTHON
 import itertools
-
-class Buffer(object):
-    def __init__(self):
-        self.b = ''
-
-    def write(self, s):
-        self.b += s
 
 class Node(object):
     def __init__(self, n, parent, time, curhead):
@@ -757,7 +739,7 @@ endfunction"}}}
 "{{{ Gundo rendering
 
 "{{{ Rendering utility functions
-python << ENDPYTHON
+python3 << ENDPYTHON
 import difflib
 
 def _fmt_time(t):
@@ -834,7 +816,7 @@ ENDPYTHON
 "}}}
 
 function! s:GundoRenderGraph()"{{{
-python << ENDPYTHON
+python3 << ENDPYTHON
 def GundoRenderGraph():
     if not _check_sanity():
         return
@@ -885,7 +867,7 @@ ENDPYTHON
 endfunction"}}}
 
 function! s:GundoRenderPreview()"{{{
-python << ENDPYTHON
+python3 << ENDPYTHON
 def GundoRenderPreview():
     if not _check_sanity():
         return
@@ -918,7 +900,7 @@ ENDPYTHON
 endfunction"}}}
 
 function! s:GundoRenderChangePreview()"{{{
-python << ENDPYTHON
+python3 << ENDPYTHON
 def GundoRenderChangePreview():
     if not _check_sanity():
         return
@@ -955,7 +937,7 @@ endfunction"}}}
 "{{{ Gundo undo/redo
 
 function! s:GundoRevert()"{{{
-python << ENDPYTHON
+python3 << ENDPYTHON
 def GundoRevert():
     if not _check_sanity():
         return
@@ -974,7 +956,7 @@ ENDPYTHON
 endfunction"}}}
 
 function! s:GundoPlayTo()"{{{
-python << ENDPYTHON
+python3 << ENDPYTHON
 def GundoPlayTo():
     if not _check_sanity():
         return
@@ -1038,3 +1020,4 @@ command! -nargs=0 GundoRenderGraph call s:GundoRenderGraph()
 autocmd BufNewFile __Gundo__ call s:GundoSettingsGraph()
 autocmd BufNewFile __Gundo_Preview__ call s:GundoSettingsPreview()
 "}}}
+" vim:se fdm=marker:
