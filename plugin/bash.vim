@@ -1,6 +1,6 @@
 " bash.vim      插入/命令模式下 bash 式键映射
 " Author:       lilydjwg <lilydjwg@gmail.com>
-" Last Change:  2010年12月14日
+" Last Change:  2011年1月28日
 " ---------------------------------------------------------------------
 " Load Once:
 if &cp || exists("g:loaded_bash")
@@ -39,6 +39,33 @@ function Bash_setup()
   " <M-d> 删除光标后的字符
   imap <silent> <M-d> <C-R>=Bash_killline()<CR>
   inoremap <M-h> <Del>
+  for i in range(10)
+    " 这里如用 <expr>，则 feedkeys 不起作用
+    exec 'inoremap <silent> <M-' . i . '> <C-R>=<SID>Altnum('. i .')<CR>'
+  endfor
+endfunction
+function s:Altnum(n)
+  let showmode = &showmode
+  set noshowmode
+  let ncount = a:n
+  echohl Macro
+  echo 'arg: ' . ncount
+  echohl None
+  let nextchar = getchar()
+  while nextchar >= 176 && nextchar <= 185
+    let n = nextchar - 176
+    let ncount .= n
+    echohl Macro
+    echo 'arg: ' . ncount
+    echohl None
+    let nextchar = getchar()
+  endwhile
+  if nextchar != 27 && nextchar != 3
+    let input = repeat(nr2char(nextchar), ncount)
+    call feedkeys(input, 'm')
+  endif
+  let &showmode = showmode
+  return ''
 endfunction
 " ---------------------------------------------------------------------
 "  Call Functions:
