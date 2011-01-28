@@ -6,12 +6,22 @@
 if !exists('b:python_did_once')
   python3 << EOF
 import vim
+import sys
 
 def EvaluateCurrentRange():
   '''执行范围内的代码'''
   eval(compile('\n'.join(vim.current.range),'','exec'),globals())
+
+def getpath():
+  path = sys.path[:]
+  if '' in path:
+    i = path.index('')
+    paths[i] = '.'
+  return path
+
+vim.command('setlocal path=%s' % ','.join(getpath()).replace(' ', r'\ '))
 EOF
-vmap <buffer> <silent> <Space> :py EvaluateCurrentRange()<CR>
+vmap <buffer> <silent> <Space> :py3 EvaluateCurrentRange()<CR>
 let b:python_did_once = 1
 endif
 
