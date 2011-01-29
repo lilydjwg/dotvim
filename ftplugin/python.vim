@@ -1,18 +1,18 @@
 " Vim script file
 " FileType:     python
 " Author:       lilydjwg
-" Last Change:  2010-10-28
+" Last Change:  2011年1月29日
 " eval code {{{1
 if !exists('b:python_did_once')
-  python << EOF
-import vim
-
-def EvaluateCurrentRange():
-  '''执行范围内的代码'''
-  eval(compile('\n'.join(vim.current.range),'','exec'),globals())
-EOF
-vmap <buffer> <silent> <Space> :py EvaluateCurrentRange()<CR>
-let b:python_did_once = 1
+  let pyfile = fnameescape(globpath(&runtimepath, 'ftplugin/python.py'))
+  if has("python3")
+    exe 'py3file ' . pyfile
+    vmap <buffer> <silent> <Space> :py3 EvaluateCurrentRange()<CR>
+  else
+    exe 'pyfile ' . pyfile
+    vmap <buffer> <silent> <Space> :py EvaluateCurrentRange()<CR>
+  endif
+  let b:python_did_once = 1
 endif
 
 " folding {{{1
@@ -31,7 +31,6 @@ setlocal et
 setlocal tw=78
 setlocal foldmethod=expr
 setlocal foldexpr=Lilydjwg_python_fold()
-setlocal omnifunc=pythoncomplete#Complete
 imap <silent> <buffer> <BS> <C-R>=Lilydjwg_checklist_bs('\v^\s*#\s*$')<CR>
 
 " makeprg {{{1
