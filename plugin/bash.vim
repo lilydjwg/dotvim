@@ -41,7 +41,6 @@ function s:Bash_setup()
   inoremap <M-h> <Del>
   for i in range(10)
     " 这里如用 <expr>，则 feedkeys 不起作用
-    " 注意：只对GUI版本有效
     exec 'inoremap <silent> <M-' . i . '> <C-R>=<SID>Altnum('. i .')<CR>'
   endfor
 endfunction

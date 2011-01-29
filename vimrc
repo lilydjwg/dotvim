@@ -555,7 +555,6 @@ nmap <M-m> :MRU
 nmap <silent> <M-f> :echo expand('%:p')<CR>
 " 打开草稿
 nmap <unique> <silent> <M-s> <Plug>ShowScratchBuffer
-" 切换标签页，只对GUI版本有效
 for i in range(1, 9)
   exec 'nnoremap <silent> <M-' . i . '> '. i .'gt'
 endfor
