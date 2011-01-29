@@ -1,14 +1,18 @@
-" pyconsole.vim 打开一个窗口来输入 Python3 代码，并在原窗口执行
+" pyconsole.vim 打开一个窗口来输入 Python 代码，并在原窗口执行
 " Author:       lilydjwg
-" Last Change:  2011年1月24日
+" Last Change:  2011年1月29日
 " ---------------------------------------------------------------------
 " Load Once:
 if &cp || exists("g:loaded_pyconsole")
   finish
 endif
-if !has("python3")
+if has("python3")
+  let s:pycmd = 'py3'
+elseif has("python")
+  let s:pycmd = 'py'
+else
   echohl ErrorMsg
-  echomsg "PyConsole.vim needs vim with +python3 feature!"
+  echomsg "PyConsole.vim needs vim with +python or +python3 feature!"
   echohl None
   finish
 endif
@@ -18,9 +22,15 @@ set cpo&vim
 " ---------------------------------------------------------------------
 " Functions:
 function s:PyConsole_init(nr)
-  py3 import vim
-  py3 v = vim;
-  py3 b = v.current.buffer
+  if s:pycmd == 'py3'
+    py3 import vim
+    py3 v = vim;
+    py3 b = v.current.buffer
+  else
+    py import vim
+    py v = vim;
+    py b = v.current.buffer
+  endif
   rightbelow 7split [PyConsole]
   set buftype=nofile
   set filetype=python
@@ -42,7 +52,11 @@ function s:PyConsole_run()
   exe 'w '.py
   let self = winnr()
   exe b:nr.'wincmd w'
-  sil exe "py3file ".py
+  if s:pycmd == 'py3'
+    sil exe "py3file ".py
+  else
+    sil exe "pyfile ".py
+  endif
   exe self.'wincmd w'
   call delete(py)
 

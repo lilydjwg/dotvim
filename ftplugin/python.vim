@@ -1,28 +1,18 @@
 " Vim script file
 " FileType:     python
 " Author:       lilydjwg
-" Last Change:  2011年1月24日
+" Last Change:  2011年1月29日
 " eval code {{{1
 if !exists('b:python_did_once')
-  python3 << EOF
-import vim
-import sys
-
-def EvaluateCurrentRange():
-  '''执行范围内的代码'''
-  eval(compile('\n'.join(vim.current.range),'','exec'),globals())
-
-def getpath():
-  path = sys.path[:]
-  if '' in path:
-    i = path.index('')
-    paths[i] = '.'
-  return path
-
-vim.command('setlocal path=%s' % ','.join(getpath()).replace(' ', r'\ '))
-EOF
-vmap <buffer> <silent> <Space> :py3 EvaluateCurrentRange()<CR>
-let b:python_did_once = 1
+  let pyfile = fnameescape(globpath(&runtimepath, 'ftplugin/python.py'))
+  if has("python3")
+    exe 'py3file ' . pyfile
+    vmap <buffer> <silent> <Space> :py3 EvaluateCurrentRange()<CR>
+  else
+    exe 'pyfile ' . pyfile
+    vmap <buffer> <silent> <Space> :py EvaluateCurrentRange()<CR>
+  endif
+  let b:python_did_once = 1
 endif
 
 " folding {{{1
