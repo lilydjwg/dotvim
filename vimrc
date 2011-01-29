@@ -502,7 +502,7 @@ endif
 if has("persistent_undo")
   let &undodir=g:undodir
   if !isdirectory(&undodir)
-    call mkdir(&undodir)
+    call mkdir(&undodir, '', 0700)
   endif
   set undofile
 endif
