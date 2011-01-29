@@ -2,6 +2,8 @@
 " Maintainer: Aaron Griffin <aaronmgriffin@gmail.com>
 " Version: 0.9
 " Last Updated: 18 Jun 2009
+" Modified: For python3 support, 2011-01-29,
+"           by lilydjwg <lilydjwg@gmail.com>
 "
 " Changes
 " TODO:
@@ -46,7 +48,7 @@ if !has('python3')
     finish
 endif
 
-function! pythoncomplete#Complete(findstart, base)
+function! python3complete#Complete(findstart, base)
     "findstart = 1 when we need to get the text length
     if a:findstart == 1
         let line = getline('.')

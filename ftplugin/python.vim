@@ -31,7 +31,6 @@ setlocal et
 setlocal tw=78
 setlocal foldmethod=expr
 setlocal foldexpr=Lilydjwg_python_fold()
-setlocal omnifunc=pythoncomplete#Complete
 imap <silent> <buffer> <BS> <C-R>=Lilydjwg_checklist_bs('\v^\s*#\s*$')<CR>
 
 " makeprg {{{1
