@@ -198,10 +198,10 @@ function! <SID>ColorSchemeEditor () "{{{
             endif
         elseif has('unix')
             if exists("g:CSE_DebugMode")
-                exe 'silent !xterm -e python "' . s:CSE_Path . '" '. v:servername .
+                exe 'silent !xterm -e python2 "' . s:CSE_Path . '" '. v:servername .
                             \' "' . fnamemodify( s:CSE_Path, ':h') . '" &'
             else
-                exe 'silent !python "' . s:CSE_Path . '" '. v:servername .
+                exe 'silent !python2 "' . s:CSE_Path . '" '. v:servername .
                             \' "' . fnamemodify( s:CSE_Path, ':h') . '" &'
             endif
         endif
