@@ -36,3 +36,4 @@ nonumber
 scrolloff
 setlocal
 silent
+fnamemodify
