@@ -50,21 +50,23 @@ function s:Altnum(n)
   let ncount = a:n
   echohl Macro
   echo 'arg: ' . ncount
-  echohl None
   let nextchar = getchar()
   while nextchar >= 176 && nextchar <= 185
     let n = nextchar - 176
     let ncount .= n
-    echohl Macro
     echo 'arg: ' . ncount
-    echohl None
     let nextchar = getchar()
   endwhile
   if nextchar != 27 && nextchar != 3
-    let input = repeat(nr2char(nextchar), ncount)
+    let char = nr2char(nextchar)
+    if char == '' "是特殊键
+      let char = nextchar
+    endif
+    let input = repeat(char, ncount)
     call feedkeys(input, 'm')
   endif
   let &showmode = showmode
+  echohl None
   return ''
 endfunction
 " ---------------------------------------------------------------------
