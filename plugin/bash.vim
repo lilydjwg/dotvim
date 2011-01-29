@@ -42,6 +42,7 @@ function s:Bash_setup()
   for i in range(10)
     " 这里如用 <expr>，则 feedkeys 不起作用
     exec 'inoremap <silent> <M-' . i . '> <C-R>=<SID>Altnum('. i .')<CR>'
+    exec 'cnoremap <silent> <M-' . i . '> <C-R>=<SID>Altnum('. i .')<CR>'
   endfor
 endfunction
 function s:Altnum(n)
