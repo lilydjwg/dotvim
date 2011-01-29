@@ -208,7 +208,7 @@ syn match	vimUserAttrbCmplt contained	"custom,\u\w*"
 
 " Lower Priority Comments: after some vim commands... {{{2
 " =======================
-syn match	vimComment	excludenl +\s"[^\-:.%#=*].*$+lc=1	contains=@vimCommentGroup,vimCommentString
+syn match	vimComment	excludenl +"[^\-:.%#=*].*$+	contains=@vimCommentGroup,vimCommentString
 syn match	vimComment	+\<endif\s\+".*$+lc=5	contains=@vimCommentGroup,vimCommentString
 syn match	vimComment	+\<else\s\+".*$+lc=4	contains=@vimCommentGroup,vimCommentString
 syn region	vimCommentString	contained oneline start='\S\s\+"'ms=e	end='"'
