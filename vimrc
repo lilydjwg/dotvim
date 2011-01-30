@@ -23,7 +23,7 @@ runtime macros/matchit.vim
 "   检查当前目录附近是否有 tags 文件[[[2
 function Lilydjwg_checktags(file)
   let path = fnamemodify(a:file, ':p:h')
-  while path != '/' && path !~ '^[[:alpha:]]:[\\/]$'
+  while path != '/' && path !~ '^[[:alpha:]]\+:[\\/]\?$'
     if filereadable(path.'/tags')
       let &l:tags = path.'/tags'
       break
