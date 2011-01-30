@@ -44,7 +44,7 @@ set cpo&vim
 python3 <<ENDPYTHON
 import os
 import vim
-from socket import socket, AF_UNIX
+import socket
 import struct
 FCITX_STATUS = struct.pack('i', 0)
 FCITX_OPEN   = struct.pack('i', 1 | (1 << 16))
@@ -53,8 +53,12 @@ INT_SIZE     = struct.calcsize('i')
 fcitxsocketfile = vim.eval('s:fcitxsocketfile')
 
 def fcitxtalk(command=None):
-  sock = socket(AF_UNIX)
-  sock.connect(fcitxsocketfile)
+  sock = socket.socket(socket.AF_UNIX)
+  try:
+    sock.connect(fcitxsocketfile)
+  except socket.error:
+    vim.command('echohl WarningMsg | echo "fcitx.vim: socket 连接出错" | echohl NONE')
+    return
   try:
     if not command:
       sock.send(FCITX_STATUS)
