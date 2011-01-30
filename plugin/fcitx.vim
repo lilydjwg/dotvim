@@ -74,15 +74,17 @@ def fcitx2en():
     fcitxtalk('c')
 
 def fcitx2zh():
-  if vim.eval('b:inputtoggle') == '1':
-    fcitxtalk('o')
+  if vim.eval('exists("b:inputtoggle")') == '1':
+    if vim.eval('b:inputtoggle') == '1':
+      fcitxtalk('o')
+      vim.command('let b:inputtoggle = 0')
+  else:
     vim.command('let b:inputtoggle = 0')
 ENDPYTHON
 " ---------------------------------------------------------------------
 " Autocmds:
 au InsertLeave * py3 fcitx2en()
 au InsertEnter * py3 fcitx2zh()
-au BufNew,VimEnter * let b:inputtoggle = 0
 " ---------------------------------------------------------------------
 "  Restoration And Modelines:
 let &cpo=s:keepcpo
