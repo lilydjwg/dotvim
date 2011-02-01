@@ -21,28 +21,21 @@ function s:Bash_killline_cmd()
   return strpart(getcmdline(), 0, getcmdpos()-1)
 endfunction
 function s:Bash_setup()
-  cnoremap <C-B> <Left>
-  cnoremap <C-F> <Right>
-  cnoremap <C-A> <C-B>
-  inoremap <C-A> <Home>
+  noremap! <C-B> <Left>
+  noremap! <C-F> <Right>
+  noremap! <C-A> <Home>
   inoremap <C-E> <End>
-  inoremap <C-B> <Left>
-  inoremap <C-F> <Right>
   inoremap <C-P> <Up>
   inoremap <C-N> <Down>
-  cnoremap <M-b> <S-Left>
-  cnoremap <M-f> <S-Right>
-  cnoremap <M-h> <Del>
-  cmap <silent> <M-d> <C-\>e<SID>Bash_killline_cmd()<CR>
-  inoremap <M-b> <S-Left>
-  inoremap <M-f> <S-Right>
+  noremap! <M-b> <S-Left>
+  noremap! <M-f> <S-Right>
+  noremap! <M-h> <Del>
+  cnoremap <silent> <M-d> <C-\>e<SID>Bash_killline_cmd()<CR>
   " <M-d> 删除光标后的字符
-  imap <silent> <M-d> <C-R>=<SID>Bash_killline()<CR>
-  inoremap <M-h> <Del>
+  inoremap <silent> <M-d> <C-R>=<SID>Bash_killline()<CR>
   for i in range(10)
     " 这里如用 <expr>，则 feedkeys 不起作用
-    exec 'inoremap <silent> <M-' . i . '> <C-R>=<SID>Altnum('. i .')<CR>'
-    exec 'cnoremap <silent> <M-' . i . '> <C-R>=<SID>Altnum('. i .')<CR>'
+    exec 'noremap! <silent> <M-' . i . '> <C-R>=<SID>Altnum('. i .')<CR>'
   endfor
 endfunction
 function s:Altnum(n)
