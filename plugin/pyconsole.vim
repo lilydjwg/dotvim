@@ -35,6 +35,7 @@ function s:PyConsole_init(nr)
   set buftype=nofile
   set filetype=python
   %d "清除模板之类的东西
+  set nofoldenable
   let b:nr = a:nr
   nnoremap <buffer> <silent> q <C-W>c
   nnoremap <buffer> <silent> <C-CR> :call <SID>PyConsole_run()<CR>

@@ -45,10 +45,7 @@ function! Lilydjwg_c_noCStyle()
   call system("indent -bap -br -brf -brs -ce -cdw -nlp -ci4 -nss -npcs -ncss -nsaf -npsl -nsai -nsaw -nprs -ppi 3 -sc ".f)
   %d
   sil exe 'r '.f
-  try
-    %foldopen!
-  catch /E490/
-  endtry
+  set nofoldenable
   1d
   sil %s/)\s\+{/){/ge
   sil %s/\v\}\s+else(\s|\{|)@=/}else/ge
