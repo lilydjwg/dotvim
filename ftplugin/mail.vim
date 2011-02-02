@@ -1,19 +1,24 @@
 " Vim script file
 " FileType:     mail
 " Author:       lilydjwg <lilydjwg@gmail.com>
-" Last Change:  2010-11-07
+" Last Change:  2011年2月2日
 
-setlocal tw=70
 setlocal formatoptions=tcroqn2mM1
 
 imap <buffer> <BS> <C-R>=Lilydjwg_checklist_bs('\v^\>+ +$')<CR>
 
+if !has("python3")
+  finish
+endif
+
 function! s:getEncodedHeader(encoding)
-  let msg = input('头信息: ')
-  py <<EOP
+  let msg = input('编码头信息: ')
+  if msg == ''
+    return
+  endif
+  py3 <<EOP
 import email.header, vim
-msg = email.header.Header(unicode(vim.eval('msg'), 'utf-8'),
-  vim.eval('a:encoding')).encode()
+msg = email.header.Header(vim.eval('msg'), vim.eval('a:encoding')).encode()
 vim.command('let msg = "%s"' % msg)
 EOP
   return msg
