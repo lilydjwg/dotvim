@@ -20,17 +20,6 @@ runtime macros/matchit.vim
 "]]]
 " 我的设置
 " 函数[[[1
-"   检查当前目录附近是否有 tags 文件[[[2
-function Lilydjwg_checktags(file)
-  let path = fnamemodify(a:file, ':p:h')
-  while path != '/' && path !~ '^[[:alpha:]]\+:[\\/]\?$'
-    if filereadable(path.'/tags')
-      let &l:tags = path.'/tags'
-      break
-    endif
-    let path = fnamemodify(path, ':h')
-  endwhile
-endfunction
 "   切换显示行号/相对行号/不显示 [[[2
 function Lilydjwg_toggle_number()
   if &nu
@@ -405,6 +394,7 @@ set completeopt+=longest
 set maxcombine=4
 set cedit=<C-Y>
 set whichwrap=b,s,[,]
+set tags+=./../tags,./../../tags,./../../../tags
 " Avoid command-line redraw on every entered character by turning off Arabic
 " shaping (which is implemented poorly).
 if has('arabic')
@@ -658,7 +648,6 @@ autocmd InsertLeave	* if s:cmdwin == 0 && pumvisible() == 0|pclose|endif
 autocmd VimEnter,ColorScheme	* call Lilydjwg_remark()
 autocmd BufReadCmd *.maff call zip#Browse(expand("<amatch>"))
 autocmd BufReadPost	* let &l:sts = &l:sw
-autocmd BufReadPost	* call Lilydjwg_checktags(expand("<amatch>"))
 "   见 ft-syntax-omni
 if has("autocmd") && exists("+omnifunc")
   autocmd Filetype *
