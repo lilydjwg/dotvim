@@ -697,6 +697,8 @@ function! s:MRU_Open_Window(...)
 		\ :call <SID>MRU_Cmd()<CR>
     nnoremap <buffer> <silent> <2-LeftMouse>
                 \ :call <SID>MRU_Select_File_Cmd('edit,useopen')<CR>
+    nnoremap <buffer> <silent> x
+		\ :call <SID>MRU_Delete_From_List()<CR>
     nnoremap <buffer> <silent> q :close<CR>
 
     " Restore the previous cpoptions settings
@@ -914,6 +916,18 @@ function s:MRU_Check()
   call s:MRU_SaveList()
   call s:MRU_Refresh_Menu()
 endfunction
+
+" MRU_Delete_From_List                  {{{1
+" lilydjwg: 从列表中删除文件项，这样可以有选择地删除多余的项，从而更容易查找
+function! s:MRU_Delete_From_List()
+    call filter(s:MRU_files, 'v:val != getline(".")')
+    setlocal modifiable
+    del _
+    setlocal nomodifiable
+    call s:MRU_SaveList()
+    call s:MRU_Refresh_Menu()
+endfunction
+
 
 " Load the MRU list on plugin startup
 call s:MRU_LoadList()
