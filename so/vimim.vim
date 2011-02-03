@@ -6058,6 +6058,7 @@ function! s:vimim_initialize_mapping()
     sil!call s:vimim_sexy_mode_mapping_on()
     sil!call s:vimim_ctrl_space_mapping_on()
     sil!call s:vimim_onekey_mapping_on()
+    imap <C-@> <C-Bslash>
 endfunction
 
 " -----------------------------------
