@@ -8,7 +8,7 @@ if !exists('b:python_did_once')
   if has("python3")
     exe 'py3file ' . pyfile
     vmap <buffer> <silent> <Space> :py3 EvaluateCurrentRange()<CR>
-  else
+  elseif has("python")
     exe 'pyfile ' . pyfile
     vmap <buffer> <silent> <Space> :py EvaluateCurrentRange()<CR>
   endif
