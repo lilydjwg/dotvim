@@ -1,10 +1,11 @@
 # vim:fileencoding=utf-8
+# NOTE: No Chinese here to avoid unable to decode when 'encoding' and
+# 'fileencoding' differs
 
 import vim
 import sys
 
 def EvaluateCurrentRange():
-  '''执行范围内的代码'''
   eval(compile('\n'.join(vim.current.range),'','exec'),globals())
 
 def getpath():
