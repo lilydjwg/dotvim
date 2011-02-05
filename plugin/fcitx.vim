@@ -1,3 +1,4 @@
+scriptencoding utf-8
 " fcitx.vim  记住插入模式小企鹅输入法的状态
 " Author:       lilydjwg
 " Maintainer:   lilydjwg
