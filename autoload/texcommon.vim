@@ -6,7 +6,7 @@
 
 function texcommon#tex2pdf(cmd)
   redir @">
-  w
+  up
   lcd %:p:h
   exe '!' . a:cmd . ' %'
   redir END
