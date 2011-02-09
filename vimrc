@@ -778,6 +778,7 @@ let g:vimwiki_browsers = ['firefox']
 let g:vimwiki_CJK_length = 1
 let g:vimwiki_dir_link = 'index'
 let g:vimwiki_html_header_numbering = 2
+let g:vimwiki_conceallevel = 2
 "   xml.vim，使所有的标签都关闭[[[2
 let xml_use_xhtml = 1
 "   netrw，elinks不行，使用curl吧
