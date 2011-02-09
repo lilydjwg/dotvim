@@ -1,17 +1,10 @@
 " Vim script file
-" FileType:     XeTeX (common file)
-" Author:       lilydjwg
-" Maintainer:   lilydjwg
-" Last Change:  2009年12月30日
-"
-function! Lilydjwg_tex_pdf(cmd)
-    redir @">
-    w
-    lcd %:p:h
-    " 目录中不要脚注
-    " !fixlatex.py %:r.toc
-    " !pdflatex %
-    exe '!' . a:cmd . ' %'
-    silent !setsid evince %:r.pdf&
-    redir END
-endfunction
+" FileType:     TeX common settings
+" Author:       lilydjwg <lilydjwg@gmail.com>
+" Last Change:  2011年2月9日
+" ---------------------------------------------------------------------
+nmap <buffer> <S-F5> :call texcommon#view()<CR>
+" ---------------------------------------------------------------------
+" Vim Modeline:
+" vim:fdm=expr:fde=getline(v\:lnum-1)=~'\\v"\\s*-{20,}'?'>1'\:1
+" ---------------------------------------------------------------------
