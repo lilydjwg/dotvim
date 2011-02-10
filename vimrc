@@ -694,7 +694,8 @@ command Path VE %:p:h
 command -nargs=1 Enc e ++bad=keep ++enc=<args> %
 command CenterFull call CenterFull()
 "   Awesome 下全屏时有点 bug，这里将之加回去
-command Larger :set lines+=1
+command Larger set lines+=1
+command MusicSelect runtime so/musicselect.vim
 " 其它命令[[[1
 "   grep.vim[[[2
 let g:Grep_Default_Options = '--binary-files=without-match'
