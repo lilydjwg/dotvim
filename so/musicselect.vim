@@ -34,7 +34,7 @@ def musicselect_init():
       if i.isfile():
         dstsongs.add(str(i)[len(str(dstdir))+1:])
   else:
-    vim.print('WarningMsg', '目标目录尚不存在')
+    vimutils.print('WarningMsg', '目标目录尚不存在')
 
   for i, l in enumerate(b):
     s = (srcdir+l).size
@@ -95,14 +95,14 @@ def musicselect_sync():
   new = selected - dstsongs
   deleted = dstsongs - selected
   if new:
-    vim.print('Title', '-- 加入手机 --')
+    vimutils.print('Title', '-- 加入手机 --')
     for i in new:
       print(i)
   if deleted:
-    vim.print('Title', '-- 从手机删除 --')
+    vimutils.print('Title', '-- 从手机删除 --')
     for i in deleted:
       print(i)
-  ans = vim.input('确定执行操作吗？', 'Question')
+  ans = vimutils.input('确定执行操作吗？', 'Question')
   if ans in 'Yy':
     print('将在后台完成任务。')
     for i in deleted:
@@ -111,7 +111,7 @@ def musicselect_sync():
     import subprocess
     p = subprocess.Popen(('convertmusic', str(srcdir), str(dstdir)), stdin=subprocess.PIPE)
     if p.poll():
-      vim.print('ErrorMsg', 'convertmusic 执行失败，返回值 %d' % p.returncode)
+      vimutils.print('ErrorMsg', 'convertmusic 执行失败，返回值 %d' % p.returncode)
       return
     for i in new:
       p.stdin.write(i.encode()+b'\n')
@@ -122,7 +122,7 @@ def musicselect_sync():
 if dstdir.exists():
   musicselect_sync()
 else:
-  vim.print('ErrorMsg', '目标目录 %s 不存在！' % dstdir)
+  vimutils.print('ErrorMsg', '目标目录 %s 不存在！' % dstdir)
 PYTHON
 endfunction
 " ---------------------------------------------------------------------
