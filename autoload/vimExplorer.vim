@@ -1799,11 +1799,12 @@ function s:VEFilePanel.paste()
     endif
     let retList = g:VEPlatform.copyMultiFile(s:VEContainer.clipboard,self.path)
     if s:VEContainer.yankMode == 'cut' && len(retList) != 0
-        for i in retList
-            call g:VEPlatform.delete(i)
-        endfor
+	echohl ErrorMsg
+	echo "Not supported now"
+	echohl None
         let s:VEContainer.yankMode = ''
         let s:VEContainer.clipboard = []
+	return
     endif
     call self.refresh()
     "call s:VEContainer.showClipboard()
