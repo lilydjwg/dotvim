@@ -109,9 +109,9 @@ def musicselect_sync():
       (dstdir+i).unlink()
 
     import subprocess
-    p = subprocess.Popen(('convertmusic', str(srcdir), str(dstdir)), stdin=subprocess.PIPE)
+    p = subprocess.Popen(('musicconvert', str(srcdir), str(dstdir)), stdin=subprocess.PIPE)
     if p.poll():
-      vimutils.print('ErrorMsg', 'convertmusic 执行失败，返回值 %d' % p.returncode)
+      vimutils.print('ErrorMsg', 'musicconvert 执行失败，返回值 %d' % p.returncode)
       return
     for i in new:
       p.stdin.write(i.encode()+b'\n')
