@@ -37,3 +37,4 @@ scrolloff
 setlocal
 silent
 fnamemodify
+WarningMsg
