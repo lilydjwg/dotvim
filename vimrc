@@ -147,6 +147,27 @@ function Lilydjwg_AP() range
   exe a:firstline.','.a:lastline.'s/^\ze\s/ /ge'
   nohls
 endfunction
+" 对齐命令[[[2
+function Lilydjwg_Align(type) range
+  try
+    let pat = g:Myalign_def[a:type]
+  catch /^Vim\%((\a\+)\)\=:E716/
+    echohl ErrorMsg
+    echo "对齐方式" . a:type . "没有定义"
+    echohl None
+    return
+  endtry
+  call Align#AlignPush()
+  call Align#AlignCtrl(pat[0])
+  if len(pat) == 3
+    call Align#AlignCtrl(pat[2])
+  endif
+  exe a:firstline.','.a:lastline."call Align#Align(0, '". pat[1] ."')"
+  call Align#AlignPop()
+endfunction
+function Lilydjwg_Align_complete(ArgLead, CmdLine, CursorPos)
+  return keys(g:Myalign_def)
+endfunction
 "  退格删除自动缩进 [[[2
 function! Lilydjwg_checklist_bs(pat)
   " 退格可清除自动出来的列表符号
@@ -696,6 +717,7 @@ command CenterFull call CenterFull()
 "   Awesome 下全屏时有点 bug，这里将之加回去
 command Larger set lines+=1
 command MusicSelect runtime so/musicselect.vim
+command -nargs=1 -range -complete=customlist,Lilydjwg_Align_complete LA <line1>,<line2>call Lilydjwg_Align("<args>")
 " 其它命令[[[1
 "   grep.vim[[[2
 let g:Grep_Default_Options = '--binary-files=without-match'
@@ -728,6 +750,10 @@ hi link MyTagListFileName Type
 let use_xhtml = 1
 "   Align[[[2
 let g:Align_xstrlen = 3
+"   Lilydjwg_Align
+let g:Myalign_def = {
+      \   'css': ['WP0p1l:', ':\@<=', 'v \v^\s*/\*|\{|\}'],
+      \ }
 "   EnhancedCommentify[[[2
 let g:EnhCommentifyRespectIndent = 'Yes'
 let g:EnhCommentifyUseSyntax = 'Yes'
