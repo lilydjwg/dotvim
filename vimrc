@@ -133,20 +133,6 @@ function LookFurther(down)
 endfunction
 inoremap <silent> <C-Y> <C-R><C-R>=LookFurther(0)<CR>
 inoremap <silent> <M-y> <C-R><C-R>=LookFurther(1)<CR>
-" 对齐 xxx: xxx （两栏） [[[2
-function Lilydjwg_AP() range
-  if getline('.') =~ '^\s'
-    let pat = "wll:p0P0"
-  else
-    let pat = "wl:p0P0"
-  endif
-  call Align#AlignPush()
-  call Align#AlignCtrl(pat)
-  exe a:firstline.','.a:lastline."call Align#Align(0, '\\s\\S')"
-  call Align#AlignPop()
-  exe a:firstline.','.a:lastline.'s/^\ze\s/ /ge'
-  nohls
-endfunction
 " 对齐命令[[[2
 function Lilydjwg_Align(type) range
   try
@@ -683,7 +669,6 @@ exe 'command Set tabe ' . escape(resolve($MYVIMRC), ' ')
 " 删除当前文件
 command Delete call delete(expand('%'))
 command -nargs=+ Reindent call Lilydjwg_reindent(<f-args>)
-command -range AP <line1>,<line2>call Lilydjwg_AP()
 " TODO better implement
 command -range=% ClsXML <line1>,<line2>!tidy -utf8 -iq -xml
 command -range=% ClsHTML <line1>,<line2>!tidy -utf8 -iq -omit -w 0
