@@ -49,7 +49,7 @@ def musicselect_init():
 
 musicselect_init()
 PYTHON
-  let b:m = matchadd("Search", '^\*\s.*$')
+  let b:m = matchadd("PreProc", '^\*\s.*$')
   let b:totalsize = 0
   nnoremap <buffer> <silent> <Space> :call <SID>ToggleItem("j")<CR>
   nnoremap <buffer> <silent> <S-Space> :call <SID>ToggleItem("k")<CR>
