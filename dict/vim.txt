@@ -38,3 +38,4 @@ setlocal
 silent
 fnamemodify
 WarningMsg
+range

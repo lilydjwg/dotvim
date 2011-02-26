@@ -209,3 +209,5 @@ abstractmethod
 ABCMeta
 metaclass
 sorted
+SMTPServer
+returncode

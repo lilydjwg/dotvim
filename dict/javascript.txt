@@ -27,3 +27,5 @@ function
 true
 false
 location
+typeof
+arguments

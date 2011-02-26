@@ -1,5 +1,8 @@
 parentsUntil
 removeClass
+mouseover
+mouseout
+removeData
 getJSON
 addClass
 prependTo
