@@ -46,6 +46,16 @@ if v:version < 700
   finish
 endif
 
+if exists("*strwidth")
+  function s:strwidth(s)
+    return strwidth(a:s)
+  endfunction
+else
+  function s:strwidth(s)
+    return len(a:s)
+  endfunction
+endif
+
 " Public Interface {{{1
 if maparg("<Leader>be") =~ 'BufExplorer'
   nunmap <Leader>be
@@ -617,7 +627,7 @@ function! s:BEGetBufferInfo(bufnr)
 
       if b.attributes !~ "u"
 	" lilydjwg: support CJK chars
-        call add(listedwidths[n], Strwidth(b[n]))
+        call add(listedwidths[n], s:strwidth(b[n]))
       endif
     endfor
   endfor
@@ -667,8 +677,7 @@ function! s:BEBuildBufferList()
       let type = (g:bufExplorerShowRelativePath) ? "relativepath" : "path"
       let path = buf[type]
       let pad  = (g:bufExplorerShowUnlisted) ? s:allpads.shortname : s:listedpads.shortname
-      " lilydjwg: support CJK chars
-      let line .= buf.shortname." ".strpart(pad.path, Strwidth(buf.shortname))
+      let line .= buf.shortname." ".strpart(pad.path, s:strwidth(buf.shortname))
     else
       let type = (g:bufExplorerShowRelativePath) ? "relativename" : "fullname"
       let path = buf[type]
@@ -678,7 +687,7 @@ function! s:BEBuildBufferList()
     let pads = (g:bufExplorerShowUnlisted) ? s:allpads : s:listedpads
 
     if !empty(pads[type])
-      let line .= strpart(pads[type], Strwidth(path))." "
+      let line .= strpart(pads[type], s:strwidth(path))." "
     endif
 
     let line .= buf.line

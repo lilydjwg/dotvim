@@ -355,15 +355,6 @@ function Lilydjwg_remark()
   highlight def MarkWord5  ctermbg=Magenta  ctermfg=Black  guibg=#FFB3FF    guifg=Black
   highlight def MarkWord6  ctermbg=Blue     ctermfg=Black  guibg=#9999FF    guifg=Black
 endfunction
-if exists("*strwidth")
-  function Strwidth(s)
-    return strwidth(a:s)
-  endfunction
-else
-  function Strwidth(s)
-    return len(a:s)
-  endfunction
-endif
 " set 相关[[[1
 "   一般设置[[[2
 " set guifont=文泉驿等宽正黑\ Medium\ 10
