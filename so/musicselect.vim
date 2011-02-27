@@ -73,13 +73,10 @@ endfunction
 " ---------------------------------------------------------------------
 function! s:showTotalSize()
   py3 <<PYTHON
-import sys
-sys.stderr = open('/dev/null', 'w')
-import psi.mount
-sys.stderr = sys.__stderr__
-m = [m for m in psi.mount.mounts() if m.mountpoint == '/media/PHONE CARD'][0]
+import os
+m = os.statvfs('/media/PHONE CARD')
 vim.command('let &l:stl = "Music size added: %s, total free space: %s"' % (filesize(int(vim.eval('b:totalsize'))),
-  filesize(m.available)))
+  filesize(m.f_bavail * m.f_bsize)))
 del m
 PYTHON
 endfunction
