@@ -1,7 +1,6 @@
 " Vim script file
 " FileType:     python
 " Author:       lilydjwg
-" Last Change:  2011年1月29日
 " eval code {{{1
 if !exists('b:python_did_once')
   let pyfile = fnameescape(globpath(&runtimepath, 'ftplugin/python.py'))
@@ -31,6 +30,8 @@ setlocal et
 setlocal tw=78
 setlocal foldmethod=expr
 setlocal foldexpr=Lilydjwg_python_fold()
+" 包含文件太多太费时了
+setlocal complete-=i
 imap <silent> <buffer> <BS> <C-R>=Lilydjwg_checklist_bs('\v^\s*#\s*$')<CR>
 
 " makeprg {{{1
