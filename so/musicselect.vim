@@ -8,7 +8,7 @@ endif
 " ---------------------------------------------------------------------
 function! s:setup()
   let b:musicdir = expand('~/音乐')
-  let songs = split(system('cd ' . b:musicdir . ' && find -type f'), '\n')
+  let songs = split(system('cd ' . b:musicdir . ' && find -type f ! -name "*~" ! -name "*.lrc"'), '\n')
   call append(0, songs)
   $del _
   1
