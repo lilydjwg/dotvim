@@ -182,9 +182,8 @@ function Lilydjwg_chmodx()
     let f = expand("%:p")
     if stridx(getfperm(f), 'x') != 2
       call system("chmod +x ".shellescape(f))
-      " 重新载入，FIXME 不会重新检测文件类型
-      edit!
-      syntax on
+      e!
+      nmap <buffer> <S-F5> :!%:p<CR>
     endif
   endif
 endfunction
