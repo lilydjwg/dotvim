@@ -728,6 +728,7 @@ let g:Align_xstrlen = 3
 "   Lilydjwg_Align
 let g:Myalign_def = {
       \   'css': ['WP0p1l:', ':\@<=', 'v \v^\s*/\*|\{|\}'],
+      \   'comma': ['WP0p1l:', ',\@<=', 'g ,'],
       \ }
 "   EnhancedCommentify[[[2
 let g:EnhCommentifyRespectIndent = 'Yes'
@@ -785,8 +786,8 @@ let g:vimwiki_conceallevel = 2
 let xml_use_xhtml = 1
 "   netrw，elinks不行，使用curl吧
 if executable("curl")
-  let g:netrw_http_cmd = "curl"
-  let g:netrw_http_xcmd= "-o"
+  let g:netrw_http_cmd  = "curl"
+  let g:netrw_http_xcmd = "-o"
 endif
 " cscope setting [[[1
 if has("cscope") && executable("cscope")
