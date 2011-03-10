@@ -14,7 +14,10 @@ syn match httplogResult	/\v\s\zs[1-4]\d{2}\ze\s\d+/
 syn match httplogError	/\v\s\zs5\d{2}\ze\s\d+/
 syn match httplogRef	/\v\s\zs"(http[^"]+|-)"\ze\s/
 syn match httplogUA	/\v\s\zs"[^"]+"$/ contains=httplogBrowser
-syn keyword httplogBrowser	Firefox MSIE Konqueror Chrome Safari Opera w3m Lynx Epiphany Links TheWorld contained
+syn match httplogBrowser	/\<UCWEB\d\@=/
+syn match httplogBrowser	/\v(".*Chrome.*)@<!\<Safari\>\d\@=/
+syn keyword httplogBrowser	Firefox MSIE Konqueror Chrome Opera w3m Wget Lynx Epiphany Links TheWorld contained
+syn keyword httplogBrowser	gvfs
 syn keyword httplogBrowser	Googlebot Baiduspider W3C_Validator Jigsaw contained
 syn match httplogLAN	/\v(192\.168\.\d+\.\d+)/ contained
 syn match httplogLocal	/\v(::1|127\.0\.0\.1|192\.168\.1\.11)\s/ contained
