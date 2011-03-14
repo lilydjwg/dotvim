@@ -1,7 +1,6 @@
 " Vim syntax file
 " FileType:     Access log of Apache, nginx, etc
 " Author:       lilydjwg <lilydjwg@gmail.com>
-" Last Change:  2011年1月2日
 " ---------------------------------------------------------------------
 
 syntax clear
@@ -15,8 +14,9 @@ syn match httplogError	/\v\s\zs5\d{2}\ze\s\d+/
 syn match httplogRef	/\v\s\zs"(http[^"]+|-)"\ze\s/
 syn match httplogUA	/\v\s\zs"[^"]+"$/ contains=httplogBrowser
 syn match httplogBrowser	/\<UCWEB\d\@=/
-syn match httplogBrowser	/\v(".*Chrome.*)@<!\<Safari\>\d\@=/
-syn keyword httplogBrowser	Firefox MSIE Konqueror Chrome Opera w3m Wget Lynx Epiphany Links TheWorld contained
+syn match httplogBrowser	/\v(".*Chrome.*)@<!<Safari>/
+syn match httplogBrowser	/\v(".*)@<=<Chrome>(.*Chrome.*")@!/
+syn keyword httplogBrowser	Firefox MSIE Konqueror ChromePlus Opera w3m Wget Lynx Epiphany Links TheWorld contained
 syn keyword httplogBrowser	gvfs
 syn keyword httplogBrowser	Googlebot Baiduspider W3C_Validator Jigsaw contained
 syn match httplogLAN	/\v(192\.168\.\d+\.\d+)/ contained
