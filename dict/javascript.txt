@@ -29,3 +29,6 @@ false
 location
 typeof
 arguments
+shiftKey
+addEventListener
+button

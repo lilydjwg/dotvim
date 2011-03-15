@@ -5,3 +5,5 @@ basename
 PHONY
 LDFLAGS
 CFLAGS
+cflags
+shared
