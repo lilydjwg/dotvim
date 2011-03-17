@@ -1,9 +1,8 @@
 " Vim script file
 " FileType:     mail
 " Author:       lilydjwg <lilydjwg@gmail.com>
-" Last Change:  2011年2月2日
 
-setlocal formatoptions=tcroqn2mM1
+setlocal formatoptions=tcroqn2m1
 
 imap <buffer> <BS> <C-R>=Lilydjwg_checklist_bs('\v^\>+ +$')<CR>
 
