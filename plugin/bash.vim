@@ -32,10 +32,11 @@ function s:Bash_setup()
   noremap! <M-h> <Del>
   cnoremap <silent> <M-d> <C-\>e<SID>Bash_killline_cmd()<CR>
   " <M-d> 删除光标后的字符
-  inoremap <silent> <M-d> <C-R>=<SID>Bash_killline()<CR>
+  inoremap <silent> <M-d> <C-G>u<C-R>=<SID>Bash_killline()<CR>
   for i in range(10)
     " 这里如用 <expr>，则 feedkeys 不起作用
-    exec 'noremap! <silent> <M-' . i . '> <C-R>=<SID>Altnum('. i .')<CR>'
+    exec 'inoremap <silent> <M-' . i . '> <C-G>u<C-R>=<SID>Altnum('. i .')<CR>'
+    exec 'cnoremap <silent> <M-' . i . '> <C-R>=<SID>Altnum('. i .')<CR>'
   endfor
 endfunction
 function s:Altnum(n)
