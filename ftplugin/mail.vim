@@ -2,7 +2,7 @@
 " FileType:     mail
 " Author:       lilydjwg <lilydjwg@gmail.com>
 
-setlocal formatoptions=tcroqn2m1
+setlocal formatoptions=tcroqn2m1B
 
 imap <buffer> <BS> <C-R>=Lilydjwg_checklist_bs('\v^\>+ +$')<CR>
 
