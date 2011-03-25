@@ -531,6 +531,7 @@ nmap wd :diffsplit
 nmap wf :NERDTreeToggle<CR>
 nmap <silent> wn :call Lilydjwg_toggle_number()<CR>
 nnoremap <silent> wt :TlistToggle<CR>
+nnoremap <silent> wb :TagbarToggle<CR>
 "     - 开头 [[[3
 nmap -+ :set nomodified<CR>
 nmap -c :call Lilydjwg_toggle_color()<CR>
