@@ -647,7 +647,6 @@ autocmd CmdwinLeave	* let s:cmdwin = 0
 autocmd InsertLeave	* if s:cmdwin == 0 && pumvisible() == 0|pclose|endif
 autocmd VimEnter,ColorScheme	* call Lilydjwg_remark()
 autocmd BufReadCmd *.maff call zip#Browse(expand("<amatch>"))
-autocmd BufReadPost	* let &l:sts = &l:sw
 "   见 ft-syntax-omni
 if has("autocmd") && exists("+omnifunc")
   autocmd Filetype *
