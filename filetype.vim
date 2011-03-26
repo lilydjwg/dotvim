@@ -30,5 +30,5 @@ augroup filetypedetect
   au BufNewFile,BufRead fcitx_skin.conf,*fcitx*/config	setf dosini
   au BufRead		*tmux.conf			setf tmux
   au BufNewFile,BufRead	PKGBUILD			setf sh
-  au BufNewFile,BufRead	/etc/X11/xorg.conf.d/*		setf xf86conf
+  au BufNewFile,BufRead	*/xorg.conf.d/*			setf xf86conf
 augroup END
