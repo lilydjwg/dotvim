@@ -3,4 +3,4 @@
 " Author:       lilydjwg
 " Last Change:  2010年3月11日
 
-command! -buffer CPP update|exe '!g++ -g -Wall "%:p" -o "%:p:r" 2> ' . &errorfile | cfile
+command! -buffer CPP update|exe '!g++ -g -Wall -w "%:p" -o "%:p:r" 2> ' . &errorfile | cfile
