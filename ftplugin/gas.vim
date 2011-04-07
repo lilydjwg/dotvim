@@ -1,10 +1,10 @@
 " Vim script file
 " FileType:     gas
 " Author:       lilydjwg <lilydjwg@gmail.com>
-" Last Change:  2010-09-21
 
 " ---------------------------------------------------------------------
 setlocal ai
+setlocal iskeyword+=$
 " ---------------------------------------------------------------------
 " Vim Modeline:
 " vim:fdm=expr:fde=getline(v\:lnum-1)=~'\\v"\\s*-{20,}'?'>1'\:1
