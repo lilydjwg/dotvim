@@ -73,3 +73,13 @@ wnck_window_get
 wnck_window_get_xid
 regex_t
 wchar_t
+gtk_main_quit
+malloc
+GTK_BOX
+gtk_button_new
+gtk_button_new_with_label
+g_error
+GINT_TO_POINTER
+GTK_MESSAGE_INFO
+GTK_BUTTONS_YES_NO
+GTK_RESPONSE_YES
