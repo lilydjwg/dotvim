@@ -1,7 +1,6 @@
 " Vim script file
 " FileType:     XML/HTML
 " Author:       lilydjwg
-" Last Change:  2009年12月1日
 
 if exists("b:loaded_htAndxml")
   finish
@@ -19,7 +18,5 @@ function! Lilydjwg_xml_skipTag()
   endif
   return ''
 endfunction
-
-set softtabstop=2
 
 imap <buffer> <silent> <M-/> <C-R>=Lilydjwg_xml_skipTag()<CR>
