@@ -7,3 +7,4 @@ LDFLAGS
 CFLAGS
 cflags
 shared
+findstring
