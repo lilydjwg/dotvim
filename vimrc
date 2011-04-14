@@ -732,6 +732,7 @@ let g:Align_xstrlen = 3
 let g:Myalign_def = {
       \   'css': ['WP0p1l:', ':\@<=', 'v \v^\s*/\*|\{|\}'],
       \   'comma': ['WP0p1l:', ',\@<=', 'g ,'],
+      \   'commalist': ['WP0p1l', ',\@<=', 'g ,'],
       \ }
 "   EnhancedCommentify[[[2
 let g:EnhCommentifyRespectIndent = 'Yes'
