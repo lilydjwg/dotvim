@@ -14,6 +14,8 @@ CONTENTS                                                      *Gundo-contents*
         3.4 gundo_right ............... |gundo_right|
         3.5 gundo_help ................ |gundo_help|
         3.6 gundo_disable ............. |gundo_disable|
+        3.7 gundo_map_move_older ...... |gundo_map_move_older|
+            gundo_map_move_newer ...... |gundo_map_move_newer|
     4. License ........................ |GundoLicense|
     5. Bugs ........................... |GundoBugs|
     6. Contributing ................... |GundoContributing|
@@ -176,6 +178,16 @@ them may not have Python support.
 
 Default: 0 (Gundo is enabled as usual)
 
+------------------------------------------------------------------------------
+3.7 g:gundo_map_move_older, g:gundo_map_move_newer      *gundo_map_move_older*
+                                                        *gundo_map_move_newer*
+
+These options let you change the keys that navigate the undo graph. This is
+useful if you use a Dvorak keyboard and have changed your movement keys.
+
+Default: gundo_map_move_older = "j"
+         gundo_map_move_newer = "k"
+
 ==============================================================================
 4. License                                                      *GundoLicense*
 
@@ -199,6 +211,14 @@ GitHub: http://github.com/sjl/gundo.vim/
 ==============================================================================
 7. Changelog                                                  *GundoChangelog*
 
+v2.1.0
+    * Warnings about having an incompatible Vim and/or Python installation
+      are now deferred until the first time you try to use Gundo, instead
+      of being displayed on launch.
+    * The <j> and <k> mappings are now configurable with
+      g:gundo_map_move_older and g:gundo_map_move_newer.
+    * The o, <Up> and <Down> keys are now mapped in the Gundo pane.
+    * Improve and add several unit tests for Gundo.
 v2.0.0
     * Make GundoToggle close the Gundo windows if they're visible but not the
       current window, instead of moving to them.

@@ -18,7 +18,10 @@ endif
 let loaded_gundo = 1"}}}
 
 if v:version < '703'"{{{
-    echo  "Gundo requires Vim 7.3+"
+    function! s:GundoDidNotLoad()
+        echohl WarningMsg|echomsg "Gundo unavailable: requires Vim 7.3+"|echohl None
+    endfunction
+    command! -nargs=0 GundoToggle call s:GundoDidNotLoad()
     finish
 endif"}}}
 
@@ -33,15 +36,15 @@ import vim
 if sys.version_info[:2] < (2, 4):
     vim.command('let s:has_supported_python = 0')
 ENDPYTHON
-
-    " Python version is too old
-    if !s:has_supported_python
-        echo  "Gundo requires that Vim be compiled with Python 2.4+"
-        finish
-    endif
 else
-    " no Python support
-    echo  "Gundo requires that Vim be compiled with Python 2.4+"
+    let s:has_supported_python = 0
+endif
+
+if !s:has_supported_python
+    function! s:GundoDidNotLoad()
+        echohl WarningMsg|echomsg "Gundo requires Vim to be compiled with Python 2.4+"|echohl None
+    endfunction
+    command! -nargs=0 GundoToggle call s:GundoDidNotLoad()
     finish
 endif"}}}
 
@@ -59,6 +62,12 @@ if !exists('g:gundo_right')"{{{
 endif"}}}
 if !exists('g:gundo_help')"{{{
     let g:gundo_help = 1
+endif"}}}
+if !exists("g:gundo_map_move_older")"{{{
+    let g:gundo_map_move_older = 'j'
+endif"}}}
+if !exists("g:gundo_map_move_newer")"{{{
+    let g:gundo_map_move_newer = 'k'
 endif"}}}
 
 "}}}
@@ -117,9 +126,12 @@ endfunction"}}}
 "{{{ Gundo buffer settings
 
 function! s:GundoMapGraph()"{{{
+    exec 'nnoremap <script> <silent> <buffer> ' . g:gundo_map_move_older . " :call <sid>GundoMove(1)<CR>"
+    exec 'nnoremap <script> <silent> <buffer> ' . g:gundo_map_move_newer . " :call <sid>GundoMove(-1)<CR>"
     nnoremap <script> <silent> <buffer> <CR>          :call <sid>GundoRevert()<CR>
-    nnoremap <script> <silent> <buffer> j             :call <sid>GundoMove(1)<CR>
-    nnoremap <script> <silent> <buffer> k             :call <sid>GundoMove(-1)<CR>
+    nnoremap <script> <silent> <buffer> o             :call <sid>GundoRevert()<CR>
+    nnoremap <script> <silent> <buffer> <down>        :call <sid>GundoMove(1)<CR>
+    nnoremap <script> <silent> <buffer> <up>          :call <sid>GundoMove(-1)<CR>
     nnoremap <script> <silent> <buffer> gg            gg:call <sid>GundoMove(1)<CR>
     nnoremap <script> <silent> <buffer> P             :call <sid>GundoPlayTo()<CR>
     nnoremap <script> <silent> <buffer> p             :call <sid>GundoRenderChangePreview()<CR>
@@ -314,7 +326,12 @@ endfunction"}}}
 
 function! s:GundoMove(direction) range"{{{
     let start_line = getline('.')
-    let distance = 2 * v:count1
+    if v:count1 == 0
+        let move_count = 1
+    else
+        let move_count = v:count1
+    endif
+    let distance = 2 * move_count
 
     " If we're in between two nodes we move by one less to get back on track.
     if stridx(start_line, '[') == -1
