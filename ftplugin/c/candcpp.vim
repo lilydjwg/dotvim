@@ -56,11 +56,7 @@ function! Lilydjwg_c_noCStyle()
 endfunction
 " ---------------------------------------------------------------------
 " 设置/映射/自定义命令
-if has("gui_running")
-  imap <buffer> <silent> <M-m> <C-R>=Lilydjwg_c_malloc()<CR>
-else
-  imap <buffer> <silent> <Esc>m <C-R>=Lilydjwg_c_malloc()<CR>
-endif
+imap <buffer> <silent> <M-m> <C-R>=Lilydjwg_c_malloc()<CR>
 
 " 保存所有并编译当前工程
 nmap <buffer> <C-F5> :wa<CR>:make<CR>
