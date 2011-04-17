@@ -6,3 +6,6 @@ assert
 local
 ipairs
 pairs
+execute
+coroutine
+resume

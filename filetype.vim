@@ -16,6 +16,7 @@ augroup filetypedetect
   au BufRead		grub.cfg			setf sh
   au BufRead		$HOME/temp/mb			setf mb
   au BufRead		*/itsalltext/lilydjwg.is-programmer.com*	setf html
+  au BufRead		lilydjwg.is-programmer.com_edit*		setf html
   au BufRead		*/itsalltext/*forum*		setf bbcode
   au BufRead		*/itsalltext/easwy.com.*	setf bbcode
   au BufRead		*/itsalltext/*mail*		setf mail

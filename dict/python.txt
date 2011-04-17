@@ -214,3 +214,6 @@ returncode
 extension
 traverse
 lru_cache
+pickleddata
+rstrip
+namedtuple
