@@ -96,7 +96,7 @@ function Lilydjwg_changeColor()
   endif
   let g:last_color = color
   call Lilydjwg_colorpicker()
-  exe 'normal eF'.color[0]
+  exe 'normal! eF'.color[0]
   call setline('.', substitute(getline('.'), '\%'.col('.').'c\V'.color, g:last_color, ''))
 endfunction
 " Locate and return character "above" current cursor position[[[2
