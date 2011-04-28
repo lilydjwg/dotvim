@@ -32,3 +32,5 @@ arguments
 shiftKey
 addEventListener
 button
+clientX
+clientY

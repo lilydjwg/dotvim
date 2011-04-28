@@ -1,4 +1,6 @@
 parentsUntil
+mousemove
+scrollTop
 removeClass
 mouseover
 mouseout
