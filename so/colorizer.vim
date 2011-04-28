@@ -1,11 +1,11 @@
 " Name Of File: colorizer.vim
 " Description:  Colorize all text in the form #hhhhhh
 " Maintainer:	lilydjwg <lilydjwg@gmail.com>
-" Last Change:	2009-5-19
+" Last Change:	2011-04-28
 " Licence:      No Warranties. Do whatever you want with this. But please tell me!
 " Version:      1.0
 " Usage:        This file should reside in the plugin directory.
-" Modified From:~/.vim/after/syntax/css/css.vim
+" Modified From:This is a modification of css.vim http://www.vim.org/scripts/script.php?script_id=2150
 
 " Reload guard and 'compatible' handling {{{1
 let s:save_cpo = &cpo
