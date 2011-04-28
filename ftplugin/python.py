@@ -15,5 +15,5 @@ def getpath():
     paths[i] = '.'
   return path
 
-vim.command('setlocal path=%s' % ','.join(getpath()).replace(' ', r'\ '))
+vim.command('setlocal path=%s' % '.,'+','.join(getpath()).replace(' ', r'\ '))
 
