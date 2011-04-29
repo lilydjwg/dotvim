@@ -235,8 +235,8 @@ let g:loaded_lustyexplorer = "yep"
 
 " Commands.
 command LustyBufferExplorer :call <SID>LustyBufferExplorerStart()
-command LustyFilesystemExplorer :call <SID>LustyFilesystemExplorerStart()
-command LustyFilesystemExplorerFromHere :call <SID>LustyFilesystemExplorerFromHereStart()
+command -nargs=? LustyFilesystemExplorer :call <SID>LustyFilesystemExplorerStart("<args>")
+command LustyFilesystemExplorerFromHere :call <SID>LustyFilesystemExplorerStart(expand("%:p:h"))
 command LustyBufferGrep :call <SID>LustyBufferGrepStart()
 
 " Deprecated command names.
@@ -262,12 +262,8 @@ nmap <silent> <Leader>lb :LustyBufferExplorer<CR>
 nmap <silent> <Leader>lg :LustyBufferGrep<CR>
 
 " Vim-to-ruby function calls.
-function! s:LustyFilesystemExplorerStart()
-  ruby LustyE::profile() { $lusty_filesystem_explorer.run_from_wd }
-endfunction
-
-function! s:LustyFilesystemExplorerFromHereStart()
-  ruby LustyE::profile() { $lusty_filesystem_explorer.run_from_here }
+function! s:LustyFilesystemExplorerStart(path)
+  exec "ruby LustyE::profile() { $lusty_filesystem_explorer.run_from_path('".a:path."') }"
 endfunction
 
 function! s:LustyBufferExplorerStart()
@@ -361,6 +357,11 @@ module VIM
 
   def self.has_syntax?
     nonzero? evaluate('has("syntax")')
+  end
+
+  def self.has_ext_maparg?
+    # The 'dict' parameter to mapargs() was introduced in Vim 7.3.32
+    nonzero? evaluate('v:version > 703 || (v:version == 703 && has("patch32"))')
   end
 
   def self.columns
@@ -1066,21 +1067,12 @@ class FilesystemExplorer < Explorer
       super
     end
 
-    def run_from_here
+    def run_from_path(path)
       return if @running
-      start_path = if $curbuf.name.nil?
-                     VIM::getcwd()
-                   else
-                     VIM::evaluate("expand('%:p:h')")
-                   end
-
-      @prompt.set!(start_path + File::SEPARATOR)
-      run()
-    end
-
-    def run_from_wd
-      return if @running
-      @prompt.set!(VIM::getcwd() + File::SEPARATOR)
+      if path.empty?
+        path = VIM::getcwd()
+      end
+      @prompt.set!(path + File::SEPARATOR)
       run()
     end
 
@@ -1823,6 +1815,10 @@ class Display
         VIM::command 'highlight link LustyFileWithSwap WarningMsg'
         VIM::command 'highlight link LustyNoEntries ErrorMsg'
         VIM::command 'highlight link LustyTruncated Visual'
+
+        if VIM::exists? '*clearmatches'
+          VIM::evaluate 'clearmatches()'
+        end
       end
 
       #
