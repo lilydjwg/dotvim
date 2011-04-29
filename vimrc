@@ -345,16 +345,6 @@ function Lilydjwg_edit_diary()
     echoerr "Diary not set or not exists!"
   endif
 endfunction
-"  重新载入 mark.vim 的高亮 [[[2
-"     因为 .gvimrc、启动命令等 在脚本之后执行，而配色方案文件会清除高亮
-function Lilydjwg_remark()
-  highlight def MarkWord1  ctermbg=Cyan     ctermfg=Black  guibg=#8CCBEA    guifg=Black
-  highlight def MarkWord2  ctermbg=Green    ctermfg=Black  guibg=#A4E57E    guifg=Black
-  highlight def MarkWord3  ctermbg=Yellow   ctermfg=Black  guibg=#FFDB72    guifg=Black
-  highlight def MarkWord4  ctermbg=Red      ctermfg=Black  guibg=#FF7272    guifg=Black
-  highlight def MarkWord5  ctermbg=Magenta  ctermfg=Black  guibg=#FFB3FF    guifg=Black
-  highlight def MarkWord6  ctermbg=Blue     ctermfg=Black  guibg=#9999FF    guifg=Black
-endfunction
 " set 相关[[[1
 "   一般设置[[[2
 " set guifont=文泉驿等宽正黑\ Medium\ 10
@@ -650,7 +640,6 @@ let s:cmdwin = 0
 autocmd CmdwinEnter	* let s:cmdwin = 1
 autocmd CmdwinLeave	* let s:cmdwin = 0
 autocmd InsertLeave	* if s:cmdwin == 0 && pumvisible() == 0|pclose|endif
-autocmd VimEnter,ColorScheme	* call Lilydjwg_remark()
 autocmd BufReadCmd *.maff call zip#Browse(expand("<amatch>"))
 "   见 ft-syntax-omni
 if has("autocmd") && exists("+omnifunc")
