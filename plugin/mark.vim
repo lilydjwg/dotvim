@@ -2,7 +2,7 @@
 " Description: Highlight several words in different colors simultaneously. 
 "
 " Copyright:   (C) 2005-2008 by Yuheng Xie
-"              (C) 2008-2009 by Ingo Karkat
+"              (C) 2008-2011 by Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'. 
 "
 " Maintainer:  Ingo Karkat <ingo@karkat.de> 
@@ -13,12 +13,16 @@
 "  - Requires Vim 7.1 with "matchadd()", or Vim 7.2 or higher. 
 "  - mark.vim autoload script. 
 " 
-" Version:     2.3.2
+" Version:     2.4.3
 " Changes:
+" 15-Apr-2011, Ingo Karkat
+" - Avoid losing the mark highlightings on :syn on or :colorscheme commands.
+"   Thanks to Zhou YiChao for alerting me to this issue and suggesting a fix. 
+"
 " 17-Nov-2009, Ingo Karkat
-"   - Replaced the (overly) generic mark#GetVisualSelectionEscaped() with
-"     mark#GetVisualSelectionAsRegexp() and
-"     mark#GetVisualSelectionAsLiteralPattern(). 
+" - Replaced the (overly) generic mark#GetVisualSelectionEscaped() with
+"   mark#GetVisualSelectionAsRegexp() and
+"   mark#GetVisualSelectionAsLiteralPattern(). 
 "
 " 04-Jul-2009, Ingo Karkat
 " - A [count] before any mapping either caused "No range allowed" error or just
@@ -133,14 +137,24 @@ if exists('g:loaded_mark') || (v:version == 701 && ! exists('*matchadd')) || (v:
 endif
 let g:loaded_mark = 1
 
+"- configuration --------------------------------------------------------------
+if !exists('g:mwHistAdd')
+	let g:mwHistAdd = '/@'
+endif
+
+
 "- default highlightings ------------------------------------------------------
-" You may define your own colors in your vimrc file, in the form as below:
-highlight def MarkWord1  ctermbg=Cyan     ctermfg=Black  guibg=#8CCBEA    guifg=Black
-highlight def MarkWord2  ctermbg=Green    ctermfg=Black  guibg=#A4E57E    guifg=Black
-highlight def MarkWord3  ctermbg=Yellow   ctermfg=Black  guibg=#FFDB72    guifg=Black
-highlight def MarkWord4  ctermbg=Red      ctermfg=Black  guibg=#FF7272    guifg=Black
-highlight def MarkWord5  ctermbg=Magenta  ctermfg=Black  guibg=#FFB3FF    guifg=Black
-highlight def MarkWord6  ctermbg=Blue     ctermfg=Black  guibg=#9999FF    guifg=Black
+function! s:DefaultHighlightings()
+	" You may define your own colors in your vimrc file, in the form as below:
+	highlight def MarkWord1  ctermbg=Cyan     ctermfg=Black  guibg=#8CCBEA    guifg=Black
+	highlight def MarkWord2  ctermbg=Green    ctermfg=Black  guibg=#A4E57E    guifg=Black
+	highlight def MarkWord3  ctermbg=Yellow   ctermfg=Black  guibg=#FFDB72    guifg=Black
+	highlight def MarkWord4  ctermbg=Red      ctermfg=Black  guibg=#FF7272    guifg=Black
+	highlight def MarkWord5  ctermbg=Magenta  ctermfg=Black  guibg=#FFB3FF    guifg=Black
+	highlight def MarkWord6  ctermbg=Blue     ctermfg=Black  guibg=#9999FF    guifg=Black
+endfunction
+call s:DefaultHighlightings()
+autocmd ColorScheme * call <SID>DefaultHighlightings()
 
 " Default highlighting for the special search type. 
 " You can override this by defining / linking the 'SearchSpecialSearchType'

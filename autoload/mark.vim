@@ -10,8 +10,44 @@
 " Dependencies:
 "  - SearchSpecial.vim autoload script (optional, for improved search messages). 
 "
-" Version:     2.4.1
+" Version:     2.4.4
 " Changes:
+" 18-Apr-2011, Ingo Karkat
+" - BUG: Include trailing newline character in check for current mark, so that a
+"   mark that matches the entire line (e.g. created by V<Leader>m) can be
+"   cleared via <Leader>n. Thanks to ping for reporting this. 
+" - Minor restructuring of mark#MarkCurrentWord(). 
+" - FIX: On overlapping marks, mark#CurrentMark() returned the lowest, not the
+"   highest visible mark. So on overlapping marks, the one that was not visible
+"   at the cursor position was removed; very confusing! Use reverse iteration
+"   order.  
+" - FIX: To avoid an arbitrary ordering of highlightings when the highlighting
+"   group names roll over, and to avoid order inconsistencies across different
+"   windows and tabs, we assign a different priority based on the highlighting
+"   group. 
+" - Rename s:cycleMax to s:markNum; the previous name was too
+"   implementation-focused and off-by-one with regards to the actual value. 
+"
+" 16-Apr-2011, Ingo Karkat
+" - Move configuration variable g:mwHistAdd to plugin/mark.vim (as is customary)
+"   and make the remaining g:mw... variables script-local, as these contain
+"   internal housekeeping information that does not need to be accessible by the
+"   user. 
+"
+" 15-Apr-2011, Ingo Karkat
+" - Robustness: Move initialization of w:mwMatch from mark#UpdateMark() to
+"   s:MarkMatch(), where the variable is actually used. I had encountered cases
+"   where it w:mwMatch was undefined when invoked through mark#DoMark() ->
+"   s:MarkScope() -> s:MarkMatch(). This can be forced by :unlet w:mwMatch
+"   followed by :Mark foo. 
+" - Robustness: Checking for s:markNum == 0 in mark#DoMark(), trying to
+"   re-detect the mark highlightings and finally printing an error instead of
+"   choking. This can happen when somehow no mark highlightings are defined. 
+"
+" 14-Jan-2011, Ingo Karkat
+" - FIX: Capturing the visual selection could still clobber the blockwise yank
+"   mode of the unnamed register. 
+"
 " 13-Jan-2011, Ingo Karkat
 " - FIX: Using a named register for capturing the visual selection on
 "   {Visual}<Leader>m and {Visual}<Leader>r clobbered the unnamed register. Now
@@ -71,14 +107,14 @@ endfunction
 function! mark#MarkCurrentWord()
 	let l:regexp = mark#CurrentMark()[0]
 	if empty(l:regexp)
-		let l:cword = expand("<cword>")
-
-		" The star command only creates a \<whole word\> search pattern if the
-		" <cword> actually only consists of keyword characters. 
-		if l:cword =~# '^\k\+$'
-			let l:regexp = '\<' . s:EscapeText(l:cword) . '\>'
-		elseif l:cword != ''
+		let l:cword = expand('<cword>')
+		if ! empty(l:cword)
 			let l:regexp = s:EscapeText(l:cword)
+			" The star command only creates a \<whole word\> search pattern if the
+			" <cword> actually only consists of keyword characters. 
+			if l:cword =~# '^\k\+$'
+				let l:regexp = '\<' . l:regexp . '\>'
+			endif
 		endif
 	endif
 
@@ -90,10 +126,11 @@ endfunction
 function! s:GetVisualSelection()
 	let save_clipboard = &clipboard
 	set clipboard= " Avoid clobbering the selection and clipboard registers. 
-	let save_reg = @@
+	let save_reg = getreg('"')
+	let save_regmode = getregtype('"')
 	silent normal! gvy
-	let res = @@
-	let @@ = save_reg
+	let res = getreg('"')
+	call setreg('"', save_reg, save_regmode)
 	let &clipboard = save_clipboard
 	return res
 endfunction
@@ -117,14 +154,18 @@ function! mark#MarkRegex( regexpPreset )
 endfunction
 
 function! s:Cycle( ... )
-	let l:currentCycle = g:mwCycle
-	let l:newCycle = (a:0 ? a:1 : g:mwCycle) + 1
-	let g:mwCycle = (l:newCycle < g:mwCycleMax ? l:newCycle : 0)
+	let l:currentCycle = s:cycle
+	let l:newCycle = (a:0 ? a:1 : s:cycle) + 1
+	let s:cycle = (l:newCycle < s:markNum ? l:newCycle : 0)
 	return l:currentCycle
 endfunction
 
-" Set / clear matches in the current window. 
+" Set match / clear matches in the current window. 
 function! s:MarkMatch( indices, expr )
+	if ! exists('w:mwMatch')
+		let w:mwMatch = repeat([0], s:markNum)
+	endif
+
 	for l:index in a:indices
 		if w:mwMatch[l:index] > 0
 			silent! call matchdelete(w:mwMatch[l:index])
@@ -133,13 +174,21 @@ function! s:MarkMatch( indices, expr )
 	endfor
 
 	if ! empty(a:expr)
+		let l:index = a:indices[0]	" Can only set one index for now. 
+
+		" Info: matchadd() does not consider the 'magic' (it's always on),
+		" 'ignorecase' and 'smartcase' settings. 
 		" Make the match according to the 'ignorecase' setting, like the star command. 
 		" (But honor an explicit case-sensitive regexp via the /\C/ atom.) 
 		let l:expr = ((&ignorecase && a:expr !~# '\\\@<!\\C') ? '\c' . a:expr : a:expr)
 
-		" Info: matchadd() does not consider the 'magic' (it's always on),
-		" 'ignorecase' and 'smartcase' settings. 
-		let w:mwMatch[a:indices[0]] = matchadd('MarkWord' . (a:indices[0] + 1), l:expr, -10)
+		" To avoid an arbitrary ordering of highlightings, we assign a different
+		" priority based on the highlighting group, and ensure that the highest
+		" priority is -10, so that we do not override the 'hlsearch' of 0, and still
+		" allow other custom highlightings to sneak in between. 
+		let l:priority = -10 - s:markNum + 1 + l:index
+
+		let w:mwMatch[l:index] = matchadd('MarkWord' . (l:index + 1), l:expr, l:priority)
 	endif
 endfunction
 " Set / clear matches in all windows. 
@@ -176,45 +225,58 @@ function! mark#DoMark(...) " DoMark(regexp)
 	if empty(regexp)
 		let i = 0
 		let indices = []
-		while i < g:mwCycleMax
-			if !empty(g:mwWord[i])
-				let g:mwWord[i] = ''
+		while i < s:markNum
+			if !empty(s:pattern[i])
+				let s:pattern[i] = ''
 				call add(indices, i)
 			endif
 			let i += 1
 		endwhile
-		let g:mwLastSearched = ""
+		let s:lastSearch = ""
 		call s:MarkScope(l:indices, '')
 		return
 	endif
 
 	" clear the mark if it has been marked
 	let i = 0
-	while i < g:mwCycleMax
-		if regexp == g:mwWord[i]
-			if g:mwLastSearched == g:mwWord[i]
-				let g:mwLastSearched = ''
+	while i < s:markNum
+		if regexp == s:pattern[i]
+			if s:lastSearch == s:pattern[i]
+				let s:lastSearch = ''
 			endif
-			let g:mwWord[i] = ''
+			let s:pattern[i] = ''
 			call s:MarkScope([i], '')
 			return
 		endif
 		let i += 1
 	endwhile
 
-	" add to history
-	if stridx(g:mwHistAdd, "/") >= 0
-		call histadd("/", regexp)
+	if s:markNum <= 0
+		" Uh, somehow no mark highlightings were defined. Try to detect them again. 
+		call s:InitMarkVariables()
+		if s:markNum <= 0
+			" Still no mark highlightings; complain. 
+			let v:errmsg = 'No mark highlightings defined'
+			echohl ErrorMsg
+			echomsg v:errmsg
+			echohl None
+			return
+		endif
 	endif
-	if stridx(g:mwHistAdd, "@") >= 0
-		call histadd("@", regexp)
+
+	" add to history
+	if stridx(g:mwHistAdd, '/') >= 0
+		call histadd('/', regexp)
+	endif
+	if stridx(g:mwHistAdd, '@') >= 0
+		call histadd('@', regexp)
 	endif
 
 	" choose an unused mark group
 	let i = 0
-	while i < g:mwCycleMax
-		if empty(g:mwWord[i])
-			let g:mwWord[i] = regexp
+	while i < s:markNum
+		if empty(s:pattern[i])
+			let s:pattern[i] = regexp
 			call s:Cycle(i)
 			call s:MarkScope([i], regexp)
 			return
@@ -224,43 +286,46 @@ function! mark#DoMark(...) " DoMark(regexp)
 
 	" choose a mark group by cycle
 	let i = s:Cycle()
-	if g:mwLastSearched == g:mwWord[i]
-		let g:mwLastSearched = ''
+	if s:lastSearch == s:pattern[i]
+		let s:lastSearch = ''
 	endif
-	let g:mwWord[i] = regexp
+	let s:pattern[i] = regexp
 	call s:MarkScope([i], regexp)
 endfunction
 " Initialize mark colors in a (new) window. 
 function! mark#UpdateMark()
-	if ! exists('w:mwMatch')
-		let w:mwMatch = repeat([0], g:mwCycleMax)
-	endif
-
 	let i = 0
-	while i < g:mwCycleMax
-		if empty(g:mwWord[i])
+	while i < s:markNum
+		if empty(s:pattern[i])
 			call s:MarkMatch([i], '')
 		else
-			call s:MarkMatch([i], g:mwWord[i])
+			call s:MarkMatch([i], s:pattern[i])
 		endif
 		let i += 1
 	endwhile
 endfunction
 
 " Return [mark text, mark start position] of the mark under the cursor (or
-" ['', []] if there is no mark); multi-lines marks not supported. 
+" ['', []] if there is no mark). 
+" The mark can include the trailing newline character that concludes the line,
+" but marks that span multiple lines are not supported. 
 function! mark#CurrentMark()
-	let line = getline(".")
-	let i = 0
-	while i < g:mwCycleMax
-		if !empty(g:mwWord[i])
+	let line = getline('.') . "\n"
+
+	" Highlighting groups with higher numbers take precedence over lower numbers,
+	" and therefore its marks appear "above" other marks. To retrieve the visible
+	" mark in case of overlapping marks, we need to check from highest to lowest
+	" highlighting group. 
+	let i = s:markNum - 1
+	while i >= 0
+		if ! empty(s:pattern[i])
 			" Note: col() is 1-based, all other indexes zero-based! 
 			let start = 0
-			while start >= 0 && start < strlen(line) && start < col(".")
-				let b = match(line, g:mwWord[i], start)
-				let e = matchend(line, g:mwWord[i], start)
-				if b < col(".") && col(".") <= e
-					return [g:mwWord[i], [line("."), (b + 1)]]
+			while start >= 0 && start < strlen(line) && start < col('.')
+				let b = match(line, s:pattern[i], start)
+				let e = matchend(line, s:pattern[i], start)
+				if b < col('.') && col('.') <= e
+					return [s:pattern[i], [line('.'), (b + 1)]]
 				endif
 				if b == e
 					break
@@ -268,7 +333,7 @@ function! mark#CurrentMark()
 				let start = e
 			endwhile
 		endif
-		let i += 1
+		let i -= 1
 	endwhile
 	return ['', []]
 endfunction
@@ -277,15 +342,15 @@ endfunction
 function! mark#SearchCurrentMark( isBackward )
 	let [l:markText, l:markPosition] = mark#CurrentMark()
 	if empty(l:markText)
-		if empty(g:mwLastSearched)
+		if empty(s:lastSearch)
 			call mark#SearchAnyMark(a:isBackward)
-			let g:mwLastSearched = mark#CurrentMark()[0]
+			let s:lastSearch = mark#CurrentMark()[0]
 		else
-			call s:Search(g:mwLastSearched, a:isBackward, [], 'same-mark')
+			call s:Search(s:lastSearch, a:isBackward, [], 'same-mark')
 		endif
 	else
-		call s:Search(l:markText, a:isBackward, l:markPosition, (l:markText ==# g:mwLastSearched ? 'same-mark' : 'new-mark'))
-		let g:mwLastSearched = l:markText
+		call s:Search(l:markText, a:isBackward, l:markPosition, (l:markText ==# s:lastSearch ? 'same-mark' : 'new-mark'))
+		let s:lastSearch = l:markText
 	endif
 endfunction
 
@@ -436,7 +501,7 @@ endfunction
 
 " Combine all marks into one regexp. 
 function! s:AnyMark()
-	return join(filter(copy(g:mwWord), '! empty(v:val)'), '\|')
+	return join(filter(copy(s:pattern), '! empty(v:val)'), '\|')
 endfunction
 
 " Search any mark. 
@@ -444,7 +509,7 @@ function! mark#SearchAnyMark( isBackward )
 	let l:markPosition = mark#CurrentMark()[1]
 	let l:markText = s:AnyMark()
 	call s:Search(l:markText, a:isBackward, l:markPosition, 'any-mark')
-	let g:mwLastSearched = ""
+	let s:lastSearch = ""
 endfunction
 
 " Search last searched mark. 
@@ -453,7 +518,7 @@ function! mark#SearchNext( isBackward )
 	if empty(l:markText)
 		return 0
 	else
-		if empty(g:mwLastSearched)
+		if empty(s:lastSearch)
 			call mark#SearchAnyMark(a:isBackward)
 		else
 			call mark#SearchCurrentMark(a:isBackward)
@@ -472,25 +537,13 @@ augroup END
 
 " Define global variables and initialize current scope.  
 function! s:InitMarkVariables()
-	if !exists("g:mwHistAdd")
-		let g:mwHistAdd = "/@"
-	endif
-	if !exists("g:mwCycleMax")
-		let i = 1
-		while hlexists("MarkWord" . i)
-			let i = i + 1
-		endwhile
-		let g:mwCycleMax = i - 1
-	endif
-	if !exists("g:mwCycle")
-		let g:mwCycle = 0
-	endif
-	if !exists("g:mwWord")
-		let g:mwWord = repeat([''], g:mwCycleMax)
-	endif
-	if !exists("g:mwLastSearched")
-		let g:mwLastSearched = ""
-	endif
+	let s:markNum = 0
+	while hlexists('MarkWord' . (s:markNum + 1))
+		let s:markNum += 1
+	endwhile
+	let s:cycle = 0
+	let s:pattern = repeat([''], s:markNum)
+	let s:lastSearch = ""
 endfunction
 call s:InitMarkVariables()
 call mark#UpdateScope()

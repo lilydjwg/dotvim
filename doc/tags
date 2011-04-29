@@ -515,6 +515,7 @@ g:manpageview_sfx_EXT	manpageview.txt	/*g:manpageview_sfx_EXT*
 g:manpageview_syntax_EXT	manpageview.txt	/*g:manpageview_syntax_EXT*
 g:manpageview_winopen	manpageview.txt	/*g:manpageview_winopen*
 g:manpgeview_user	manpageview.txt	/*g:manpgeview_user*
+g:mwHistAdd	mark.txt	/*g:mwHistAdd*
 g:netrw_alto	pi_netrw.txt	/*g:netrw_alto*
 g:netrw_altv	pi_netrw.txt	/*g:netrw_altv*
 g:netrw_browse_split	pi_netrw.txt	/*g:netrw_browse_split*
@@ -625,6 +626,8 @@ global_markfilelist	pi_netrw.txt	/*global_markfilelist*
 gundo.txt	gundo.txt	/*gundo.txt*
 gundo_disable	gundo.txt	/*gundo_disable*
 gundo_help	gundo.txt	/*gundo_help*
+gundo_map_move_newer	gundo.txt	/*gundo_map_move_newer*
+gundo_map_move_older	gundo.txt	/*gundo_map_move_older*
 gundo_preview_bottom	gundo.txt	/*gundo_preview_bottom*
 gundo_preview_height	gundo.txt	/*gundo_preview_height*
 gundo_right	gundo.txt	/*gundo_right*
