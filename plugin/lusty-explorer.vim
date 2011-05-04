@@ -391,8 +391,9 @@ module VIM
   end
 
   def self.filename_escape(s)
-    # Escape slashes, open square braces, spaces, sharps, and double quotes.
-    s.gsub(/\\/, '\\\\\\').gsub(/[\[ #"]/, '\\\\\0')
+    # Escape slashes, open square braces, spaces, sharps, double quotes and
+    # percent signs.
+    s.gsub(/\\/, '\\\\\\').gsub(/[\[ #"%]/, '\\\\\0')
   end
 
   def self.regex_escape(s)
