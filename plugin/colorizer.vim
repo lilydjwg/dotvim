@@ -3,7 +3,7 @@
 " Maintainer:	lilydjwg <lilydjwg@gmail.com>
 " Licence:	No Warranties. Do whatever you want with this. But please tell me!
 " Last Change:	2011-05-04
-" Version:	1.1
+" Version:	1.2
 " Usage:	This file should reside in the plugin directory.
 " Derived From: css_color.vim
 " 		http://www.vim.org/scripts/script.php?script_id=2150
