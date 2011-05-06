@@ -57,7 +57,7 @@ syn keyword jProperties     contained browser context fx.interval fx.off length 
 syn keyword jTraversing     contained eq filter first has is last map not slice
 syn keyword jTraversing     contained add andSelf contents end
 syn keyword jTraversing     contained children closest find next nextAll nextUntil parent parents parentsUntil prev prevAll prevUntil siblings
-syn keyword jUtilities      contained contains each extend globalEval grep inArray isArray isEmptyObject isFunction isPlainObject isWindow isXMLDoc makeArray merge noop now parseJSON parseXML trim type unique
+syn keyword jUtilities      each extend globalEval grep inArray isArray isEmptyObject isFunction isPlainObject isWindow isXMLDoc makeArray merge noop now parseJSON parseXML trim type unique contained
 
 
 syn region  javaScriptStringD          start=+"+  skip=+\\\\\|\\"+  end=+"\|$+  contains=javaScriptSpecial,@htmlPreproc,@jSelectors
