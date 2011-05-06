@@ -666,7 +666,7 @@ command -range=% DBlank <line1>,<line2>g/^\s*$/d|nohls
 command -range=% -nargs=1 Count <line1>,<line2>s/<args>//gn|nohls
 command SBlank %s/\v(^\s*$\n){2,}/\r/g
 "   删除拖尾的空白
-command TWS %s/\s\+$//|nohls|normal ``
+command -range=% TWS <line1>,<line2>s/\s\+$//|nohls|normal ``
 "   设置成 Linux 下适用的格式
 command Lin setl ff=unix fenc=utf8 nobomb
 "   设置成 Windows 下适用的格式
@@ -687,6 +687,8 @@ command Larger set lines+=1
 command MusicSelect runtime so/musicselect.vim
 command -nargs=1 -range -complete=customlist,Lilydjwg_Align_complete LA <line1>,<line2>call Lilydjwg_Align("<args>")
 " 其它命令[[[1
+"   colorizer.vim[[[2
+let g:colorizer_nomap = 1
 "   grep.vim[[[2
 let g:Grep_Default_Options = '--binary-files=without-match'
 "   mail_CheckAttach.vim [[[2
