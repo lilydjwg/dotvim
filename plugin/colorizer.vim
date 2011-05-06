@@ -2,26 +2,36 @@
 " Description:	Colorize all text in the form #rrggbb or #rgb
 " Maintainer:	lilydjwg <lilydjwg@gmail.com>
 " Licence:	No Warranties. Do whatever you want with this. But please tell me!
-" Last Change:	2011-05-04
-" Version:	1.2.1
+" Last Change:	2011-05-06
+" Version:	1.2.2
 " Usage:	This file should reside in the plugin directory.
 " Derived From: css_color.vim
 " 		http://www.vim.org/scripts/script.php?script_id=2150
-" Thanks To:	Niklas Hofer (Author of css_color.vim), Ingo Karkat
+" Thanks To:	Niklas Hofer (Author of css_color.vim), Ingo Karkat, rykka
 " Usage:
 "
-" This plugin defines three commands:
+" This plugin defines four commands:
 "
 " 	ColorHighlight	- start/update highlighting
 " 	ColorClear      - clear all highlights
 " 	ColorToggle     - toggle highlights
+"       ColorizerBuffer - highlight current buffer
 "
-" By default, <leader>tc is mapped to ColorToggle. If you want to use another
-" key map, do like this:
+" buffers of css and html filetype are highlighted by default.
+"
+" Mappings:
+" By default, the following are mapped:
+" 	<leader>tc is mapped to ColorToggle
+" 	<leader>cbb is mapped to ColorizerBuffer
+" If you want to use another key map, do like this:
 " 	nmap ,tc <Plug>Colorizer
+" 	nmap ,cbb <Plug>ColorizerBuffer
 "
-" If you want completely not to map it, set the following in your vimrc:
+" Configuraion:
+" do not setup any mappings:
 "	let g:colorizer_nomap = 1
+" highlight the following filetype of buffer by default:
+"	let g:colorizer_filetype = 'css,html'
 "
 " Note: if you modify a color string in normal mode, if the cursor is still on
 " that line, it'll take 'updatetime' seconds to update. You can use
@@ -49,7 +59,8 @@ function s:FGforBG(bg) "{{{2
   if r*30 + g*59 + b*11 > 12000
     return '#000000'
   else
-    return '#ffffff'
+    " softer 
+    return '#cccccc'
   end
 endfunction
 function s:Rgb2xterm(color) "{{{2
@@ -186,14 +197,43 @@ for c in range(0, 254)
   let color = s:Xterm2rgb(c)
   call add(s:colortable, color)
 endfor
+
+function s:ColorBuffer()"{{{2
+  let w:colormatches = []
+  for i in range(1, line("$"))
+    call s:PreviewColorInLine(i)
+  endfor
+  autocmd CursorHold,CursorHoldI,InsertLeave <buffer> silent call s:PreviewColorInLine('.')
+  autocmd BufEnter <buffer> silent call s:PreviewColorInLine('.')
+endfunction
+
+"Highlight according to filetypes {{{2
+if !exists("g:colorizer_filetype")
+  let g:colorizer_filetype = 'css,html'
+endif
+
+augroup Colorizer_filetype
+  au!
+  for type in split(g:colorizer_filetype,',')
+    exe 'autocmd Filetype '.type.' ColorizerBuffer'
+  endfor
+augroup END
+
 "Define commands {{{2
 command -bar ColorHighlight call s:ColorHighlight(1)
 command -bar ColorClear call s:ColorClear()
 command -bar ColorToggle call s:ColorToggle()
+command -bar ColorizerBuffer call s:ColorBuffer()
+nnoremap <unique> <silent> <Plug>ColorizerBuffer :ColorizerBuffer<CR>
 nnoremap <unique> <silent> <Plug>Colorizer :ColorToggle<CR>
-if !hasmapto("<Plug>Colorizer") && !exists("g:colorizer_nomap") || g:colorizer_nomap == 0
-  nmap <unique> <Leader>tc <Plug>Colorizer
+if !exists("g:colorizer_nomap") || g:colorizer_nomap == 0
+  if !hasmapto("<Plug>Colorizer")
+    nmap <unique> <Leader>tc <Plug>Colorizer
+  endif
+  if !hasmapto("<Plug>ColorizerBuffer")
+    nmap <unique> <leader>cbb <Plug>ColorizerBuffer
+  endif
 endif
 " Cleanup and modelines {{{1
 let &cpo = s:save_cpo
-" vim:ft=vim:fdm=marker:fen:fmr={{{,}}}:
+" vim:ft=vim:fdm=marker:fen:fmr={{{,}}}:sw=2:
