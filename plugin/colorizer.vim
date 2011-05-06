@@ -25,14 +25,13 @@
 " different colors. GUI version is much quicker.
 
 " Reload guard and 'compatible' handling {{{1
-let s:save_cpo = &cpo
-set cpo&vim
-
-if exists("loaded_colorizer")
+if exists("loaded_colorizer") || v:version < 700 
   finish
 endif
-
 let loaded_colorizer = 1
+
+let s:save_cpo = &cpo
+set cpo&vim
 
 " main part {{{1
 function! s:FGforBG(bg) "{{{2
@@ -116,7 +115,7 @@ function! s:SetMatcher(color) "{{{2
       exe 'hi '.group.' ctermfg='.s:Rgb2xterm(fg).' ctermbg='.s:Rgb2xterm('#'.color)
     endif
     " Always set gui* as user may switch to GUI version and it's cheap
-    exe 'hi '.group.' guifg='.fg.' guibg='.a:color
+    exe 'hi '.group.' guifg='.fg.' guibg=#'.color
   endif
   call add(w:colormatches, matchadd(group, a:color.'\>'))
 endfunction
@@ -173,8 +172,8 @@ for c in range(0, 254)
   call add(s:colortable, color)
 endfor
 if has("gui_running") || &t_Co==256 "{{{2
-  command ColorHighlight call s:ColorHighlight(1)
-  command ColorClear call s:ColorClear()
+  command -bar ColorHighlight call s:ColorHighlight(1)
+  command -bar ColorClear call s:ColorClear()
 endif
 " Cleanup and modelines {{{1
 let &cpo = s:save_cpo
