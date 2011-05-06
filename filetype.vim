@@ -32,6 +32,7 @@ augroup filetypedetect
   au BufNewFile,BufRead fcitx_skin.conf,*fcitx*/config	setf dosini
   au BufRead		*tmux.conf			setf tmux
   au BufRead		rc.conf				setf sh
+  au BufRead		pacman.log			setf pacmanlog
   au BufNewFile,BufRead	PKGBUILD			setf sh
   au BufNewFile,BufRead	*/xorg.conf.d/*			setf xf86conf
   au BufNewFile,BufRead	*fluxbox/keys			setf fluxkeys
