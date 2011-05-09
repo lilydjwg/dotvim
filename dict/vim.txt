@@ -39,3 +39,4 @@ silent
 fnamemodify
 WarningMsg
 range
+exists
