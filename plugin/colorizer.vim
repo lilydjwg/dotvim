@@ -2,9 +2,9 @@
 " Description:	Colorize all text in the form #rrggbb or #rgb
 " Maintainer:	lilydjwg <lilydjwg@gmail.com>
 " Licence:	No Warranties. Do whatever you want with this. But please tell me!
-" Usage:	This file should reside in the plugin directory.
-" Version:	1.3
-" Last Change:	2011-5-8
+" Installation:	This file should reside in the plugin directory.
+" Version:      1.3.1
+" Last Change:  2011-5-10
 " Derived From: css_color.vim
 " 		http://www.vim.org/scripts/script.php?script_id=2150
 " Thanks To:	Niklas Hofer (Author of css_color.vim), Ingo Karkat, rykka
@@ -187,7 +187,7 @@ function s:ClearMatches() "{{{2
   unlet w:colormatches
 endfunction
 function s:ColorToggle() "{{{2
-  if exists('#Colorizer#BufEnter')
+  if exists('#Colorizer#BufRead')
     call s:ColorClear()
     echomsg 'Disabled color code highlighting.'
   else
