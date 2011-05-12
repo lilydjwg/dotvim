@@ -15,6 +15,4 @@ runtime! syntax/gtk.vim
 runtime! syntax/gdk.vim
 runtime! syntax/gobject.vim
 runtime! syntax/glib.vim
-runtime! syntax/libwnck.vim
-runtime! syntax/dbusglib.vim
-
+runtime! syntax/cairo.vim
