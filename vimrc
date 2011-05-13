@@ -650,7 +650,7 @@ endif
 " .vimrc 有可能是软链接
 exe 'command Set tabe ' . escape(resolve($MYVIMRC), ' ')
 " 删除当前文件
-command Delete call delete(expand('%'))
+command Delete if delete(expand('%')) | echohl WarningMsg | echo "删除当前文件失败" | echohl None | endif
 command -nargs=+ Reindent call Lilydjwg_reindent(<f-args>)
 " TODO better implement
 command -range=% ClsXML <line1>,<line2>!tidy -utf8 -iq -xml
