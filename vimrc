@@ -687,6 +687,10 @@ command Larger set lines+=1
 command MusicSelect runtime so/musicselect.vim
 command -nargs=1 -range -complete=customlist,Lilydjwg_Align_complete LA <line1>,<line2>call Lilydjwg_Align("<args>")
 " 其它命令[[[1
+"   CountJump[[[2
+"   Regex in Javascript, etc
+call CountJump#TextObject#MakeWithCountSearch('', '/', 'ai', 'v', '\\\@<!/', '\\\@<!/')
+call CountJump#TextObject#MakeWithCountSearch('', ':', 'ai', 'v', '\\\@<!:', '\\\@<!:')
 "   colorizer.vim[[[2
 let g:colorizer_nomap = 1
 "   grep.vim[[[2
