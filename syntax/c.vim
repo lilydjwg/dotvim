@@ -13,6 +13,7 @@
 " 详见 man vim-addons
 runtime! syntax/gtk.vim
 runtime! syntax/gdk.vim
+runtime! syntax/gdkpixbuf.vim
 runtime! syntax/gobject.vim
 runtime! syntax/glib.vim
 runtime! syntax/cairo.vim

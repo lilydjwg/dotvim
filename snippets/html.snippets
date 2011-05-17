@@ -29,6 +29,8 @@ snippet en
 	<span lang="en">${1:}</span>${2}
 snippet a
 	<a href="${1}" title="${2}">${3}</a>${4}
+snippet link
+	<a href="`@*`">`system('getTitle '''.@*.'''')`</a>
 snippet img
 	<img src="${1}" title="${2:}" alt="$2" />${3}
 snippet code

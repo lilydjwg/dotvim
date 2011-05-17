@@ -91,3 +91,17 @@ gtk_button_new_from_stock
 GTK_BUTTON
 GTK_ICON_SIZE_SMALL_TOOLBAR
 gtk_container_remove
+GDK_KEY_Q
+cairo_move_to
+GSList
+g_slist_foreach
+cairo_line_to
+GFunc
+__func__
+GTK_MENU
+GTK_MENU_SHELL
+g_debug
+cairo_new_path
+cairo_restore
+cairo_save
+g_warning
