@@ -1,0 +1,276 @@
+*CountJump.txt*         Create custom motions and text objects via repeated jumps. 
+
+			 COUNT JUMP    by Ingo Karkat
+								*CountJump.vim*
+description			|CountJump-description|
+usage				|CountJump-usage|
+example				|CountJump-example|
+installation			|CountJump-installation|
+limitations			|CountJump-limitations|
+known problems			|CountJump-known-problems|
+todo				|CountJump-todo|
+history				|CountJump-history|
+
+==============================================================================
+DESCRIPTION						*CountJump-description*
+
+Though it is not difficult to write a custom |movement| (basically a |:map|
+that executes some kind of search or jump) and a custom |text-object| (an
+|:omap| that selects a range of text), this is too complex for a novice user
+and often repetitive. 
+This plugin covers the common use case where the movement and boundaries of a
+text object can be specified via start and end patterns, and offers a single
+function to set up related mappings. With it, you can enhance some built-in
+Vim mappings to take an optional [count], and quickly define new mappings for
+help file sections, diff hunks, embedded macros, and so on... 
+
+As a generalization of the start and end patterns, the movement and boundaries
+of a text object can also be specified via jump functions, i.e. Funcrefs of
+functions that position the cursor on the appropriate location and return that
+location. This can be used where the jump is difficult to express with a
+single regular expression, the jump may need adapting depending on the
+context, or other uses. 
+This plugin contains some support for movement and text objects consisting of
+text regions that can be defined by continuous lines that match a particular
+pattern, e.g. comment blocks that all start with /^\s*#/. 
+
+SEE ALSO *
+
+The following ftplugins use this plugin: 
+
+diff_movement	  (vimscript #3180): Movement over diff hunks with ]] etc.
+fortunes_movement (vimscript #3181): Movement over email fortunes with ]] etc.
+help_movement     (vimscript #3179): Movement over Vim help sections with ]] etc.
+mail_movement     (vimscript #3182): Movement over email quotes with ]] etc.
+
+
+RELATED WORKS *
+
+- motpat.vim (vimscript #3030) offers similar functions to setup motion
+  mappings, but no text objects (yet). 
+- textobj-user (vimscript #2100) has support for user-defined text objects via
+  regular expressions. 
+
+==============================================================================
+USAGE							      *CountJump-usage*
+
+The plugin defines several functions, which set up the appropriate mappings
+based on the arguments that you supply. The following is an overview; you'll
+find the details directly in the implementation files in the
+.vim/autoload/CountJump/ directory. 
+
+CountJump#Motion#MakeBracketMotion( mapArgs, keyAfterBracket, inverseKeyAfterBracket, patternToBegin, patternToEnd, isEndPatternToEnd, ... )
+
+This function sets up mappings starting with [ and ] for movement (with
+optional [count]) relative to the current cursor position, targeting either a
+text pattern at the beginning ([{keyAfterBracket} mapping) or a text pattern
+at the end (]{inverseKeyAfterBracket} mapping) of whatever you want to treat
+as a text block. 
+
+CountJump#Motion#MakeBracketMotionWithJumpFunctions( mapArgs, keyAfterBracket, inverseKeyAfterBracket, JumpToBeginForward, JumpToBeginBackward, JumpToEndForward, JumpToEndBackward, isEndJumpToEnd, ... )
+
+This function sets up mappings starting with [ and ] for movement (with
+optional [count]) relative to the current cursor position, but rely on four
+passed jump functions instead of text patterns to do the movement. 
+
+
+CountJump#TextObject#MakeWithCountSearch( mapArgs, textObjectKey, types, selectionMode, patternToBegin, patternToEnd )
+
+Defines a complete set of mappings for inner and/or outer text objects that
+support an optional [count] and are driven by search patterns for the
+beginning and end of a block. Outer text objects include the matched pattern
+text, inner ones not. Selection can be characterwise, linewise or blockwise. 
+
+
+CountJump#TextObject#MakeWithJumpFunctions( mapArgs, textObjectKey, types, selectionMode, JumpToBegin, JumpToEnd )
+
+This is a generalization of CountJump#TextObject#MakeWithCountSearch() that
+invokes custom functions instead of searching for a fixed pattern. This is
+useful if the check for a match is too complex for a single regular
+expression, or if you need to adjust the match position depending on the
+circumstances. 
+
+
+Often, a region can be defined as a block of continuous lines that all match a
+certain pattern. The following functions aid in implementing movements to the
+boundaries of these regions and text objects consisting of the region: 
+
+CountJump#Region#JumpToRegionEnd( count, pattern, isMatch, step, isToEndOfLine )
+
+Starting from the current line, search for the position where the count'th
+region ends. Use this function to build Funcrefs for forward / backward jumps
+that can then be passed to CountJump#TextObject#MakeWithJumpFunctions(). 
+
+CountJump#Region#JumpToNextRegion( count, pattern, isMatch, step, isAcrossRegion, isToEndOfLine )
+
+Starting from the current line, search for the position where the count'th
+region begins/ends. 
+
+CountJump#Region#Motion#MakeBracketMotion( mapArgs, keyAfterBracket, inverseKeyAfterBracket, pattern, isMatch, ... )
+
+This function sets up mappings starting with [ and ] for movement (with
+optional [count]) relative to the current cursor position, targeting a text
+region defined by contiguous lines that (don't) match a:pattern. 
+
+CountJump#Region#TextObject#Make( mapArgs, textObjectKey, types, selectionMode, pattern, isMatch )
+
+Defines a complete set of mappings for inner and/or outer text objects that
+support an optional [count] and select regions of lines which are defined by
+contiguous lines that (don't) match a:pattern. 
+The inner text object comprises all lines of the region itself, while the
+outer text object also includes all adjacent lines above and below which do
+not themselves belong to a region. 
+
+==============================================================================
+EXAMPLE							   *CountJump-example*
+
+Let's illustrate the usage by developing custom motions and text objects for
+Pascal begin..end blocks. 
+
+We want to move around blocks, and override the default section movements for
+it: 
+]]			Go to [count] next start of a block. 
+][			Go to [count] next end of a block. 
+[[			Go to [count] previous start of a block. 
+[]			Go to [count] previous end of a block. 
+>
+    call CountJump#Motion#MakeBracketMotion('<buffer>', '', '', '\c^begin\n\zs', '\c^.*\nend', 0)
+The begin pattern positions the cursor on the beginning of the line following
+the "begin" keyword, the end pattern on the beginning of the line
+preceding the "end" keyword. 
+
+
+We want to select a block, either including or excluding the lines with the
+begin..end keywords: 
+ib			"inner block" text object, select [count] contents of
+			a block. 
+ab			"a block" text object, select [count] blocks. 
+>
+    call CountJump#TextObject#MakeWithCountSearch('<buffer>', 'b', 'ai', 'V', '\c^begin\n', '\c^end.*$')
+
+If there is a filetype detection for Pascal files, we can simply put the
+above calls in a ~/.vim/ftplugin/pascal_movement.vim script and are done. 
+
+==============================================================================
+INSTALLATION					       *CountJump-installation*
+
+This script is packaged as a |vimball|. If you have the "gunzip" decompressor
+in your PATH, simply edit the *.vba.gz package in Vim; otherwise, decompress
+the archive first, e.g. using WinZip. Inside Vim, install by sourcing the
+vimball or via the |:UseVimball| command. >
+    vim CountJump.vba.gz
+    :so %
+To uninstall, use the |:RmVimball| command. 
+
+DEPENDENCIES					       *CountJump-dependencies*
+
+- Requires Vim 7.0 or higher. 
+
+==============================================================================
+LIMITATIONS						*CountJump-limitations*
+
+KNOWN PROBLEMS					     *CountJump-known-problems*
+
+- An outer text object cannot consist of the same, multiple characters;
+  nothing will be selected (because the end pattern also matches at the begin
+  position). A same single character pattern works, though. 
+- For blockwise text objects, the original cursor position should be required
+  to be inside the selection. However, this requires translation of the
+  byte-indices here into screen columns, and is thus non-trivial to implement. 
+
+TODO							       *CountJump-todo*
+
+IDEAS							      *CountJump-ideas*
+
+- Add configuration to change behavior when there are no [count] matches: 
+  1. obey the 'wrapscan' option, like |]s| and/or
+  2. jump as many matches as possible, still beep to indicate the actual
+     target was not reached
+
+- Add customization parameter so that the motion / text object includes the
+  start / end of buffer in case patternToBegin / patternToEnd do not match any
+  more. 
+
+==============================================================================
+HISTORY							    *CountJump-history*
+
+1.40	20-Dec-2010
+- ENH: Added CountJump#Region#TextObject#Make() to easily define text objects
+  for regions. 
+- Interface change: Jump functions again return position (and actual,
+  corrected one for a:isToEndOfLine). Though the position is not used for
+  motions, it is necessary for text objects to differentiate between "already
+  at the begin/end position" and "no such position".  
+
+1.30	20-Dec-2010
+- ENH: Added CountJump#Region#Motion#MakeBracketMotion() to easily define
+  bracket motions for regions. 
+- Interface changes: 
+  - Jump functions don't necessarily return jump position any more; this
+    special case is only required for text objects. 
+  - Moved CountJump#Region#Jump() to CountJump#JumpFunc(). 
+  - Added a:isToEndOfLine argument to CountJump#Region#JumpToRegionEnd() and
+    CountJump#Region#JumpToNextRegion(), which is useful for operator-pending
+    and characterwise visual mode mappings; the entire last line will then be
+    operated on / selected. 
+  - Added a:isMatch argument to CountJump#Region#SearchForRegionEnd(),
+    CountJump#Region#JumpToRegionEnd(),
+    CountJump#Region#SearchForNextRegion(),
+    CountJump#Region#JumpToNextRegion(). This allows definition of regions via
+    non-matches, which can be substantially simpler (and faster to match) than
+    coming up with a "negative" regular expression.
+
+1.22	06-Aug-2010
+- No more motion mappings and text objects for select mode; as the mappings
+  start with a printable character, no select-mode mapping should be defined. 
+
+1.21	03-Aug-2010
+- FIX: A 2]] jump inside a region (unless last line) jumped like a 1]] jump.
+  The search for next region must not decrease the iteration counter when
+  _not_ searching _across_ the region. 
+- FIX: Must not do (characterwise) end position adaptation for linewise text
+  object that does not exclude boundaries. 
+- Switched example from email fortunes to Pascal begin..end blocks, as they
+  are conceptually easier. 
+
+1.20	02-Aug-2010
+- ENH: In CountJump#Motion#MakeBracketMotion(), a:keyAfterBracket and
+  a:inverseKeyAfterBracket can now be empty, the resulting mappings are then
+  omitted. Likewise, any jump function can be empty in
+  CountJump#Motion#MakeBracketMotionWithJumpFunctions().
+- With the added CountJump#Motion#MakeBracketMotionWithJumpFunctions() motions
+  can be defined via jump functions, similar to how text objects can be
+  defined. 
+- Added CountJump/Region.vim to move to borders of a region defined by lines
+  matching a pattern. 
+- FIX: CountJump#CountJump() with mode "O" didn't add original position to
+  jump list. 
+- The previous visual selection is kept when the text object could not be
+  selected. (Beforehand, a new selection of the text object's selection type
+  was created.) 
+- The adjustment movements after the jumps to the text object boundaries now
+  do not cause beeps if that movement cannot be done (e.g. a 'j' at the end of
+  the buffer). 
+
+1.10    19-Jul-2010
+- Changed behavior if there aren't [count] matches: Instead of jumping to the
+  last available match (and ringing the bell), the cursor stays at the
+  original position, like with the old vi-compatible motions. 
+- ENH: Only adding to jump list if there actually is a match. This is like the
+  built-in Vim motions work. 
+- FIX: For a linewise text object, the end cursor column is not important; do
+  not compare with the original cursor column in this case. 
+
+1.00	22-Jun-2010
+First published version. 
+
+0.01	14-Feb-2009
+Started development. 
+
+==============================================================================
+Copyright: (C) 2009-2010 Ingo Karkat
+The VIM LICENSE applies to this script; see|copyright|. 
+
+Maintainer:	Ingo Karkat <ingo@karkat.de>
+==============================================================================
+ vim:tw=78:ts=8:ft=help:norl:
