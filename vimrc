@@ -12,10 +12,7 @@ scriptencoding utf-8
 " 许可：GFDL
 " ========================================================================
 " 其他文件[[[1
-try
-  source $VIMRUNTIME/vimrc_example.vim
-catch
-endtry
+runtime vimrc_example.vim
 runtime macros/matchit.vim
 "]]]
 " 我的设置
