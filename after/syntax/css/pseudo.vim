@@ -1,5 +1,5 @@
 " Vim script file
-" FileType:     CSS （日记）
+" FileType:     CSS
 " Author:       lilydjwg
 " Maintainer:   lilydjwg
 " Last Change:  2010年5月23日
