@@ -671,7 +671,8 @@ command Win setl ff=dos fenc=gb18030
 "   以第一行的文字为名保存当前文件
 command TSave call Lilydjwg_TSave()
 command -nargs=? -complete=file RSplit vs <args>|normal <C-W>L<C-W>w
-command -range=% SQuote <line1>,<line2>s/“\|”\|″/"/ge|%s/‘\|’\|′/'/ge
+command -range=% SQuote <line1>,<line2>s/“\|”\|″/"/ge|<line1>,<line2>s/‘\|’\|′/'/ge
+command -range HTMLEscape <line1>,<line2>s/&/\&amp;/ge|<line1>,<line2>s/</\&lt;/ge|<line1>,<line2>s/>/\&gt;/ge
 command RJ silent call Lilydjwg_edit_diary()
 "   载入 snippets
 command -nargs=? Snippets silent call Lilydjwg_snippets("<args>")
