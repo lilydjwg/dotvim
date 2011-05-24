@@ -1,4 +1,4 @@
-"    Copyright: Copyright (C) 2007-2010 Stephen Bach
+"    Copyright: Copyright (C) 2007-2011 Stephen Bach
 "               Permission is hereby granted to use and distribute this code,
 "               with or without modifications, provided that this copyright
 "               notice is copied with it. Like anything else that's free,
@@ -16,9 +16,10 @@
 "               Matt Tolton, Björn Winckler, sowill, David Brown
 "               Brett DiFrischia, Ali Asad Lotia, Kenneth Love, Ben Boeckel,
 "               robquant, lilydjwg, Martin Wache, Johannes Holzfuß
+"               Donald Curtis, Jan Zwiener
 "
-" Release Date: December 16, 2010
-"      Version: 4.0
+" Release Date: April 29, 2011
+"      Version: 4.1
 "
 "        Usage:
 "                 <Leader>lf  - Opens the filesystem explorer.
@@ -30,7 +31,7 @@
 "
 "               You can also use the commands:
 "
-"                 ":LustyFilesystemExplorer"
+"                 ":LustyFilesystemExplorer [optional-path]"
 "                 ":LustyFilesystemExplorerFromHere"
 "                 ":LustyBufferExplorer"
 "                 ":LustyBufferGrep"
