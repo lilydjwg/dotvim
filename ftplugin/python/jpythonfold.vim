@@ -37,6 +37,11 @@
 " to enforce : for defs:                     '^\s*\(class\|def\)\s.*:'
 " you'll have to do this in two places.
 let s:defpat = '^\s*\(@\|class\s.*:\|def\s\)'
+if $LANGUAGE =~ '^zh' || ($LANGUAGE == '' && v:lang =~ '^zh')
+  let s:lines = '行'
+else
+  let s:lines = 'lines'
+endif
 
 " (**) Ignore non-python files
 " Commented out because some python files are not recognized by Vim
@@ -64,17 +69,9 @@ function! PythonFoldText()
   elseif nextline =~ '^\s\+pass\s*$'
     let line = line . ' pass'
   endif
-  "compute the width of the visible part of the window (see Note above)
-  let w = winwidth(0) - &foldcolumn - (&number ? 8 : 0)
   let size = 1 + v:foldend - v:foldstart
-  "compute expansion string
-  let spcs = '................'
-  while strlen(spcs) < w | let spcs = spcs . spcs
-  endwhile
-  "expand tabs (mail me if you have tabstop>10)
-  let onetab = strpart('          ', 0, &tabstop)
-  let line = substitute(line, '\t', onetab, 'g')
-  return strpart(line.spcs, 0, w-strlen(size)-7).'.'.size.' lines'
+  let line = substitute(line, '^\s*', '', '')
+  return printf('+--%3d %s: %s', size, s:lines, line)
 endfunction
 
 function! GetBlockIndent(lnum)
@@ -83,6 +80,9 @@ function! GetBlockIndent(lnum)
     " scan backwards for class/def that is shallower or equal
     let ind = 100
     let p = a:lnum+1
+    if p > line('$')
+      let p -= 1
+    endif
     while indent(p) >= 0
         let p = p - 1
         " skip empty and comment lines
