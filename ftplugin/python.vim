@@ -14,22 +14,9 @@ if !exists('b:python_did_once')
   let b:python_did_once = 1
 endif
 
-" folding {{{1
-function! Lilydjwg_python_fold()
-  if getline(v:lnum) =~ '\v^\s*(def|class)\s'
-    return '>'. (indent(v:lnum)/&sw+1)
-  elseif getline(v:lnum) =~ '\v^(def|class|if)\s|^\S[^=]+\=.*[[{(](\#.*)?$'
-    return '>1'
-  else
-    return '='
-  endif
-endfunction
-
 " settings & mappings {{{1
 setlocal et
 setlocal tw=78
-setlocal foldmethod=expr
-setlocal foldexpr=Lilydjwg_python_fold()
 " 包含文件太多太费时了
 setlocal complete-=i
 imap <silent> <buffer> <BS> <C-R>=Lilydjwg_checklist_bs('\v^\s*#\s*$')<CR>
