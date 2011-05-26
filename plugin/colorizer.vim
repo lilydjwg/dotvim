@@ -1,13 +1,12 @@
 " Name Of File:	colorizer.vim
 " Description:	Colorize all text in the form #rrggbb or #rgb
 " Maintainer:	lilydjwg <lilydjwg@gmail.com>
-" Licence:	No Warranties. Do whatever you want with this. But please tell me!
+" Licence:	Vim license. See ':help license'
 " Installation:	This file should reside in the plugin directory.
-" Version:      1.3.1
-" Last Change:  2011-5-10
 " Derived From: css_color.vim
 " 		http://www.vim.org/scripts/script.php?script_id=2150
-" Thanks To:	Niklas Hofer (Author of css_color.vim), Ingo Karkat, rykka
+" Thanks To:	Niklas Hofer (Author of css_color.vim), Ingo Karkat, rykka,
+"		KrzysztofUrban
 " Usage:
 "
 " This plugin defines three commands:
@@ -115,35 +114,182 @@ function s:pow(x, n) "{{{2
     return x
   endfor
 endfunction
-function s:SetMatcher(color) "{{{2
-  let color = strpart(a:color, 1)
-  let group = 'Color' . color
-  if len(color) == 3
-    let color = substitute(color, '.', '&&', 'g')
-  endif
+function s:SetMatcher(color, pat) "{{{2
+  " "color" is the converted color and "pat" is what to highlight
+  let group = 'Color' . strpart(a:color, 1)
   if !hlexists(group) || s:force_group_update
-    let fg = g:colorizer_fgcontrast < 0 ? '#'.color : s:FGforBG(color)
+    let fg = g:colorizer_fgcontrast < 0 ? a:color : s:FGforBG(a:color)
     if &t_Co == 256
-      exe 'hi '.group.' ctermfg='.s:Rgb2xterm(fg).' ctermbg='.s:Rgb2xterm('#'.color)
+      exe 'hi '.group.' ctermfg='.s:Rgb2xterm(fg).' ctermbg='.s:Rgb2xterm(a:color)
     endif
     " Always set gui* as user may switch to GUI version and it's cheap
-    exe 'hi '.group.' guifg='.fg.' guibg=#'.color
+    exe 'hi '.group.' guifg='.fg.' guibg='.a:color
   endif
-  if !exists("w:colormatches[group]")
-    let w:colormatches[group] = matchadd(group, a:color.'\>')
+  if !exists("w:colormatches[a:pat]")
+    let w:colormatches[a:pat] = matchadd(group, a:pat)
   endif
 endfunction
-function s:PreviewColorInLine(where) "{{{2
+"ColorFinders {{{2
+function s:HexCode(str, lineno) "{{{3
+  let ret = []
   let place = 0
   let colorpat = '#[0-9A-Fa-f]\{3\}\>\|#[0-9A-Fa-f]\{6\}\>'
   while 1
-    let foundcolor = matchstr(getline(a:where), colorpat, place)
-    let place = match(getline(a:where), colorpat, place) + 1
+    let foundcolor = matchstr(a:str, colorpat, place)
+    let place = matchend(a:str, colorpat, place)
     if foundcolor == ''
       break
     endif
-    call s:SetMatcher(foundcolor)
+    let pat = foundcolor . '\>'
+    if len(foundcolor) == 4
+      let foundcolor = substitute(foundcolor, '[[:xdigit:]]', '&&', 'g')
+    endif
+    call add(ret, [foundcolor, pat])
   endwhile
+  return ret
+endfunction
+function s:RgbColor(str, lineno) "{{{3
+  let ret = []
+  let place = 0
+  let colorpat = '\<rgb(\v\s*(\d+(\%)?)\s*,\s*(\d+%(\2))\s*,\s*(\d+%(\2))\s*\)'
+  while 1
+    let foundcolor = matchlist(a:str, colorpat, place)
+    let place = matchend(a:str, colorpat, place)
+    if empty(foundcolor)
+      break
+    endif
+    if foundcolor[2] == '%'
+      let r = foundcolor[1] * 255 / 100
+      let g = foundcolor[3] * 255 / 100
+      let b = foundcolor[4] * 255 / 100
+    else
+      let r = foundcolor[1]
+      let g = foundcolor[3]
+      let b = foundcolor[4]
+    endif
+    if r > 255 || g > 255 || b > 255
+      break
+    endif
+    let pat = printf('\<rgb(\v\s*%s\s*,\s*%s\s*,\s*%s\s*\)', foundcolor[1], foundcolor[3], foundcolor[4])
+    if foundcolor[2] == '%'
+      let pat = substitute(pat, '%', '\\%', 'g')
+    endif
+    let color = printf('#%02x%02x%02x', r, g, b)
+    call add(ret, [color, pat])
+  endwhile
+  return ret
+endfunction
+function s:RgbaColor(str, lineno) "{{{3
+  if has("gui_running")
+    let bg = synIDattr(synIDtrans(hlID("Normal")), "bg")
+    let bg_r = str2nr(bg[1].bg[2], 16)
+    let bg_g = str2nr(bg[3].bg[4], 16)
+    let bg_b = str2nr(bg[5].bg[6], 16)
+  else
+    " translucent colors would display incorrectly, so ignore the alpha value
+    return s:RgbaColorForTerm(a:str, a:lineno)
+  endif
+  let ret = []
+  let place = 0
+  let colorpat = '\<rgba(\v\s*(\d+(\%)?)\s*,\s*(\d+%(\2))\s*,\s*(\d+%(\2))\s*,\s*(-?[.[:digit:]]+)\s*\)'
+  while 1
+    let foundcolor = matchlist(a:str, colorpat, place)
+    let place = matchend(a:str, colorpat, place)
+    if empty(foundcolor)
+      break
+    endif
+    if foundcolor[2] == '%'
+      let ar = foundcolor[1] * 255 / 100
+      let ag = foundcolor[3] * 255 / 100
+      let ab = foundcolor[4] * 255 / 100
+    else
+      let ar = foundcolor[1]
+      let ag = foundcolor[3]
+      let ab = foundcolor[4]
+    endif
+    if ar > 255 || ag > 255 || ab > 255
+      break
+    endif
+    let alpha = str2float(foundcolor[5])
+    if alpha < 0
+      let alpha = 0.0
+    elseif alpha > 1
+      let alpha = 1.0
+    endif
+    let pat = printf('\<rgba(\v\s*%s\s*,\s*%s\s*,\s*%s\s*,\s*%s0*\s*\)', foundcolor[1], foundcolor[3], foundcolor[4], foundcolor[5])
+    if foundcolor[2] == '%'
+      let pat = substitute(pat, '%', '\\%', 'g')
+    endif
+    let r = float2nr(ceil(ar * alpha) + ceil(bg_r * (1 - alpha)))
+    let g = float2nr(ceil(ag * alpha) + ceil(bg_g * (1 - alpha)))
+    let b = float2nr(ceil(ab * alpha) + ceil(bg_b * (1 - alpha)))
+    if r > 255
+      let r = 255
+    endif
+    if g > 255
+      let g = 255
+    endif
+    if b > 255
+      let b = 255
+    endif
+    let color = printf('#%02x%02x%02x', r, g, b)
+    call add(ret, [color, pat])
+  endwhile
+  return ret
+endfunction
+function s:RgbaColorForTerm(str, lineno) "{{{3
+  let ret = []
+  let place = 0
+  let colorpat = '\<rgba(\v\s*(\d+(\%)?)\s*,\s*(\d+%(\2))\s*,\s*(\d+%(\2))\s*,\s*(-?[.[:digit:]]+)\s*\)'
+  while 1
+    let foundcolor = matchlist(a:str, colorpat, place)
+    let place = matchend(a:str, colorpat, place)
+    if empty(foundcolor)
+      break
+    endif
+    if foundcolor[2] == '%'
+      let ar = foundcolor[1] * 255 / 100
+      let ag = foundcolor[3] * 255 / 100
+      let ab = foundcolor[4] * 255 / 100
+    else
+      let ar = foundcolor[1]
+      let ag = foundcolor[3]
+      let ab = foundcolor[4]
+    endif
+    if ar > 255 || ag > 255 || ab > 255
+      break
+    endif
+    let pat = printf('\<rgba(\v\s*%s\s*,\s*%s\s*,\s*%s\s*,\ze\s*(-?[.[:digit:]]+)\s*\)', foundcolor[1], foundcolor[3], foundcolor[4])
+    if foundcolor[2] == '%'
+      let pat = substitute(pat, '%', '\\%', 'g')
+    endif
+    let color = printf('#%02x%02x%02x', ar, ag, ab)
+    call add(ret, [color, pat])
+  endwhile
+  return ret
+endfunction
+function s:PreviewColorInLine(where) "{{{2
+  let line = getline(a:where)
+  for Func in s:ColorFinder
+    let ret = Func(line, a:where)
+    " returned a list of a list: color as #rrggbb, text pattern to highlight
+    for r in ret
+      call s:SetMatcher(r[0], r[1])
+    endfor
+  endfor
+endfunction
+function s:CursorMoved() "{{{2
+  if !exists('w:colormatches')
+    return
+  endif
+  if exists('b:colorizer_last_update')
+    if b:colorizer_last_update == b:changedtick
+      " Nothing changed
+      return
+    endif
+  endif
+  call s:PreviewColorInLine('.')
+  let b:colorizer_last_update = b:changedtick
 endfunction
 function s:ColorHighlight(update, ...) "{{{2
   if exists('w:colormatches')
@@ -163,7 +309,9 @@ function s:ColorHighlight(update, ...) "{{{2
   let s:saved_fgcontrast = g:colorizer_fgcontrast
   augroup Colorizer
     au!
-    autocmd CursorHold,CursorHoldI,InsertLeave * silent call s:PreviewColorInLine('.')
+    autocmd CursorMoved,CursorMovedI * silent call s:CursorMoved()
+    " rgba handles differently, so need updating
+    autocmd GUIEnter * silent call s:ColorHighlight(1)
     autocmd BufRead * silent call s:ColorHighlight(1)
     autocmd WinEnter * silent call s:ColorHighlight(0)
     autocmd ColorScheme * let s:force_group_update=1 | silent call s:ColorHighlight(1)
@@ -195,11 +343,13 @@ function s:ColorToggle() "{{{2
     echomsg 'Enabled color code highlighting.'
   endif
 endfunction
-let s:colortable=[] "{{{2
+" Setups {{{2
+let s:colortable = []
 for c in range(0, 254)
   let color = s:Xterm2rgb(c)
   call add(s:colortable, color)
 endfor
+let s:ColorFinder = [function('s:HexCode'), function('s:RgbColor'), function('s:RgbaColor')]
 let s:force_group_update = 0
 let s:predefined_fgcolors = {}
 let s:predefined_fgcolors['dark']  = ['#444444', '#222222', '#000000']
