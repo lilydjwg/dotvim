@@ -135,6 +135,11 @@ function! GetPythonFold(lnum)
     elseif line =~ '\v^\s*[]})]\s*%(#)?'
 	return '='
     endif
+    let hlgrp = synIDattr(synID(a:lnum, 1, 1), "name")
+    if hlgrp == 'pythonString' || hlgrp == 'pythonEscape'
+      " literal multiline strings
+      return '='
+    endif
     " now we need the indent from previous
     let p = prevnonblank(a:lnum-1)
     while p>0 && getline(p) =~ '^\s*#' | let p = prevnonblank(p-1)
