@@ -346,6 +346,8 @@ endfunction
 "   一般设置[[[2
 " set guifont=文泉驿等宽正黑\ Medium\ 10
 set smarttab
+" 不要响铃，更不要闪屏
+set visualbell t_vb=
 set viminfo='100,:10000,<50,s10,h
 set history=10000
 set wildmenu
