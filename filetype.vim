@@ -10,6 +10,7 @@ augroup filetypedetect
   au BufRead		*/.getmail/*rc			setf getmailrc
   au BufRead		.msmtprc			setf msmtp
   au BufNewFile,BufRead .htaccess.*			setf apache
+  au BufRead		pacman.log			setf pacmanlog
   au BufRead		/var/log/*.log*			setf messages
   au BufNewFile,BufRead *.rfc				setf rfc
   au BufNewFile,BufRead *.aspx,*.ascx			setf html
@@ -32,7 +33,6 @@ augroup filetypedetect
   au BufNewFile,BufRead fcitx_skin.conf,*fcitx*/config	setf dosini
   au BufRead		*tmux.conf			setf tmux
   au BufRead		rc.conf				setf sh
-  au BufRead		pacman.log			setf pacmanlog
   au BufNewFile,BufRead	PKGBUILD			setf sh
   au BufNewFile,BufRead	*/xorg.conf.d/*			setf xf86conf
   au BufNewFile,BufRead	*fluxbox/keys			setf fluxkeys
