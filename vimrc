@@ -835,4 +835,6 @@ if has("cscope") && executable("cscope")
   " 自己来输入命令
   nmap cs<Space> :cs find 
 endif
+" 最后 [[[1
+runtime temp.vim
 " vim:fdm=marker:fmr=[[[,]]]
