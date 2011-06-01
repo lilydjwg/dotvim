@@ -34,3 +34,5 @@ addEventListener
 button
 clientX
 clientY
+innerHTML
+lastIndexOf
