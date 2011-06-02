@@ -220,3 +220,6 @@ namedtuple
 logging
 unicodedata
 OverflowError
+staticmethod
+classmethod
+isdecimal

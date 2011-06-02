@@ -105,3 +105,4 @@ cairo_new_path
 cairo_restore
 cairo_save
 g_warning
+g_list_prepend
