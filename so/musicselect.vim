@@ -22,7 +22,7 @@ import vimutils
 from path import path
 from utils import filesize
 srcdir = path(vim.eval("b:musicdir"))
-dstdir = path('/media/PHONE CARD/Music')
+dstdir = path('/media/PHONE\\x20CARD/Music')
 srcsongs = set()
 dstsongs = set()
 b = vim.current.buffer
