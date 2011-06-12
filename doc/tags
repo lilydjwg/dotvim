@@ -46,6 +46,7 @@
 'snippets'	snipMate.txt	/*'snippets'*
 .snippet	snipMate.txt	/*.snippet*
 .snippets	snipMate.txt	/*.snippets*
+:Abolish	abolish.txt	/*:Abolish*
 :AttachFile	CheckAttach.txt	/*:AttachFile*
 :ColorSchemeEditor	ColorSchemeEditor.txt	/*:ColorSchemeEditor*
 :DisableCheckAttach	CheckAttach.txt	/*:DisableCheckAttach*
@@ -81,6 +82,8 @@
 :RIPOW	visincr.txt	/*:RIPOW*
 :RM	visincr.txt	/*:RM*
 :Rexplore	pi_netrw.txt	/*:Rexplore*
+:S	abolish.txt	/*:S*
+:Subvert	abolish.txt	/*:Subvert*
 :Texplore	pi_netrw.txt	/*:Texplore*
 :TlistAddFiles	taglist.txt	/*:TlistAddFiles*
 :TlistAddFilesRecursive	taglist.txt	/*:TlistAddFilesRecursive*
@@ -322,6 +325,15 @@ VimExplorer-treehotkey	vimExplorer.txt	/*VimExplorer-treehotkey*
 VimwikiWeblinkHandler	vimwiki.txt	/*VimwikiWeblinkHandler*
 [%	matchit.txt	/*[%*
 ]%	matchit.txt	/*]%*
+abolish	abolish.txt	/*abolish*
+abolish-abbrev	abolish.txt	/*abolish-abbrev*
+abolish-author	abolish.txt	/*abolish-author*
+abolish-coercion	abolish.txt	/*abolish-coercion*
+abolish-grep	abolish.txt	/*abolish-grep*
+abolish-patterns	abolish.txt	/*abolish-patterns*
+abolish-search	abolish.txt	/*abolish-search*
+abolish-substitute	abolish.txt	/*abolish-substitute*
+abolish.txt	abolish.txt	/*abolish.txt*
 align	Align.txt	/*align*
 align-align	Align.txt	/*align-align*
 align-codepoint	Align.txt	/*align-codepoint*
@@ -449,6 +461,7 @@ cecutil-saveusermaps	cecutil.txt	/*cecutil-saveusermaps*
 cecutil-savewinposn	cecutil.txt	/*cecutil-savewinposn*
 cecutil-swp	cecutil.txt	/*cecutil-swp*
 cecutil.txt	cecutil.txt	/*cecutil.txt*
+cr	abolish.txt	/*cr*
 cs	surround.txt	/*cs*
 dav	pi_netrw.txt	/*dav*
 davs	pi_netrw.txt	/*davs*
