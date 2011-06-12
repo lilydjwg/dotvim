@@ -687,6 +687,7 @@ command -nargs=1 -range -complete=customlist,Lilydjwg_Align_complete LA <line1>,
 "   Regex in Javascript, etc
 call CountJump#TextObject#MakeWithCountSearch('', '/', 'ai', 'v', '\\\@<!/', '\\\@<!/')
 call CountJump#TextObject#MakeWithCountSearch('', ':', 'ai', 'v', '\\\@<!:', '\\\@<!:')
+call CountJump#TextObject#MakeWithCountSearch('', '_', 'ai', 'v', '_', '_')
 "   colorizer.vim[[[2
 let g:colorizer_nomap = 1
 "   grep.vim[[[2
