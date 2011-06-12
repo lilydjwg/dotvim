@@ -272,18 +272,6 @@ function Lilydjwg_hexchar()
   let str = substitute(chars, '%', '\\x', 'g')
   exe 'echo "'. str . '"'
 endfunction
-"   字符 -> %xx，取代当前选区 [[[2
-function Lilydjwg_strhex(str)
-  python << EOF
-import vim
-s = vim.eval('a:str')
-l = ''
-for i in s:
-  l += '%' + hex(ord(i))[2:].rjust(2, '0')
-vim.command("let ret = '"+l+"'")
-EOF
-  exe 'normal gvs' . ret
-endfunction
 "  用火狐打开链接[[[2
 function Lilydjwg_open_url()
   let s:url = Lilydjwg_get_pattern_at_cursor('\v(https?://|ftp://|file:/{3}|www\.)(\w|[.-])+(:\d+)?(/(\w|[~@#$%^&+=/.?:-])+)?')
@@ -601,8 +589,14 @@ xmap C <Plug>VSurround
 "      原 cs 和 cscope 的冲突了
 nmap cS <Plug>Csurround
 "     以 % 表示的字符 [[[2
+map <silent> t% :w !ascii2uni -a J -q<CR>
 nmap <silent> t% :call Lilydjwg_hexchar()<CR>
-vmap <silent> t% y:call Lilydjwg_strhex(@")<CR>
+"     HTML 转义 [[[2
+"     I got the idea from unimpaired.vim
+noremap <silent> [x :HTMLEscape<CR>
+noremap <silent> ]x :!HTMLUnescape<CR>
+nnoremap <silent> [x :.HTMLEscape<CR>
+nnoremap <silent> ]x :.HTMLUnescape<CR>
 "     Ctrl-S 保存文件 [[[2
 nmap <silent> <C-S> :update<CR>
 imap <silent> <C-S> <ESC>:update<CR>
@@ -676,6 +670,7 @@ command TSave call Lilydjwg_TSave()
 command -nargs=? -complete=file RSplit vs <args>|normal <C-W>L<C-W>w
 command -range=% SQuote <line1>,<line2>s/“\|”\|″/"/ge|<line1>,<line2>s/‘\|’\|′/'/ge
 command -range HTMLEscape <line1>,<line2>s/&/\&amp;/ge|<line1>,<line2>s/</\&lt;/ge|<line1>,<line2>s/>/\&gt;/ge
+command -range HTMLUnescape <line1>,<line2>s/&amp;/\&/ge|<line1>,<line2>s/&lt;/</ge|<line1>,<line2>s/&gt;/>/ge
 command RJ silent call Lilydjwg_edit_diary()
 "   载入 snippets
 command -nargs=? Snippets silent call Lilydjwg_snippets("<args>")
