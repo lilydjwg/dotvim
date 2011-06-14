@@ -26,7 +26,7 @@ augroup filetypedetect
   au BufRead		$HOME/temp/mb			setf mb
   au BufRead		*/itsalltext/lilydjwg.is-programmer.com*	setf html
   au BufRead		lilydjwg.is-programmer.com_edit*		setf html
-  au BufRead		forum.ubuntu.org.cn_posting.*		        setf bbcode
+  au BufRead		forum.ubuntu.org.cn_*	 	setf bbcode
   au BufRead		*/itsalltext/*forum*		setf bbcode
   au BufRead		*/itsalltext/easwy.com.*	setf bbcode
   au BufRead		*/itsalltext/*mail*		setf mail
