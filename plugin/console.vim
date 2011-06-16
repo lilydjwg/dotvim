@@ -1,4 +1,4 @@
-" vimconsole.vim 打开一个窗口来输入代码，并在原窗口执行
+" console.vim 打开一个窗口来输入代码，并在原窗口执行
 " Author:       lilydjwg <lilydjwg@gmail.com>
 " ---------------------------------------------------------------------
 " Load Once:
