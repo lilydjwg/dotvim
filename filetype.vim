@@ -22,6 +22,7 @@ augroup filetypedetect
   au BufRead		/var/log/*.log*			setf messages
   au BufNewFile,BufRead *.rfc				setf rfc
   au BufNewFile,BufRead *.aspx,*.ascx			setf html
+  au BufNewFile,BufRead *.md				setf markdown
   au BufRead		grub.cfg			setf sh
   au BufRead		$HOME/temp/mb			setf mb
   au BufRead		*/itsalltext/lilydjwg.is-programmer.com*	setf html
