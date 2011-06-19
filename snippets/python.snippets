@@ -17,8 +17,8 @@ snippet dbg
 	print('HereItIs.')
 # 使用 code 来 debug
 snippet cdb
-	import code
-	code.interact(local=locals())
+	from cli import repl
+	repl(locals())
 snippet tb
 	import traceback
 	traceback.print_exc()
