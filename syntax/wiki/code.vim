@@ -1,9 +1,12 @@
 " Vim syntax file
 " FileType:    MediaWiki
 " Author:      lilydjwg
-" Last Change: 2010年8月26日
 
 " 很耗时的工作，所以少支持点儿。。。
+
+" 所有未支持的类型
+syntax region wikiCodePlain matchgroup=htmlTag start="<code \w\+>" end="</code>"
+hi link wikiCodePlain Normal
 
 unlet b:current_syntax
 syntax include @Python syntax/python.vim
