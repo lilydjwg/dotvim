@@ -460,7 +460,7 @@ else
        set t_ve+=[?6c
        autocmd InsertEnter * set t_ve-=[?6c
        autocmd InsertLeave * set t_ve+=[?6c
-       autocmd VimLeave * set t_ve-=[?6c
+       " autocmd VimLeave * set t_ve-=[?6c
     endif
   endif
 endif
