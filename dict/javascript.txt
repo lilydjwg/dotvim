@@ -36,3 +36,5 @@ substring
 true
 typeof
 undefined
+clientWidth
+getSelection

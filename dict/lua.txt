@@ -10,3 +10,4 @@ execute
 coroutine
 resume
 tonumber
+tostring

@@ -40,3 +40,4 @@ fnamemodify
 WarningMsg
 range
 exists
+executable
