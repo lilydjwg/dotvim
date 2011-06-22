@@ -11,58 +11,58 @@ if exists("syntax_on")
 endif
 let g:colors_name = "darkBlue"
 
-hi Comment guifg=#6666ff
-hi Constant guifg=#99cc33
-hi Cursor guifg=#ffffff guibg=#335577
-hi CursorIM guifg=#00AAFF guibg=#FF66FF
-hi CursorLine guibg=#223344
-hi DiffAdd guifg=#000000 guibg=#33ff33
-hi DiffChange guifg=#dddddd guibg=#5555CC
-hi DiffDelete guifg=#000000 guibg=#ee6699
-hi DiffText guifg=#ffffff guibg=#8888ff
-hi Directory guifg=#ff99ff
-hi Error gui=underline guifg=#ff0000 guibg=#111133
-hi ErrorMsg guifg=#FFFF00 guibg=#0000FF
-hi FoldColumn guifg=#0033FF guibg=#333333
-hi Folded guifg=#6666ff guibg=#223344
-hi Identifier guifg=#00a0e0
-hi Ignore gui=None
-hi IncSearch gui=bold,reverse guifg=#99ff99 guibg=#3454ff
-hi LineNr guifg=#446699
-hi MatchParen guifg=#99FF99 guibg=#112233
-hi ModeMsg gui=bold guifg=#AAAA3C guibg=#222211
-hi MoreMsg guifg=#FFFF00
-hi NonText guifg=#8400ff guibg=#102030
-hi Normal guifg=#eeeeee guibg=#112233
-hi Pmenu guifg=#3366FF guibg=#111111
-hi PmenuSbar guibg=#113355
-hi PmenuSel guifg=#80ff00 guibg=#1a1a1a
-hi PmenuThumb gui=reverse
-hi PreProc guifg=#FF99FF
-hi Question gui=bold guifg=#009966 guibg=#113322
-hi Search guifg=#3404ff guibg=#FFFF00
-hi SignColumn guifg=#00FFFF guibg=#C0C0C0
-hi Special guifg=#FF00FF
-hi SpecialKey guifg=#00AEA0 guibg=#22302D
-hi SpellBad gui=undercurl
-hi SpellCap gui=undercurl
-hi SpellLocal gui=undercurl
-hi SpellRare gui=undercurl
-hi Statement guifg=#00a0e0
-hi StatusLine gui=reverse guifg=#00c4ff guibg=#000000
-hi StatusLineNC guifg=#A4A4FF guibg=#444400
-hi TabLine guifg=#0066FF guibg=#001133
-hi TabLineFill gui=None
-hi TabLineSel gui=underline guifg=#999944 guibg=#112233
-hi Title guifg=#ffff44
-hi Todo gui=bold,underline guifg=#ff0000 guibg=#112233
-hi Type guifg=#ff9933
-hi Underlined gui=underline
-hi VertSplit gui=reverse guifg=#00C4FF guibg=#0000FF
-hi Visual guibg=#223344
-hi VisualNOS gui=None
-hi WarningMsg guifg=#FFA500 guibg=#000080
-hi WildMenu gui=None
+highlight Comment guifg=#6666ff ctermfg=63
+highlight Constant guifg=#99cc33 ctermfg=112
+highlight Cursor guifg=#ffffff guibg=#335577 ctermfg=231 ctermbg=24
+highlight CursorIM guifg=#00aaff guibg=#ff66ff ctermfg=39 ctermbg=207
+highlight CursorLine guibg=#223344 ctermbg=236 cterm=NONE
+highlight DiffAdd guifg=#000000 guibg=#33ff33 ctermfg=16 ctermbg=46
+highlight DiffChange guifg=#dddddd guibg=#5555cc ctermfg=253 ctermbg=62
+highlight DiffDelete guifg=#000000 guibg=#ee6699 ctermfg=16 ctermbg=205
+highlight DiffText guifg=#ffffff guibg=#8888ff ctermfg=231 ctermbg=105
+highlight Directory guifg=#ff99ff ctermfg=213
+highlight Error guifg=#ff0000 guibg=#111133 gui=underline ctermfg=196 ctermbg=17 cterm=underline
+highlight ErrorMsg guifg=#ffff00 guibg=#0000ff ctermfg=226 ctermbg=21
+highlight FoldColumn guifg=#0033ff guibg=#333333 ctermfg=21 ctermbg=236
+highlight Folded guifg=#6666ff guibg=#223344 ctermfg=63 ctermbg=236
+highlight Identifier guifg=#00a0e0 ctermfg=39
+highlight Ignore gui=NONE cterm=NONE
+highlight IncSearch guifg=#99ff99 guibg=#3454ff gui=bold,reverse ctermfg=120 ctermbg=27 cterm=bold,reverse
+highlight LineNr guifg=#446699 ctermfg=25
+highlight MatchParen guifg=#99ff99 guibg=#112233 ctermfg=120 ctermbg=234
+highlight ModeMsg guifg=#aaaa3c guibg=#222211 gui=bold ctermfg=142 ctermbg=235 cterm=bold
+highlight MoreMsg guifg=#ffff00 ctermfg=226
+highlight NonText guifg=#8400ff guibg=#102030 ctermfg=93 ctermbg=234
+highlight Normal guifg=#eeeeee guibg=#112233 ctermfg=255 ctermbg=234
+highlight Pmenu guifg=#3366ff guibg=#111111 ctermfg=27 ctermbg=233
+highlight PmenuSbar guibg=#113355 ctermbg=236
+highlight PmenuSel guifg=#80ff00 guibg=#1a1a1a ctermfg=118 ctermbg=234
+highlight PmenuThumb gui=reverse cterm=reverse
+highlight PreProc guifg=#ff99ff ctermfg=213
+highlight Question guifg=#009966 guibg=#113322 gui=bold ctermfg=29 ctermbg=236 cterm=bold
+highlight Search guifg=#3404ff guibg=#ffff00 ctermfg=21 ctermbg=226
+highlight SignColumn guifg=#00ffff guibg=#c0c0c0 ctermfg=51 ctermbg=250
+highlight Special guifg=#ff00ff ctermfg=201
+highlight SpecialKey guifg=#00aea0 guibg=#22302d ctermfg=37 ctermbg=236
+highlight SpellBad gui=undercurl cterm=undercurl
+highlight SpellCap gui=undercurl cterm=undercurl
+highlight SpellLocal gui=undercurl cterm=undercurl
+highlight SpellRare gui=undercurl cterm=undercurl
+highlight Statement guifg=#00a0e0 ctermfg=39
+highlight StatusLine guifg=#00c4ff guibg=#000000 gui=reverse ctermfg=81 ctermbg=16 cterm=reverse
+highlight StatusLineNC guifg=#a4a4ff guibg=#444400 ctermfg=147 ctermbg=58
+highlight TabLine guifg=#0066ff guibg=#001133 ctermfg=27 ctermbg=17
+highlight TabLineFill gui=NONE cterm=NONE
+highlight TabLineSel guifg=#999944 guibg=#112233 gui=underline ctermfg=143 ctermbg=234 cterm=underline
+highlight Title guifg=#ffff44 ctermfg=227
+highlight Todo guifg=#ff0000 guibg=#112233 gui=bold,underline ctermfg=196 ctermbg=234 cterm=bold,underline
+highlight Type guifg=#ff9933 ctermfg=208
+highlight Underlined gui=underline cterm=underline
+highlight VertSplit guifg=#00c4ff guibg=#0000ff gui=reverse ctermfg=81 ctermbg=21 cterm=reverse
+highlight Visual guibg=#223344 ctermbg=236
+highlight VisualNOS gui=NONE cterm=NONE
+highlight WarningMsg guifg=#ffa500 guibg=#000080 ctermfg=214 ctermbg=18
+highlight WildMenu gui=NONE cterm=NONE
 hi link Boolean Constant
 hi link Character Constant
 hi link Conditional Statement
