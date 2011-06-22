@@ -405,6 +405,7 @@ else
   cmap <C-T> ~/tmpfs/
   " cron 的目录不要备份
   set backupskip+=/etc/cron.*/*
+  set backupdir=.,~/temp,/tmp
   " Linux 程序 [[[3
   "   用默认的程序打开文件
   "   FIXME xdg-open 的配置在哪里？为什么不用浏览器打开 HTML 文件呢？
