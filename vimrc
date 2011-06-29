@@ -693,8 +693,6 @@ call CountJump#TextObject#MakeWithCountSearch('', '_', 'ai', 'v', '_', '_')
 let g:colorizer_nomap = 1
 "   grep.vim[[[2
 let g:Grep_Default_Options = '--binary-files=without-match'
-"   mail_CheckAttach.vim [[[2
-let g:attach_check_keywords = '附件'
 "   NERDTree[[[2
 let g:NERDTreeMapToggleZoom = 'a'
 let g:NERDTreeMapToggleHidden = 'h'
