@@ -595,7 +595,7 @@ nmap <silent> t% :call Lilydjwg_hexchar()<CR>
 "     HTML 转义 [[[2
 "     I got the idea from unimpaired.vim
 noremap <silent> [x :HTMLEscape<CR>
-noremap <silent> ]x :!HTMLUnescape<CR>
+noremap <silent> ]x :HTMLUnescape<CR>
 nnoremap <silent> [x :.HTMLEscape<CR>
 nnoremap <silent> ]x :.HTMLUnescape<CR>
 "     Ctrl-S 保存文件 [[[2
