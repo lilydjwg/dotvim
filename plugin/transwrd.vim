@@ -7,7 +7,7 @@
 " Install: 
 "     Put this file in ~/.vim/plugin
 " Mappings:
-"     <Alt-t> (<Meta-t>) in normal or insert mode
+"     <Alt-t> (<Meta-t>) in any mode except cmdline with = prompt.
 "         transpose words. Same as press <Alt-t> (<Meta-t>) in Emacs or
 "         bash(default mode)
 
@@ -18,6 +18,9 @@ if exists("g:loaded_transwrd")
     finish
 endif
 let g:loaded_transwrd = 1
+let s:save_cpo = &cpo
+set cpo&vim
+
 
 " Functions
 python3 << EOF
@@ -58,17 +61,22 @@ def transpose_word_inline(cline, col):
 def transpose_word():
     cline = vim.current.line
     col = vim.current.window.cursor[1]
-    (cline, col) = transpose_word_inline(cline, col)
-    vim.current.line = cline
-    vim.current.window.cursor = (vim.current.window.cursor[0], col)
+    (cline_out, col_out) = transpose_word_inline(cline, col)
+    if (cline_out, col_out) == (cline, col):
+        return False
+    vim.current.line = cline_out
+    vim.current.window.cursor = (vim.current.window.cursor[0], col_out)
     return True
 
 def transpose_word_cmdline():
     cline = vim.eval("getcmdline()")
     col = int(vim.eval("getcmdpos()")) - 1
-    (cline, col) = transpose_word_inline(cline, col)
-    vim.command("let s:cmdline=" + '"' + cline + '"')
-    vim.command("call setcmdpos(" + str(col + 1) + ")")
+    (cline_out, col_out) = transpose_word_inline(cline, col)
+    if (cline_out, col_out) == (cline, col):
+        return False
+    vim.command("let s:cmdline=" + '"' + cline_out + '"')
+    vim.command("call setcmdpos(" + str(col_out + 1) + ")")
+    return True
 
 EOF
 
@@ -83,8 +91,8 @@ function s:transpose_word_cmdline()
 endfunction
 
 " Mappings
-nnoremap <unique> <Plug>Transposewords :py3 transpose_word()<CR>
-inoremap <unique> <Plug>Transposewords <C-R>=<SID>transpose_word()<CR>
+nnoremap <unique> <silent> <Plug>Transposewords :py3 transpose_word()<CR>
+inoremap <unique> <silent> <Plug>Transposewords <C-R>=<SID>transpose_word()<CR>
 cnoremap <unique> <Plug>Transposewords <C-\>e<SID>transpose_word_cmdline()<CR>
 
 if !hasmapto('<Plug>Transposewords')
@@ -93,4 +101,6 @@ if !hasmapto('<Plug>Transposewords')
     cmap <unique> <M-t> <Plug>Transposewords
 endif
 
-" vim:set ft=vim expandtab sw=4 sts=4 ts=4 tw=78:
+let &cpo = s:save_cpo
+
+" vim:set ft=vim expandtab sw=4 sts=4 ts=4 tw=79:
