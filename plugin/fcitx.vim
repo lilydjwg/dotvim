@@ -2,17 +2,9 @@ scriptencoding utf-8
 " fcitx.vim  记住插入模式小企鹅输入法的状态
 " Author:       lilydjwg
 " Maintainer:   lilydjwg
-" Last Change:  2011年1月29日
 " ---------------------------------------------------------------------
 " Load Once:
-if (has("win32") || has("win95") || has("win64") || has("win16"))
-  " Windows 下不要载入
-  finish
-endif
-if !exists('$DISPLAY') "没有 X，不要载入
-  finish
-endif
-if &cp || exists("g:loaded_fcitx") || !executable("fcitx")
+if &cp || exists("g:loaded_fcitx") || !exists('$DISPLAY')
   finish
 endif
 if !has("python3")
@@ -22,24 +14,25 @@ if !has("python3")
   runtime so/fcitx.vim
   finish
 endif
-let s:fcitxsocketfile = expand('/tmp/fcitx-socket-$DISPLAY')
+let s:keepcpo = &cpo
+set cpo&vim
+" this is quicker than expand()
+let s:fcitxsocketfile = '/tmp/fcitx-socket-' . $DISPLAY
 if !filewritable(s:fcitxsocketfile) "try again
   if strridx(s:fcitxsocketfile, '.') > 0
     let s:fcitxsocketfile = strpart(s:fcitxsocketfile, 0,
 	  \ strridx(s:fcitxsocketfile, '.'))
   else
     let s:fcitxsocketfile = s:fcitxsocketfile . '.0'
+    if !filewritable(s:fcitxsocketfile)
+      echohl WarningMsg
+      echomsg "没有找到 fcitx 的 socket 文件，fcitx.vim 没有载入。"
+      echohl None
+      finish
+    endif
   endif
 endif
-if !filewritable(s:fcitxsocketfile)
-  echohl WarningMsg
-  echomsg "没有找到 fcitx 的 socket 文件，fcitx.vim 没有载入。"
-  echohl None
-  finish
-endif
-let s:keepcpo = &cpo
 let g:loaded_fcitx = 1
-set cpo&vim
 " ---------------------------------------------------------------------
 " Functions:
 python3 <<ENDPYTHON
