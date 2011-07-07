@@ -350,6 +350,7 @@ set fileencodings=ucs-bom,utf-8,gb18030,cp936,latin1
 set fileformats=unix,dos,mac
 set formatoptions=croqn2mB1
 set nojoinspaces
+set virtualedit=block
 " set guioptions=egmrLtai
 set guioptions=acit
 set mousemodel=popup
@@ -684,6 +685,9 @@ command Larger set lines+=1
 command MusicSelect runtime so/musicselect.vim
 command -nargs=1 -range -complete=customlist,Lilydjwg_Align_complete LA <line1>,<line2>call Lilydjwg_Align("<args>")
 " 其它命令[[[1
+"   Erlang[[[2
+let g:erlangHighlightBif = 1
+let g:erlangFold = 1
 "   CountJump[[[2
 "   Regex in Javascript, etc
 call CountJump#TextObject#MakeWithCountSearch('', '/', 'ai', 'v', '\\\@<!/', '\\\@<!/')
