@@ -7,3 +7,5 @@ command
 export
 mkdir
 --exclude
+zmodload
+zpty
