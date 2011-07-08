@@ -345,6 +345,7 @@ set laststatus=2 " 总是显示状态栏
 " 首先尝试最长的，接着轮换补全项
 set wildmode=longest:full,full
 set ambiwidth=double
+set shiftround
 set diffopt+=vertical,context:3,foldcolumn:0
 set fileencodings=ucs-bom,utf-8,gb18030,cp936,latin1
 set fileformats=unix,dos,mac
