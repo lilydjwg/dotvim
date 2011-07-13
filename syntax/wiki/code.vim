@@ -27,3 +27,4 @@ syntax region wikiCodeLua matchgroup=htmlTag start="<code lua>" end="</code>" co
 unlet b:current_syntax
 syntax include @Javascript  syntax/javascript.vim
 syntax region wikiCodeJavascript matchgroup=htmlTag start="<code javascript>" end="</code>" contains=@Javascript
+unlet b:current_syntax
