@@ -742,7 +742,7 @@ let g:EnhCommentifyCommentsOp = 'Yes'
 let g:EnhCommentifyAlignRight = 'Yes'
 let g:EnhCommentifyUseBlockIndent = 'Yes'
 "   indent/html.vim[[[2
-let g:html_indent_inctags = "html,body,head,tbody,p,li,dd,marquee"
+let g:html_indent_inctags = "html,body,head,tbody,p,li,dd,marquee,header,nav,article,section"
 let g:html_indent_script1 = "inc"
 let g:html_indent_style1 = "inc"
 "   mru[[[2
