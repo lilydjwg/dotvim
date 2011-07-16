@@ -227,3 +227,7 @@ filterwarnings
 warnings
 __future__
 argparse
+functools
+unicode_literals
+callable
+print_function
