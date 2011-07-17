@@ -723,6 +723,8 @@ let tlist_html_settings = 'html;h:Headers;o:IDs;c:Classes'
 hi link MyTagListFileName Type
 "   2html.vim, 使用XHTML格式[[[2
 let use_xhtml = 1
+"   shell 脚本打开折叠
+let g:sh_fold_enabled = 3 " 打开函数和 here 文档的折叠
 "   Align[[[2
 let g:Align_xstrlen = 3
 "   Lilydjwg_Align
