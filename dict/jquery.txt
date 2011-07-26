@@ -8,7 +8,7 @@ removeData
 getJSON
 addClass
 prependTo
-insertBefore
+insertAfter
 prepend
 appendTo
 closest

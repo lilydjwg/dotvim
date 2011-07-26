@@ -38,3 +38,5 @@ typeof
 undefined
 clientWidth
 getSelection
+continue
+parseInt

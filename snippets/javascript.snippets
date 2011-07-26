@@ -4,7 +4,9 @@ snippet #!
 	#!/usr/bin/env node
 	
 snippet dbg
-	console && console.log(${1});
+	typeof console != 'undefined' && console.log(${1});
+snippet cdbg
+	}catch(e){ console.error(e); }
 snippet for
 	for(var i=0, len=${1}; i<len; i++){
 	  ${2}
