@@ -665,7 +665,7 @@ command SBlank %s/\v(^\s*$\n){2,}/\r/g
 "   删除拖尾的空白
 command -range=% TWS <line1>,<line2>s/\s\+$//|nohls|normal ``
 "   设置成 Linux 下适用的格式
-command Lin setl ff=unix fenc=utf8 nobomb
+command Lin setl ff=unix fenc=utf8 nobomb eol
 "   设置成 Windows 下适用的格式
 command Win setl ff=dos fenc=gb18030
 "   以第一行的文字为名保存当前文件
