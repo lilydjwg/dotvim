@@ -40,3 +40,4 @@ clientWidth
 getSelection
 continue
 parseInt
+unshift
