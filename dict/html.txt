@@ -11,3 +11,4 @@ script
 submit
 textarea
 title
+blockquote
