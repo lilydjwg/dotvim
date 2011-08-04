@@ -140,7 +140,9 @@ fun! <SID>VisBlockCmd(cmd) range
 
    " 5. delete excess lines
 "   call Decho("delete excess lines")
-   silent exe lastline.',$d'
+   if lastline <= line('$')
+      silent exe lastline.',$d'
+   endif
 
    " 6. put modified text back into file
 "   call Decho("put modifed text back into file (beginning=".begline.".".begcol.")")
