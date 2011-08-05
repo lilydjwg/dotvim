@@ -78,7 +78,9 @@ elseif &filetype == 'xhtml'
 	let b:xml_use_xhtml = 1
 en
 
-							 
+let b:undo_ftplugin = "setlocal cms< isk<"
+  \ . "| unlet b:match_ignorecase b:match_words"
+
 
 
 " NewFileXML -> Inserts <?xml?> at top of new file.                  {{{1
