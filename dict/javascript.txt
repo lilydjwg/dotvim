@@ -41,3 +41,6 @@ getSelection
 continue
 parseInt
 unshift
+styleSheets
+cssRules
+insertRule
