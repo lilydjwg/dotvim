@@ -49,4 +49,5 @@ augroup filetypedetect
   au BufNewFile,BufRead	*/xorg.conf.d/*			setf xf86conf
   au BufNewFile,BufRead	*fluxbox/keys			setf fluxkeys
   au BufNewFile,BufRead	*fluxbox/menu			setf fluxbox
+  au BufNewFile,BufRead hg-editor-*.txt			setf hgcommit
 augroup END
