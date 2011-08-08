@@ -42,6 +42,7 @@ augroup filetypedetect
   au BufNewFile,BufRead fcitx_skin.conf,*fcitx*/config	setf dosini
   au BufRead		*tmux.conf			setf tmux
   au BufRead		rc.conf				setf sh
+  au BufRead		*.grf				setf dosini
   au BufNewFile,BufRead	PKGBUILD			setf sh
   au BufNewFile,BufRead	*.install			setf sh
   au BufNewFile,BufRead	ejabberd.cfg*			setf erlang

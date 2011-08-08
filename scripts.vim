@@ -22,3 +22,7 @@ if getline(1) =~ '^#!\s*/usr/bin/tcc\s\+-run'
   syn match cCommentL /^\%1l\#\!.*/
   finish
 endif
+if getline(1) =~ '^#!\s*/usr/bin/sage\s\+-python'
+  setfiletype python
+  finish
+endif
