@@ -4,6 +4,8 @@
 
 import vim
 import sys
+import io
+import token, tokenize
 
 def EvaluateCurrentRange():
   eval(compile('\n'.join(vim.current.range),'','exec'),globals())
@@ -17,3 +19,15 @@ def getpath():
 
 vim.command('setlocal path=%s' % '.,'+','.join(getpath()).replace(' ', r'\ '))
 
+def setsw():
+  try:
+    stream = io.BytesIO('\n'.join(vim.current.buffer).encode(vim.eval('&fenc')))
+  except LookupError:
+    return
+  try:
+    sw = min(len(x.string) for x in tokenize.tokenize(stream.readline) if x.type == token.INDENT)
+  except ValueError:
+    return
+  vim.command('setlocal sw=%d' % sw)
+
+setsw()
