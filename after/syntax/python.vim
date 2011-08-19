@@ -11,3 +11,5 @@ if expand('%:p') =~ 'www'
   let b:current_syntax = 'python'
 endif
 
+syn region pythonString		start=+"""+ end=+"""+ keepend contains=pythonEscape,pythonEscapeError,pythonDocTest2,@Spell
+syn region pythonString		start=+'''+ end=+'''+ keepend contains=pythonEscape,pythonEscapeError,pythonDocTest,@Spell
