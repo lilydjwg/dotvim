@@ -1,8 +1,11 @@
 TEXT_NODE
 addEventListener
 appendChild
+childElementCount
 childNodes
+children
 cloneNode
+contentDocument
 createElement
 createTextNode
 firstChild

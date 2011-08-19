@@ -106,3 +106,4 @@ cairo_restore
 cairo_save
 g_warning
 g_list_prepend
+gboolean
