@@ -472,6 +472,7 @@ ftp	pi_netrw.txt	/*ftp*
 fugitive	fugitive.txt	/*fugitive*
 fugitive#statusline()	fugitive.txt	/*fugitive#statusline()*
 fugitive-:Gblame	fugitive.txt	/*fugitive-:Gblame*
+fugitive-:Gbrowse	fugitive.txt	/*fugitive-:Gbrowse*
 fugitive-:Gcd	fugitive.txt	/*fugitive-:Gcd*
 fugitive-:Gcommit	fugitive.txt	/*fugitive-:Gcommit*
 fugitive-:Gdiff	fugitive.txt	/*fugitive-:Gdiff*
@@ -484,12 +485,14 @@ fugitive-:Glog	fugitive.txt	/*fugitive-:Glog*
 fugitive-:Gmove	fugitive.txt	/*fugitive-:Gmove*
 fugitive-:Gpedit	fugitive.txt	/*fugitive-:Gpedit*
 fugitive-:Gread	fugitive.txt	/*fugitive-:Gread*
-fugitive-:Gread!	fugitive.txt	/*fugitive-:Gread!*
 fugitive-:Gremove	fugitive.txt	/*fugitive-:Gremove*
+fugitive-:Gsdiff	fugitive.txt	/*fugitive-:Gsdiff*
 fugitive-:Gsplit	fugitive.txt	/*fugitive-:Gsplit*
 fugitive-:Gstatus	fugitive.txt	/*fugitive-:Gstatus*
 fugitive-:Gtabedit	fugitive.txt	/*fugitive-:Gtabedit*
+fugitive-:Gvdiff	fugitive.txt	/*fugitive-:Gvdiff*
 fugitive-:Gvsplit	fugitive.txt	/*fugitive-:Gvsplit*
+fugitive-:Gwq	fugitive.txt	/*fugitive-:Gwq*
 fugitive-:Gwrite	fugitive.txt	/*fugitive-:Gwrite*
 fugitive-<CR>	fugitive.txt	/*fugitive-<CR>*
 fugitive-C	fugitive.txt	/*fugitive-C*
