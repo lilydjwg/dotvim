@@ -447,11 +447,23 @@ else
     " 在不同模式下使用不同颜色的光标
     set cursorline
     colorscheme pink_lily
-    if &term =~ "xterm"
+    if &term =~ "xterm\|rxvt"
       silent !echo -ne "\e]12;HotPink\007"
       let &t_SI="\e]12;RoyalBlue1\007"
       let &t_EI="\e]12;HotPink\007"
       autocmd VimLeave * :!echo -ne "\e]12;green\007"
+    elseif &term =~ "screen"
+      if exists('$TMUX')
+	silent !echo -ne "\033Ptmux;\033\e]12;HotPink\007\033\\"
+	let &t_SI="\033Ptmux;\033\e]12;RoyalBlue1\007\033\\"
+	let &t_EI="\033Ptmux;\033\e]12;HotPink\007\033\\"
+	autocmd VimLeave * :!echo -ne "\033Ptmux;\033\e]12;green\007\033\\"
+      else
+	silent !echo -ne "\033P\e]12;HotPink\007\033\\"
+	let &t_SI="\033P\e]12;RoyalBlue1\007\033\\"
+	let &t_EI="\033P\e]12;HotPink\007\033\\"
+	autocmd VimLeave * :!echo -ne "\033P\e]12;green\007\033\\"
+      endif
     endif
   else
     " 暂时只有这个配色比较适合了
