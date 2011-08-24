@@ -450,7 +450,7 @@ else
     let color_normal = 'HotPink'
     let color_insert = 'RoyalBlue1'
     let color_exit = 'green'
-    if &term =~ "xterm\|rxvt"
+    if &term =~ 'xterm\|rxvt'
       exe 'silent !echo -ne "\e]12;"' . color_normal . '"\007"'
       let &t_SI="\e]12;" . color_insert . "\007"
       let &t_EI="\e]12;" . color_normal . "\007"
