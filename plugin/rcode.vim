@@ -1,12 +1,28 @@
-" console.vim 打开一个窗口来输入代码，并在原窗口执行
+" rcode.vim	Run variable type of code again current buffer
+" Version:	1.0
 " Author:       lilydjwg <lilydjwg@gmail.com>
+" URL:		http://www.vim.org/scripts/script.php?script_id=3705
+" ---------------------------------------------------------------------
+" Usage:
+" Command 'Rcode' with argument vim, awk, perl, py, py3, ruby or lua will
+" open a new buffer. Write your code in it and use command 'Run' (or key map
+" <C-CR>) to run it again the buffer you were.
+"
+" Shortcut:
+" in Python, 'v' is the 'vim' module, and 'b' is the current buffer,
+" in Lua, 'b' is the current buffer,
+"
+" Settings:
+" The global 'g:Rcode_after' indicates what to do after running your code.
+" 0 means to do noting, 1 means to close the code buffer and 2 will throw away
+" your code besides closing the buffer. Default is 1.
 " ---------------------------------------------------------------------
 " Load Once:
-if &cp || exists("g:loaded_console")
+if &cp || exists("g:loaded_rcode")
   finish
 endif
 let s:keepcpo = &cpo
-let g:loaded_vimconsole = 1
+let g:loaded_vimrcode = 1
 set cpo&vim
 " ---------------------------------------------------------------------
 " Variables:
@@ -17,15 +33,15 @@ if has('perl') | let s:lang2ft['perl'] = 'perl' | endif
 if has('python3') | let s:lang2ft['py3'] = 'python' | endif
 if has('python') | let s:lang2ft['py'] = 'python' | endif
 if has('ruby') | let s:lang2ft['ruby'] = 'ruby' | endif
-if !exists('g:Console_code')
-  let g:Console_code = {}
+if !exists('g:Rcode_code')
+  let g:Rcode_code = {}
 endif
 " ---------------------------------------------------------------------
 " Functions:
-function s:Console_complete(ArgLead, CmdLine, CursorPos)
+function s:Rcode_complete(ArgLead, CmdLine, CursorPos)
   return keys(s:lang2ft)
 endfunction
-function s:Console_init(nr, lang) range
+function s:Rcode_init(nr, lang) range
   if !has_key(s:lang2ft, a:lang)
     echohl ErrorMsg
     echo "Unsupported script language " . a:lang
@@ -39,7 +55,7 @@ function s:Console_init(nr, lang) range
   elseif a:lang == 'lua'
     lua b = vim.buffer()
   endif
-  rightbelow 7split [Console]
+  rightbelow 7split [Rcode]
   set buftype=nofile
   let &filetype = s:lang2ft[a:lang]
   %d "清除模板之类的东西
@@ -49,17 +65,17 @@ function s:Console_init(nr, lang) range
   let b:nr = a:nr
   let b:lang = a:lang
   nnoremap <buffer> <silent> q <C-W>c
-  nnoremap <buffer> <silent> <C-CR> :call <SID>Console_run()<CR>
-  inoremap <buffer> <silent> <C-CR> <Esc>:call <SID>Console_run()<CR>
+  nnoremap <buffer> <silent> <C-CR> :call <SID>Rcode_run()<CR>
+  inoremap <buffer> <silent> <C-CR> <Esc>:call <SID>Rcode_run()<CR>
   inoremap <buffer> <silent> <C-C> <Esc><C-W>c
-  command! -buffer Run call s:Console_run()
-  if has_key(g:Console_code, a:lang)
-    call setline(1, g:Console_code[a:lang])
+  command! -buffer Run call s:Rcode_run()
+  if has_key(g:Rcode_code, a:lang)
+    call setline(1, g:Rcode_code[a:lang])
   else
     startinsert
   endif
 endfunction
-function s:Console_run()
+function s:Rcode_run()
   let self = winnr()
   let lang = b:lang
   let firstline = b:firstline
@@ -89,18 +105,18 @@ function s:Console_run()
   endif
   exe self.'wincmd w'
 
-  if !exists("g:Console_after") || g:Console_after == 1 "close
-    let g:Console_code[lang] = getline(1, '$')
+  if !exists("g:Rcode_after") || g:Rcode_after == 1 "close
+    let g:Rcode_code[lang] = getline(1, '$')
     q
-  elseif g:Console_after == 2 "empty
+  elseif g:Rcode_after == 2 "empty
     %d
-  elseif g:Console_after == 0 "do nothing
+  elseif g:Rcode_after == 0 "do nothing
   endif
 endfunction
 " ---------------------------------------------------------------------
 " Commands:
-command -nargs=1 -complete=customlist,s:Console_complete -range=%
-      \ Console <line1>,<line2>call s:Console_init(winnr(), <q-args>)
+command -nargs=1 -complete=customlist,s:Rcode_complete -range=%
+      \ Rcode <line1>,<line2>call s:Rcode_init(winnr(), <q-args>)
 " ---------------------------------------------------------------------
 "  Restoration And Modelines:
 let &cpo= s:keepcpo
