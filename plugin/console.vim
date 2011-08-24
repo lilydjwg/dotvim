@@ -89,12 +89,12 @@ function s:Console_run()
   endif
   exe self.'wincmd w'
 
-  if !exists("g:Console_after") || g:Console_after == 1 "关闭
+  if !exists("g:Console_after") || g:Console_after == 1 "close
     let g:Console_code[lang] = getline(1, '$')
     q
-  elseif g:Console_after == 2 "清空
+  elseif g:Console_after == 2 "empty
     %d
-  elseif g:Console_after == 0 "无动作
+  elseif g:Console_after == 0 "do nothing
   endif
 endfunction
 " ---------------------------------------------------------------------
