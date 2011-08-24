@@ -447,24 +447,30 @@ else
     " 在不同模式下使用不同颜色的光标
     set cursorline
     colorscheme pink_lily
+    let color_normal = 'HotPink'
+    let color_insert = 'RoyalBlue1'
+    let color_exit = 'green'
     if &term =~ "xterm\|rxvt"
-      silent !echo -ne "\e]12;HotPink\007"
-      let &t_SI="\e]12;RoyalBlue1\007"
-      let &t_EI="\e]12;HotPink\007"
-      autocmd VimLeave * :!echo -ne "\e]12;green\007"
+      exe 'silent !echo -ne "\e]12;"' . color_normal . '"\007"'
+      let &t_SI="\e]12;" . color_insert . "\007"
+      let &t_EI="\e]12;" . color_normal . "\007"
+      exe 'autocmd VimLeave * :!echo -ne "\e]12;"' . color_exit . '"\007"'
     elseif &term =~ "screen"
       if exists('$TMUX')
-	silent !echo -ne "\033Ptmux;\033\e]12;HotPink\007\033\\"
-	let &t_SI="\033Ptmux;\033\e]12;RoyalBlue1\007\033\\"
-	let &t_EI="\033Ptmux;\033\e]12;HotPink\007\033\\"
-	autocmd VimLeave * :!echo -ne "\033Ptmux;\033\e]12;green\007\033\\"
+	exe 'silent !echo -ne "\033Ptmux;\033\e]12;"' . color_normal . '"\007\033\\"'
+	let &t_SI="\033Ptmux;\033\e]12;" . color_insert . "\007\033\\"
+	let &t_EI="\033Ptmux;\033\e]12;" . color_normal . "\007\033\\"
+	exe 'autocmd VimLeave * :!echo -ne "\033Ptmux;\033\e]12;"' . color_exit . '"\007\033\\"'
       else
-	silent !echo -ne "\033P\e]12;HotPink\007\033\\"
-	let &t_SI="\033P\e]12;RoyalBlue1\007\033\\"
-	let &t_EI="\033P\e]12;HotPink\007\033\\"
-	autocmd VimLeave * :!echo -ne "\033P\e]12;green\007\033\\"
+	exe 'silent !echo -ne "\033P\e]12;"' . color_normal . '"\007\033\\"'
+	let &t_SI="\033P\e]12;" . color_insert . "\007\033\\"
+	let &t_EI="\033P\e]12;" . color_normal . "\007\033\\"
+	exe 'autocmd VimLeave * :!echo -ne "\033P\e]12;"' . color_exit . '"\007\033\\"'
       endif
     endif
+    unlet color_normal
+    unlet color_insert
+    unlet color_exit
   else
     " 暂时只有这个配色比较适合了
     colorscheme default
