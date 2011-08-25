@@ -474,16 +474,21 @@ else
     unlet color_insert
     unlet color_exit
   else
-    " 暂时只有这个配色比较适合了
-    colorscheme default
-    " 在终端下自动加载vimim输入法
-    runtime so/vimim.vim
     " 在Linux文本终端下非插入模式显示块状光标
     if &term == "linux" || &term == "fbterm"
        set t_ve+=[?6c
        autocmd InsertEnter * set t_ve-=[?6c
        autocmd InsertLeave * set t_ve+=[?6c
        " autocmd VimLeave * set t_ve-=[?6c
+    endif
+    if &term == "fbterm"
+      set cursorline
+      colorscheme pink_lily
+    else
+      " 暂时只有这个配色比较适合了
+      colorscheme default
+      " 在终端下自动加载vimim输入法
+      runtime so/vimim.vim
     endif
   endif
 endif
