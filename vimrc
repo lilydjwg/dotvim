@@ -456,18 +456,16 @@ else
       let &t_EI="\e]12;" . color_normal . "\007"
       exe 'autocmd VimLeave * :!echo -ne "\e]12;"' . shellescape(color_exit, 1) . '"\007"'
     elseif &term =~ "screen"
-      if !exists('$SUDO_UID')
-	if exists('$TMUX')
-	  exe 'silent !echo -ne "\033Ptmux;\033\e]12;"' . shellescape(color_normal, 1) . '"\007\033\\"'
-	  let &t_SI="\033Ptmux;\033\e]12;" . color_insert . "\007\033\\"
-	  let &t_EI="\033Ptmux;\033\e]12;" . color_normal . "\007\033\\"
-	  exe 'autocmd VimLeave * :!echo -ne "\033Ptmux;\033\e]12;"' . shellescape(color_exit, 1) . '"\007\033\\"'
-	else
-	  exe 'silent !echo -ne "\033P\e]12;"' . shellescape(color_normal, 1) . '"\007\033\\"'
-	  let &t_SI="\033P\e]12;" . color_insert . "\007\033\\"
-	  let &t_EI="\033P\e]12;" . color_normal . "\007\033\\"
-	  exe 'autocmd VimLeave * :!echo -ne "\033P\e]12;"' . shellescape(color_exit, 1) . '"\007\033\\"'
-	endif
+      if exists('$TMUX')
+	exe 'silent !echo -ne "\033Ptmux;\033\e]12;"' . shellescape(color_normal, 1) . '"\007\033\\"'
+	let &t_SI="\033Ptmux;\033\e]12;" . color_insert . "\007\033\\"
+	let &t_EI="\033Ptmux;\033\e]12;" . color_normal . "\007\033\\"
+	exe 'autocmd VimLeave * :!echo -ne "\033Ptmux;\033\e]12;"' . shellescape(color_exit, 1) . '"\007\033\\"'
+      elseif !exists('$SUDO_UID') " or it may still be in tmux
+	exe 'silent !echo -ne "\033P\e]12;"' . shellescape(color_normal, 1) . '"\007\033\\"'
+	let &t_SI="\033P\e]12;" . color_insert . "\007\033\\"
+	let &t_EI="\033P\e]12;" . color_normal . "\007\033\\"
+	exe 'autocmd VimLeave * :!echo -ne "\033P\e]12;"' . shellescape(color_exit, 1) . '"\007\033\\"'
       endif
     endif
     unlet color_normal
@@ -476,10 +474,10 @@ else
   else
     " 在Linux文本终端下非插入模式显示块状光标
     if &term == "linux" || &term == "fbterm"
-       set t_ve+=[?6c
-       autocmd InsertEnter * set t_ve-=[?6c
-       autocmd InsertLeave * set t_ve+=[?6c
-       " autocmd VimLeave * set t_ve-=[?6c
+      set t_ve+=[?6c
+      autocmd InsertEnter * set t_ve-=[?6c
+      autocmd InsertLeave * set t_ve+=[?6c
+      " autocmd VimLeave * set t_ve-=[?6c
     endif
     if &term == "fbterm"
       set cursorline
