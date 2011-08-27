@@ -194,6 +194,9 @@ IDEAS							      *CountJump-ideas*
 ==============================================================================
 HISTORY							    *CountJump-history*
 
+1.41	13-Jun-2011
+- FIX: Directly ring the bell to avoid problems when running under :silent!. 
+
 1.40	20-Dec-2010
 - ENH: Added CountJump#Region#TextObject#Make() to easily define text objects
   for regions. 

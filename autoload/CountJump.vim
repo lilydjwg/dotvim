@@ -2,12 +2,14 @@
 "
 " DEPENDENCIES:
 "
-" Copyright: (C) 2009-2010 Ingo Karkat
+" Copyright: (C) 2009-2011 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'. 
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS 
+"   1.41.012	13-Jun-2011	FIX: Directly ring the bell to avoid problems
+"				when running under :silent!. 
 "   1.30.011	19-Dec-2010	Removed return value of jump position from
 "				CountJump#CountJump() and CountJump#JumpFunc();
 "				it isn't needed, as these functions are
@@ -90,11 +92,7 @@ function! CountJump#CountSearch( count, searchArguments )
 	    endif
 
 	    " Ring the bell to indicate that no further match exists. 
-	    "
-	    " As long as this mapping does not exist, it causes a beep in both
-	    " normal and visual mode. This is easier than the customary "normal!
-	    " \<Esc>", which only works in normal mode. 
-	    execute "normal \<Plug>RingTheBell"
+	    execute "normal! \<C-\>\<C-n>\<Esc>"
 
 	    return l:matchPosition
 	endif
