@@ -658,6 +658,7 @@ autocmd CmdwinEnter	* let s:cmdwin = 1
 autocmd CmdwinLeave	* let s:cmdwin = 0
 autocmd InsertLeave	* if s:cmdwin == 0 && pumvisible() == 0|pclose|endif
 autocmd BufReadCmd *.maff call zip#Browse(expand("<amatch>"))
+autocmd BufRead */WualaDrive/* setl noswapfile
 "   见 ft-syntax-omni
 if has("autocmd") && exists("+omnifunc")
   autocmd Filetype *
