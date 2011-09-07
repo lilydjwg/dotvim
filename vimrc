@@ -737,6 +737,7 @@ let gundo_preview_bottom = 1
 "   bufexplorer[[[2
 let g:bufExplorerFindActive = 0
 "   taglist[[[2
+let Tlist_Show_One_File = 1
 let tlist_vimwiki_settings = 'wiki;h:headers'
 let tlist_tex_settings = 'latex;h:headers'
 let tlist_wiki_settings = 'wiki;h:headers'
