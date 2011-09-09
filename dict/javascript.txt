@@ -43,3 +43,4 @@ true
 typeof
 undefined
 unshift
+innerHeight
