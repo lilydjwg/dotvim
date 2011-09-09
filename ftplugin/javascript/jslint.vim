@@ -51,10 +51,11 @@ if !exists(":JSLintToggle")
     \                  echo 'JSLint ' . ['enabled', 'disabled'][b:jslint_disabled] . '.'
 endif
 
-noremap <buffer><silent> dd dd:JSLintUpdate<CR>
-noremap <buffer><silent> dw dw:JSLintUpdate<CR>
-noremap <buffer><silent> u u:JSLintUpdate<CR>
-noremap <buffer><silent> <C-R> <C-R>:JSLintUpdate<CR>
+nnoremap <buffer><silent> dd dd:JSLintUpdate<CR>
+nnoremap <buffer><silent> dw dw:JSLintUpdate<CR>
+vnoremap <buffer><silent> d d:JSLintUpdate<CR>
+nnoremap <buffer><silent> u u:JSLintUpdate<CR>
+nnoremap <buffer><silent> <C-R> <C-R>:JSLintUpdate<CR>
 
 " Set up command and parameters
 if has("win32")
