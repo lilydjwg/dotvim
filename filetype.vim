@@ -8,6 +8,7 @@ endif
 
 augroup filetypedetect
   au BufNewFile,BufRead *.rj				setf rj
+  au BufNewFile,BufRead *.jsm				setf javascript
   au BufNewFile,BufRead *.json				setf json
   au BufNewFile,BufRead *.lrc				setf lrc
   au BufNewFile,BufRead *.s,*.S				setf gas
