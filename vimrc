@@ -352,6 +352,7 @@ set fileformats=unix,dos,mac
 set formatoptions=croqn2mB1
 set nojoinspaces
 set virtualedit=block
+set nostartofline
 " set guioptions=egmrLtai
 set guioptions=acit
 set mousemodel=popup
@@ -522,7 +523,6 @@ nmap <F5> :e!<CR>
 "     t 开头 [[[3
 nmap <silent> tt :tabnew<CR>
 nmap t= mxHmygg=G`yzt`x
-nmap t{ A{{{1<ESC>
 nmap ta ggVG
 nmap <silent> tf :call Lilydjwg_open_url()<CR>
 "     清除高亮
