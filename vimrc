@@ -444,9 +444,12 @@ else
   set t_fs=(B
   set t_IE=(B
   if &term =~ "256color"
-    " 在不同模式下使用不同颜色的光标
     set cursorline
     colorscheme pink_lily
+  endif
+  " 在不同模式下使用不同颜色的光标
+  " 不要在 ssh 下使用
+  if &term =~ "256color" && !exists('$SSH_TTY')
     let color_normal = 'HotPink'
     let color_insert = 'RoyalBlue1'
     let color_exit = 'green'
