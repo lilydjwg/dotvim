@@ -107,3 +107,12 @@ cairo_save
 g_warning
 g_list_prepend
 gboolean
+namespace
+using
+gtk_color_selection_dialog_get_color_selection
+GTK_COLOR_SELECTION
+gtk_progress_bar_set_inverted
+gtk_progress_bar_get_inverted
+gdk_window_get_height
+gdk_window_get_width
+gdk_pixbuf_get_from_window
