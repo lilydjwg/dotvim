@@ -3357,10 +3357,8 @@ function! s:setupSyntaxHighlighting()
     execute "syn match treeUp #". s:tree_up_dir_line ."#"
 
     "highlighting for the ~/+ symbols for the directory nodes
-    syn match treeClosable #\~\<#
-    syn match treeClosable #\~\.#
-    syn match treeOpenable #+\<#
-    syn match treeOpenable #+\.#he=e-1
+    syn match treeClosable #\%(^[ |`]\+\)\@<=\~#
+    syn match treeOpenable #\%(^[ |`]\+\)\@<=+#
 
     "highlighting for the tree structural parts
     syn match treePart #|#
