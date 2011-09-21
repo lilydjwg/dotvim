@@ -316,6 +316,7 @@ VimExplorer-todo	vimExplorer.txt	/*VimExplorer-todo*
 VimExplorer-treebrowse	vimExplorer.txt	/*VimExplorer-treebrowse*
 VimExplorer-treehotkey	vimExplorer.txt	/*VimExplorer-treehotkey*
 VimwikiWeblinkHandler	vimwiki.txt	/*VimwikiWeblinkHandler*
+ZoomWin.txt	ZoomWin.txt	/*ZoomWin.txt*
 [%	matchit.txt	/*[%*
 ]%	matchit.txt	/*]%*
 abolish	abolish.txt	/*abolish*
@@ -1167,3 +1168,8 @@ yS	surround.txt	/*yS*
 ySS	surround.txt	/*ySS*
 ys	surround.txt	/*ys*
 yss	surround.txt	/*yss*
+zoomwin	ZoomWin.txt	/*zoomwin*
+zoomwin-copyright	ZoomWin.txt	/*zoomwin-copyright*
+zoomwin-history	ZoomWin.txt	/*zoomwin-history*
+zoomwin-setup	ZoomWin.txt	/*zoomwin-setup*
+zoomwin-usage	ZoomWin.txt	/*zoomwin-usage*
