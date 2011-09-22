@@ -79,7 +79,7 @@ elseif &filetype == 'xhtml'
 en
 
 let b:undo_ftplugin = "setlocal cms< isk<"
-  \ . "| unlet b:match_ignorecase b:match_words"
+  \ . "| unlet! b:match_ignorecase b:match_words"
 
 
 
