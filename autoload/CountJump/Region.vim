@@ -2,12 +2,14 @@
 "
 " DEPENDENCIES:
 "
-" Copyright: (C) 2010 Ingo Karkat
+" Copyright: (C) 2010-2011 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'. 
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS 
+"   1.41.009	13-Jun-2011	FIX: Directly ring the bell to avoid problems
+"				when running under :silent!. 
 "   1.40.008	20-Dec-2010	Jump functions again return position (and
 "				actual, corrected one for a:isToEndOfLine).
 "				Though the position is not used for motions, it
@@ -63,11 +65,7 @@
 function! s:DoJump( position, isToEndOfLine )
     if a:position == [0, 0]
 	" Ring the bell to indicate that no further match exists. 
-	"
-	" As long as this mapping does not exist, it causes a beep in both
-	" normal and visual mode. This is easier than the customary "normal!
-	" \<Esc>", which only works in normal mode. 
-	execute "normal \<Plug>RingTheBell"
+	execute "normal! \<C-\>\<C-n>\<Esc>"
     else
 	call setpos('.', [0] + a:position + [0])
 	if a:isToEndOfLine

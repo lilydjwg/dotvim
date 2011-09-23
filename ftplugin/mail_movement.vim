@@ -3,12 +3,14 @@
 " DEPENDENCIES:
 "   - CountJump/Region.vim, CountJump/TextObjects.vim autoload scripts. 
 "
-" Copyright: (C) 2010 by Ingo Karkat
+" Copyright: (C) 2010-2011 by Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'. 
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS 
+"   1.53.008	13-Jun-2011	FIX: Directly ring the bell to avoid problems
+"				when running under :silent!. 
 "   1.52.007	20-Dec-2010	Adapted to CountJump#Region#JumpToNextRegion()
 "				again returning jump position in version 1.40. 
 "   1.51.006	19-Dec-2010	ENH: ][ mapping in operator-pending and visual
@@ -130,11 +132,7 @@ function! s:JumpToQuotedRegionOrSeparator( count, pattern, step, isAcrossRegion,
 	endif
     else
 	" Ring the bell to indicate that no further match exists. 
-	"
-	" As long as this mapping does not exist, it causes a beep in both
-	" normal and visual mode. This is easier than the customary "normal!
-	" \<Esc>", which only works in normal mode. 
-	execute "normal \<Plug>RingTheBell"
+	execute "normal! \<C-\>\<C-n>\<Esc>"
     endif
 endfunction
 function! s:JumpToBeginForward( mode )

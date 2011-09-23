@@ -8,6 +8,7 @@ endif
 
 augroup filetypedetect
   au BufNewFile,BufRead *.rj				setf rj
+  au BufNewFile,BufRead *.jsm				setf javascript
   au BufNewFile,BufRead *.json				setf json
   au BufNewFile,BufRead *.lrc				setf lrc
   au BufNewFile,BufRead *.s,*.S				setf gas
@@ -39,7 +40,8 @@ augroup filetypedetect
   au BufNewFile,BufRead	*.wiki				setf vimwiki
   au BufNewFile,BufRead $HOME/.vim/dict/*.txt,$VIM/vimfiles/dict/*.txt	setf dict
   au BufNewFile,BufRead /lib/udev/rules.d/*		setf udevrules
-  au BufNewFile,BufRead fcitx_skin.conf,*fcitx*/config	setf dosini
+  au BufNewFile,BufRead fcitx_skin.conf,*fcitx*/config,*/fcitx/*.conf	setf desktop
+  au BufNewFile,BufRead mimeapps.list			setf desktop
   au BufRead		*tmux.conf			setf tmux
   au BufRead		rc.conf				setf sh
   au BufRead		*.grf				setf dosini

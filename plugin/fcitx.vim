@@ -4,7 +4,7 @@ scriptencoding utf-8
 " Maintainer:   lilydjwg
 " ---------------------------------------------------------------------
 " Load Once:
-if &cp || exists("g:loaded_fcitx") || !exists('$DISPLAY')
+if &cp || exists("g:loaded_fcitx") || !exists('$DISPLAY') || exists('$SSH_TTY')
   finish
 endif
 if !has("python3")

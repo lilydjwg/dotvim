@@ -12,3 +12,4 @@ insertAfter
 prepend
 appendTo
 closest
+outerWidth

@@ -231,3 +231,9 @@ functools
 unicode_literals
 callable
 print_function
+pprint
+OrderedDict
+getLogger
+isatty
+curses
+binascii

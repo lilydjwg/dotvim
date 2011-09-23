@@ -9,7 +9,7 @@ scriptencoding utf-8
 "
 " 有任何意见和建议，或者其它想说的，可以到我的博客留言。
 "
-" 许可：GFDL
+" 许可：GPLv3
 " ========================================================================
 " 其他文件[[[1
 runtime vimrc_example.vim
@@ -352,6 +352,7 @@ set fileformats=unix,dos,mac
 set formatoptions=croqn2mB1
 set nojoinspaces
 set virtualedit=block
+set nostartofline
 " set guioptions=egmrLtai
 set guioptions=acit
 set mousemodel=popup
@@ -444,33 +445,8 @@ else
   set t_fs=(B
   set t_IE=(B
   if &term =~ "256color"
-    " 在不同模式下使用不同颜色的光标
     set cursorline
     colorscheme pink_lily
-    let color_normal = 'HotPink'
-    let color_insert = 'RoyalBlue1'
-    let color_exit = 'green'
-    if &term =~ 'xterm\|rxvt'
-      exe 'silent !echo -ne "\e]12;"' . shellescape(color_normal, 1) . '"\007"'
-      let &t_SI="\e]12;" . color_insert . "\007"
-      let &t_EI="\e]12;" . color_normal . "\007"
-      exe 'autocmd VimLeave * :!echo -ne "\e]12;"' . shellescape(color_exit, 1) . '"\007"'
-    elseif &term =~ "screen"
-      if exists('$TMUX')
-	exe 'silent !echo -ne "\033Ptmux;\033\e]12;"' . shellescape(color_normal, 1) . '"\007\033\\"'
-	let &t_SI="\033Ptmux;\033\e]12;" . color_insert . "\007\033\\"
-	let &t_EI="\033Ptmux;\033\e]12;" . color_normal . "\007\033\\"
-	exe 'autocmd VimLeave * :!echo -ne "\033Ptmux;\033\e]12;"' . shellescape(color_exit, 1) . '"\007\033\\"'
-      elseif !exists('$SUDO_UID') " or it may still be in tmux
-	exe 'silent !echo -ne "\033P\e]12;"' . shellescape(color_normal, 1) . '"\007\033\\"'
-	let &t_SI="\033P\e]12;" . color_insert . "\007\033\\"
-	let &t_EI="\033P\e]12;" . color_normal . "\007\033\\"
-	exe 'autocmd VimLeave * :!echo -ne "\033P\e]12;"' . shellescape(color_exit, 1) . '"\007\033\\"'
-      endif
-    endif
-    unlet color_normal
-    unlet color_insert
-    unlet color_exit
   else
     " 在Linux文本终端下非插入模式显示块状光标
     if &term == "linux" || &term == "fbterm"
@@ -488,6 +464,34 @@ else
       " 在终端下自动加载vimim输入法
       runtime so/vimim.vim
     endif
+  endif
+  " 在不同模式下使用不同颜色的光标
+  " 不要在 ssh 下使用
+  if &term =~ "256color" && !exists('$SSH_TTY')
+    let color_normal = 'HotPink'
+    let color_insert = 'RoyalBlue1'
+    let color_exit = 'green'
+    if &term =~ 'xterm\|rxvt'
+      exe 'silent !echo -ne "\e]12;"' . shellescape(color_normal, 1) . '"\007"'
+      let &t_SI="\e]12;" . color_insert . "\007"
+      let &t_EI="\e]12;" . color_normal . "\007"
+      exe 'autocmd VimLeave * :silent !echo -ne "\e]12;"' . shellescape(color_exit, 1) . '"\007"'
+    elseif &term =~ "screen"
+      if exists('$TMUX')
+	exe 'silent !echo -ne "\033Ptmux;\033\e]12;"' . shellescape(color_normal, 1) . '"\007\033\\"'
+	let &t_SI="\033Ptmux;\033\e]12;" . color_insert . "\007\033\\"
+	let &t_EI="\033Ptmux;\033\e]12;" . color_normal . "\007\033\\"
+	exe 'autocmd VimLeave * :silent !echo -ne "\033Ptmux;\033\e]12;"' . shellescape(color_exit, 1) . '"\007\033\\"'
+      elseif !exists('$SUDO_UID') " or it may still be in tmux
+	exe 'silent !echo -ne "\033P\e]12;"' . shellescape(color_normal, 1) . '"\007\033\\"'
+	let &t_SI="\033P\e]12;" . color_insert . "\007\033\\"
+	let &t_EI="\033P\e]12;" . color_normal . "\007\033\\"
+	exe 'autocmd VimLeave * :silent !echo -ne "\033P\e]12;"' . shellescape(color_exit, 1) . '"\007\033\\"'
+      endif
+    endif
+    unlet color_normal
+    unlet color_insert
+    unlet color_exit
   endif
 endif
 " 不同的 Vim 版本 [[[2
@@ -519,7 +523,6 @@ nmap <F5> :e!<CR>
 "     t 开头 [[[3
 nmap <silent> tt :tabnew<CR>
 nmap t= mxHmygg=G`yzt`x
-nmap t{ A{{{1<ESC>
 nmap ta ggVG
 nmap <silent> tf :call Lilydjwg_open_url()<CR>
 "     清除高亮
@@ -660,6 +663,7 @@ autocmd CmdwinEnter	* let s:cmdwin = 1
 autocmd CmdwinLeave	* let s:cmdwin = 0
 autocmd InsertLeave	* if s:cmdwin == 0 && pumvisible() == 0|pclose|endif
 autocmd BufReadCmd *.maff call zip#Browse(expand("<amatch>"))
+autocmd BufRead */WualaDrive/* setl noswapfile
 "   见 ft-syntax-omni
 if has("autocmd") && exists("+omnifunc")
   autocmd Filetype *
@@ -738,6 +742,7 @@ let gundo_preview_bottom = 1
 "   bufexplorer[[[2
 let g:bufExplorerFindActive = 0
 "   taglist[[[2
+let Tlist_Show_One_File = 1
 let tlist_vimwiki_settings = 'wiki;h:headers'
 let tlist_tex_settings = 'latex;h:headers'
 let tlist_wiki_settings = 'wiki;h:headers'
