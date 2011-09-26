@@ -714,6 +714,37 @@ command MusicSelect runtime so/musicselect.vim
 command -nargs=1 -range -complete=customlist,Lilydjwg_Align_complete LA <line1>,<line2>call Lilydjwg_Align("<args>")
 command -range=% Paste <line1>,<line2>w !curl -F 'vimcn=<-' http://p.vim-cn.com
 " 其它命令[[[1
+"   cycle[[[2
+"   https://github.com/lilydjwg/vim-cycle
+nmap <silent> <C-X> <Plug>CyclePrev
+vmap <silent> <C-X> <Plug>CyclePrev
+nmap <silent> <C-A> <Plug>CycleNext
+vmap <silent> <C-A> <Plug>CycleNext
+let g:cycle_no_mappings = 1
+let g:cycle_default_groups = [
+      \ [['true', 'false']],
+      \ [['yes', 'no']],
+      \ [['on', 'off']],
+      \ [['+', '-']],
+      \ [['>', '<']],
+      \ [['==', '!=']],
+      \ [['0', '1']],
+      \ [['是', '否']],
+      \ [["in", "out"]],
+      \ [["min", "max"]],
+      \ [["get", "post"]],
+      \ [["to", "from"]],
+      \ [["read", "write"]],
+      \ [['with', 'without']],
+      \ [["exclude", "include"]],
+      \ [["asc", "desc"]],
+      \ [["next", "prev"]],
+      \ [["encode", "decode"]],
+      \ [['{:}', '[:]', '(:)'], 'sub_pairs'],
+      \ [['（:）', '「:」', '『:』'], 'sub_pairs'],
+      \ [['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday',
+      \ 'Friday', 'Saturday'], 'hard_case', {'name': 'Days'}],
+      \ ]
 "   Erlang[[[2
 let g:erlangHighlightBif = 1
 let g:erlangFold = 1
