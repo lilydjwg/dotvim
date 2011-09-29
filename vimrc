@@ -332,7 +332,7 @@ function Lilydjwg_edit_diary()
 endfunction
 "  是否该调用 cycle？[[[2
 function Lilydjwg_trycycle(dir)
-  let pat = Lilydjwg_get_pattern_at_cursor('\d\+')
+  let pat = Lilydjwg_get_pattern_at_cursor('[+-]\?\d\+')
   if pat
     if a:dir ==? 'x'
       return "\<C-X>"
@@ -740,7 +740,6 @@ let g:cycle_default_groups = [
       \ [['true', 'false']],
       \ [['yes', 'no']],
       \ [['on', 'off']],
-      \ [['+', '-']],
       \ [['>', '<']],
       \ [['==', '!=']],
       \ [['0', '1']],
