@@ -124,6 +124,7 @@ syn keyword pythonStatement	def class nextgroup=pythonFunction skipwhite
 syn match   pythonFunction	"\%([^[:cntrl:][:space:][:punct:][:digit:]]\|_\)\%([^[:cntrl:][:punct:][:space:]]\|_\)*" display contained
 syn keyword pythonRepeat	for while
 syn keyword pythonConditional	if elif else
+syn keyword pythonInclude	import from
 syn keyword pythonPreCondit	import from
 syn keyword pythonException	try except finally
 syn keyword pythonOperator	and in is not or
