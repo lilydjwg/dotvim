@@ -735,6 +735,8 @@ nnoremap <expr> <silent> <C-X> Lilydjwg_trycycle('x')
 vnoremap <expr> <silent> <C-X> Lilydjwg_trycycle('x')
 nnoremap <expr> <silent> <C-A> Lilydjwg_trycycle('p')
 vnoremap <expr> <silent> <C-A> Lilydjwg_trycycle('p')
+nnoremap <Plug>CycleFallbackNext <C-A>
+nnoremap <Plug>CycleFallbackPrev <C-X>
 let g:cycle_no_mappings = 1
 let g:cycle_default_groups = [
       \ [['true', 'false']],
