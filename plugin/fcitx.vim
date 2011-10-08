@@ -7,9 +7,13 @@ scriptencoding utf-8
 if &cp || exists("g:loaded_fcitx") || !exists('$DISPLAY') || exists('$SSH_TTY')
   finish
 endif
-if !has("python3")
+if has("python3")
+  let python3 = 1
+elseif has("python")
+  let python3 = 0
+else
   echohl WarningMsg
-  echomsg "fcitx.vim: 没有 Python3 支持，尝试使用旧版本。"
+  echomsg "fcitx.vim: 没有 Python 支持，尝试使用旧版本。"
   echohl None
   runtime so/fcitx.vim
   finish
@@ -33,58 +37,20 @@ if !filewritable(s:fcitxsocketfile) "try again
   endif
 endif
 let g:loaded_fcitx = 1
-" ---------------------------------------------------------------------
-" Functions:
-python3 <<ENDPYTHON
-import os
-import vim
-import socket
-import struct
-FCITX_STATUS = struct.pack('i', 0)
-FCITX_OPEN   = struct.pack('i', 1 | (1 << 16))
-FCITX_CLOSE  = struct.pack('i', 1)
-INT_SIZE     = struct.calcsize('i')
-fcitxsocketfile = vim.eval('s:fcitxsocketfile')
-
-def fcitxtalk(command=None):
-  sock = socket.socket(socket.AF_UNIX)
-  try:
-    sock.connect(fcitxsocketfile)
-  except socket.error:
-    vim.command('echohl WarningMsg | echo "fcitx.vim: socket 连接出错" | echohl NONE')
-    return
-  try:
-    if not command:
-      sock.send(FCITX_STATUS)
-      return struct.unpack('i', sock.recv(INT_SIZE))[0]
-    elif command == 'c':
-      sock.send(FCITX_CLOSE)
-    elif command == 'o':
-      sock.send(FCITX_OPEN)
-    else:
-      raise ValueError('未知命令')
-  finally:
-    sock.close()
-
-def fcitx2en():
-  if fcitxtalk() == 2:
-    vim.command('let b:inputtoggle = 1')
-    fcitxtalk('c')
-
-def fcitx2zh():
-  if vim.eval('exists("b:inputtoggle")') == '1':
-    if vim.eval('b:inputtoggle') == '1':
-      fcitxtalk('o')
-      vim.command('let b:inputtoggle = 0')
-  else:
-    vim.command('let b:inputtoggle = 0')
-ENDPYTHON
-" ---------------------------------------------------------------------
-" Autocmds:
-au InsertLeave * py3 fcitx2en()
-au InsertEnter * py3 fcitx2zh()
+let pyfile = expand('<sfile>:r') . '.py'
+if python3
+  exe 'py3file' pyfile
+  au InsertLeave * py3 fcitx2en()
+  au InsertEnter * py3 fcitx2zh()
+else
+  exe 'pyfile' pyfile
+  au InsertLeave * py fcitx2en()
+  au InsertEnter * py fcitx2zh()
+endif
 " ---------------------------------------------------------------------
 "  Restoration And Modelines:
+unlet python3
+unlet pyfile
 let &cpo=s:keepcpo
 unlet s:keepcpo
 " vim:fdm=expr:fde=getline(v\:lnum-1)=~'\\v"\\s*-{20,}'?'>1'\:1
