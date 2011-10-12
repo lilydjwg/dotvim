@@ -542,6 +542,8 @@ nmap ta ggVG
 nmap <silent> tf :call Lilydjwg_open_url()<CR>
 "     清除高亮
 nmap <silent> th :nohls<CR>
+"     less style
+nmap <silent> <M-u> :nohls<CR>
 nmap tj Jx
 nmap tl ^v$h
 nmap <silent> to :call append('.', '')<CR>j
