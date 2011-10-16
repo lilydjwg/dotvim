@@ -454,7 +454,7 @@ if has("gui_running")
   set number
   set cursorline
   colorscheme pink_lily
-else
+elseif has("unix")
   set ambiwidth=single
   " 防止退出时终端乱码
   " 这里两者都需要。只前者标题会重复，只后者会乱码
