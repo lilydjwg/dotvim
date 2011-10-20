@@ -1,4 +1,5 @@
 TEXT_NODE
+textContent
 addEventListener
 appendChild
 childElementCount
