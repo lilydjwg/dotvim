@@ -592,6 +592,7 @@ nmap cd :silent lcd %:p:h<CR>:echo expand('%:p:h')<CR>
 nmap gb :setl fenc=gb18030<CR>
 nmap d<CR> :%s/\r//eg<CR>``
 nmap cac :call Lilydjwg_changeColor()<CR>
+nmap gl :IndentGuidesToggle<CR>
 "   imap [[[2
 inoremap <S-CR> <CR>    
 inoremap <M-c> <C-R>=Lilydjwg_colorpicker()<CR>
