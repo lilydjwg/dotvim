@@ -180,7 +180,7 @@ function Lilydjwg_chmodx()
     if stridx(getfperm(f), 'x') != 2
       call system("chmod +x ".shellescape(f))
       e!
-      syntax on
+      filetype detect
       nmap <buffer> <S-F5> :!%:p<CR>
     endif
   endif
