@@ -1,7 +1,7 @@
 "=============================================================================
-" FILE: snippets.vim
-" AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 23 Jun 2011.
+" FILE: util.vim
+" AUTHOR: Shougo Matsushita <Shougo.Matsu@gmail.com>
+" Last Modified: 12 Jul 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -27,16 +27,45 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-if !exists('b:undo_ftplugin')
-    let b:undo_ftplugin = ''
-endif
+let s:V = vital#of('neocomplcache')
 
-setlocal expandtab
-setlocal shiftwidth=4
-setlocal softtabstop=4
-setlocal tabstop=4
+function! neocomplcache#util#truncate_smart(...)"{{{
+  return call(s:V.truncate_smart, a:000)
+endfunction"}}}
 
-let b:undo_ftplugin .= '
-    \ | setlocal expandtab< shiftwidth< softtabstop< tabstop<
-    \'
+function! neocomplcache#util#truncate(...)"{{{
+  return call(s:V.truncate, a:000)
+endfunction"}}}
 
+function! neocomplcache#util#strchars(...)"{{{
+  return call(s:V.strchars, a:000)
+endfunction"}}}
+
+function! neocomplcache#util#wcswidth(...)"{{{
+  return call(s:V.wcswidth, a:000)
+endfunction"}}}
+function! neocomplcache#util#strwidthpart(...)"{{{
+  return call(s:V.strwidthpart, a:000)
+endfunction"}}}
+function! neocomplcache#util#strwidthpart_reverse(...)"{{{
+  return call(s:V.strwidthpart_reverse, a:000)
+endfunction"}}}
+
+function! neocomplcache#util#mb_strlen(...)"{{{
+  return call(s:V.strchars, a:000)
+endfunction"}}}
+function! neocomplcache#util#uniq(list)"{{{
+  let l:dict = {}
+  for l:item in a:list
+    if !has_key(l:dict, l:item)
+      let l:dict[l:item] = l:item
+    endif
+  endfor
+
+  return values(l:dict)
+endfunction"}}}
+
+let &cpo = s:save_cpo
+unlet s:save_cpo
+
+" vim: foldmethod=marker

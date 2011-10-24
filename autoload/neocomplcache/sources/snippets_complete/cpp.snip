@@ -1,0 +1,20 @@
+include c.snip
+
+snippet     template
+abbr        template <T>
+    template<typename ${1:T}> 
+
+snippet     class
+abbr        class {}
+    class ${1:name} {
+        ${2}
+    };
+
+snippet     try
+abbr        try catch
+    try {
+        ${1}
+    } catch (${2:exception}) {
+        ${3}
+    }
+

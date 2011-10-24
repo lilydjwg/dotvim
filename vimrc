@@ -733,6 +733,8 @@ command MusicSelect runtime so/musicselect.vim
 command -nargs=1 -range -complete=customlist,Lilydjwg_Align_complete LA <line1>,<line2>call Lilydjwg_Align("<args>")
 command -range=% Paste <line1>,<line2>w !curl -F 'vimcn=<-' http://p.vim-cn.com
 " 其它命令[[[1
+"   neocomplcache[[[2
+let g:neocomplcache_enable_at_startup = 1
 "   cycle[[[2
 "   https://github.com/lilydjwg/vim-cycle
 nnoremap <expr> <silent> <C-X> Lilydjwg_trycycle('x')

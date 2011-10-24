@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: snippets.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 23 Jun 2011.
+" Last Modified: 22 Apr 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -24,19 +24,38 @@
 " }}}
 "=============================================================================
 
+" Only load this indent file when no other was loaded.
+if exists('b:did_indent')
+  finish
+endif
+let b:did_indent = 1
+
 let s:save_cpo = &cpo
 set cpo&vim
 
-if !exists('b:undo_ftplugin')
-    let b:undo_ftplugin = ''
+if !exists('b:undo_indent')
+    let b:undo_indent = ''
 endif
 
-setlocal expandtab
-setlocal shiftwidth=4
-setlocal softtabstop=4
-setlocal tabstop=4
+setlocal indentexpr=SnippetsIndent()
 
-let b:undo_ftplugin .= '
-    \ | setlocal expandtab< shiftwidth< softtabstop< tabstop<
+function! SnippetsIndent()"{{{
+    let l:line = getline('.')
+    let l:prev_line = (line('.') == 1)? '' : getline(line('.')-1)
+
+    if l:prev_line =~ '^\s*$'
+        return 0
+    elseif l:prev_line =~ '^\%(include\|snippet\|abbr\|prev_word\|rank\|delete\|alias\|condition\)'
+                \&& l:line !~ '^\s*\%(include\|snippet\|abbr\|prev_word\|rank\|delete\|alias\|condition\)'
+        return &shiftwidth
+    else
+        return match(l:line, '\S')
+    endif
+endfunction"}}}
+
+let b:undo_indent .= '
+    \ | setlocal indentexpr<
     \'
 
+let &cpo = s:save_cpo
+unlet s:save_cpo

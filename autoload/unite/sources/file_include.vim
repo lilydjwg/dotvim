@@ -1,7 +1,8 @@
 "=============================================================================
-" FILE: snippets.vim
+" FILE: neocomplcache.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 23 Jun 2011.
+"          manga_osyo (Original)
+" Last Modified: 22 Apr 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -27,16 +28,46 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-if !exists('b:undo_ftplugin')
-    let b:undo_ftplugin = ''
-endif
+function! unite#sources#file_include#define()
+  return s:source
+endfunction
 
-setlocal expandtab
-setlocal shiftwidth=4
-setlocal softtabstop=4
-setlocal tabstop=4
+let s:source = {
+      \ 'name' : 'file_include',
+      \ 'description' : 'candidates from include files',
+      \ 'hooks' : {},
+      \}
+function! s:source.hooks.on_init(args, context)"{{{
+  " From neocomplcache include files.
+  let a:context.source__include_files =
+        \ neocomplcache#sources#include_complete#get_include_files(bufnr('%'))
+  let a:context.source__path = &path
+endfunction"}}}
 
-let b:undo_ftplugin .= '
-    \ | setlocal expandtab< shiftwidth< softtabstop< tabstop<
-    \'
+function! s:source.gather_candidates(args, context)"{{{
+  let l:files = map(a:context.source__include_files, '{
+        \ "word" : unite#util#substitute_path_separator(v:val),
+        \ "abbr" : unite#util#substitute_path_separator(v:val),
+        \ "source" : "file_include",
+        \ "kind" : "file",
+        \ "action__path" : v:val
+        \ }')
 
+  for word in l:files
+    " Path search.
+    for path in map(split(a:context.source__path, ','),
+          \ 'unite#util#substitute_path_separator(v:val)')
+      if path != '' && neocomplcache#head_match(word.word, path . '/')
+        let l:word.abbr = l:word.abbr[len(path)+1 : ]
+        break
+      endif
+    endfor
+  endfor
+
+  return l:files
+endfunction"}}}
+
+let &cpo = s:save_cpo
+unlet s:save_cpo
+
+" vim: foldmethod=marker
