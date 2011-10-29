@@ -888,11 +888,7 @@ if has("cscope") && executable("cscope")
   " add any database in current directory
   function Lilydjwg_csadd()
     set nocsverb
-    if filereadable(expand('%:h:p') . "/cscope.out")
-      exe 'cs add ' . expand('%:h:p') . '/cscope.out'
-    elseif filereadable(expand('%:h:p') . "/../cscope.out")
-      exe 'cs add ' . expand('%:h:p') . '/../cscope.out'
-    elseif filereadable("cscope.out")
+    if filereadable("cscope.out")
       cs add cscope.out
     endif
     set csverb
