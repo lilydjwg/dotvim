@@ -199,7 +199,7 @@ function! s:keyword_filter(list, cur_keyword_str)"{{{
   " Substitute abbr.
   let l:abbr_pattern = printf('%%.%ds..%%s', g:neocomplcache_max_keyword_width-10)
   for snippet in l:list
-    if snippet.snip =~ '\\\@<!`.*\\\@<!`'
+    if snippet.snip =~ '\\\@<!`=.*\\\@<!`'
       let snippet.menu = s:eval_snippet(snippet.snip)
 
       if g:neocomplcache_max_keyword_width >= 0 &&
