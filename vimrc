@@ -13,7 +13,6 @@ scriptencoding utf-8
 " ========================================================================
 " 其他文件[[[1
 runtime vimrc_example.vim
-runtime macros/matchit.vim
 "]]]
 " 我的设置
 " 函数[[[1
