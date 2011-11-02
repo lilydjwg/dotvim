@@ -25,3 +25,4 @@ endfunction
 
 imap <buffer> <M-g> <C-R>=<SID>getEncodedHeader("gb2312")<CR>
 imap <buffer> <M-u> <C-R>=<SID>getEncodedHeader("utf-8")<CR>
+imap <buffer> <M-a> Attach: <C-R>=input('Attach file: ', '', 'file')<CR>
