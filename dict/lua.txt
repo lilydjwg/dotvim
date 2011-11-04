@@ -11,3 +11,4 @@ coroutine
 resume
 tonumber
 tostring
+require

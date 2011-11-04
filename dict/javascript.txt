@@ -17,8 +17,10 @@ false
 function
 getSelection
 getTime
+history
 indexOf
 innerHTML
+innerHeight
 insertRule
 lastIndexOf
 length
@@ -27,8 +29,10 @@ mouseover
 onclick
 parseInt
 preventDefault
+pushState
 removeAttr
 replace
+replaceState
 require
 return
 selectorText
@@ -43,4 +47,3 @@ true
 typeof
 undefined
 unshift
-innerHeight
