@@ -460,7 +460,7 @@ elseif has("unix")
   " 这里两者都需要。只前者标题会重复，只后者会乱码
   set t_fs=(B
   set t_IE=(B
-  if &term =~ "256color" || $TERMCAP =~ 'Co#256'
+  if &term =~ "256color"
     set cursorline
     colorscheme pink_lily
   else
@@ -474,6 +474,10 @@ elseif has("unix")
     if &term == "fbterm"
       set cursorline
       set number
+      colorscheme pink_lily
+    elseif $TERMCAP =~ 'Co#256'
+      set t_Co=256
+      set cursorline
       colorscheme pink_lily
     else
       " 暂时只有这个配色比较适合了
