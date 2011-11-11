@@ -499,6 +499,9 @@ elseif has("unix")
       exe 'autocmd VimLeave * :silent !echo -ne "\e]12;"' . shellescape(color_exit, 1) . '"\007"'
     elseif &term =~ "screen"
       if exists('$TMUX')
+	if &ttymouse == 'xterm'
+	  set ttymouse=xterm2
+	endif
 	exe 'silent !echo -ne "\033Ptmux;\033\e]12;"' . shellescape(color_normal, 1) . '"\007\033\\"'
 	let &t_SI="\033Ptmux;\033\e]12;" . color_insert . "\007\033\\"
 	let &t_EI="\033Ptmux;\033\e]12;" . color_normal . "\007\033\\"
