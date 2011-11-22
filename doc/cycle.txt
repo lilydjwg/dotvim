@@ -14,6 +14,7 @@ CONTENTS                                                      *cycle-contents*
       General options  ..................... |cycle-general-options|
       Define groups  ....................... |cycle-define-groups|
       Group options ........................ |cycle-group-options|
+      Fallback mapping  .................... |cycle-fallback-mapping|
       Examples  ............................ |cycle-examples|
     Limitations  ........................... |cycle-limitations|
     Credits  ............................... |cycle-credits|
@@ -33,7 +34,7 @@ Define key mappings for |<Plug>CycleNext| in |Normal| and |Visual| modes: >
   nmap <silent> <Leader>a <Plug>CycleNext
   vmap <silent> <Leader>a <Plug>CycleNext
 < to replace text-under-cursor or visual-selected-text with their alternates.
-(this plugin defines <Leader>a as default)
+(This plugin defines <Leader>a as default)
 
 You can add [count] to pick candidate at further index, instead of next ONE.
 You can map |<Plug>CyclePrev| (Prev, not Next) to cycle in reverse direction.
@@ -276,6 +277,24 @@ By default no options are set.
   Internal usage only, don't set them.
 
 ------------------------------------------------------------------------------
+Fallback mapping                                      *cycle-fallback-mapping*
+
+When |<Plug>CycleNext| or |<Plug>CyclePrev| fails to find any matched
+alternates, some key sequences can be set as fallbacks.
+                                                     *<Plug>CycleFallbackNext*
+                                                     *<Plug>CycleFallbackPrev*
+For example, define below mappings: >
+  noremap <silent> <Plug>CycleFallbackNext <C-A>
+  noremap <silent> <Plug>CycleFallbackPrev <C-X>
+< then Vim defult |Ctrl-A| (adding) or |Ctrl-X| (subtracting) will be
+performed, if there were nothing to cycle.
+
+Note that you will have to use |map| instead of |noremap| if the fallback key
+needs further remapping. e.g.: >
+  map <silent> <Plug>CycleFallbackNext <Plug>SpeedDatingUp
+<
+
+------------------------------------------------------------------------------
 Configuration examples:                                 *cycle-config-examples*
 
 General options:
@@ -283,8 +302,16 @@ General options:
     let g:cycle_no_mappings = 1
     let g:cycle_max_conflict = 1
     let g:cycle_phased_search = 1
+<
+
+Key mappings:
+>
     nmap <silent> <LocalLeader>a <Plug>CycleNext
     vmap <silent> <LocalLeader>a <Plug>CycleNext
+    nmap <silent> <Leader>a <Plug>CyclePrev
+    vmap <silent> <Leader>a <Plug>CyclePrev
+    noremap <silent> <Plug>CycleFallbackNext <C-A>
+    noremap <silent> <Plug>CycleFallbackPrev <C-X>
 <
 
 Default global groups:
@@ -293,22 +320,24 @@ Default global groups:
           \   [['true', 'false']],
           \   [['yes', 'no']],
           \   [['on', 'off']],
-          \   [['and', 'or']],
           \   [['+', '-']],
           \   [['>', '<']],
           \   [['"', "'"]],
           \   [['==', '!=']],
           \   [['0', '1']],
-          \   [['是', '否']],
+          \   [['and', 'or']],
           \   [["in", "out"]],
+          \   [["up", "down"]],
           \   [["min", "max"]],
-          \   [["get", "post"]],
+          \   [["get", "set"]],
+          \   [["add", "remove"]],
           \   [["to", "from"]],
           \   [["read", "write"]],
           \   [["only", "except"]],
-          \   [['with', 'without']],
+          \   [['without', 'with']],
           \   [["exclude", "include"]],
           \   [["asc", "desc"]],
+          \   [['是', '否']],
           \   [['{:}', '[:]', '(:)'], 'sub_pairs'],
           \   [['（:）', '「:」', '『:』'], 'sub_pairs'],
           \   [['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday',
@@ -323,7 +352,6 @@ Default global groups:
           \   [["begin", "end"]],
           \   [["foreign_key", "primary_key"]],
           \   [["inspect", "to_yaml"]],
-          \   [["add_column", "remove_column"]],
           \ ]
 
     " CSS
@@ -342,7 +370,7 @@ Default global groups:
     let g:cycle_default_groups += [
           \   [['h1', 'h2', 'h3'], 'sub_tag'],
           \   [['ul', 'ol'], 'sub_tag'],
-          \   [['em', 'strong', 'i', 's', 'del', 'small'], 'sub_tag'],
+          \   [['em', 'strong', 'small'], 'sub_tag'],
           \ ]
 <
 

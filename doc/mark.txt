@@ -55,14 +55,15 @@ HIGHLIGHTING						   *mark-highlighting*
 {Visual}<Leader>m	Mark or unmark the visual selection. 
 						     *<Leader>r* *v_<Leader>r*
 <Leader>r		Manually input a regular expression to mark. 
-{Visual}<Leader>r	(Based on the visual selection.) 
+{Visual}<Leader>r	Ditto, based on the visual selection. 
 
 			In accordance with the built-in |star| command,
 			all these mappings use 'ignorecase', but not
 			'smartcase'. 
 								   *<Leader>n*
 <Leader>n		Clear the mark under the cursor.
-			If not on a mark: Clear all marks. 
+			If not on a mark: Disable all marks, similar to
+			|:nohlsearch|. 
 
 			Note: Marks that span multiple lines are not detected,
 			so the use of <Leader>n on such a mark will
@@ -73,7 +74,13 @@ HIGHLIGHTING						   *mark-highlighting*
 :Mark {pattern}		Mark or unmark {pattern}. 
 			For implementation reasons, {pattern} cannot use the
 			'smartcase' setting, only 'ignorecase'. 
-:Mark			Clear all marks. 
+:Mark			Disable all marks, similar to |:nohlsearch|. Marks
+			will automatically re-enable when a mark is added or
+			removed, or a search for marks is performed. 
+								  *:MarkClear*
+:MarkClear		Clear all marks. In contrast to disabling marks, the
+			actual mark information is cleared, the next mark will
+			use the first highlight group. This cannot be undone. 
 
 
 SEARCHING						      *mark-searching*
@@ -109,16 +116,47 @@ SEARCHING						      *mark-searching*
 			You can use Vim's |jumplist| to go back to previous
 			mark matches and the position before a mark search. 
 
+MARK PERSISTENCE					    *mark-persistence*
+
+The marks can be kept and restored across Vim sessions, using the |viminfo|
+file. For this to work, the "!" flag must be part of the 'viminfo' setting: >
+    set viminfo+=!  " Save and restore global variables. 
+<								   *:MarkLoad*
+:MarkLoad		Restore the marks from the previous Vim session. All
+			current marks are discarded. 
+								   *:MarkSave*
+:MarkSave		Save the currently defined marks (or clear the
+			persisted marks if no marks are currently defined) for
+			use in a future Vim session. 
+
+By default, automatic persistence is enabled (so you don't need to explicitly
+|:MarkSave|), but you have to explicitly load the persisted marks in a new Vim
+session via |:MarkLoad|, to avoid that you accidentally drag along outdated
+highlightings from Vim session to session, and be surprised by the arbitrary
+highlight groups and occasional appearance of forgotten marks. If you want
+just that though and automatically restore any marks, set |g:mwAutoLoadMarks|. 
+
+You can also initialize the marks to static values, e.g. by including this in
+|vimrc|: >
+    runtime plugin/mark.vim
+    silent MarkClear
+    Mark foo
+    Mark bar
+Or you can define custom commands that preset certain marks: >
+    command -bar MyMarks silent MarkClear | execute 'Mark foo' | execute 'Mark bar'
+Or a command that adds to the existing marks and then toggles them: >
+    command -bar ToggleFooBarMarks execute 'Mark foo' | execute 'Mark bar'
+
 ==============================================================================
 INSTALLATION						   *mark-installation*
 
 This script is packaged as a|vimball|. If you have the "gunzip" decompressor
 in your PATH, simply edit the *.vba.gz package in Vim; otherwise, decompress
 the archive first, e.g. using WinZip. Inside Vim, install by sourcing the
-vimball or via the|:UseVimball|command. >
+vimball or via the |:UseVimball| command. >
     vim mark.vba.gz
     :so %
-To uninstall, use the|:RmVimball|command. 
+To uninstall, use the |:RmVimball| command. 
 
 DEPENDENCIES						   *mark-dependencies*
 
@@ -127,6 +165,9 @@ DEPENDENCIES						   *mark-dependencies*
 ==============================================================================
 CONFIGURATION						  *mark-configuration*
 
+For a permanent configuration, put the following commands into your |vimrc|. 
+
+						       *mark-highlight-colors*
 You may define your own colors or more than the default 6 highlightings in
 your vimrc file (or anywhere before this plugin is sourced), in the following
 form (where N = 1..): >
@@ -135,15 +176,50 @@ Higher numbers always take precedence and are displayed above lower ones.
 
 The search type highlighting (in the search message) can be changed via: >
     highlight link SearchSpecialSearchType MoreMsg
-<								 *g:mwHistAdd*
+<
+								 *g:mwHistAdd*
 By default, any marked words are also added to the search (/) and input (@)
 history; if you don't want that, remove the corresponding symbols from: >
     let g:mwHistAdd = '/@'
 <
-You can use different mappings by mapping to the <Plug>Mark... mappings before
-this plugin is sourced. To remove the default overriding of * and #, use: >
+							   *g:mwAutoLoadMarks*
+To enable the automatic restore of marks from a previous Vim session: >
+    let g:mwAutoLoadMarks = 1
+<							   *g:mwAutoSaveMarks*
+To turn off the automatic persistence of marks across Vim sessions: >
+    let g:mwAutoSaveMarks = 0
+You can still explicitly save marks via |:MarkSave|. 
+
+							       *mark-mappings*
+You can use different mappings by mapping to the <Plug>Mark... mappings (use
+":map <Plug>Mark" to list them all) before this plugin is sourced. 
+
+There are no default mappings for toggling all marks and for the |:MarkClear|
+command, but you can define some yourself: >
+    nmap <Leader>M <Plug>MarkToggle
+    nmap <Leader>N <Plug>MarkAllClear
+<
+To remove the default overriding of * and #, use: >
     nmap <Plug>IgnoreMarkSearchNext <Plug>MarkSearchNext
     nmap <Plug>IgnoreMarkSearchPrev <Plug>MarkSearchPrev
+<
+						 *mark-whitespace-indifferent*
+Some people like to create a mark based on the visual selection, like
+|v_<Leader>m|, but have whitespace in the selection match any whitespace when
+searching (searching for "hello world" will also find "hello<Tab>world" as
+well as "hello" at the end of a line, with "world" at the start of the next
+line). The Vim Tips Wiki describes such a setup for the built-in search at 
+    http://vim.wikia.com/wiki/Search_for_visually_selected_text
+You can achieve the same with the Mark plugin through the following scriptlet: >
+    function! s:GetVisualSelectionAsLiteralWhitespaceIndifferentPattern()
+    	return substitute(escape(mark#GetVisualSelection(), '\' . '^$.*[~'), '\_s\+', '\\_s\\+', 'g')
+    endfunction
+    vnoremap <silent> <Plug>MarkWhitespaceIndifferent <C-\><C-n>:call mark#DoMark(<SID>GetVisualSelectionAsLiteralWhitespaceIndifferentPattern())<CR>
+Using this, you can assign a new visual mode mapping <Leader>* >
+    vmap <Leader>* <Plug>MarkWhitespaceIndifferent
+or override the default |v_<Leader>m| mapping, in case you always want this
+behavior: >
+    vmap <Leader>m <Plug>MarkWhitespaceIndifferent
 <
 ==============================================================================
 LIMITATIONS						    *mark-limitations*
@@ -163,19 +239,27 @@ IDEAS								  *mark-ideas*
 
 Taken from an alternative implementation at
 http://vim.wikia.com/wiki/Highlight_multiple_words: 
-- Allow to specify the highlight group number via :Mark [n] {regexp}
+- Allow to specify the highlight group number via :[N]Mark {regexp}
 - Use keys 1-9 on the numeric keypad to toggle a highlight group number. 
-- Persist the patterns in a uppercase global variable across Vim sessions.
-  (Request from Mun Johl, 16-Apr-2010.) 
-  Can be somewhat emulated by placing something like this in |vimrc|: >
-    runtime plugin/mark.vim
-    Mark foo
-    Mark bar
-< or defining a custom command a la: >
-    command -bar MyMarks execute "Mark foo" | execute "Mark bar"
 
 ==============================================================================
 HISTORY								*mark-history*
+
+2.5.1	17-May-2011
+- FIX: == comparison in s:DoMark() leads to wrong regexp (\A vs. \a) being
+  cleared when 'ignorecase' is set. Use case-sensitive comparison ==# instead. 
+- Refine :MarkLoad messages 
+- Add whitespace-indifferent visual mark configuration example. Thanks to Greg
+  Klein for the suggestion. 
+
+2.5.0	07-May-2011
+- ENH: Add explicit mark persistence via :MarkLoad and :MarkSave commands and
+  automatic persistence via the g:mwAutoLoadMarks and g:mwAutoSaveMarks
+  configuration flags. (Request from Mun Johl, 16-Apr-2010) 
+- Expose toggling of mark display (keeping the mark patterns) via new
+  <Plug>MarkToggle mapping. Offer :MarkClear command as a replacement for the
+  old argumentless :Mark command, which now just disables, but not clears all
+  marks. 
 
 2.4.4	18-Apr-2011
 - BUG: Include trailing newline character in check for current mark, so that a

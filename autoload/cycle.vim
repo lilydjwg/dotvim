@@ -170,7 +170,6 @@ endfunction "}}}
 
 
 function! s:fallback(direction, count) "{{{
-  " TODO: doc
   execute "normal " . a:count . "\<Plug>CycleFallback" . (a:direction > 0 ? 'Next' : 'Prev')
 endfunction "}}}
 

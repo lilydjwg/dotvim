@@ -13,7 +13,6 @@ scriptencoding utf-8
 " ========================================================================
 " 其他文件[[[1
 runtime vimrc_example.vim
-runtime macros/matchit.vim
 "]]]
 " 我的设置
 " 函数[[[1
@@ -180,7 +179,7 @@ function Lilydjwg_chmodx()
     if stridx(getfperm(f), 'x') != 2
       call system("chmod +x ".shellescape(f))
       e!
-      syntax on
+      filetype detect
       nmap <buffer> <S-F5> :!%:p<CR>
     endif
   endif
@@ -365,6 +364,7 @@ set diffopt+=vertical,context:3,foldcolumn:0
 set fileencodings=ucs-bom,utf-8,gb18030,cp936,latin1
 set fileformats=unix,dos,mac
 set formatoptions=croqn2mB1
+set formatexpr=autofmt#uax14#formatexpr()
 set nojoinspaces
 set virtualedit=block
 set nostartofline
@@ -437,12 +437,13 @@ else
   command FScreen winpos 0 0|set lines=40|set columns=172
   command Fscreen set lines=40|set columns=88
 endif
-" 状态栏：先设置好编码。不然乱码 [[[3
-" 缓冲区号 文件名 行数 修改 帮助 只读 编码 换行符 BOM ======== 字符编码 位置 
-" 百分比位置
+" 语言相关 [[[3
 if $LANGUAGE =~ '^zh' || ($LANGUAGE == '' && v:lang =~ '^zh')
+  nmap gs :echo getfsize(expand('%')) '字节'<CR>
+  " 缓冲区号 文件名 行数 修改 帮助 只读 编码 换行符 BOM ======== 字符编码 位置 百分比位置
   set statusline=%n\ %<%f\ %L行\ %{&modified?'[+]':&modifiable\|\|&ft=~'^\\vhelp\|qf$'?'':'[-]'}%h%r%{&fenc=='utf-8'\|\|&fenc==''?'':'['.&fenc.']'}%{&ff=='unix'?'':'['.&ff.']'}%{&bomb?'[BOM]':''}%{&eol?'':'[noeol]'}%=\ 0x%-4.4B\ \ \ \ %-14.(%l,%c%V%)\ %P
 else
+  nmap gs :echo getfsize(expand('%')) 'bytes'<CR>
   set statusline=%n\ %<%f\ %LL\ %{&modified?'[+]':&modifiable\|\|&ft=~'^\\vhelp\|qf$'?'':'[-]'}%h%r%{&fenc=='utf-8'\|\|&fenc==''?'':'['.&fenc.']'}%{&ff=='unix'?'':'['.&ff.']'}%{&bomb?'[BOM]':''}%{&eol?'':'[noeol]'}%=\ 0x%-4.4B\ \ \ \ %-14.(%l,%c%V%)\ %P
 endif
 " 图形与终端 [[[2
@@ -453,7 +454,7 @@ if has("gui_running")
   set number
   set cursorline
   colorscheme pink_lily
-else
+elseif has("unix")
   set ambiwidth=single
   " 防止退出时终端乱码
   " 这里两者都需要。只前者标题会重复，只后者会乱码
@@ -471,6 +472,11 @@ else
       " autocmd VimLeave * set t_ve-=[?6c
     endif
     if &term == "fbterm"
+      set cursorline
+      set number
+      colorscheme pink_lily
+    elseif $TERMCAP =~ 'Co#256'
+      set t_Co=256
       set cursorline
       colorscheme pink_lily
     else
@@ -493,6 +499,9 @@ else
       exe 'autocmd VimLeave * :silent !echo -ne "\e]12;"' . shellescape(color_exit, 1) . '"\007"'
     elseif &term =~ "screen"
       if exists('$TMUX')
+	if &ttymouse == 'xterm'
+	  set ttymouse=xterm2
+	endif
 	exe 'silent !echo -ne "\033Ptmux;\033\e]12;"' . shellescape(color_normal, 1) . '"\007\033\\"'
 	let &t_SI="\033Ptmux;\033\e]12;" . color_insert . "\007\033\\"
 	let &t_EI="\033Ptmux;\033\e]12;" . color_normal . "\007\033\\"
@@ -540,8 +549,8 @@ nmap <silent> tt :tabnew<CR>
 nmap t= mxHmygg=G`yzt`x
 nmap ta ggVG
 nmap <silent> tf :call Lilydjwg_open_url()<CR>
-"     清除高亮
-nmap <silent> th :nohls<CR>
+"     less style 清除高亮
+nmap <silent> <M-u> :nohls<CR>
 nmap tj Jx
 nmap tl ^v$h
 nmap <silent> to :call append('.', '')<CR>j
@@ -591,6 +600,7 @@ nmap cd :silent lcd %:p:h<CR>:echo expand('%:p:h')<CR>
 nmap gb :setl fenc=gb18030<CR>
 nmap d<CR> :%s/\r//eg<CR>``
 nmap cac :call Lilydjwg_changeColor()<CR>
+nmap gl :IndentGuidesToggle<CR>
 "   imap [[[2
 inoremap <S-CR> <CR>    
 inoremap <M-c> <C-R>=Lilydjwg_colorpicker()<CR>
@@ -731,6 +741,8 @@ command MusicSelect runtime so/musicselect.vim
 command -nargs=1 -range -complete=customlist,Lilydjwg_Align_complete LA <line1>,<line2>call Lilydjwg_Align("<args>")
 command -range=% Paste <line1>,<line2>w !curl -F 'vimcn=<-' http://p.vim-cn.com
 " 其它命令[[[1
+"   neocomplcache[[[2
+let g:neocomplcache_enable_at_startup = 1
 "   cycle[[[2
 "   https://github.com/lilydjwg/vim-cycle
 nnoremap <expr> <silent> <C-X> Lilydjwg_trycycle('x')
@@ -884,11 +896,7 @@ if has("cscope") && executable("cscope")
   " add any database in current directory
   function Lilydjwg_csadd()
     set nocsverb
-    if filereadable(expand('%:h:p') . "/cscope.out")
-      exe 'cs add ' . expand('%:h:p') . '/cscope.out'
-    elseif filereadable(expand('%:h:p') . "/../cscope.out")
-      exe 'cs add ' . expand('%:h:p') . '/../cscope.out'
-    elseif filereadable("cscope.out")
+    if filereadable("cscope.out")
       cs add cscope.out
     endif
     set csverb

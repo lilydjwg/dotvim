@@ -22,7 +22,7 @@ import vimutils
 from lilypath import path
 from myutils import filesize
 srcdir = path(vim.eval("b:musicdir"))
-dstdir = path('/media/PHONE\\x20CARD/Music')
+dstdir = path('/media/PHONE\x20CARD/Music')
 srcsongs = set()
 dstsongs = set()
 b = vim.current.buffer
@@ -74,7 +74,7 @@ endfunction
 function! s:showTotalSize()
   py3 <<PYTHON
 import os
-m = os.statvfs('/media/PHONE\\x20CARD')
+m = os.statvfs('/media/PHONE\x20CARD')
 vim.command('let &l:stl = "Music size added: %s, total free space: %s"' % (filesize(int(vim.eval('b:totalsize'))),
   filesize(m.f_bavail * m.f_bsize)))
 del m
