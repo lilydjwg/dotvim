@@ -52,4 +52,5 @@ augroup filetypedetect
   au BufNewFile,BufRead	*fluxbox/keys			setf fluxkeys
   au BufNewFile,BufRead	*fluxbox/menu			setf fluxbox
   au BufNewFile,BufRead hg-editor-*.txt			setf hgcommit
+  au BufNewFile,BufRead *openvpn*/*.conf,*.ovpn		setf openvpn
 augroup END
