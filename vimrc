@@ -741,6 +741,8 @@ command -range=% Paste <line1>,<line2>w !curl -F 'vimcn=<-' http://p.vim-cn.com
 " 其它命令[[[1
 "   neocomplcache[[[2
 let g:neocomplcache_enable_at_startup = 1
+let g:neocomplcache_enable_camel_case_completion = 1
+let g:neocomplcache_enable_underbar_completion = 1
 "   cycle[[[2
 "   https://github.com/lilydjwg/vim-cycle
 nnoremap <expr> <silent> <C-X> Lilydjwg_trycycle('x')
