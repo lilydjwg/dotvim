@@ -8,7 +8,7 @@ syntax case match
 
 syn match httplogIP	/\v^[[:xdigit:].:]+/ contains=httplogLocal,httplogLAN
 syn match httplogTime	/\v\s\zs\[[^]]+\]\ze\s/
-syn match httplogPage	/\v\s\zs"(GET|POST|HEAD|PUT|DELETE) [^"]+"\ze\s/
+syn match httplogPage	/\v\s\zs"(GET|POST|HEAD|PUT|DELETE|CONNECT) [^"]+"\ze\s/
 syn match httplogResult	/\v\s\zs[1-4]\d{2}\ze\s%(\d+|-)/
 syn match httplogError	/\v\s\zs5\d{2}\ze\s%(\d+|-)/
 syn match httplogRef	/\v\s\zs"(http[^"]+|-)"\ze\s/
