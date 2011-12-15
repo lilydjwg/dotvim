@@ -1,7 +1,6 @@
 " Vim syntax file
 " FileType:    C/C++
 " Author:      lilydjwg
-" Last Change: 2009年12月22日
 
 syntax case match
 
