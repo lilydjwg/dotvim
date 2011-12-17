@@ -17,6 +17,7 @@ syn match bbcodeValue contained "=[\t ]*[^'" \t\]][^ \t\]]*"hs=s+1 contains=@NoS
 syn region bbcodeTag start="\[/\{0,1}" end="\]" contains=@NoSpell,bbcodeItem,bbcodeArgument,bbcodeValue
 
 syn region bbcodeBold start="\[b\]" end="\[/b\]"me=e-4 contains=bbcodeTag,bbcodeBoldItalic,bbcodeBoldUnderline
+syn region bbcodeQuote start="\[quote\(=\"[^]\"]\+\"\)\?\]" end="\[/quote\]" keepend extend contains=bbcodeQuote,bbcodeTag,bbcodeBoldItalic,bbcodeBoldUnderline
 syn region bbcodeBoldItalic contained start="\[i\]" end="\[/i\]"me=e-4 contains=bbcodeTag,bbcodeBoldItalicUnderline
 syn region bbcodeBoldItalicUnderline contained start="\[u\]" end="\[/u\]"me=e-4 contains=bbcodeTag
 syn region bbcodeBoldUnderline contained start="\[u\]" end="\[/u\]"me=e-4 contains=bbcodeTag,bbcodeBoldUnderlineItalic
@@ -41,6 +42,7 @@ hi link bbcodeItem Statement
 hi link bbcodeArgument Type
 hi link bbcodeValue Constant
 hi link bbcodeUrl Underlined
+hi link bbcodeQuote Comment
 
 hi link bbcodeBoldUnderlineItalic bbcodeBoldItalicUnderline
 hi link bbcodeItalicBold bbcodeBoldItalic
