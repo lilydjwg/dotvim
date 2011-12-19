@@ -81,6 +81,12 @@ function s:Rcode_init(nr, lang, issnippet) range
     let lang = args[0]
     let file = g:Rcode_snippet_path . '/' . a:lang
     unlet args
+    if !filereadable(file)
+      echohl ErrorMsg
+      echo "File not readable"
+      echohl None
+      return
+    endif
   else
     let lang = a:lang
     let file = ''
@@ -102,7 +108,7 @@ function s:Rcode_init(nr, lang, issnippet) range
   rightbelow 7split [Rcode]
   set buftype=nofile
   let &filetype = s:lang2ft[lang]
-  %d "清除模板之类的东西
+  %d_ "清除模板之类的东西
   setlocal nofoldenable
   let b:firstline = a:firstline
   let b:lastline = a:lastline
@@ -173,9 +179,36 @@ function s:Rcode_run()
     let g:Rcode_code[lang] = getline(1, '$')
     q
   elseif g:Rcode_after == 2 "empty
-    %d
+    %d_
   elseif g:Rcode_after == 0 "do nothing
   endif
+endfunction
+function s:Rcode_select() range
+  let list = s:Rcode_complsnippet('', '', 0)
+  if len(list) == 0
+    echohl WarningMsg | echo "No available code snippets." | echohl None
+    return
+  endif
+
+  echohl PreProc | echo "Available code snippets:"
+  echohl Title | echo "#\tlang\tname\n" | echohl None
+  let i = 1
+  for name in list
+    let [lang, n] = split(name, '/')
+    echon i . ".\t"
+    echohl Directory
+    echon lang
+    echohl None
+    echon "\t" . n . "\n"
+    let i = i + 1
+  endfor
+  let res = input('Type number and <Enter> (empty cancels): ') + 0
+  if res < 1 || res > len(list)
+    return
+  endif
+
+  exe a:firstline . ',' . a:lastline . 'call s:Rcode_init(' . winnr()
+	\ . ", '" . list[(res - 1)] . "', 1)"
 endfunction
 " ---------------------------------------------------------------------
 " Commands:
@@ -183,6 +216,8 @@ command -nargs=1 -complete=custom,s:Rcode_complete -range=%
       \ Rcode <line1>,<line2>call s:Rcode_init(winnr(), <q-args>, 0)
 command -nargs=1 -complete=customlist,s:Rcode_complsnippet -range=%
       \ RcLoad <line1>,<line2>call s:Rcode_init(winnr(), <q-args>, 1)
+command -nargs=0 -range=%
+      \ RcSelect <line1>,<line2>call s:Rcode_select()
 " ---------------------------------------------------------------------
 "  Restoration And Modelines:
 let &cpo= s:keepcpo
