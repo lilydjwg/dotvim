@@ -16,6 +16,28 @@ runtime vimrc_example.vim
 "]]]
 " 我的设置
 " 函数[[[1
+"   使用分隔符连续多行 [[[2
+function Lilydjwg_join(sep, bang) range
+  if a:sep[0] == '\'
+    let sep = strpart(a:sep, 1)
+  else
+    let sep = a:sep
+  endif
+  let lines = getline(a:firstline, a:lastline)
+  if a:firstline == 1 && a:lastline == line('$')
+    let dellast = 1
+  else
+    let dellast = 0
+  endif
+  exe a:firstline . ',' . a:lastline . 'd_'
+  if a:bang != '!'
+    call map(lines, "substitute(v:val, '^\\s\\+\\|\\s\\+$', '', 'g')")
+  endif
+  call append(a:firstline -1, join(lines, sep))
+  if dellast
+    $d_
+  endif
+endfunction
 "   切换显示行号/相对行号/不显示 [[[2
 function Lilydjwg_toggle_number()
   if &nu
@@ -700,6 +722,7 @@ endif
 exe 'command Set tabe ' . escape(resolve($MYVIMRC), ' ')
 " 删除当前文件
 command Delete if delete(expand('%')) | echohl WarningMsg | echo "删除当前文件失败" | echohl None | endif
+command -nargs=1 -range=% -bang Join <line1>,<line2>call Lilydjwg_join(<q-args>, "<bang>")
 command -nargs=+ Reindent call Lilydjwg_reindent(<f-args>)
 " TODO better implement
 command -range=% ClsXML <line1>,<line2>!tidy -utf8 -iq -xml
@@ -710,7 +733,7 @@ command -nargs=1 -complete=customlist,Lilydjwg_complete_So So runtime so/<args>.
 command -nargs=1 -complete=command ReadCommand redir @">|exe "<args>"|normal $p:redir END<CR>
 command -nargs=1 Delmark delm <args>|wviminfo!
 "   删除空行
-command -range=% DBlank <line1>,<line2>g/^\s*$/d|nohls
+command -range=% DBlank <line1>,<line2>g/^\s*$/d_|nohls
 "   某个 pattern 出现的次数
 command -range=% -nargs=1 Count <line1>,<line2>s/<args>//gn|nohls
 command SBlank %s/\v(^\s*$\n){2,}/\r/g
