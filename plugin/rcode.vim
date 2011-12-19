@@ -1,21 +1,40 @@
-" rcode.vim	Run variable type of code again current buffer
-" Version:	1.0
+" rcode.vim	Run variable type of code against current buffer
+" Version:	2.0
 " Author:       lilydjwg <lilydjwg@gmail.com>
 " URL:		http://www.vim.org/scripts/script.php?script_id=3705
 " ---------------------------------------------------------------------
-" Usage:
-" Command 'Rcode' with argument vim, awk, perl, py, py3, ruby or lua will
-" open a new buffer. Write your code in it and use command 'Run' (or key map
-" <C-CR>) to run it again the buffer you were.
+" Commands And Maps:
+" :Rcode		Start Rcode. Accept an argument as the language, eg:
+" 			vim, awk, etc. Use <C-D> to see all available ones.
+" 			A new buffer will be opened for you. Write your code
+" 			in it.
+" 			You can give a range.
+"
+" :RcLoad {name}	Load a previous saved code snippet.
+"			"name" should be in the form "{lang}/{filename}" so
+"			that the script knows which language it's in. This is
+"			different from ":Save" command.
+" 			You can give a range.
+"
+" In Rcode buffer:
+"
+" <C-CR>
+" :Run			Run your code against the buffer you were.
+" :Save {name}		Save your code so you can later load it with
+"			":Rcodeload"
 "
 " Shortcut:
 " in Python, 'v' is the 'vim' module, and 'b' is the current buffer,
-" in Lua, 'b' is the current buffer,
+" in Lua, 'b' is the current buffer.
 "
 " Settings:
-" The global 'g:Rcode_after' indicates what to do after running your code.
-" 0 means to do noting, 1 means to close the code buffer and 2 will throw away
-" your code besides closing the buffer. Default is 1.
+" g:Rcode_after		what to do after running your code.
+" 			0 means to do noting, 1 means to close the code buffer
+" 			and 2 will throw away your code besides closing the
+" 			buffer. Default is 1.
+"
+" g:Rcode_snippet_path	Where you saved code snippets will lie.
+" 			Default is "$HOME/.vim/rcode"
 " ---------------------------------------------------------------------
 " Load Once:
 if &cp || exists("g:loaded_rcode")
@@ -36,44 +55,89 @@ if has('ruby') | let s:lang2ft['ruby'] = 'ruby' | endif
 if !exists('g:Rcode_code')
   let g:Rcode_code = {}
 endif
+if !exists('g:Rcode_snippet_path')
+  let g:Rcode_snippet_path = expand("$HOME/.vim/rcode")
+endif
 " ---------------------------------------------------------------------
 " Functions:
 function s:Rcode_complete(ArgLead, CmdLine, CursorPos)
-  return keys(s:lang2ft)
+  return join(keys(s:lang2ft), "\n")
 endfunction
-function s:Rcode_init(nr, lang) range
-  if !has_key(s:lang2ft, a:lang)
+function s:Rcode_complsnippet(ArgLead, CmdLine, CursorPos)
+  let prefix_len = len(g:Rcode_snippet_path) + 1
+  return filter(map(split(globpath(g:Rcode_snippet_path, "*/*"), "\n"),
+	\ "strpart(v:val, " . prefix_len . ")"),
+	\ "stridx(v:val, '" . a:ArgLead . "') != -1")
+endfunction
+function s:Rcode_init(nr, lang, issnippet) range
+  if a:issnippet
+    let args = split(a:lang, '/')
+    if len(args) != 2
+      echohl ErrorMsg
+      echo "Bad argument"
+      echohl None
+      return
+    endif
+    let lang = args[0]
+    let file = g:Rcode_snippet_path . '/' . a:lang
+    unlet args
+  else
+    let lang = a:lang
+    let file = ''
+  endif
+
+  if !has_key(s:lang2ft, lang)
     echohl ErrorMsg
-    echo "Unsupported script language " . a:lang
+    echo "Unsupported script language " . lang
     echohl None
     return
   endif
-  if a:lang == 'py3'
+  if lang == 'py3'
     py3 import vim; v = vim; b = v.current.buffer
-  elseif a:lang == 'py'
+  elseif lang == 'py'
     py import vim; v = vim; b = v.current.buffer
-  elseif a:lang == 'lua'
+  elseif lang == 'lua'
     lua b = vim.buffer()
   endif
   rightbelow 7split [Rcode]
   set buftype=nofile
-  let &filetype = s:lang2ft[a:lang]
+  let &filetype = s:lang2ft[lang]
   %d "清除模板之类的东西
   setlocal nofoldenable
   let b:firstline = a:firstline
   let b:lastline = a:lastline
   let b:nr = a:nr
-  let b:lang = a:lang
+  let b:lang = lang
   nnoremap <buffer> <silent> q <C-W>c
   nnoremap <buffer> <silent> <C-CR> :call <SID>Rcode_run()<CR>
   inoremap <buffer> <silent> <C-CR> <Esc>:call <SID>Rcode_run()<CR>
   inoremap <buffer> <silent> <C-C> <Esc><C-W>c
   command! -buffer Run call s:Rcode_run()
-  if has_key(g:Rcode_code, a:lang)
-    call setline(1, g:Rcode_code[a:lang])
+  command! -buffer -nargs=1 -bang Save call s:Rcode_save(<q-args>, "<bang>")
+  if file != ''
+    call setline(1, readfile(file))
+  elseif has_key(g:Rcode_code, lang)
+    call setline(1, g:Rcode_code[lang])
   else
     startinsert
   endif
+endfunction
+function s:Rcode_save(name, bang)
+  let fp = g:Rcode_snippet_path . '/' . b:lang
+  if !isdirectory(fp)
+    call mkdir(fp, 'p')
+  endif
+
+  let fp .= '/' . a:name
+  if filewritable(fp) && a:bang != '!'
+    echohl ErrorMsg
+    echo "File already exists!"
+    echohl None
+    return 0
+  endif
+  call writefile(getline(1, '$'), fp)
+  echo "Saved!"
+  return 1
 endfunction
 function s:Rcode_run()
   let self = winnr()
@@ -86,7 +150,7 @@ function s:Rcode_run()
     sil exe "perl" join(getline(1, '$'))
   else
     let file = tempname()
-    exe 'w' file
+    call writefile(getline(1, '$'), file)
     exe nr.'wincmd w'
     if lang == 'awk'
       sil exe firstline.','.lastline . "!awk -f" file
@@ -115,8 +179,10 @@ function s:Rcode_run()
 endfunction
 " ---------------------------------------------------------------------
 " Commands:
-command -nargs=1 -complete=customlist,s:Rcode_complete -range=%
-      \ Rcode <line1>,<line2>call s:Rcode_init(winnr(), <q-args>)
+command -nargs=1 -complete=custom,s:Rcode_complete -range=%
+      \ Rcode <line1>,<line2>call s:Rcode_init(winnr(), <q-args>, 0)
+command -nargs=1 -complete=customlist,s:Rcode_complsnippet -range=%
+      \ RcLoad <line1>,<line2>call s:Rcode_init(winnr(), <q-args>, 1)
 " ---------------------------------------------------------------------
 "  Restoration And Modelines:
 let &cpo= s:keepcpo
