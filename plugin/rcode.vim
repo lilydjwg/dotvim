@@ -16,12 +16,15 @@
 "			different from ":Save" command.
 " 			You can give a range.
 "
+" :RcSelect		List all available code snippets and you can choose
+"			one by number
+"
 " In Rcode buffer:
 "
 " <C-CR>
 " :Run			Run your code against the buffer you were.
 " :Save {name}		Save your code so you can later load it with
-"			":Rcodeload"
+"			":RcLoad"
 "
 " Shortcut:
 " in Python, 'v' is the 'vim' module, and 'b' is the current buffer,
@@ -65,9 +68,18 @@ function s:Rcode_complete(ArgLead, CmdLine, CursorPos)
 endfunction
 function s:Rcode_complsnippet(ArgLead, CmdLine, CursorPos)
   let prefix_len = len(g:Rcode_snippet_path) + 1
-  return filter(map(split(globpath(g:Rcode_snippet_path, "*/*"), "\n"),
+  if exists('+shellslash')
+    let ssl = &shellslash
+    set shellslash
+  endif
+  let ret = filter(map(split(globpath(g:Rcode_snippet_path, "*/*"), "\n"),
 	\ "strpart(v:val, " . prefix_len . ")"),
 	\ "stridx(v:val, '" . a:ArgLead . "') != -1")
+  call filter(ret, "has_key(s:lang2ft, split(v:val, '/')[0])")
+  if exists('+shellslash')
+    let &shellslash = ssl
+  endif
+  return ret
 endfunction
 function s:Rcode_init(nr, lang, issnippet) range
   if a:issnippet
@@ -94,7 +106,7 @@ function s:Rcode_init(nr, lang, issnippet) range
 
   if !has_key(s:lang2ft, lang)
     echohl ErrorMsg
-    echo "Unsupported script language " . lang
+    echo "Unavailable script language " . lang
     echohl None
     return
   endif
@@ -183,7 +195,7 @@ function s:Rcode_run()
   elseif g:Rcode_after == 0 "do nothing
   endif
 endfunction
-function s:Rcode_select() range
+function s:Rcode_select() range abort
   let list = s:Rcode_complsnippet('', '', 0)
   if len(list) == 0
     echohl WarningMsg | echo "No available code snippets." | echohl None
