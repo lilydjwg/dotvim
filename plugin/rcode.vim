@@ -34,7 +34,9 @@
 " g:Rcode_after		what to do after running your code.
 " 			0 means to do noting, 1 means to close the code buffer
 " 			and 2 will throw away your code besides closing the
-" 			buffer. Default is 1.
+" 			buffer, or you code will be loaded next time you use
+" 			":Rcode".
+" 			Default is 1.
 "
 " g:Rcode_snippet_path	Where you saved code snippets will lie.
 " 			Default is "$HOME/.vim/rcode"
@@ -149,7 +151,7 @@ function s:Rcode_save(name, bang)
   let fp .= '/' . a:name
   if filewritable(fp) && a:bang != '!'
     echohl ErrorMsg
-    echo "File already exists!"
+    echo "File exists (add ! to override)"
     echohl None
     return 0
   endif
