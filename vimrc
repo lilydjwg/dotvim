@@ -733,12 +733,12 @@ command -nargs=1 -complete=customlist,Lilydjwg_complete_So So runtime so/<args>.
 command -nargs=1 -complete=command ReadCommand redir @">|exe "<args>"|normal $p:redir END<CR>
 command -nargs=1 Delmark delm <args>|wviminfo!
 "   删除空行
-command -range=% DBlank <line1>,<line2>g/^\s*$/d_|nohls
+command -range=% -bar DBlank <line1>,<line2>g/^\s*$/d_|nohls
 "   某个 pattern 出现的次数
 command -range=% -nargs=1 Count <line1>,<line2>s/<args>//gn|nohls
-command SBlank %s/\v(^\s*$\n){2,}/\r/g
+command -range=% -bar SBlank <line1>,<line2>s/\v(^\s*$\n){2,}/\r/g
 "   删除拖尾的空白
-command -range=% TWS <line1>,<line2>s/\s\+$//|nohls|normal ``
+command -range=% -bar TWS <line1>,<line2>s/\s\+$//|nohls|normal ``
 "   设置成 Linux 下适用的格式
 command Lin setl ff=unix fenc=utf8 nobomb eol
 "   设置成 Windows 下适用的格式
@@ -746,9 +746,9 @@ command Win setl ff=dos fenc=gb18030
 "   以第一行的文字为名保存当前文件
 command TSave call Lilydjwg_TSave()
 command -nargs=? -complete=file RSplit vs <args>|normal <C-W>L<C-W>w
-command -range=% SQuote <line1>,<line2>s/“\|”\|″/"/ge|<line1>,<line2>s/‘\|’\|′/'/ge
-command -range HTMLEscape <line1>,<line2>s/&/\&amp;/ge|<line1>,<line2>s/</\&lt;/ge|<line1>,<line2>s/>/\&gt;/ge
-command -range HTMLUnescape <line1>,<line2>s/&amp;/\&/ge|<line1>,<line2>s/&lt;/</ge|<line1>,<line2>s/&gt;/>/ge
+command -range=% -bar SQuote <line1>,<line2>s/“\|”\|″/"/ge|<line1>,<line2>s/‘\|’\|′/'/ge
+command -range -bar HTMLEscape <line1>,<line2>s/&/\&amp;/ge|<line1>,<line2>s/</\&lt;/ge|<line1>,<line2>s/>/\&gt;/ge
+command -range -bar HTMLUnescape <line1>,<line2>s/&amp;/\&/ge|<line1>,<line2>s/&lt;/</ge|<line1>,<line2>s/&gt;/>/ge
 command RJ silent call Lilydjwg_edit_diary()
 "   载入 snippets
 command -nargs=? Snippets silent call Lilydjwg_snippets("<args>")
