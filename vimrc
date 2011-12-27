@@ -16,7 +16,7 @@ runtime vimrc_example.vim
 "]]]
 " 我的设置
 " 函数[[[1
-"   使用分隔符连续多行 [[[2
+"   使用分隔符连接多行 [[[2
 function Lilydjwg_join(sep, bang) range
   if a:sep[0] == '\'
     let sep = strpart(a:sep, 1)
