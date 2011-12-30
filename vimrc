@@ -597,7 +597,6 @@ nmap -int :exe 'tabe '.g:vimfiles.'/indent/'.&ft.'.vim'<CR>
 nnoremap wh :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<' . synIDattr(synID(line("."),col("."),0),"name") . "> lo<" . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
 "     Alt 组合键 [[[3
 nmap <M-m> :MRU 
-nmap <silent> <M-f> :echo expand('%:p')<CR>
 " 打开草稿
 nmap <unique> <silent> <M-s> <Plug>ShowScratchBuffer
 for i in range(1, 9)
