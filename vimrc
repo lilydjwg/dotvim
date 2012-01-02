@@ -442,7 +442,7 @@ else
   let g:vimfiles = expand("~/.vim")
   let g:dictfilePrefix = expand('~/.vim/dict/')
   set errorfile=~/tmpfs/error
-  let my_diary_file = expand('~/private/diary/2011.rj')
+  let my_diary_file = expand('~/secret/diary/2012.rj')
   cmap <C-T> ~/tmpfs/
   " cron 的目录不要备份
   set backupskip+=/etc/cron.*/*
