@@ -425,6 +425,9 @@ if has("win32") || has("win64")
   let g:vimfiles = expand("$VIM/vimfiles")
   let g:dictfilePrefix = expand('$VIM/vimfiles/dict/')
   set errorfile=$TMP/error
+  if has("python3")
+    py3file $VIM/vimfiles/vimrc.py
+  endif
   " Win 程序 [[[3
   "   用默认的程序打开文件
   nmap <C-S-F5> :!"%"<CR>
@@ -447,6 +450,9 @@ else
   " cron 的目录不要备份
   set backupskip+=/etc/cron.*/*
   set backupdir=.,~/temp,/tmp
+  if has("python3")
+    py3file ~/.vim/vimrc.py
+  endif
   " Linux 程序 [[[3
   "   用默认的程序打开文件
   "   FIXME xdg-open 的配置在哪里？为什么不用浏览器打开 HTML 文件呢？
@@ -762,7 +768,7 @@ command CenterFull call CenterFull()
 command Larger set lines+=1
 command MusicSelect runtime so/musicselect.vim
 command -nargs=1 -range -complete=customlist,Lilydjwg_Align_complete LA <line1>,<line2>call Lilydjwg_Align("<args>")
-command -range=% Paste <line1>,<line2>w !curl -F 'vimcn=<-' http://p.vim-cn.com
+command -range=% Paste :<line1>,<line2>py3 LilyPaste()
 " 插件配置[[[1
 "   neocomplcache[[[2
 let g:neocomplcache_enable_at_startup = 1
