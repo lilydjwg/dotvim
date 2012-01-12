@@ -476,13 +476,14 @@ else
   set statusline=%n\ %<%f\ %LL\ %{&modified?'[+]':&modifiable\|\|&ft=~'^\\vhelp\|qf$'?'':'[-]'}%h%r%{&fenc=='utf-8'\|\|&fenc==''?'':'['.&fenc.']'}%{&ff=='unix'?'':'['.&ff.']'}%{&bomb?'[BOM]':''}%{&eol?'':'[noeol]'}%=\ 0x%-4.4B\ \ \ \ %-14.(%l,%c%V%)\ %P
 endif
 " 图形与终端 [[[2
+let colorscheme = 'lilypink'
 if has("gui_running")
   " 有些终端不能改变大小
   set columns=88
   set lines=38
   set number
   set cursorline
-  colorscheme pink_lily
+  exe 'colorscheme' colorscheme
 elseif has("unix")
   set ambiwidth=single
   " 防止退出时终端乱码
@@ -491,7 +492,7 @@ elseif has("unix")
   set t_IE=(B
   if &term =~ "256color"
     set cursorline
-    colorscheme pink_lily
+    exe 'colorscheme' colorscheme
   else
     " 在Linux文本终端下非插入模式显示块状光标
     if &term == "linux" || &term == "fbterm"
@@ -503,11 +504,11 @@ elseif has("unix")
     if &term == "fbterm"
       set cursorline
       set number
-      colorscheme pink_lily
+      exe 'colorscheme' colorscheme
     elseif $TERMCAP =~ 'Co#256'
       set t_Co=256
       set cursorline
-      colorscheme pink_lily
+      exe 'colorscheme' colorscheme
     else
       " 暂时只有这个配色比较适合了
       colorscheme default
@@ -547,6 +548,7 @@ elseif has("unix")
     unlet color_exit
   endif
 endif
+unlet colorscheme
 " 不同的 Vim 版本 [[[2
 if has("conceal")
   set concealcursor=nc
