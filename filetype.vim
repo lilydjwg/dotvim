@@ -46,7 +46,7 @@ augroup filetypedetect
   au BufRead		rc.conf				setf sh
   au BufRead		*.grf				setf dosini
   au BufNewFile,BufRead	PKGBUILD			setf sh
-  au BufNewFile,BufRead	*.install			setf sh
+  au BufNewFile,BufRead	*.install,install		setf sh
   au BufNewFile,BufRead	ejabberd.cfg*			setf erlang
   au BufNewFile,BufRead	*/xorg.conf.d/*			setf xf86conf
   au BufNewFile,BufRead	*fluxbox/keys			setf fluxkeys
