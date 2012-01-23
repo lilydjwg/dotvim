@@ -1,7 +1,7 @@
 " Vim script file
 " FileType:     RFC
 " Author:       lilydjwg <lilydjwg@gmail.com>
-" Last Change:  2010年3月28日
+" Version:	1.0
 
 function! s:get_pattern_at_cursor(pat)
   " This is a function copied from another script.
@@ -31,12 +31,13 @@ function! s:rfcTag()
   let syn = synIDattr(synID(line("."), col("."), 1), "name")
   if syn == 'rfcContents' || syn == 'rfcDots'
     let l = getline('.')
-    let lm = matchstr(l, '\v(Appendix\s+)=[A-Z0-9.]+\s(\w|\s)\S')
+    let lm = matchstr(l, '\v%(^\s+)@<=%(Appendix\s+)=[A-Z0-9.]+\s')
     if lm == ""
       " Other special contents
       let lm = matchstr(l, '\vFull Copyright Statement')
     end
     let l = '^\c\V' . lm
+    let b:backpos = line('.')
     call search(l, 'Ws')
   elseif syn == 'rfcReference'
     let l = s:get_pattern_at_cursor('\[\w\+\]')
@@ -54,6 +55,7 @@ function! s:rfcTag()
       return
     endif
     normal m'
+    let b:backpos = line('.')
     call cursor(b:refpos[0], 0)
     try
       exec '/^\s\+\V'. l.'\s\+\a\+/'
@@ -71,7 +73,19 @@ function! s:rfcTag()
   endif
 endfunction
 
+function! s:rfcJumpBack()
+  if exists('b:backpos')
+    exec b:backpos
+    unlet b:backpos
+  else
+    echohl ErrorMsg
+    echo "Can't jump back any more."
+    echohl None
+  endif
+endfunction
+
 " References jump will need it
 let b:refpos = searchpos('^\v\d+\.?\s+References\s*$', 'wn')
 
-nmap <buffer> <silent> <C-]> :call <SID>rfcTag()<CR>
+nnoremap <buffer> <silent> <C-]> :call <SID>rfcTag()<CR>
+nnoremap <buffer> <silent> <C-t> :call <SID>rfcJumpBack()<CR>
