@@ -16,7 +16,7 @@ setlocal indentexpr=HaskellIndent()
 for i in split('0{,0},0),:,0#,e', ',')
   exec "setlocal indentkeys-=" . i
 endfor
-setlocal indentkeys+=0=else,0=in,0=,0=where
+setlocal indentkeys+=0=else,0=in,0=,0,,0=where
 setlocal tabstop=8
 setlocal expandtab
 
@@ -33,6 +33,7 @@ endif
 let s:align_map = {
       \ 'in': '\<let\>',
       \ 'else': '\<then\>',
+      \ ',': '\v%(\s|\w|^)@<=[[{]%(\s|\w|"|$)@='
       \ }
 let s:indent_self = ['=']
 let s:indent_next = ['let', 'in', 'where', 'do', 'if']
@@ -82,6 +83,8 @@ function HaskellIndent()
   if prevwords[-1] == 'where' && prevwords[0] == 'module'
     return 0
   elseif index(s:indent_if_final, prevwords[-1]) != -1
+    return ind + &sw
+  elseif prevwords[-1] =~ '\v%(\s|\w|^)@<=[[{,]%(\s|\w|"|$)@='
     return ind + &sw
   else
     for word in reverse(prevwords)
