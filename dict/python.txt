@@ -234,3 +234,4 @@ unicodedata
 urllib
 warnings
 xpath
+partial
