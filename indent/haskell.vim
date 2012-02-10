@@ -84,7 +84,7 @@ function HaskellIndent()
     return 0
   elseif index(s:indent_if_final, prevwords[-1]) != -1
     return ind + &sw
-  elseif prevwords[-1] =~ '\v%(\s|\w|^)@<=[[{,]%(\s|\w|"|$)@='
+  elseif prevwords[-1] =~ '\v%(\s|\w|^)@<=[[{(]$'
     return ind + &sw
   else
     for word in reverse(prevwords)
