@@ -13,10 +13,10 @@ endif
 let b:did_indent = 1
 
 setlocal indentexpr=HaskellIndent()
-for i in split('0{,0},0),:,0#,e', ',')
+for i in split('0{,:,0#,e', ',')
   exec "setlocal indentkeys-=" . i
 endfor
-setlocal indentkeys+=0=else,0=in,0=,0,,0=where
+setlocal indentkeys+=0=else,0=in,0=,0,,0=where,0)
 setlocal tabstop=8
 setlocal expandtab
 
@@ -68,6 +68,8 @@ function HaskellIndent()
       return ind + &sw
     elseif curwords[0] == '|'
       return match(prevline, '\v%(\s|\w|^)@<=[|=]%(\s|\w)@=')
+    elseif index([')', '}'], curwords[0]) != -1
+      return ind - &sw
     elseif curwords[0] == 'where'
       if prevline =~ '\v^\s+\|%(\s|\w)@='
 	return ind - 1
