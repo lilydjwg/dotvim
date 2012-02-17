@@ -54,4 +54,5 @@ augroup filetypedetect
   au BufNewFile,BufRead hg-editor-*.txt			setf hgcommit
   au BufNewFile,BufRead *openvpn*/*.conf,*.ovpn		setf openvpn
   au BufNewFile,BufRead	*.pxi   			setf pyrex
+  au BufRead		$HOME/.cabal/config		setf cabal
 augroup END
