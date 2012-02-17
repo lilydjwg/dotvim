@@ -409,7 +409,6 @@ set maxcombine=4
 set cedit=<C-Y>
 set whichwrap=b,s,[,]
 set tags+=./../tags,./../../tags,./../../../tags
-set cryptmethod=blowfish
 " Avoid command-line redraw on every entered character by turning off Arabic
 " shaping (which is implemented poorly).
 if has('arabic')
@@ -559,6 +558,9 @@ if has("persistent_undo")
     call mkdir(&undodir, '', 0700)
   endif
   set undofile
+endif
+if v:version > 702
+  set cryptmethod=blowfish
 endif
 unlet g:undodir
 " map 相关[[[1
