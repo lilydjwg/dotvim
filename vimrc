@@ -807,6 +807,7 @@ let g:cycle_default_groups = [
       \ [['（:）', '「:」', '『:』'], 'sub_pairs'],
       \ [['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday',
       \ 'Friday', 'Saturday'], 'hard_case', {'name': 'Days'}],
+      \ [["enable", "disable"]],
       \ ]
 "   Lua[[[2
 let g:lua_complete_omni = 1
