@@ -873,8 +873,6 @@ lua_error_format	ft_lua.txt	/*lua_error_format*
 lua_error_format	lua-ftplugin.txt	/*lua_error_format*
 lua_path	ft_lua.txt	/*lua_path*
 lua_path	lua-ftplugin.txt	/*lua_path*
-manpage-pagedown	manpageview.txt	/*manpage-pagedown*
-manpage-pageup	manpageview.txt	/*manpage-pageup*
 manpageview	manpageview.txt	/*manpageview*
 manpageview-K	manpageview.txt	/*manpageview-K*
 manpageview-contents	manpageview.txt	/*manpageview-contents*
@@ -886,9 +884,12 @@ manpageview-info	manpageview.txt	/*manpageview-info*
 manpageview-man	manpageview.txt	/*manpageview-man*
 manpageview-open	manpageview.txt	/*manpageview-open*
 manpageview-options	manpageview.txt	/*manpageview-options*
+manpageview-pagedown	manpageview.txt	/*manpageview-pagedown*
+manpageview-pageup	manpageview.txt	/*manpageview-pageup*
 manpageview-perl	manpageview.txt	/*manpageview-perl*
 manpageview-php	manpageview.txt	/*manpageview-php*
 manpageview-python	manpageview.txt	/*manpageview-python*
+manpageview-suggest	manpageview.txt	/*manpageview-suggest*
 manpageview-usage	manpageview.txt	/*manpageview-usage*
 manpageview.txt	manpageview.txt	/*manpageview.txt*
 manpageview_extend	manpageview.txt	/*manpageview_extend*
