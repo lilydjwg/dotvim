@@ -42,6 +42,9 @@ RELATED WORKS								     *
   highlights only a single window. 
 - highlight.vim (vimscript #1599) highlights lines or patterns of interest in
   different colors, using mappings that start with CTRL-H and work on cword. 
+- quickhl.vim (vimscript #3692) can also list the matches with colors and in
+  addition offers on-the-fly highlighting of the current word (like many IDEs
+  do). 
 
 ==============================================================================
 USAGE								  *mark-usage*
@@ -219,6 +222,7 @@ Using this, you can assign a new visual mode mapping <Leader>* >
     vmap <Leader>* <Plug>MarkWhitespaceIndifferent
 or override the default |v_<Leader>m| mapping, in case you always want this
 behavior: >
+    vmap <Plug>IgnoreMarkSet <Plug>MarkSet
     vmap <Leader>m <Plug>MarkWhitespaceIndifferent
 <
 ==============================================================================
@@ -244,6 +248,13 @@ http://vim.wikia.com/wiki/Highlight_multiple_words:
 
 ==============================================================================
 HISTORY								*mark-history*
+
+2.5.2	09-Nov-2011
+Fixed various problems with wrap-around warnings: 
+- BUG: With a single match and 'wrapscan' set, a search error was issued. 
+- FIX: Backwards search with single match leads to wrong error message
+  instead. 
+- FIX: Wrong logic for determining l:isWrapped lets wrap-around go undetected. 
 
 2.5.1	17-May-2011
 - FIX: == comparison in s:DoMark() leads to wrong regexp (\A vs. \a) being
