@@ -19,24 +19,6 @@ if v:version < '703'"{{{
     finish
 endif"}}}
 
-if has('python3')"{{{
-    let s:has_supported_python = 2
-elseif has('python')
-    let s:has_supported_python = 1
-else
-    let s:has_supported_python = 0
-endif
-
-if !s:has_supported_python
-    function! s:GundoDidNotLoad()
-        echohl WarningMsg|echomsg "Gundo requires Vim to be compiled with Python 2.4+"|echohl None
-    endfunction
-    command! -nargs=0 GundoToggle call s:GundoDidNotLoad()
-    finish
-endif"}}}
-
-let s:plugin_path = escape(expand('<sfile>:p:h'), '\')
-
 if !exists('g:gundo_width')"{{{
     let g:gundo_width = 45
 endif"}}}
@@ -61,7 +43,26 @@ endif"}}}
 if !exists("g:gundo_close_on_revert")"{{{
     let g:gundo_close_on_revert = 0
 endif"}}}
+if !exists("g:gundo_prefer_python3")"{{{
+    let g:gundo_prefer_python3 = 0
+endif"}}}
 
+let s:has_supported_python = 0
+if g:gundo_prefer_python3 && has('python3')"{{{
+    let s:has_supported_python = 2
+elseif has('python')"
+    let s:has_supported_python = 1
+endif
+
+if !s:has_supported_python
+    function! s:GundoDidNotLoad()
+        echohl WarningMsg|echomsg "Gundo requires Vim to be compiled with Python 2.4+"|echohl None
+    endfunction
+    command! -nargs=0 GundoToggle call s:GundoDidNotLoad()
+    finish
+endif"}}}
+
+let s:plugin_path = escape(expand('<sfile>:p:h'), '\')
 "}}}
 
 "{{{ Gundo utility functions
@@ -215,6 +216,9 @@ function! s:GundoOpenGraph()"{{{
             call s:GundoResizeBuffers(winnr())
         endif
     endif
+    if exists("g:gundo_tree_statusline")
+        let &l:statusline = g:gundo_tree_statusline
+    endif
 endfunction"}}}
 
 function! s:GundoOpenPreview()"{{{
@@ -249,6 +253,9 @@ function! s:GundoOpenPreview()"{{{
             endif
         endif
     endif
+    if exists("g:gundo_preview_statusline")
+        let &l:statusline = g:gundo_preview_statusline
+    endif
 endfunction"}}}
 
 function! s:GundoClose()"{{{
@@ -265,13 +272,13 @@ endfunction"}}}
 
 function! s:GundoOpen()"{{{
     if !exists('g:gundo_py_loaded')
-	if s:has_supported_python == 2
-	  exe 'py3file ' . s:plugin_path . '/gundo.py'
-	  python3 initPythonModule()
-	else
-	  exe 'pyfile ' . s:plugin_path . '/gundo.py'
-	  python initPythonModule()
-	endif
+        if s:has_supported_python == 2 && g:gundo_prefer_python3
+            exe 'py3file ' . s:plugin_path . '/gundo.py'
+            python3 initPythonModule()
+        else
+            exe 'pyfile ' . s:plugin_path . '/gundo.py'
+            python initPythonModule()
+        endif
 
         if !s:has_supported_python
             function! s:GundoDidNotLoad()
@@ -308,6 +315,14 @@ function! s:GundoToggle()"{{{
         let g:gundo_target_f = @%
         call s:GundoOpen()
     endif
+endfunction"}}}
+
+function! s:GundoShow()"{{{
+    call s:GundoOpen()
+endfunction"}}}
+
+function! s:GundoHide()"{{{
+    call s:GundoClose()
 endfunction"}}}
 
 "}}}
@@ -370,26 +385,26 @@ endfunction"}}}
 "{{{ Gundo rendering
 
 function! s:GundoRenderGraph()"{{{
-    if s:has_supported_python == 2
-	python3 GundoRenderGraph()
+    if s:has_supported_python == 2 && g:gundo_prefer_python3
+        python3 GundoRenderGraph()
     else
-	python GundoRenderGraph()
+        python GundoRenderGraph()
     endif
 endfunction"}}}
 
 function! s:GundoRenderPreview()"{{{
-    if s:has_supported_python == 2
-	python3 GundoRenderPreview()
+    if s:has_supported_python == 2 && g:gundo_prefer_python3
+        python3 GundoRenderPreview()
     else
-	python GundoRenderPreview()
+        python GundoRenderPreview()
     endif
 endfunction"}}}
 
 function! s:GundoRenderChangePreview()"{{{
-    if s:has_supported_python == 2
-	python3 GundoRenderChangePreview()
+    if s:has_supported_python == 2 && g:gundo_prefer_python3
+        python3 GundoRenderChangePreview()
     else
-	python GundoRenderChangePreview()
+        python GundoRenderChangePreview()
     endif
 endfunction"}}}
 
@@ -398,18 +413,18 @@ endfunction"}}}
 "{{{ Gundo undo/redo
 
 function! s:GundoRevert()"{{{
-    if s:has_supported_python == 2
-	python3 GundoRevert()
+    if s:has_supported_python == 2 && g:gundo_prefer_python3
+        python3 GundoRevert()
     else
-	python GundoRevert()
+        python GundoRevert()
     endif
 endfunction"}}}
 
 function! s:GundoPlayTo()"{{{
-    if s:has_supported_python == 2
-	python3 GundoPlayTo()
+    if s:has_supported_python == 2 && g:gundo_prefer_python3
+        python3 GundoPlayTo()
     else
-	python GundoPlayTo()
+        python GundoPlayTo()
     endif
 endfunction"}}}
 

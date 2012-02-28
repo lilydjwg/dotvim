@@ -833,6 +833,7 @@ let g:DirDiffExcludes = "*~,*.swp"
 let g:DirDiffWindowSize = 20
 "   gundo[[[2
 let gundo_preview_bottom = 1
+let gundo_prefer_python3 = 1
 "   bufexplorer[[[2
 let g:bufExplorerFindActive = 0
 "   taglist[[[2
