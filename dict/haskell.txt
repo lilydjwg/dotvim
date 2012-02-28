@@ -26,3 +26,4 @@ where
 readProcess
 Process
 Monad
+getCPUTime
