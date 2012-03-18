@@ -22,3 +22,5 @@ def LilyPaste():
   echon(msg + url)
   curl.wait()
 
+def vimprint(style, text):
+  vim.command("echohl %s | echo '%s' | echohl None" % (style, text.replace("'", "''")))
