@@ -995,9 +995,6 @@ endfunction"}}}
 function! neocomplcache#is_eskk_enabled()"{{{
   return exists('*eskk#is_enabled') && eskk#is_enabled()
 endfunction"}}}
-function! neocomplcache#is_text_mode()"{{{
-  return s:is_text_mode || s:within_comment
-endfunction"}}}
 function! neocomplcache#is_win()"{{{
   return has('win32') || has('win64')
 endfunction"}}}
@@ -1135,9 +1132,7 @@ function! neocomplcache#get_complete_result(cur_text, ...)"{{{
       " Save options.
       let l:ignorecase_save = &ignorecase
 
-      if neocomplcache#is_text_mode()
-        let &ignorecase = 1
-      elseif g:neocomplcache_enable_smart_case && l:cur_keyword_str =~ '\u'
+      if g:neocomplcache_enable_smart_case && l:cur_keyword_str =~ '\u'
         let &ignorecase = 0
       else
         let &ignorecase = g:neocomplcache_enable_ignore_case
@@ -1287,26 +1282,6 @@ function! neocomplcache#integrate_completion(complete_result, is_sort)"{{{
         endif
       endfor
     endfor
-  endif"}}}
-
-  " Convert words.
-  if neocomplcache#is_text_mode()"{{{
-    if l:cur_keyword_str =~ '^\l\+$'
-      for l:keyword in l:complete_words
-        let l:keyword.word = tolower(l:keyword.word)
-        let l:keyword.abbr = tolower(l:keyword.abbr)
-      endfor
-    elseif l:cur_keyword_str =~ '^\u\+$'
-      for l:keyword in l:complete_words
-        let l:keyword.word = toupper(l:keyword.word)
-        let l:keyword.abbr = toupper(l:keyword.abbr)
-      endfor
-    elseif l:cur_keyword_str =~ '^\u\l\+$'
-      for l:keyword in l:complete_words
-        let l:keyword.word = toupper(l:keyword.word[0]).tolower(l:keyword.word[1:])
-        let l:keyword.abbr = toupper(l:keyword.abbr[0]).tolower(l:keyword.abbr[1:])
-      endfor
-    endif
   endif"}}}
 
   if g:neocomplcache_max_keyword_width >= 0"{{{
@@ -1671,9 +1646,7 @@ function! neocomplcache#complete_common_string()"{{{
   " Get cursor word.
   let [l:cur_keyword_pos, l:cur_keyword_str] = neocomplcache#match_word(s:get_cur_text())
 
-  if neocomplcache#is_text_mode()
-    let &ignorecase = 1
-  elseif g:neocomplcache_enable_smart_case && l:cur_keyword_str =~ '\u'
+  if g:neocomplcache_enable_smart_case && l:cur_keyword_str =~ '\u'
     let &ignorecase = 0
   else
     let &ignorecase = g:neocomplcache_enable_ignore_case
@@ -1771,9 +1744,7 @@ function! s:make_quick_match_list(list, cur_keyword_str)"{{{
   " Save options.
   let l:ignorecase_save = &ignorecase
 
-  if neocomplcache#is_text_mode()
-    let &ignorecase = 1
-  elseif g:neocomplcache_enable_smart_case && a:cur_keyword_str =~ '\u'
+  if g:neocomplcache_enable_smart_case && a:cur_keyword_str =~ '\u'
     let &ignorecase = 0
   else
     let &ignorecase = g:neocomplcache_enable_ignore_case

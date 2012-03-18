@@ -16,6 +16,28 @@ runtime vimrc_example.vim
 "]]]
 " 我的设置
 " 函数[[[1
+"   使用分隔符连接多行 [[[2
+function Lilydjwg_join(sep, bang) range
+  if a:sep[0] == '\'
+    let sep = strpart(a:sep, 1)
+  else
+    let sep = a:sep
+  endif
+  let lines = getline(a:firstline, a:lastline)
+  if a:firstline == 1 && a:lastline == line('$')
+    let dellast = 1
+  else
+    let dellast = 0
+  endif
+  exe a:firstline . ',' . a:lastline . 'd_'
+  if a:bang != '!'
+    call map(lines, "substitute(v:val, '^\\s\\+\\|\\s\\+$', '', 'g')")
+  endif
+  call append(a:firstline -1, join(lines, sep))
+  if dellast
+    $d_
+  endif
+endfunction
 "   切换显示行号/相对行号/不显示 [[[2
 function Lilydjwg_toggle_number()
   if &nu
@@ -402,6 +424,9 @@ if has("win32") || has("win64")
   let g:vimfiles = expand("$VIM/vimfiles")
   let g:dictfilePrefix = expand('$VIM/vimfiles/dict/')
   set errorfile=$TMP/error
+  if has("python3")
+    py3file $VIM/vimfiles/vimrc.py
+  endif
   " Win 程序 [[[3
   "   用默认的程序打开文件
   nmap <C-S-F5> :!"%"<CR>
@@ -419,11 +444,15 @@ else
   let g:vimfiles = expand("~/.vim")
   let g:dictfilePrefix = expand('~/.vim/dict/')
   set errorfile=~/tmpfs/error
-  let my_diary_file = expand('~/private/diary/2011.rj')
+  let my_diary_file = expand('~/secret/diary/2012.rj')
+  let g:MuttVim_configfile = expand('~/scripts/python/pydata/muttvim.json')
   cmap <C-T> ~/tmpfs/
   " cron 的目录不要备份
   set backupskip+=/etc/cron.*/*
   set backupdir=.,~/temp,/tmp
+  if has("python3")
+    py3file ~/.vim/vimrc.py
+  endif
   " Linux 程序 [[[3
   "   用默认的程序打开文件
   "   FIXME xdg-open 的配置在哪里？为什么不用浏览器打开 HTML 文件呢？
@@ -447,13 +476,14 @@ else
   set statusline=%n\ %<%f\ %LL\ %{&modified?'[+]':&modifiable\|\|&ft=~'^\\vhelp\|qf$'?'':'[-]'}%h%r%{&fenc=='utf-8'\|\|&fenc==''?'':'['.&fenc.']'}%{&ff=='unix'?'':'['.&ff.']'}%{&bomb?'[BOM]':''}%{&eol?'':'[noeol]'}%=\ 0x%-4.4B\ \ \ \ %-14.(%l,%c%V%)\ %P
 endif
 " 图形与终端 [[[2
+let colorscheme = 'lilypink'
 if has("gui_running")
   " 有些终端不能改变大小
   set columns=88
   set lines=38
   set number
   set cursorline
-  colorscheme pink_lily
+  exe 'colorscheme' colorscheme
 elseif has("unix")
   set ambiwidth=single
   " 防止退出时终端乱码
@@ -462,7 +492,7 @@ elseif has("unix")
   set t_IE=(B
   if &term =~ "256color"
     set cursorline
-    colorscheme pink_lily
+    exe 'colorscheme' colorscheme
   else
     " 在Linux文本终端下非插入模式显示块状光标
     if &term == "linux" || &term == "fbterm"
@@ -474,11 +504,11 @@ elseif has("unix")
     if &term == "fbterm"
       set cursorline
       set number
-      colorscheme pink_lily
+      exe 'colorscheme' colorscheme
     elseif $TERMCAP =~ 'Co#256'
       set t_Co=256
       set cursorline
-      colorscheme pink_lily
+      exe 'colorscheme' colorscheme
     else
       " 暂时只有这个配色比较适合了
       colorscheme default
@@ -518,6 +548,7 @@ elseif has("unix")
     unlet color_exit
   endif
 endif
+unlet colorscheme
 " 不同的 Vim 版本 [[[2
 if has("conceal")
   set concealcursor=nc
@@ -528,6 +559,9 @@ if has("persistent_undo")
     call mkdir(&undodir, '', 0700)
   endif
   set undofile
+endif
+if v:version > 702
+  set cryptmethod=blowfish
 endif
 unlet g:undodir
 " map 相关[[[1
@@ -575,7 +609,6 @@ nmap -int :exe 'tabe '.g:vimfiles.'/indent/'.&ft.'.vim'<CR>
 nnoremap wh :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<' . synIDattr(synID(line("."),col("."),0),"name") . "> lo<" . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
 "     Alt 组合键 [[[3
 nmap <M-m> :MRU 
-nmap <silent> <M-f> :echo expand('%:p')<CR>
 " 打开草稿
 nmap <unique> <silent> <M-s> <Plug>ShowScratchBuffer
 for i in range(1, 9)
@@ -702,6 +735,7 @@ endif
 exe 'command Set tabe ' . escape(resolve($MYVIMRC), ' ')
 " 删除当前文件
 command Delete if delete(expand('%')) | echohl WarningMsg | echo "删除当前文件失败" | echohl None | endif
+command -nargs=1 -range=% -bang Join <line1>,<line2>call Lilydjwg_join(<q-args>, "<bang>")
 command -nargs=+ Reindent call Lilydjwg_reindent(<f-args>)
 " TODO better implement
 command -range=% ClsXML <line1>,<line2>!tidy -utf8 -iq -xml
@@ -712,12 +746,12 @@ command -nargs=1 -complete=customlist,Lilydjwg_complete_So So runtime so/<args>.
 command -nargs=1 -complete=command ReadCommand redir @">|exe "<args>"|normal $p:redir END<CR>
 command -nargs=1 Delmark delm <args>|wviminfo!
 "   删除空行
-command -range=% DBlank <line1>,<line2>g/^\s*$/d|nohls
+command -range=% -bar DBlank <line1>,<line2>g/^\s*$/d_|nohls
 "   某个 pattern 出现的次数
 command -range=% -nargs=1 Count <line1>,<line2>s/<args>//gn|nohls
-command SBlank %s/\v(^\s*$\n){2,}/\r/g
+command -range=% -bar SBlank <line1>,<line2>s/\v(^\s*$\n){2,}/\r/g
 "   删除拖尾的空白
-command -range=% TWS <line1>,<line2>s/\s\+$//|nohls|normal ``
+command -range=% -bar TWS <line1>,<line2>s/\s\+$//|nohls|normal ``
 "   设置成 Linux 下适用的格式
 command Lin setl ff=unix fenc=utf8 nobomb eol
 "   设置成 Windows 下适用的格式
@@ -725,9 +759,9 @@ command Win setl ff=dos fenc=gb18030
 "   以第一行的文字为名保存当前文件
 command TSave call Lilydjwg_TSave()
 command -nargs=? -complete=file RSplit vs <args>|normal <C-W>L<C-W>w
-command -range=% SQuote <line1>,<line2>s/“\|”\|″/"/ge|<line1>,<line2>s/‘\|’\|′/'/ge
-command -range HTMLEscape <line1>,<line2>s/&/\&amp;/ge|<line1>,<line2>s/</\&lt;/ge|<line1>,<line2>s/>/\&gt;/ge
-command -range HTMLUnescape <line1>,<line2>s/&amp;/\&/ge|<line1>,<line2>s/&lt;/</ge|<line1>,<line2>s/&gt;/>/ge
+command -range=% -bar SQuote <line1>,<line2>s/“\|”\|″/"/ge|<line1>,<line2>s/‘\|’\|′/'/ge
+command -range -bar HTMLEscape <line1>,<line2>s/&/\&amp;/ge|<line1>,<line2>s/</\&lt;/ge|<line1>,<line2>s/>/\&gt;/ge
+command -range -bar HTMLUnescape <line1>,<line2>s/&amp;/\&/ge|<line1>,<line2>s/&lt;/</ge|<line1>,<line2>s/&gt;/>/ge
 command RJ silent call Lilydjwg_edit_diary()
 "   载入 snippets
 command -nargs=? Snippets silent call Lilydjwg_snippets("<args>")
@@ -739,10 +773,13 @@ command CenterFull call CenterFull()
 command Larger set lines+=1
 command MusicSelect runtime so/musicselect.vim
 command -nargs=1 -range -complete=customlist,Lilydjwg_Align_complete LA <line1>,<line2>call Lilydjwg_Align("<args>")
-command -range=% Paste <line1>,<line2>w !curl -F 'vimcn=<-' http://p.vim-cn.com
-" 其它命令[[[1
+command -range=% Paste :<line1>,<line2>py3 LilyPaste()
+" 插件配置[[[1
 "   neocomplcache[[[2
 let g:neocomplcache_enable_at_startup = 1
+let g:neocomplcache_enable_camel_case_completion = 1
+let g:neocomplcache_enable_underbar_completion = 1
+let g:neocomplcache_force_overwrite_completefunc = 1
 "   cycle[[[2
 "   https://github.com/lilydjwg/vim-cycle
 nnoremap <expr> <silent> <C-X> Lilydjwg_trycycle('x')
@@ -758,7 +795,6 @@ let g:cycle_default_groups = [
       \ [['on', 'off']],
       \ [['>', '<']],
       \ [['==', '!=']],
-      \ [['0', '1']],
       \ [['是', '否']],
       \ [["in", "out"]],
       \ [["min", "max"]],
@@ -774,6 +810,7 @@ let g:cycle_default_groups = [
       \ [['（:）', '「:」', '『:』'], 'sub_pairs'],
       \ [['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday',
       \ 'Friday', 'Saturday'], 'hard_case', {'name': 'Days'}],
+      \ [["enable", "disable"]],
       \ ]
 "   Lua[[[2
 let g:lua_complete_omni = 1
@@ -800,6 +837,7 @@ let g:DirDiffExcludes = "*~,*.swp"
 let g:DirDiffWindowSize = 20
 "   gundo[[[2
 let gundo_preview_bottom = 1
+let gundo_prefer_python3 = 1
 "   bufexplorer[[[2
 let g:bufExplorerFindActive = 0
 "   taglist[[[2
@@ -850,6 +888,10 @@ let MRU_Max_Entries = 2000
 let MRU_Exclude_Files = '\v^.*\~$|/COMMIT_EDITMSG$|/itsalltext/|^/tmp/'
 "  加载菜单太耗时
 let MRU_Add_Menu = 0
+"   syntax/haskell.vim[[[2
+let hs_highlight_boolean = 1
+let hs_highlight_types = 1
+let hs_highlight_more_types = 1
 "   syntax/python.vim[[[2
 let python_highlight_all = 1
 "   syntax/vim.vim 默认会高亮 s:[a-z] 这样的函数名为错误[[[2

@@ -930,10 +930,12 @@ g:tagbar_compact	tagbar.txt	/*g:tagbar_compact*
 g:tagbar_ctags_bin	tagbar.txt	/*g:tagbar_ctags_bin*
 g:tagbar_expand	tagbar.txt	/*g:tagbar_expand*
 g:tagbar_foldlevel	tagbar.txt	/*g:tagbar_foldlevel*
+g:tagbar_iconchars	tagbar.txt	/*g:tagbar_iconchars*
 g:tagbar_left	tagbar.txt	/*g:tagbar_left*
+g:tagbar_singleclick	tagbar.txt	/*g:tagbar_singleclick*
 g:tagbar_sort	tagbar.txt	/*g:tagbar_sort*
 g:tagbar_systemenc	tagbar.txt	/*g:tagbar_systemenc*
-g:tagbar_usearrows	tagbar.txt	/*g:tagbar_usearrows*
+g:tagbar_updateonsave_maxlines	tagbar.txt	/*g:tagbar_updateonsave_maxlines*
 g:tagbar_width	tagbar.txt	/*g:tagbar_width*
 g:vimwiki_CJK_length	vimwiki.txt	/*g:vimwiki_CJK_length*
 g:vimwiki_auto_checkbox	vimwiki.txt	/*g:vimwiki_auto_checkbox*
@@ -973,7 +975,9 @@ gundo_map_move_newer	gundo.txt	/*gundo_map_move_newer*
 gundo_map_move_older	gundo.txt	/*gundo_map_move_older*
 gundo_preview_bottom	gundo.txt	/*gundo_preview_bottom*
 gundo_preview_height	gundo.txt	/*gundo_preview_height*
+gundo_preview_statusline	gundo.txt	/*gundo_preview_statusline*
 gundo_right	gundo.txt	/*gundo_right*
+gundo_tree_statusline	gundo.txt	/*gundo_tree_statusline*
 gundo_width	gundo.txt	/*gundo_width*
 http	pi_netrw.txt	/*http*
 i_CTRL-G_S	surround.txt	/*i_CTRL-G_S*
@@ -1054,8 +1058,6 @@ lua_error_format	ft_lua.txt	/*lua_error_format*
 lua_error_format	lua-ftplugin.txt	/*lua_error_format*
 lua_path	ft_lua.txt	/*lua_path*
 lua_path	lua-ftplugin.txt	/*lua_path*
-manpage-pagedown	manpageview.txt	/*manpage-pagedown*
-manpage-pageup	manpageview.txt	/*manpage-pageup*
 manpageview	manpageview.txt	/*manpageview*
 manpageview-K	manpageview.txt	/*manpageview-K*
 manpageview-contents	manpageview.txt	/*manpageview-contents*
@@ -1067,9 +1069,12 @@ manpageview-info	manpageview.txt	/*manpageview-info*
 manpageview-man	manpageview.txt	/*manpageview-man*
 manpageview-open	manpageview.txt	/*manpageview-open*
 manpageview-options	manpageview.txt	/*manpageview-options*
+manpageview-pagedown	manpageview.txt	/*manpageview-pagedown*
+manpageview-pageup	manpageview.txt	/*manpageview-pageup*
 manpageview-perl	manpageview.txt	/*manpageview-perl*
 manpageview-php	manpageview.txt	/*manpageview-php*
 manpageview-python	manpageview.txt	/*manpageview-python*
+manpageview-suggest	manpageview.txt	/*manpageview-suggest*
 manpageview-usage	manpageview.txt	/*manpageview-usage*
 manpageview.txt	manpageview.txt	/*manpageview.txt*
 manpageview_extend	manpageview.txt	/*manpageview_extend*
@@ -1389,7 +1394,6 @@ surround.txt	surround.txt	/*surround.txt*
 syntax_complete	neocomplcache.txt	/*syntax_complete*
 tagbar	tagbar.txt	/*tagbar*
 tagbar-autoopen	tagbar.txt	/*tagbar-autoopen*
-tagbar-bugs	tagbar.txt	/*tagbar-bugs*
 tagbar-commands	tagbar.txt	/*tagbar-commands*
 tagbar-configuration	tagbar.txt	/*tagbar-configuration*
 tagbar-contents	tagbar.txt	/*tagbar-contents*
@@ -1400,6 +1404,7 @@ tagbar-highlight	tagbar.txt	/*tagbar-highlight*
 tagbar-history	tagbar.txt	/*tagbar-history*
 tagbar-installation	tagbar.txt	/*tagbar-installation*
 tagbar-intro	tagbar.txt	/*tagbar-intro*
+tagbar-issues	tagbar.txt	/*tagbar-issues*
 tagbar-keys	tagbar.txt	/*tagbar-keys*
 tagbar-other	tagbar.txt	/*tagbar-other*
 tagbar-pseudotags	tagbar.txt	/*tagbar-pseudotags*

@@ -1,7 +1,8 @@
+
 " transwrd.vim: Swap two words as M-t (transpose-words) function in Emacs (Bash)
 "               This version of the script act more likely to M-t in Bash
 "               rather than in emacs.
-" Last Change:  2011-07-06
+" Last Change:  2012-02-25
 " Maintainer:   Fermat <Fermat618@gmail.com>
 " Licence: This script is released under the Vim License.
 " Install:
@@ -125,36 +126,42 @@ function s:transpose_word()
     let cline = getline(".")
     let col = col(".")
     let i = 1
-    let cline_col = s:transpose_word_inline(cline, col)
+    let [cline_out, col_out] = s:transpose_word_inline(cline, col)
     while i < counts
         let i += 1
-        let cline_col = s:transpose_word_inline(cline_col[0], cline_col[1])
+        let [cline_out, col_out] = s:transpose_word_inline(cline_out, col_out)
     endwhile
-    if cline_col ==# [cline, col]
+    if [cline_out, col_out] ==# [cline, col]
         return ''
     else
         let lnum = line(".")
-        call setline(lnum, cline_col[0])
-        call setpos(".", [0, lnum, cline_col[1], 0])
+        call setline(lnum, cline_out)
+        if col_out != col
+            call setpos(".", [0, lnum, col_out, 0])
+        endif
     endif
-    silent! call repeat#set("\<Plug>Transposewords", v:count)
+    if mode() == 'n'
+        silent! call repeat#set("\<Plug>Transposewords", v:count)
+        " In insert mode this cause problem when the cursor in in the end of a
+        " line.
+    endif
     return ''
 endfunction
 
 function s:transpose_word_cmdline()
     let cline = getcmdline()
     let col = getcmdpos()
-    let cline_col = s:transpose_word_inline(cline, col)
-    if cline_col !=# [cline, col]
-        call setcmdpos(cline_col[1])
+    let [cline_out, col_out] = s:transpose_word_inline(cline, col)
+    if [cline_out, col_out] !=# [cline, col]
+        call setcmdpos(col_out)
     endif
-    return cline_col[0]
+    return cline_out
 endfunction
 
 " Mappings
 nnoremap <unique> <silent> <Plug>Transposewords
                 \ :<C-u>call <SID>transpose_word()<CR>
-inoremap <unique> <silent> <Plug>Transposewords <C-R>=<SID>transpose_word()<CR>
+inoremap <unique> <silent> <Plug>Transposewords <C-g>u<C-R>=<SID>transpose_word()<CR>
 cnoremap <unique> <Plug>Transposewords <C-\>e<SID>transpose_word_cmdline()<CR>
 
 if !hasmapto('<Plug>Transposewords')

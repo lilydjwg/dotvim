@@ -1,8 +1,8 @@
-*manpageview.txt*	Man Page Viewer			Oct 21, 2010
+*manpageview.txt*	Man Page Viewer			Nov 26, 2010
 
 Author:  Charles E. Campbell, Jr.  <NdrchipO@ScampbellPfamily.AbizM>
 	  (remove NOSPAM from Campbell's email first)
-Copyright: (c) 2004-2009 by Charles E. Campbell, Jr.	*manpageview-copyright*
+Copyright: (c) 2004-2010 by Charles E. Campbell, Jr.	*manpageview-copyright*
            The VIM LICENSE applies to ManPageView.vim and ManPageView.txt
            (see |copyright|) except use "ManPageView" instead of "Vim"
 	   no warranty, express or implied.  use at-your-own-risk.
@@ -20,6 +20,7 @@ Copyright: (c) 2004-2009 by Charles E. Campbell, Jr.	*manpageview-copyright*
 	     Info...................................: |manpageview-info|
 	     Php....................................: |manpageview-php|
 	     Extending ManPageView..................: |manpageview-extend|
+	     Manpageview Suggestion.................: |manpageview-suggest|
 	3. ManPageView Options......................: |manpageview-options|
 	4. ManPageView History......................: |manpageview-history|
 
@@ -166,7 +167,7 @@ Copyright: (c) 2004-2009 by Charles E. Campbell, Jr.	*manpageview-copyright*
 	The help on |manpageview_extend| covers these variables in more
 	detail.
 
-	MULTIPLE MAN PAGES		*manpage-pageup* *manpage-pagedown*
+	MULTIPLE MAN PAGES		*manpageview-pageup* *manpageview-pagedown*
 
         With >
 		man -a topic
@@ -176,6 +177,15 @@ Copyright: (c) 2004-2009 by Charles E. Campbell, Jr.	*manpageview-copyright*
 		PageUp  : move to preceding  manpage
 		PageDown: move to succeeding manpage
 <
+	MANPAGEVIEW SUGGESTION		*manpageview-suggest*
+
+	As an example, for C: put in .vim/ftplugin/c/c.vim: >
+		nno <buffer> K  :<c-u>exe v:count."Man ".expand("<cword>")<cr>
+<	This map allows K to immediately use manpageview with functions in a
+	C program.  One may make similar maps for other languages, of course,
+	or simply put the map in one's <.vimrc>.
+
+
 
 ==============================================================================
 3. ManPageView Options				*manpageview-options* {{{1
@@ -304,6 +314,7 @@ Copyright: (c) 2004-2009 by Charles E. Campbell, Jr.	*manpageview-copyright*
 			   * (in progress) KMan [ext] to set default
 			     extension for the K map
 	     Oct 21, 2010  * added python help via pydoc (suffix: .py)
+	     Oct 25, 2010  * Version 23 released
 	v22: Nov 10, 2008  * if g:manpageview_K_{ext} (ext is some
 			     extension) exists, previously that would
 			     be enough to institute a K map.  Now, if

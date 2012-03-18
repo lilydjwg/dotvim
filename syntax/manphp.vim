@@ -5,7 +5,6 @@
 "  Version:    	3
 " ---------------------------------------------------------------------
 syn clear
-
 let b:current_syntax = "manphp"
 
 syn keyword manphpKey			Description Returns

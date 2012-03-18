@@ -10,8 +10,20 @@
 " Dependencies:
 "  - SearchSpecial.vim autoload script (optional, for improved search messages). 
 "
-" Version:     2.5.1
+" Version:     2.5.2
 " Changes:
+"
+" 09-Nov-2011, Ingo Karkat
+" - BUG: With a single match and 'wrapscan' set, a search error was issued
+"   instead of the wrap message. Add check for l:isStuckAtCurrentMark &&
+"   l:isWrapped in the no-match part of s:Search(). 
+" - FIX: In backwards search with single match, the :break short-circuits the
+"   l:isWrapped logic, resets l:line and therefore also confuses the logic and
+"   leads to wrong error message instead of wrap message. Don't reset l:line,
+"   set l:isWrapped instead. 
+" - FIX: Wrong logic for determining l:isWrapped lets wrap-around go undetected
+"   when v:count >= number of total matches. [l:startLine, l:startCol] must
+"   be updated on every iteration. 
 "
 " 17-May-2011, Ingo Karkat
 " - Make s:GetVisualSelection() public to allow use in suggested
@@ -515,11 +527,12 @@ function! s:Search( pattern, isBackward, currentMarkPosition, searchType )
 	set nosmartcase
 
 	let l:count = v:count1
-	let [l:startLine, l:startCol] = [line('.'), col('.')]
 	let l:isWrapped = 0
 	let l:isMatch = 0
 	let l:line = 0
 	while l:count > 0
+		let [l:startLine, l:startCol] = [line('.'), col('.')]
+
 		" Search for next match, 'wrapscan' applies. 
 		let [l:line, l:col] = searchpos( a:pattern, (a:isBackward ? 'b' : '') )
 
@@ -541,9 +554,10 @@ function! s:Search( pattern, isBackward, currentMarkPosition, searchType )
 			" a regular match. The search also must not be retried when this is the
 			" first match, but we've been here before (i.e. l:isMatch is set): This
 			" means that there is only the current mark in the buffer, and we must
-			" break out of the loop and indicate that no other mark was found. 
+			" break out of the loop and indicate that search wrapped around and no
+			" other mark was found. 
 			if l:isMatch
-				let l:line = 0
+				let l:isWrapped = 1
 				break
 			endif
 
@@ -571,6 +585,7 @@ function! s:Search( pattern, isBackward, currentMarkPosition, searchType )
 	" We're not stuck when the search wrapped around and landed on the current
 	" mark; that's why we exclude a possible wrap-around via v:count1 == 1. 
 	let l:isStuckAtCurrentMark = ([l:line, l:col] == a:currentMarkPosition && v:count1 == 1)
+"****D echomsg '****' l:line l:isStuckAtCurrentMark l:isWrapped l:isMatch string([l:line, l:col]) string(a:currentMarkPosition)
 	if l:line > 0 && ! l:isStuckAtCurrentMark
 		let l:matchPosition = getpos('.')
 
@@ -612,8 +627,13 @@ function! s:Search( pattern, isBackward, currentMarkPosition, searchType )
 		" it getting lost due to the screen updates). 
 		call s:MarkEnable(1)
 
-		call s:ErrorMessage(a:searchType, a:pattern, a:isBackward)
-		return 0
+		if l:line > 0 && l:isStuckAtCurrentMark && l:isWrapped
+			call s:WrapMessage(a:searchType, a:pattern, a:isBackward)
+			return 1
+		else
+			call s:ErrorMessage(a:searchType, a:pattern, a:isBackward)
+			return 0
+		endif
 	endif
 endfunction
 
