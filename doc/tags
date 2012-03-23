@@ -76,6 +76,7 @@
 :MarkClear	mark.txt	/*:MarkClear*
 :MarkLoad	mark.txt	/*:MarkLoad*
 :MarkSave	mark.txt	/*:MarkSave*
+:Marks	mark.txt	/*:Marks*
 :MatchDebug	matchit.txt	/*:MatchDebug*
 :NERDTree	NERD_tree.txt	/*:NERDTree*
 :NERDTreeClose	NERD_tree.txt	/*:NERDTreeClose*
@@ -900,6 +901,7 @@ mark-highlight-colors	mark.txt	/*mark-highlight-colors*
 mark-highlighting	mark.txt	/*mark-highlighting*
 mark-history	mark.txt	/*mark-history*
 mark-ideas	mark.txt	/*mark-ideas*
+mark-information	mark.txt	/*mark-information*
 mark-installation	mark.txt	/*mark-installation*
 mark-known-problems	mark.txt	/*mark-known-problems*
 mark-limitations	mark.txt	/*mark-limitations*
