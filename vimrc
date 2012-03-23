@@ -790,6 +790,7 @@ let g:cycle_no_mappings = 1
 let g:cycle_default_groups = [
       \ [['true', 'false']],
       \ [['yes', 'no']],
+      \ [['and', 'or']],
       \ [['on', 'off']],
       \ [['>', '<']],
       \ [['==', '!=']],
