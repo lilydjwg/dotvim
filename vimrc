@@ -627,7 +627,7 @@ nmap ' <C-W>
 nmap Y y$
 nmap 'm :MarksBrowser<CR>
 nmap :: :!
-nmap cd :silent lcd %:p:h<CR>:echo expand('%:p:h')<CR>
+nmap <silent> cd :lcd %:p:h<CR>:echon expand('%:p:h')<CR>
 nmap gb :setl fenc=gb18030<CR>
 nmap d<CR> :%s/\r//eg<CR>``
 nmap cac :call Lilydjwg_changeColor()<CR>
