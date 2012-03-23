@@ -3,8 +3,7 @@ scriptencoding utf-8
 " Colorscheme created with ColorSchemeEditor v1.2.2
 " Name: pink
 " Maintainer: lilydjwg <lilydjwg@gmail.com>
-" Version: 1.1
-" Last Change: 2010年2月9日
+" Version: 1.2
 
 set background=light
 if version > 580
@@ -18,6 +17,7 @@ let g:colors_name = "pink_lily"
 if v:version >= 700
 	highlight CursorColumn guibg=#ffd7af gui=NONE ctermfg=16 ctermbg=223 cterm=none
 	highlight CursorLine guibg=#ffd78f gui=NONE ctermbg=222 cterm=none
+	highlight CursorLineNr guifg=#5f5fff guibg=#ffd78f gui=NONE ctermfg=63 ctermbg=222 cterm=none
 	highlight Pmenu guifg=#444444 guibg=#ffafff gui=NONE ctermfg=238 ctermbg=219 cterm=none
 	highlight PmenuSel guifg=#00008f guibg=#FF99FF gui=bold ctermfg=18 ctermbg=213 cterm=bold
 	highlight PmenuSbar guifg=#444444 guibg=#FF99FF gui=NONE ctermfg=238 ctermbg=213 cterm=none

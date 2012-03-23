@@ -7,8 +7,8 @@
 "                 bright with colors. It looks like the flowers are in 
 "                 blossom in Spring.
 " Author:         CHE Wenlong <chewenlong AT buaa.edu.cn>
-" Version:        1.0
-" Last Change:    September 16, 2008
+" Contributor:    lilydjwg <lilydjwg@gmail.com>
+" Version:        1.1
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -28,8 +28,8 @@ let colors_name = "spring2"
 highlight Normal ctermbg=194 cterm=none guibg=#cce8cf gui=none ctermfg=16 guifg=#000000
 highlight Visual guibg=#ccffff gui=none ctermbg=195 cterm=none
 highlight Cursor ctermbg=23 cterm=none guibg=#2f4f4f gui=none ctermfg=223 guifg=#f5deb3
-highlight Cursorline guibg=#ccffff ctermbg=195 cterm=none
-hi        lCursor      guifg=#000000         guibg=#ffffff        gui=NONE
+highlight CursorLine guibg=#ccffff ctermbg=195 cterm=none
+highlight CursorLineNr guifg=#1060a0 guibg=#ccffff ctermfg=25 ctermbg=195 cterm=none
 highlight LineNr ctermbg=254 cterm=none guibg=#e0e0e0 gui=none ctermfg=25 guifg=#1060a0
 highlight Title gui=bold cterm=bold guifg=#202020 ctermfg=234
 highlight Underlined gui=underline cterm=underline guifg=#202020 ctermfg=234

@@ -1,8 +1,7 @@
 " vim: tw=0 ts=4 sw=4
 " Vim color file
-" Version: 1.0
+" Version: 1.1
 " Maintainer:	lilydjwg <lilydjwg@gmail.com>
-" Last Change:	2009年6月23日
 
 set background=dark
 hi clear
@@ -16,6 +15,7 @@ highlight Constant guifg=#99cc33 ctermfg=112
 highlight Cursor guifg=#ffffff guibg=#335577 ctermfg=231 ctermbg=24
 highlight CursorIM guifg=#00aaff guibg=#ff66ff ctermfg=39 ctermbg=207
 highlight CursorLine guibg=#223344 ctermbg=236 cterm=NONE
+highlight CursorLineNr guifg=#446699 guibg=#223344 ctermfg=25 ctermbg=236 cterm=NONE
 highlight DiffAdd guifg=#000000 guibg=#33ff33 ctermfg=16 ctermbg=46
 highlight DiffChange guifg=#dddddd guibg=#5555cc ctermfg=253 ctermbg=62
 highlight DiffDelete guifg=#000000 guibg=#ee6699 ctermfg=16 ctermbg=205

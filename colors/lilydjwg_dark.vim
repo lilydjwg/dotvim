@@ -1,16 +1,15 @@
 " local syntax file - set colors on a per-machine basis:
 " vim: tw=0 ts=4 sw=4
 " Vim color file
-" Version: 1.1
+" Version:		1.2
 " Maintainer:	lilydjwg <lilydjwg@gmail.com>
-" Last Change:	2009-07-31
 
 set background=dark
 hi clear
 if exists("syntax_on")
   syntax reset
 endif
-let g:colors_name = "lilydjwg_dark_1.1"
+let g:colors_name = "lilydjwg_dark"
 
 hi Comment guifg=#686868 ctermfg=59
 hi Constant guifg=#10a303 ctermfg=34
@@ -18,6 +17,7 @@ hi Cursor guifg=#FF66FF guibg=#00AAFF ctermfg=207 ctermbg=39
 hi CursorIM guifg=#00AAFF guibg=#FF66FF ctermfg=39 ctermbg=207
 " hi CursorIM gui=None cterm=None
 hi CursorLine guibg=#333333 ctermbg=236 cterm=None
+hi CursorLineNr guifg=#FF77DD guibg=#333333 ctermfg=212 ctermbg=236 cterm=None
 hi DiffAdd guifg=#000000 guibg=#33ff33 ctermfg=16 ctermbg=83
 hi DiffChange guifg=#dddddd guibg=#5555CC ctermfg=253 ctermbg=63
 hi DiffDelete guifg=#000000 guibg=#ee6699 ctermfg=16 ctermbg=175

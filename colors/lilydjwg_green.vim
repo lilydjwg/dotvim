@@ -2,22 +2,22 @@
 " local syntax file - set colors on a per-machine basis:
 " vim: tw=0 ts=4 sw=4 fenc=utf-8
 " Vim color file
-" Version: 1.5
+" Version: 1.6
 " Maintainer:	lilydjwg <lilydjwg@gmail.com>
-" Last Change:	2009年8月8日
 
 set background=light
 hi clear
 if exists("syntax_on")
   syntax reset
 endif
-let g:colors_name = "lilydjwg_green_1.5"
+let g:colors_name = "lilydjwg_green"
 
 hi Comment guifg=#686868 guibg=#9bedd1 ctermfg=242 ctermbg=122 cterm=none
 hi Constant guifg=#10a303 guibg=#9bedd1 ctermfg=34 ctermbg=122 cterm=none
 hi Cursor gui=bold guifg=#ff68d1 guibg=#00c4ff ctermfg=206 ctermbg=45 cterm=bold
 hi CursorIM gui=None ctermbg=122 cterm=none
 hi CursorLine guibg=lightcyan ctermbg=195 cterm=none
+hi CursorLineNr guifg=#ff64cb guibg=lightcyan ctermfg=206 ctermbg=195 cterm=none
 hi DiffAdd guifg=black guibg=slateblue ctermfg=16 ctermbg=62 cterm=none
 hi DiffChange guifg=black guibg=darkgreen ctermfg=16 ctermbg=22 cterm=none
 hi DiffDelete gui=bold guifg=black guibg=coral ctermfg=16 ctermbg=209 cterm=bold
