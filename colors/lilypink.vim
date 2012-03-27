@@ -49,7 +49,7 @@ highlight SpecialKey guifg=#d090ff guibg=#242424 gui=NONE ctermfg=177 ctermbg=23
 highlight Special guifg=#ffddaa gui=NONE ctermfg=223 cterm=NONE
 
 highlight IncSearch guifg=#33ff1c guibg=#000000 gui=underline ctermfg=46 ctermbg=16 cterm=underline
-highlight Search guifg=NONE guibg=#000000 ctermbg=16 cterm=NONE
+highlight Search guifg=NONE guibg=#000000 ctermfg=NONE ctermbg=16 cterm=NONE
 highlight WildMenu guifg=#33ff1c guibg=#000000 gui=underline ctermfg=46 ctermbg=16 cterm=underline
 
 highlight TabLine guifg=#e0e0e0 guibg=#444444 gui=NONE ctermfg=254 ctermbg=238 cterm=NONE
