@@ -16,6 +16,11 @@ runtime vimrc_example.vim
 "]]]
 " 我的设置
 " 函数[[[1
+"   Perl-style quoted lists[[[2
+function Lilydjwg_qw()
+  let in = input('', 'qw(')
+  return system('qw', in)
+endfunction
 "   使用分隔符连接多行 [[[2
 function Lilydjwg_join(sep, bang) range
   if a:sep[0] == '\'
@@ -637,6 +642,7 @@ inoremap <S-CR> <CR>
 inoremap <M-c> <C-R>=Lilydjwg_colorpicker()<CR>
 inoremap <C-J> <C-P>
 inoremap <M-j> <C-N>
+inoremap <M-q> <C-R>=Lilydjwg_qw()<CR>
 imap <S-BS> <C-W>
 cmap <S-BS> <C-W>
 "     日期和时间 [[[3
