@@ -72,7 +72,6 @@ function! neocomplcache#enable() "{{{
   let s:moved_cur_text = ''
   let s:changedtick = b:changedtick
   let s:context_filetype = ''
-  let s:is_text_mode = 0
   let s:within_comment = 0
   let s:skip_next_complete = 0
   let s:is_prefetch = 0
@@ -457,14 +456,6 @@ function! neocomplcache#enable() "{{{
   endif
   call neocomplcache#set_dictionary_helper(g:neocomplcache_ctags_arguments_list, 'cpp',
         \'-R --sort=1 --c++-kinds=+p --fields=+iaS --extra=+q -I __wur --language-force=C++')
-  "}}}
-
-  " Initialize text mode filetypes."{{{
-  if !exists('g:neocomplcache_text_mode_filetypes')
-    let g:neocomplcache_text_mode_filetypes = {}
-  endif
-  call neocomplcache#set_dictionary_helper(g:neocomplcache_text_mode_filetypes,
-        \ 'text,help,tex,gitcommit,vcs-commit', 1)
   "}}}
 
   " Initialize tags filter patterns."{{{
@@ -1117,9 +1108,6 @@ endfunction"}}}
 function! neocomplcache#is_eskk_enabled()"{{{
   return exists('*eskk#is_enabled') && eskk#is_enabled()
 endfunction"}}}
-function! neocomplcache#is_text_mode()"{{{
-  return s:is_text_mode
-endfunction"}}}
 function! neocomplcache#is_win()"{{{
   return has('win32') || has('win64')
 endfunction"}}}
@@ -1333,7 +1321,6 @@ function! neocomplcache#get_complete_words(complete_results, is_sort,
   let words = []
   let icase = g:neocomplcache_enable_ignore_case &&
         \!(g:neocomplcache_enable_smart_case && a:cur_keyword_str =~ '\u')
-        \ && !neocomplcache#is_text_mode()
   for keyword in complete_words
     if has_key(keyword, 'kind') && keyword.kind == ''
       " Remove kind key.
@@ -1398,26 +1385,6 @@ function! neocomplcache#get_complete_words(complete_results, is_sort,
     endfor
   endif"}}}
 
-  " Convert words.
-  if neocomplcache#is_text_mode() "{{{
-    if a:cur_keyword_str =~ '^\l\+$'
-      for keyword in complete_words
-        let keyword.word = tolower(keyword.word)
-        let keyword.abbr = tolower(keyword.abbr)
-      endfor
-    elseif a:cur_keyword_str =~ '^\u\+$'
-      for keyword in complete_words
-        let keyword.word = toupper(keyword.word)
-        let keyword.abbr = toupper(keyword.abbr)
-      endfor
-    elseif a:cur_keyword_str =~ '^\u\l\+$'
-      for keyword in complete_words
-        let keyword.word = toupper(keyword.word[0]).tolower(keyword.word[1:])
-        let keyword.abbr = toupper(keyword.abbr[0]).tolower(keyword.abbr[1:])
-      endfor
-    endif
-  endif"}}}
-
   if g:neocomplcache_max_keyword_width >= 0 "{{{
     " Abbr check.
     let abbr_pattern = printf('%%.%ds..%%s',
@@ -1452,9 +1419,7 @@ function! s:set_complete_results_words(complete_results)"{{{
     " Save options.
     let ignorecase_save = &ignorecase
 
-    if neocomplcache#is_text_mode()
-      let &ignorecase = 1
-    elseif g:neocomplcache_enable_smart_case && result.cur_keyword_str =~ '\u'
+    if g:neocomplcache_enable_smart_case && result.cur_keyword_str =~ '\u'
       let &ignorecase = 0
     else
       let &ignorecase = g:neocomplcache_enable_ignore_case
@@ -1766,9 +1731,7 @@ function! neocomplcache#complete_common_string()"{{{
   " Get cursor word.
   let [cur_keyword_pos, cur_keyword_str] = neocomplcache#match_word(s:get_cur_text())
 
-  if neocomplcache#is_text_mode()
-    let &ignorecase = 1
-  elseif g:neocomplcache_enable_smart_case && cur_keyword_str =~ '\u'
+  if g:neocomplcache_enable_smart_case && cur_keyword_str =~ '\u'
     let &ignorecase = 0
   else
     let &ignorecase = g:neocomplcache_enable_ignore_case
@@ -1863,7 +1826,6 @@ function! s:on_insert_leave()"{{{
   let s:cur_keyword_str = ''
   let s:complete_words = []
   let s:context_filetype = ''
-  let s:is_text_mode = 0
   let s:skip_next_complete = 0
   let s:is_prefetch = 0
 endfunction"}}}
@@ -1935,9 +1897,6 @@ function! s:set_context_filetype()"{{{
 
   " Set text mode or not.
   let syn_name = neocomplcache#get_syn_name(1)
-  let s:is_text_mode =
-        \ (has_key(g:neocomplcache_text_mode_filetypes, s:context_filetype)
-        \ && g:neocomplcache_text_mode_filetypes[s:context_filetype])
   let s:within_comment = (syn_name ==# 'Comment')
 
   " Set filetype plugins.
