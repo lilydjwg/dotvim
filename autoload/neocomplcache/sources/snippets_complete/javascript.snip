@@ -4,7 +4,8 @@ snippet :f
 	}
 
 snippet func
-	function ${1:function_name} (${2:argument}) {
+alias   function
+	function ${1:function_name}(${2:argument}) {
 		${0:// body...}
 	}
 
@@ -29,6 +30,11 @@ snippet for
 		${0}
 	};
 
+snippet forin
+	for (var ${2:i} in ${1:Things}) {
+		${0}
+	};
+
 snippet ;,
     ${1:value_name}:${0:value},
 
@@ -39,4 +45,3 @@ snippet key
 
 snippet timeout
     setTimeout(function() {${0}}${2:}, ${1:10});
-

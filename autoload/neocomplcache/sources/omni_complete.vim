@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: omni_complete.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 22 Apr 2011.
+" Last Modified: 19 Dec 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -37,38 +37,52 @@ function! s:source.initialize()"{{{
   if !exists('g:neocomplcache_omni_patterns')
     let g:neocomplcache_omni_patterns = {}
   endif
-  call neocomplcache#set_dictionary_helper(g:neocomplcache_omni_patterns, 'html,xhtml,xml,markdown',
+  call neocomplcache#set_dictionary_helper(g:neocomplcache_omni_patterns,
+        \'html,xhtml,xml,markdown',
         \'<[^>]*')
-  call neocomplcache#set_dictionary_helper(g:neocomplcache_omni_patterns, 'css',
-        \'^\s\+\w+\|\w+[):;]?\s\+\|[@!]')
-  call neocomplcache#set_dictionary_helper(g:neocomplcache_omni_patterns, 'javascript',
+  call neocomplcache#set_dictionary_helper(g:neocomplcache_omni_patterns,
+        \'css',
+        \'^\s\+\w\+\|\w\+[):;]\?\s\+\|[@!]')
+  call neocomplcache#set_dictionary_helper(g:neocomplcache_omni_patterns,
+        \'javascript',
         \'[^. \t]\.\%(\h\w*\)\?')
-  call neocomplcache#set_dictionary_helper(g:neocomplcache_omni_patterns, 'actionscript',
+  call neocomplcache#set_dictionary_helper(g:neocomplcache_omni_patterns,
+        \'actionscript',
         \'[^. \t][.:]\h\w*')
-  "call neocomplcache#set_dictionary_helper(g:neocomplcache_omni_patterns, 'php',
+  "call neocomplcache#set_dictionary_helper(g:neocomplcache_omni_patterns,
+        "\'php',
         "\'[^. \t]->\h\w*\|\h\w*::')
-  call neocomplcache#set_dictionary_helper(g:neocomplcache_omni_patterns, 'java',
+  call neocomplcache#set_dictionary_helper(g:neocomplcache_omni_patterns,
+        \'java',
         \'\%(\h\w*\|)\)\.')
-  "call neocomplcache#set_dictionary_helper(g:neocomplcache_omni_patterns, 'perl',
-  "\'\h\w*->\h\w*\|\h\w*::')
-  "call neocomplcache#set_dictionary_helper(g:neocomplcache_omni_patterns, 'c',
+  "call neocomplcache#set_dictionary_helper(g:neocomplcache_omni_patterns,
+        "\'perl',
+        "\'\h\w*->\h\w*\|\h\w*::')
+  "call neocomplcache#set_dictionary_helper(g:neocomplcache_omni_patterns,
+        "\'c',
         "\'\%(\.\|->\)\h\w*')
-  "call neocomplcache#set_dictionary_helper(g:neocomplcache_omni_patterns, 'cpp',
+  "call neocomplcache#set_dictionary_helper(g:neocomplcache_omni_patterns,
+        "\'cpp',
         "\'\h\w*\%(\.\|->\)\h\w*\|\h\w*::')
-  call neocomplcache#set_dictionary_helper(g:neocomplcache_omni_patterns, 'vimshell',
+  call neocomplcache#set_dictionary_helper(g:neocomplcache_omni_patterns,
+        \'vimshell',
         \'\%(\\[^[:alnum:].-]\|[[:alnum:]@/.-_+,#$%~=*]\)\{2,}')
-  call neocomplcache#set_dictionary_helper(g:neocomplcache_omni_patterns, 'objc',
+  call neocomplcache#set_dictionary_helper(g:neocomplcache_omni_patterns,
+        \'objc',
         \'\h\w\+\|\h\w*\%(\.\|->\)\h\w*')
-  call neocomplcache#set_dictionary_helper(g:neocomplcache_omni_patterns, 'objj',
+  call neocomplcache#set_dictionary_helper(g:neocomplcache_omni_patterns,
+        \'objj',
         \'[\[ \.]\w\+$\|:\w*$')
 
   " External language interface check.
   if has('ruby')
-    " call neocomplcache#set_dictionary_helper(g:neocomplcache_omni_patterns, 'ruby',
-    "       \'[^. *\t]\.\h\w*\|\h\w*::')
+    " call neocomplcache#set_dictionary_helper(g:neocomplcache_omni_patterns,
+          "\'ruby',
+          "\'[^. *\t]\.\h\w*\|\h\w*::')
   endif
   if has('python')
-    call neocomplcache#set_dictionary_helper(g:neocomplcache_omni_patterns, 'python',
+    call neocomplcache#set_dictionary_helper(g:neocomplcache_omni_patterns,
+          \'python',
           \'[^. \t]\.\w*')
   endif
   "}}}
@@ -80,83 +94,81 @@ function! s:source.initialize()"{{{
   "}}}
 
   " Set rank.
-  call neocomplcache#set_dictionary_helper(g:neocomplcache_plugin_rank, 'omni_complete', 100)
+  call neocomplcache#set_dictionary_helper(g:neocomplcache_plugin_rank,
+        \ 'omni_complete', 300)
 endfunction"}}}
 function! s:source.finalize()"{{{
 endfunction"}}}
 
 function! s:source.get_keyword_pos(cur_text)"{{{
-  if neocomplcache#within_comment()
-    return -1
-  endif
-
-  let l:filetype = neocomplcache#get_context_filetype()
+  let filetype = neocomplcache#get_context_filetype()
 
   if neocomplcache#is_eskk_enabled()
-    let l:omnifunc = &l:omnifunc
-  elseif has_key(g:neocomplcache_omni_functions, l:filetype)
-    let l:omnifunc = g:neocomplcache_omni_functions[l:filetype]
-  elseif &filetype == l:filetype
-    let l:omnifunc = &l:omnifunc
+    let omnifunc = &l:omnifunc
+  elseif has_key(g:neocomplcache_omni_functions, filetype)
+    let omnifunc = g:neocomplcache_omni_functions[filetype]
+  elseif &filetype == filetype
+    let omnifunc = &l:omnifunc
   else
     " &omnifunc is irregal.
     return -1
   endif
 
-  if l:omnifunc == ''
+  if omnifunc == ''
     return -1
   endif
 
-  if has_key(g:neocomplcache_omni_patterns, l:omnifunc)
-    let l:pattern = g:neocomplcache_omni_patterns[l:omnifunc]
-  elseif l:filetype != '' && has_key(g:neocomplcache_omni_patterns, l:filetype)
-    let l:pattern = g:neocomplcache_omni_patterns[l:filetype]
+  if has_key(g:neocomplcache_omni_patterns, omnifunc)
+    let pattern = g:neocomplcache_omni_patterns[omnifunc]
+  elseif filetype != '' && has_key(g:neocomplcache_omni_patterns, filetype)
+    let pattern = g:neocomplcache_omni_patterns[filetype]
   else
-    let l:pattern = ''
+    let pattern = ''
   endif
 
-  if !neocomplcache#is_eskk_enabled() && l:pattern == ''
+  if !neocomplcache#is_eskk_enabled() && pattern == ''
     return -1
   endif
 
-  let l:is_wildcard = g:neocomplcache_enable_wildcard && a:cur_text =~ '\*\w\+$'
+  let is_wildcard = g:neocomplcache_enable_wildcard && a:cur_text =~ '\*\w\+$'
         \&& neocomplcache#is_auto_complete()
 
   " Check wildcard.
-  if l:is_wildcard
+  if is_wildcard
     " Check wildcard.
-    let l:cur_text = a:cur_text[: match(a:cur_text, '\%(\*\w\+\)\+$') - 1]
+    let cur_text = a:cur_text[: match(a:cur_text, '\%(\*\w\+\)\+$') - 1]
   else
-    let l:cur_text = a:cur_text
+    let cur_text = a:cur_text
   endif
 
-  if !neocomplcache#is_eskk_enabled()
-        \ && l:cur_text !~ '\%(' . l:pattern . '\m\)$'
+  if !neocomplcache#is_eskk_enabled() && neocomplcache#is_auto_complete()
+        \ && cur_text !~ '\%(' . pattern . '\m\)$'
     return -1
   endif
 
   " Save pos.
-  let l:pos = getpos('.')
-  let l:line = getline('.')
+  let pos = getpos('.')
 
-  if neocomplcache#is_auto_complete() && l:is_wildcard
-    call setline('.', l:cur_text)
+  if is_wildcard && &l:modifiable
+    let line = getline('.')
+
+    call setline('.', cur_text)
   endif
 
   try
-    let l:cur_keyword_pos = call(l:omnifunc, [1, ''])
+    let cur_keyword_pos = call(omnifunc, [1, ''])
   catch
     call neocomplcache#print_error(v:exception)
-    let l:cur_keyword_pos = -1
+    let cur_keyword_pos = -1
   endtry
 
   " Restore pos.
-  if neocomplcache#is_auto_complete() && l:is_wildcard
-    call setline('.', l:line)
+  if is_wildcard && &l:modifiable
+    call setline('.', line)
   endif
-  call setpos('.', l:pos)
+  call setpos('.', pos)
 
-  return l:cur_keyword_pos
+  return cur_keyword_pos
 endfunction"}}}
 
 function! s:source.get_complete_words(cur_keyword_pos, cur_keyword_str)"{{{
@@ -167,56 +179,62 @@ function! s:source.get_complete_words(cur_keyword_pos, cur_keyword_str)"{{{
     endif
   endif
 
-  let l:is_wildcard = g:neocomplcache_enable_wildcard && a:cur_keyword_str =~ '\*\w\+$'
+  let is_wildcard = g:neocomplcache_enable_wildcard && a:cur_keyword_str =~ '\*\w\+$'
         \&& neocomplcache#is_eskk_enabled() && neocomplcache#is_auto_complete()
 
-  let l:filetype = neocomplcache#get_context_filetype()
+  let filetype = neocomplcache#get_context_filetype()
   if neocomplcache#is_eskk_enabled()
-    let l:omnifunc = &l:omnifunc
-  elseif has_key(g:neocomplcache_omni_functions, l:filetype)
-    let l:omnifunc = g:neocomplcache_omni_functions[l:filetype]
-  elseif &filetype == l:filetype
-    let l:omnifunc = &l:omnifunc
+    let omnifunc = &l:omnifunc
+  elseif has_key(g:neocomplcache_omni_functions, filetype)
+    let omnifunc = g:neocomplcache_omni_functions[filetype]
+  elseif &filetype == filetype
+    let omnifunc = &l:omnifunc
   endif
 
-  let l:pos = getpos('.')
-  if l:is_wildcard
+  let pos = getpos('.')
+  if is_wildcard
     " Check wildcard.
-    let l:cur_keyword_str = a:cur_keyword_str[: match(a:cur_keyword_str, '\%(\*\w\+\)\+$') - 1]
+    let cur_keyword_str = a:cur_keyword_str[: match(a:cur_keyword_str, '\%(\*\w\+\)\+$') - 1]
   else
-    let l:cur_keyword_str = a:cur_keyword_str
+    let cur_keyword_str = a:cur_keyword_str
+  endif
+
+  if omnifunc ==# 'rubycomplete#Complete'
+        \ && is_wildcard && &l:modifiable
+    let line = getline('.')
+
+    let cur_text =
+          \ cur_text[: match(neocomplcache#get_cur_text(), '\%(\*\w\+\)\+$') - 1]
+
+    call setline('.', cur_text)
   endif
 
   try
-    if l:omnifunc ==# 'rubycomplete#Complete' && l:is_wildcard
-      let l:line = getline('.')
-      let l:cur_text = neocomplcache#get_cur_text()
-      call setline('.', l:cur_text[: match(l:cur_text, '\%(\*\w\+\)\+$') - 1])
-    endif
-
-    let l:list = call(l:omnifunc,
-          \ [0, (l:omnifunc ==# 'rubycomplete#Complete')? '' : l:cur_keyword_str])
-
-    if l:omnifunc ==# 'rubycomplete#Complete' && l:is_wildcard
-      call setline('.', l:line)
-    endif
+    let list = call(omnifunc,
+          \ [0, omnifunc ==# 'rubycomplete#Complete' ?
+          \ '' : cur_keyword_str])
   catch
     call neocomplcache#print_error(v:exception)
-    let l:list = []
+    let list = []
   endtry
-  call setpos('.', l:pos)
 
-  if empty(l:list)
+  if omnifunc ==# 'rubycomplete#Complete'
+        \ && is_wildcard && &l:modifiable
+    call setline('.', line)
+  endif
+  call setpos('.', pos)
+
+  if empty(list)
     return []
   endif
 
-  if l:is_wildcard
-    let l:list = neocomplcache#keyword_filter(s:get_omni_list(l:list), a:cur_keyword_str)
+  if is_wildcard
+    let list = neocomplcache#keyword_filter(s:get_omni_list(list), a:cur_keyword_str)
   else
-    let l:list = s:get_omni_list(l:list)
+    let list = s:get_omni_list(list)
   endif
 
-  return l:list
+  return list
 endfunction"}}}
 
 function! neocomplcache#sources#omni_complete#define()"{{{
@@ -224,33 +242,37 @@ function! neocomplcache#sources#omni_complete#define()"{{{
 endfunction"}}}
 
 function! s:get_omni_list(list)"{{{
-  let l:omni_list = []
+  let omni_list = []
 
   " Convert string list.
   for str in filter(copy(a:list), 'type(v:val) == '.type(''))
-    let l:dict = { 'word' : str, 'menu' : '[O]' }
+    let dict = { 'word' : str, 'menu' : '[O]' }
 
-    call add(l:omni_list, l:dict)
+    call add(omni_list, dict)
   endfor
 
-  for l:omni in filter(a:list, 'type(v:val) != '.type(''))
-    let l:dict = {
-          \'word' : l:omni.word, 'menu' : '[O]',
-          \'abbr' : has_key(l:omni, 'abbr')? l:omni.abbr : l:omni.word,
+  for omni in filter(a:list, 'type(v:val) != '.type(''))
+    let dict = {
+          \'word' : omni.word, 'menu' : '[O]',
+          \'abbr' : has_key(omni, 'abbr')? omni.abbr : omni.word,
           \}
 
-    if has_key(l:omni, 'kind')
-      let l:dict.kind = l:omni.kind
+    if has_key(omni, 'kind')
+      let dict.kind = omni.kind
     endif
 
-    if has_key(l:omni, 'menu')
-      let l:dict.menu .= ' ' . l:omni.menu
+    if has_key(omni, 'menu')
+      let dict.menu .= ' ' . omni.menu
     endif
 
-    call add(l:omni_list, l:dict)
+    if has_key(omni, 'info')
+      let dict.info = omni.info
+    endif
+
+    call add(omni_list, dict)
   endfor
 
-  return l:omni_list
+  return omni_list
 endfunction"}}}
 
 let &cpo = s:save_cpo

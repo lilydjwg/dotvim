@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: util.vim
 " AUTHOR: Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 12 Jul 2011.
+" Last Modified: 05 Jan 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -40,7 +40,6 @@ endfunction"}}}
 function! neocomplcache#util#strchars(...)"{{{
   return call(s:V.strchars, a:000)
 endfunction"}}}
-
 function! neocomplcache#util#wcswidth(...)"{{{
   return call(s:V.wcswidth, a:000)
 endfunction"}}}
@@ -51,18 +50,58 @@ function! neocomplcache#util#strwidthpart_reverse(...)"{{{
   return call(s:V.strwidthpart_reverse, a:000)
 endfunction"}}}
 
+function! neocomplcache#util#substitute_path_separator(...)"{{{
+  return call(s:V.substitute_path_separator, a:000)
+endfunction"}}}
 function! neocomplcache#util#mb_strlen(...)"{{{
   return call(s:V.strchars, a:000)
 endfunction"}}}
 function! neocomplcache#util#uniq(list)"{{{
-  let l:dict = {}
-  for l:item in a:list
-    if !has_key(l:dict, l:item)
-      let l:dict[l:item] = l:item
+  let dict = {}
+  for item in a:list
+    if !has_key(dict, item)
+      let dict[item] = item
     endif
   endfor
 
-  return values(l:dict)
+  return values(dict)
+endfunction"}}}
+function! neocomplcache#util#system(...)"{{{
+  return call(s:V.system, a:000)
+endfunction"}}}
+function! neocomplcache#util#has_vimproc(...)"{{{
+  return call(s:V.has_vimproc, a:000)
+endfunction"}}}
+function! neocomplcache#util#is_win(...)"{{{
+  return call(s:V.is_windows, a:000)
+endfunction"}}}
+function! neocomplcache#util#is_mac(...)"{{{
+  return call(s:V.is_mac, a:000)
+endfunction"}}}
+function! neocomplcache#util#get_last_status(...)"{{{
+  return call(s:V.get_last_status, a:000)
+endfunction"}}}
+
+function! neocomplcache#util#glob(pattern, ...)"{{{
+  " let is_force_glob = get(a:000, 0, 0)
+  let is_force_glob = get(a:000, 0, 1)
+
+  if !is_force_glob && a:pattern =~ '^[^\\*]\+/\*'
+        \ && neocomplcache#util#has_vimproc() && exists('*vimproc#readdir')
+    return filter(vimproc#readdir(a:pattern[: -2]), 'v:val !~ "/\\.\\.\\?$"')
+  else
+    " Escape [.
+    if neocomplcache#util#is_win()
+      let glob = substitute(a:pattern, '\[', '\\[[]', 'g')
+    else
+      let glob = escape(a:pattern, '[')
+    endif
+
+    return split(neocomplcache#util#substitute_path_separator(glob(glob)), '\n')
+  endif
+endfunction"}}}
+function! neocomplcache#util#expand(path)"{{{
+  return expand(escape(a:path, '*?[]"={}'))
 endfunction"}}}
 
 let &cpo = s:save_cpo

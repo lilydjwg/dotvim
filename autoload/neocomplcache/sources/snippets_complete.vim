@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: snippets_complete.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 04 Aug 2011.
+" Last Modified: 15 Jan 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -50,23 +50,28 @@ function! s:source.initialize()"{{{
     let g:neocomplcache_snippets_disable_runtime_snippets = 0
   endif
 
+  call neocomplcache#set_dictionary_helper(
+        \ g:neocomplcache_plugin_rank, 'snippets_complete', 8)
+
   let s:snippets_dir = []
-  let s:runtime_dir = split(globpath(&runtimepath, 'autoload/neocomplcache/sources/snippets_complete'), '\n')
+  let s:runtime_dir = split(globpath(&runtimepath,
+        \ 'autoload/neocomplcache/sources/snippets_complete'), '\n')
 
   if !g:neocomplcache_snippets_disable_runtime_snippets
     " Set snippets dir.
     let s:snippets_dir += (exists('g:snippets_dir') ?
-          \ split(g:snippets_dir, ',') : split(globpath(&runtimepath, 'snippets'), '\n'))
+          \ split(g:snippets_dir, ',')
+          \ : split(globpath(&runtimepath, 'snippets'), '\n'))
           \ + s:runtime_dir
   endif
 
   if exists('g:neocomplcache_snippets_dir')
-    for l:dir in split(g:neocomplcache_snippets_dir, ',')
-      let l:dir = expand(l:dir)
-      if !isdirectory(l:dir)
-        call mkdir(l:dir, 'p')
+    for dir in split(g:neocomplcache_snippets_dir, ',')
+      let dir = neocomplcache#util#expand(dir)
+      if !isdirectory(dir)
+        call mkdir(dir, 'p')
       endif
-      call add(s:snippets_dir, l:dir)
+      call add(s:snippets_dir, dir)
     endfor
   endif
   call map(s:snippets_dir, 'substitute(v:val, "[\\\\/]$", "", "")')
@@ -78,9 +83,24 @@ function! s:source.initialize()"{{{
     autocmd BufWritePost *.snip,*.snippets call s:caching_snippets(expand('<afile>:t:r'))
     " Detect syntax file.
     autocmd BufNewFile,BufRead *.snip,*.snippets set filetype=snippet
-    autocmd BufNewFile,BufWinEnter,ColorScheme * syn match   NeoComplCacheExpandSnippets
-          \ '\${\d\+\%(:.\{-}\)\?\\\@<!}\|\$<\d\+\%(:.\{-}\)\?\\\@<!>\|\$\d\+'
   augroup END"}}}
+
+  if has('conceal')
+    " Supported conceal features.
+    augroup neocomplcache
+      autocmd BufNewFile,BufRead,ColorScheme *
+            \ syn match   neocomplcacheExpandSnippets
+            \ '\${\d\+\%(:.\{-}\)\?\\\@<!}\|\$<\d\+\%(:.\{-}\)\?\\\@<!>\|\$\d\+' conceal cchar=$
+    augroup END
+  else
+    augroup neocomplcache
+      autocmd BufNewFile,BufRead,ColorScheme *
+            \ syn match   neocomplcacheExpandSnippets
+            \ '\${\d\+\%(:.\{-}\)\?\\\@<!}\|\$<\d\+\%(:.\{-}\)\?\\\@<!>\|\$\d\+'
+    augroup END
+  endif
+
+  hi def link NeoComplCacheExpandSnippets Special
 
   command! -nargs=? -complete=customlist,neocomplcache#filetype_complete
         \ NeoComplCacheEditSnippets call s:edit_snippets(<q-args>, 0)
@@ -88,8 +108,6 @@ function! s:source.initialize()"{{{
         \ NeoComplCacheEditRuntimeSnippets call s:edit_snippets(<q-args>, 1)
   command! -nargs=? -complete=customlist,neocomplcache#filetype_complete
         \ NeoComplCacheCachingSnippets call s:caching_snippets(<q-args>)
-
-  hi def link NeoComplCacheExpandSnippets Special
 
   " Select mode mappings.
   if !exists('g:neocomplcache_disable_select_mode_mappings')
@@ -134,18 +152,18 @@ function! s:source.get_keyword_list(cur_keyword_str)"{{{
     " Caching _ snippets.
     call s:caching_snippets('_')
   endif
-  let l:snippets = values(s:snippets['_'])
+  let snippets = values(s:snippets['_'])
 
-  let l:filetype = neocomplcache#get_context_filetype()
-  if !has_key(s:snippets, l:filetype)
+  let filetype = neocomplcache#get_context_filetype()
+  if !has_key(s:snippets, filetype)
     " Caching snippets.
-    call s:caching_snippets(l:filetype)
+    call s:caching_snippets(filetype)
   endif
-  for l:source in neocomplcache#get_sources_list(s:snippets, l:filetype)
-    let l:snippets += values(l:source)
+  for source in neocomplcache#get_sources_list(s:snippets, filetype)
+    let snippets += values(source)
   endfor
 
-  return s:keyword_filter(neocomplcache#dup_filter(l:snippets), a:cur_keyword_str)
+  return s:keyword_filter(neocomplcache#dup_filter(snippets), a:cur_keyword_str)
 endfunction"}}}
 
 function! neocomplcache#sources#snippets_complete#define()"{{{
@@ -167,135 +185,137 @@ function! s:doc_dict.search(cur_text)"{{{
     return []
   endif
 
-  let l:snippets = neocomplcache#sources#snippets_complete#get_snippets()
+  let snippets = neocomplcache#sources#snippets_complete#get_snippets()
 
-  let l:cur_word = s:get_cursor_keyword_snippet(l:snippets, a:cur_text)
-  if l:cur_word == ''
+  let cur_word = s:get_cursor_keyword_snippet(snippets, a:cur_text)
+  if cur_word == ''
     return []
   endif
 
-  let l:snip = l:snippets[l:cur_word]
-  let l:ret = []
-  call add(l:ret, { 'text' : l:snip.word, 'highlight' : 'String' })
-  call add(l:ret, { 'text' : ' ' })
-  call add(l:ret, { 'text' : l:snip.menu, 'highlight' : 'Special' })
-  call add(l:ret, { 'text' : ' ' })
-  call add(l:ret, { 'text' : l:snip.snip})
+  let snip = snippets[cur_word]
+  let ret = []
+  call add(ret, { 'text' : snip.word, 'highlight' : 'String' })
+  call add(ret, { 'text' : ' ' })
+  call add(ret, { 'text' : snip.menu, 'highlight' : 'Special' })
+  call add(ret, { 'text' : ' ' })
+  call add(ret, { 'text' : snip.snip})
 
-  return l:ret
+  return ret
 endfunction"}}}
 "}}}
 
 function! s:keyword_filter(list, cur_keyword_str)"{{{
-  let l:keyword_escape = neocomplcache#keyword_escape(a:cur_keyword_str)
+  let keyword_escape = neocomplcache#keyword_escape(a:cur_keyword_str)
 
-  let l:prev_word = neocomplcache#get_prev_word(a:cur_keyword_str)
+  let prev_word = neocomplcache#get_prev_word(a:cur_keyword_str)
   " Keyword filter.
-  let l:pattern = printf('v:val.word =~ %s && (!has_key(v:val, "prev_word") || v:val.prev_word == %s)', 
-        \string('^' . l:keyword_escape), string(l:prev_word))
+  let pattern = printf('v:val.word =~ %s && (!has_key(v:val, "prev_word") || v:val.prev_word == %s)', 
+        \string('^' . keyword_escape), string(prev_word))
 
-  let l:list = filter(a:list, l:pattern)
+  let list = filter(a:list, pattern)
 
   " Substitute abbr.
-  let l:abbr_pattern = printf('%%.%ds..%%s', g:neocomplcache_max_keyword_width-10)
-  for snippet in l:list
+  let abbr_pattern = printf('%%.%ds..%%s', g:neocomplcache_max_keyword_width-10)
+  for snippet in list
     if snippet.snip =~ '\\\@<!`=.*\\\@<!`'
       let snippet.menu = s:eval_snippet(snippet.snip)
 
       if g:neocomplcache_max_keyword_width >= 0 &&
             \ len(snippet.menu) > g:neocomplcache_max_keyword_width
-        let snippet.menu = printf(l:abbr_pattern, snippet.menu, snippet.menu[-8:])
+        let snippet.menu = printf(abbr_pattern, snippet.menu, snippet.menu[-8:])
       endif
       let snippet.menu = '`Snip` ' . snippet.menu
     endif
   endfor
 
-  return l:list
+  return list
 endfunction"}}}
 
 function! neocomplcache#sources#snippets_complete#expandable()"{{{
-  let l:snippets = neocomplcache#sources#snippets_complete#get_snippets()
-  let l:cur_text = neocomplcache#get_cur_text(1)
+  let snippets = neocomplcache#sources#snippets_complete#get_snippets()
+  let cur_text = neocomplcache#get_cur_text(1)
 
-  let l:ret = 0
+  let ret = 0
 
-  if s:get_cursor_keyword_snippet(l:snippets, l:cur_text) != ''
+  if s:get_cursor_keyword_snippet(snippets, cur_text) != ''
     " Found snippet trigger.
-    let l:ret += 1
+    let ret += 1
   endif
 
   if search('\${\d\+\%(:.\{-}\)\?\\\@<!}\|\$<\d\+\%(:.\{-}\)\?\\\@<!>', 'nw') > 0
     " Found snippet placeholder.
-    let l:ret += 2
+    let ret += 2
   endif
 
-  return l:ret
+  return ret
 endfunction"}}}
 
 function! s:caching()"{{{
-  for l:filetype in neocomplcache#get_source_filetypes(neocomplcache#get_context_filetype(1))
-    if !has_key(s:snippets, l:filetype)
-      call s:caching_snippets(l:filetype)
+  for filetype in neocomplcache#get_source_filetypes(neocomplcache#get_context_filetype(1))
+    if !has_key(s:snippets, filetype)
+      call s:caching_snippets(filetype)
     endif
   endfor
 endfunction"}}}
 
 function! s:set_snippet_dict(snippet_pattern, snippet_dict, dup_check, snippets_file)"{{{
   if has_key(a:snippet_pattern, 'name')
-    let l:pattern = s:set_snippet_pattern(a:snippet_pattern)
-    let l:action_pattern = '^snippet\s\+' . a:snippet_pattern.name . '$'
-    let a:snippet_dict[a:snippet_pattern.name] = l:pattern
+    let pattern = s:set_snippet_pattern(a:snippet_pattern)
+    let action_pattern = '^snippet\s\+' . a:snippet_pattern.name . '$'
+    let a:snippet_dict[a:snippet_pattern.name] = pattern
     let a:dup_check[a:snippet_pattern.name] = 1
 
     if has_key(a:snippet_pattern, 'alias')
-      for l:alias in a:snippet_pattern.alias
-        let l:alias_pattern = copy(l:pattern)
-        let l:alias_pattern.word = l:alias
+      for alias in a:snippet_pattern.alias
+        let alias_pattern = copy(pattern)
+        let alias_pattern.word = alias
 
-        let l:abbr = (g:neocomplcache_max_keyword_width >= 0 &&
-              \       len(l:alias) > g:neocomplcache_max_keyword_width) ?
-              \ printf(l:abbr_pattern, l:alias, l:alias[-8:]) : l:alias
-        let l:alias_pattern.abbr = l:abbr
-        let l:alias_pattern.action__path = a:snippets_file
-        let l:alias_pattern.action__pattern = l:action_pattern
+        let abbr = (g:neocomplcache_max_keyword_width >= 0 &&
+              \       len(alias) > g:neocomplcache_max_keyword_width) ?
+              \ printf(abbr_pattern, alias, alias[-8:]) : alias
+        let alias_pattern.abbr = abbr
+        let alias_pattern.action__path = a:snippets_file
+        let alias_pattern.action__pattern = action_pattern
+        let alias_pattern.real_name = a:snippet_pattern.name
 
-        let a:snippet_dict[alias] = l:alias_pattern
+        let a:snippet_dict[alias] = alias_pattern
         let a:dup_check[alias] = 1
       endfor
     endif
 
-    let l:snippet = a:snippet_dict[a:snippet_pattern.name]
-    let l:snippet.action__path = a:snippets_file
-    let l:snippet.action__pattern = l:action_pattern
+    let snippet = a:snippet_dict[a:snippet_pattern.name]
+    let snippet.action__path = a:snippets_file
+    let snippet.action__pattern = action_pattern
+    let snippet.real_name = a:snippet_pattern.name
   endif
 endfunction"}}}
 function! s:set_snippet_pattern(dict)"{{{
-  let l:abbr_pattern = printf('%%.%ds..%%s', g:neocomplcache_max_keyword_width-10)
+  let abbr_pattern = printf('%%.%ds..%%s', g:neocomplcache_max_keyword_width-10)
 
-  let l:word = substitute(a:dict.word, '\%(<\\n>\)\+$', '', '')
-  let l:menu_pattern = a:dict.word =~ '\${\d\+\%(:.\{-}\)\?\\\@<!}' ? '<Snip> ' : '[Snip] '
+  let word = substitute(a:dict.word, '\%(<\\n>\)\+$', '', '')
+  let menu_pattern = a:dict.word =~ '\${\d\+\%(:.\{-}\)\?\\\@<!}' ? '<Snip> ' : '[Snip] '
 
-  let l:abbr = has_key(a:dict, 'abbr')? a:dict.abbr : 
+  let abbr = has_key(a:dict, 'abbr')? a:dict.abbr : 
         \substitute(a:dict.word, '\${\d\+\%(:.\{-}\)\?\\\@<!}\|\$<\d\+\%(:.\{-}\)\?\\\@<!>\|\$\d\+\|<\%(\\n\|\\t\)>\|\s\+', ' ', 'g')
-  let l:abbr = (g:neocomplcache_max_keyword_width >= 0 && len(l:abbr) > g:neocomplcache_max_keyword_width)?
-        \ printf(l:abbr_pattern, l:abbr, l:abbr[-8:]) : l:abbr
+  let abbr = (g:neocomplcache_max_keyword_width >= 0 && len(abbr) > g:neocomplcache_max_keyword_width)?
+        \ printf(abbr_pattern, abbr, abbr[-8:]) : abbr
 
-  let l:dict = {
-        \ 'word' : a:dict.name, 'snip' : l:word, 'abbr' : a:dict.name,
-        \ 'description' : l:word,
-        \ 'menu' : l:menu_pattern . l:abbr, 'dup' : 1
+  let dict = {
+        \ 'word' : a:dict.name, 'snip' : word, 'abbr' : a:dict.name,
+        \ 'description' : word,
+        \ 'menu' : menu_pattern . abbr, 'dup' : 1
         \}
   if has_key(a:dict, 'prev_word')
-    let l:dict.prev_word = a:dict.prev_word
+    let dict.prev_word = a:dict.prev_word
   endif
-  return l:dict
+  return dict
 endfunction"}}}
 
 function! s:edit_snippets(filetype, isruntime)"{{{
   if a:filetype == ''
-    let l:filetype = neocomplcache#get_context_filetype(1)
+    let filetype = neocomplcache#get_context_filetype(1)
   else
-    let l:filetype = a:filetype
+    let filetype = a:filetype
   endif
 
   " Edit snippet file.
@@ -304,44 +324,44 @@ function! s:edit_snippets(filetype, isruntime)"{{{
       return
     endif
 
-    let l:filename = s:runtime_dir[0].'/'.l:filetype.'.snip'
+    let filename = s:runtime_dir[0].'/'.filetype.'.snip'
   else
     if empty(s:snippets_dir)
       return
     endif
 
-    let l:filename = s:snippets_dir[-1].'/'.l:filetype.'.snip'
+    let filename = s:snippets_dir[-1].'/'.filetype.'.snip'
   endif
 
-  if filereadable(l:filename)
-    edit `=l:filename`
+  if filereadable(filename)
+    edit `=filename`
   else
     enew
     setfiletype snippet
-    saveas `=l:filename`
+    saveas `=filename`
   endif
 endfunction"}}}
 
 function! s:caching_snippets(filetype)"{{{
-  let l:filetype = a:filetype == '' ?
+  let filetype = a:filetype == '' ?
         \ &filetype : a:filetype
 
-  let l:snippet = {}
-  let l:snippets_files = split(globpath(join(s:snippets_dir, ','), l:filetype .  '.snip*'), '\n')
-        \ + split(globpath(join(s:snippets_dir, ','), l:filetype .  '_*.snip*'), '\n')
-  for snippets_file in l:snippets_files
-    call s:load_snippets(l:snippet, snippets_file)
+  let snippet = {}
+  let snippets_files = split(globpath(join(s:snippets_dir, ','), filetype .  '.snip*'), '\n')
+        \ + split(globpath(join(s:snippets_dir, ','), filetype .  '_*.snip*'), '\n')
+  for snippets_file in snippets_files
+    call s:load_snippets(snippet, snippets_file)
   endfor
 
-  let s:snippets[l:filetype] = l:snippet
+  let s:snippets[filetype] = snippet
 endfunction"}}}
 
 function! s:load_snippets(snippet, snippets_file)"{{{
-  let l:dup_check = {}
-  let l:snippet_pattern = { 'word' : '' }
-  let l:abbr_pattern = printf('%%.%ds..%%s', g:neocomplcache_max_keyword_width-10)
+  let dup_check = {}
+  let snippet_pattern = { 'word' : '' }
+  let abbr_pattern = printf('%%.%ds..%%s', g:neocomplcache_max_keyword_width-10)
 
-  let l:linenr = 1
+  let linenr = 1
 
   for line in readfile(a:snippets_file)
     if line =~ '^\h\w*.*\s$'
@@ -351,109 +371,118 @@ function! s:load_snippets(snippet, snippets_file)"{{{
 
     if line =~ '^include'
       " Include snippets.
-      let l:snippet_file = matchstr(line, '^include\s\+\zs.*$')
-      for snippets_file in split(globpath(join(s:snippets_dir, ','), l:snippet_file), '\n')
+      let snippet_file = matchstr(line, '^include\s\+\zs.*$')
+      for snippets_file in split(globpath(join(s:snippets_dir, ','), snippet_file), '\n')
         call s:load_snippets(a:snippet, snippets_file)
       endfor
     elseif line =~ '^delete\s'
-      let l:name = matchstr(line, '^delete\s\+\zs.*$')
-      if l:name != '' && has_key(a:snippet, l:name)
-        call remove(a:snippet, l:name)
+      let name = matchstr(line, '^delete\s\+\zs.*$')
+      if name != '' && has_key(a:snippet, name)
+        call filter(a:snippet, 'v:val.real_name !=# name')
       endif
     elseif line =~ '^snippet\s'
-      if has_key(l:snippet_pattern, 'name')
+      if has_key(snippet_pattern, 'name')
         " Set previous snippet.
-        call s:set_snippet_dict(l:snippet_pattern, a:snippet, l:dup_check, a:snippets_file)
-        let l:snippet_pattern = { 'word' : '' }
+        call s:set_snippet_dict(snippet_pattern,
+              \ a:snippet, dup_check, a:snippets_file)
+        let snippet_pattern = { 'word' : '' }
       endif
 
-      let l:snippet_pattern.name =
+      let snippet_pattern.name =
             \ substitute(matchstr(line, '^snippet\s\+\zs.*$'), '\s', '_', 'g')
 
       " Check for duplicated names.
-      if has_key(l:dup_check, l:snippet_pattern.name)
-        call neocomplcache#print_error('Warning: ' . a:snippets_file . ':' . l:linenr . ': duplicated snippet name `' . l:snippet_pattern.name . '`')
+      if has_key(dup_check, snippet_pattern.name)
+        call neocomplcache#print_error('Warning: ' . a:snippets_file . ':'
+              \ . linenr . ': duplicated snippet name `'
+              \ . snippet_pattern.name . '`')
         call neocomplcache#print_error('Please delete this snippet name before.')
       endif
-    elseif has_key(l:snippet_pattern, 'name')
+    elseif has_key(snippet_pattern, 'name')
       " Only in snippets.
       if line =~ '^abbr\s'
-        let l:snippet_pattern.abbr = matchstr(line, '^abbr\s\+\zs.*$')
+        let snippet_pattern.abbr = matchstr(line, '^abbr\s\+\zs.*$')
       elseif line =~ '^alias\s'
-        let l:snippet_pattern.alias = split(matchstr(line, '^alias\s\+\zs.*$'), '[,[:space:]]\+')
+        let snippet_pattern.alias = split(matchstr(line,
+              \ '^alias\s\+\zs.*$'), '[,[:space:]]\+')
       elseif line =~ '^prev_word\s'
-        let l:snippet_pattern.prev_word = matchstr(line, '^prev_word\s\+[''"]\zs.*\ze[''"]$')
+        let snippet_pattern.prev_word = matchstr(line,
+              \ '^prev_word\s\+[''"]\zs.*\ze[''"]$')
       elseif line =~ '^\s'
-        if l:snippet_pattern.word == ''
-          let l:snippet_pattern.word = matchstr(line, '^\s\+\zs.*$')
+        if snippet_pattern.word == ''
+          let snippet_pattern.word = matchstr(line, '^\s\+\zs.*$')
         elseif line =~ '^\t'
           let line = substitute(line, '^\s', '', '')
-          let l:snippet_pattern.word .= '<\n>' .
-                \substitute(line, '^\t\+', repeat('<\\t>', matchend(line, '^\t\+')), '')
+          let snippet_pattern.word .= '<\n>' .
+                \ substitute(line, '^\t\+', repeat('<\\t>',
+                \ matchend(line, '^\t\+')), '')
         else
-          let l:snippet_pattern.word .= '<\n>' . matchstr(line, '^\s\+\zs.*$')
+          let snippet_pattern.word .= '<\n>' . matchstr(line, '^\s\+\zs.*$')
         endif
       elseif line =~ '^$'
         " Blank line.
-        let l:snippet_pattern.word .= '<\n>'
+        let snippet_pattern.word .= '<\n>'
       endif
     endif
 
-    let l:linenr += 1
+    let linenr += 1
   endfor
 
   " Set previous snippet.
-  call s:set_snippet_dict(l:snippet_pattern, a:snippet, l:dup_check, a:snippets_file)
+  call s:set_snippet_dict(snippet_pattern,
+        \ a:snippet, dup_check, a:snippets_file)
 
   return a:snippet
 endfunction"}}}
 
 function! s:get_cursor_keyword_snippet(snippets, cur_text)"{{{
-  let l:cur_word = matchstr(a:cur_text, neocomplcache#get_keyword_pattern_end().'\|\h\w*\W\+$')
-  if !has_key(a:snippets, l:cur_word)
-    let l:cur_word = ''
+  let cur_word = matchstr(a:cur_text, neocomplcache#get_keyword_pattern_end().'\|\h\w*\W\+$')
+  if !has_key(a:snippets, cur_word)
+    let cur_word = ''
   endif
 
-  return l:cur_word
+  return cur_word
 endfunction"}}}
 function! s:get_cursor_snippet(snippets, cur_text)"{{{
-  let l:cur_word = matchstr(a:cur_text, '\S\+$')
-  while l:cur_word != '' && !has_key(a:snippets, l:cur_word)
-    let l:cur_word = l:cur_word[1:]
+  let cur_word = matchstr(a:cur_text, '\S\+$')
+  while cur_word != '' && !has_key(a:snippets, cur_word)
+    let cur_word = cur_word[1:]
   endwhile
 
-  return l:cur_word
+  return cur_word
 endfunction"}}}
 function! s:snippets_force_expand(cur_text, col)"{{{
-  let l:cur_word = s:get_cursor_snippet(neocomplcache#sources#snippets_complete#get_snippets(), a:cur_text)
+  let cur_word = s:get_cursor_snippet(neocomplcache#sources#snippets_complete#get_snippets(), a:cur_text)
 
-  call neocomplcache#sources#snippets_complete#expand(a:cur_text, a:col, l:cur_word)
+  call neocomplcache#sources#snippets_complete#expand(a:cur_text, a:col, cur_word)
 endfunction"}}}
 function! s:snippets_expand_or_jump(cur_text, col)"{{{
-  let l:cur_word = s:get_cursor_keyword_snippet(neocomplcache#sources#snippets_complete#get_snippets(), a:cur_text)
-  if l:cur_word != ''
+  let cur_word = s:get_cursor_keyword_snippet(
+        \ neocomplcache#sources#snippets_complete#get_snippets(), a:cur_text)
+  if cur_word != ''
     " Found snippet trigger.
-    call neocomplcache#sources#snippets_complete#expand(a:cur_text, a:col, l:cur_word)
+    call neocomplcache#sources#snippets_complete#expand(a:cur_text, a:col, cur_word)
   else
     call s:snippets_force_jump(a:cur_text, a:col)
   endif
 endfunction"}}}
 function! s:snippets_jump_or_expand(cur_text, col)"{{{
-  let l:cur_word = s:get_cursor_keyword_snippet(neocomplcache#sources#snippets_complete#get_snippets(), a:cur_text)
+  let cur_word = s:get_cursor_keyword_snippet(
+        \ neocomplcache#sources#snippets_complete#get_snippets(), a:cur_text)
   if search('\${\d\+\%(:.\{-}\)\?\\\@<!}\|\$<\d\+\%(:.\{-}\)\?\\\@<!>', 'nw') > 0
     " Found snippet placeholder.
     call s:snippets_force_jump(a:cur_text, a:col)
   else
-    call neocomplcache#sources#snippets_complete#expand(a:cur_text, a:col, l:cur_word)
+    call neocomplcache#sources#snippets_complete#expand(a:cur_text, a:col, cur_word)
   endif
 endfunction"}}}
 function! neocomplcache#sources#snippets_complete#expand(cur_text, col, trigger_name)"{{{
   if a:trigger_name == ''
-    let l:pos = getpos('.')
-    let l:pos[2] = len(a:cur_text)+1
-    call setpos('.', l:pos)
+    let pos = getpos('.')
+    let pos[2] = len(a:cur_text)+1
+    call setpos('.', pos)
 
-    if l:pos[2] < col('$')
+    if pos[2] < col('$')
       startinsert
     else
       startinsert!
@@ -462,30 +491,30 @@ function! neocomplcache#sources#snippets_complete#expand(cur_text, col, trigger_
     return
   endif
 
-  let l:snippets = neocomplcache#sources#snippets_complete#get_snippets()
-  let l:snippet = l:snippets[a:trigger_name]
-  let l:cur_text = a:cur_text[: -1-len(a:trigger_name)]
+  let snippets = neocomplcache#sources#snippets_complete#get_snippets()
+  let snippet = snippets[a:trigger_name]
+  let cur_text = a:cur_text[: -1-len(a:trigger_name)]
 
-  let l:snip_word = l:snippet.snip
-  if l:snip_word =~ '\\\@<!`.*\\\@<!`'
-    let l:snip_word = s:eval_snippet(l:snip_word)
+  let snip_word = snippet.snip
+  if snip_word =~ '\\\@<!`.*\\\@<!`'
+    let snip_word = s:eval_snippet(snip_word)
   endif
-  if l:snip_word =~ '\n'
-    let snip_word = substitute(l:snip_word, '\n', '<\\n>', 'g')
+  if snip_word =~ '\n'
+    let snip_word = substitute(snip_word, '\n', '<\\n>', 'g')
   endif
 
   " Substitute escaped `.
-  let snip_word = substitute(l:snip_word, '\\`', '`', 'g')
+  let snip_word = substitute(snip_word, '\\`', '`', 'g')
 
   " Insert snippets.
-  let l:next_line = getline('.')[a:col-1 :]
-  call setline(line('.'), l:cur_text . l:snip_word . l:next_line)
-  let l:pos = getpos('.')
-  let l:pos[2] = len(l:cur_text)+len(l:snip_word)+1
-  call setpos('.', l:pos)
-  let l:next_col = len(l:cur_text)+len(l:snip_word)+1
+  let next_line = getline('.')[a:col-1 :]
+  call setline(line('.'), cur_text . snip_word . next_line)
+  let pos = getpos('.')
+  let pos[2] = len(cur_text)+len(snip_word)+1
+  call setpos('.', pos)
+  let next_col = len(cur_text)+len(snip_word)+1
 
-  if l:snip_word =~ '<\\t>'
+  if snip_word =~ '<\\t>'
     call s:expand_tabline()
   else
     call s:expand_newline()
@@ -494,13 +523,13 @@ function! neocomplcache#sources#snippets_complete#expand(cur_text, col, trigger_
     " Open fold.
     silent! normal! zO
   endif
-  if l:next_col < col('$')
+  if next_col < col('$')
     startinsert
   else
     startinsert!
   endif
 
-  if l:snip_word =~ '\${\d\+\%(:.\{-}\)\?\\\@<!}'
+  if snip_word =~ '\${\d\+\%(:.\{-}\)\?\\\@<!}'
     call s:snippets_force_jump(a:cur_text, a:col)
   endif
 
@@ -508,52 +537,54 @@ function! neocomplcache#sources#snippets_complete#expand(cur_text, col, trigger_
   let &l:imsearch = 0
 endfunction"}}}
 function! s:expand_newline()"{{{
-  let l:match = match(getline('.'), '<\\n>')
+  let match = match(getline('.'), '<\\n>')
   let s:snippet_holder_cnt = 1
   let s:begin_snippet = line('.')
   let s:end_snippet = line('.')
 
-  let l:formatoptions = &l:formatoptions
+  let formatoptions = &l:formatoptions
   setlocal formatoptions-=r
 
-  while l:match >= 0
-    let l:end = getline('.')[matchend(getline('.'), '<\\n>') :]
+  while match >= 0
+    let end = getline('.')[matchend(getline('.'), '<\\n>') :]
     " Substitute CR.
-    silent! s/<\\n>//
+    silent! execute 's/<\\n>//' . (&gdefault ? 'g' : '')
 
     " Return.
-    let l:pos = getpos('.')
-    let l:pos[2] = l:match+1
-    call setpos('.', l:pos)
-    silent execute 'normal!' (l:match+1 >= col('$')? 'a' : 'i')."\<CR>"
+    let pos = getpos('.')
+    let pos[2] = match+1
+    call setpos('.', pos)
+    silent execute 'normal!'
+          \ (match+1 >= col('$')? 'a' : 'i')."\<CR>"
 
     " Next match.
-    let l:match = match(getline('.'), '<\\n>')
+    let match = match(getline('.'), '<\\n>')
     let s:end_snippet += 1
   endwhile
 
-  let &l:formatoptions = l:formatoptions
+  let &l:formatoptions = formatoptions
 endfunction"}}}
 function! s:expand_tabline()"{{{
-  let l:tablines = split(getline('.'), '<\\n>')
+  let tablines = split(getline('.'), '<\\n>')
 
-  let l:indent = matchstr(l:tablines[0], '^\s\+')
-  let l:line = line('.')
-  call setline(line, l:tablines[0])
-  for l:tabline in l:tablines[1:]
+  let indent = matchstr(tablines[0], '^\s\+')
+  let line = line('.')
+  call setline(line, tablines[0])
+  for tabline in tablines[1:]
     if &expandtab
-      let l:tabline = substitute(l:tabline, '<\\t>', repeat(' ', &softtabstop ? &softtabstop : &shiftwidth), 'g')
+      let tabline = substitute(tabline, '<\\t>',
+            \ repeat(' ', &softtabstop ? &softtabstop : &shiftwidth), 'g')
     else
-      let l:tabline = substitute(l:tabline, '<\\t>', '\t', 'g')
+      let tabline = substitute(tabline, '<\\t>', '\t', 'g')
     endif
 
-    call append(l:line, l:indent . l:tabline)
-    let l:line += 1
+    call append(line, indent . tabline)
+    let line += 1
   endfor
 
   let s:snippet_holder_cnt = 1
   let s:begin_snippet = line('.')
-  let s:end_snippet = line('.') + len(l:tablines) - 1
+  let s:end_snippet = line('.') + len(tablines) - 1
 endfunction"}}}
 function! s:snippets_force_jump(cur_text, col)"{{{
   if !s:search_snippet_range(s:begin_snippet, s:end_snippet)
@@ -578,205 +609,164 @@ endfunction"}}}
 function! s:search_snippet_range(start, end)"{{{
   call s:substitute_marker(a:start, a:end)
 
-  let l:pattern = '\${'.s:snippet_holder_cnt.'\%(:.\{-}\)\?\\\@<!}'
-  let l:pattern2 = '\${'.s:snippet_holder_cnt.':\zs.\{-}\ze\\\@<!}'
+  let pattern = '\${'.s:snippet_holder_cnt.'\%(:.\{-}\)\?\\\@<!}'
 
-  let l:line = a:start
-  while l:line <= a:end
-    let l:current_line = getline(l:line)
-    let l:match = match(l:current_line, l:pattern)
-    if l:match >= 0
-      let l:default = substitute(matchstr(l:current_line, l:pattern2), '\\\ze.', '', 'g')
-      let l:match_len2 = len(l:default)
+  let line = a:start
+  for line in filter(range(a:start, a:end),
+        \ 'getline(v:val) =~ pattern')
+    call s:expand_placeholder(a:start, a:end,
+          \ s:snippet_holder_cnt, line)
 
-      let l:pos = getpos('.')
-      let l:pos[1] = l:line
-      let l:pos[2] = l:match+1
-
-      if s:search_sync_placeholder(a:start, a:end, s:snippet_holder_cnt)
-        " Substitute holder.
-        call setline(l:line, substitute(l:current_line, l:pattern, '\$<'.s:snippet_holder_cnt.':'.escape(l:default, '\').'>', ''))
-        let l:pos[2] += len('$<'.s:snippet_holder_cnt.':')
-      else
-        " Substitute holder.
-        call setline(l:line, substitute(l:current_line, l:pattern, escape(l:default, '\'), ''))
-      endif
-      call setpos('.', l:pos)
-
-      if l:match_len2 > 0
-        " Select default value.
-        let l:len = l:match_len2-1
-        if &l:selection == "exclusive"
-          let l:len += 1
-        endif
-
-        execute 'normal! v'. repeat('l', l:len) . "\<C-g>"
-      elseif l:pos[2] < col('$')
-        startinsert
-      else
-        startinsert!
-      endif
-
-      " Next count.
-      let s:snippet_holder_cnt += 1
-      return 1
-    endif
-
-    " Next line.
-    let l:line += 1
-  endwhile
+    " Next count.
+    let s:snippet_holder_cnt += 1
+    return 1
+  endfor
 
   return 0
 endfunction"}}}
 function! s:search_outof_range(col)"{{{
   call s:substitute_marker(1, 0)
 
-  let l:pattern = '\${\d\+\%(:.\{-}\)\?\\\@<!}'
-  let l:pos = getpos('.')
-  if search(l:pattern, 'w') > 0
-    let l:line = line('.')
-    let l:current_line = getline(l:line)
-    let l:match = match(l:current_line, l:pattern)
-    let l:pattern2 = '\${\d\+:\zs.\{-}\ze\\\@<!}'
-    let l:default = substitute(matchstr(l:current_line, l:pattern2), '\\\ze.', '', 'g')
-    let l:match_len2 = len(l:default)
-
-    let l:pos[2] = l:match+1
-
-    " Substitute holder.
-    let l:cnt = matchstr(l:current_line, '\${\zs\d\+\ze\%(:.\{-}\)\?\\\@<!}')
-    if search('\$'.l:cnt.'\d\@!', 'nw') > 0
-      let l:pattern = '\${' . l:cnt . '\%(:.\{-}\)\?\\\@<!}'
-      call setline(l:line, substitute(l:current_line, l:pattern, '\$<'.s:snippet_holder_cnt.':'.escape(l:default, '\').'>', ''))
-      let l:pos[2] += len('$<'.s:snippet_holder_cnt.':')
-    else
-      " Substitute holder.
-      call setline(l:line, substitute(l:current_line, l:pattern, escape(l:default, '\'), ''))
-    endif
-    let l:pos[1] = line('.')
-    call setpos('.', l:pos)
-
-    if l:match_len2 > 0
-      " Select default value.
-      let l:len = l:match_len2-1
-      if &l:selection == 'exclusive'
-        let l:len += 1
-      endif
-
-      execute 'normal! v'. repeat('l', l:len) . "\<C-g>"
-
-      return 1
-    endif
-
-    if l:pos[2] < col('$')
-      startinsert
-    else
-      startinsert!
-    endif
-
+  let pattern = '\${\d\+\%(:.\{-}\)\?\\\@<!}'
+  if search(pattern, 'w') > 0
+    call s:expand_placeholder(line('.'), 0, '\d\+', line('.'))
     return 1
-  elseif a:col == 1
-    let l:pos[2] = 1
-    call setpos('.', l:pos)
+  endif
+
+  let pos = getpos('.')
+  if a:col == 1
+    let pos[2] = 1
+    call setpos('.', pos)
     startinsert
   elseif a:col == col('$')
     startinsert!
   else
-    let l:pos[2] = a:col+1
-    call setpos('.', l:pos)
+    let pos[2] = a:col+1
+    call setpos('.', pos)
     startinsert
   endif
 
   " Not found.
   return 0
 endfunction"}}}
-function! s:search_sync_placeholder(start, end, number)"{{{
-  let l:line = a:start
-  let l:pattern = '\$'.a:number.'\d\@!'
+function! s:expand_placeholder(start, end, holder_cnt, line)"{{{
+  let pattern = '\${'.a:holder_cnt.'\%(:.\{-}\)\?\\\@<!}'
+  let current_line = getline(a:line)
+  let match = match(current_line, pattern)
 
-  while l:line <= a:end
-    if getline(l:line) =~ l:pattern
-      return 1
+  let default_pattern = '\${'.a:holder_cnt.':\zs.\{-}\ze\\\@<!}'
+  let default = substitute(
+        \ matchstr(current_line, default_pattern), '\\\ze.', '', 'g')
+  let default_len = len(default)
+
+  let pos = getpos('.')
+  let pos[1] = a:line
+  let pos[2] = match+1
+
+  let cnt = s:search_sync_placeholder(a:start, a:end, a:holder_cnt)
+  if cnt > 0
+    let pattern = '\${' . cnt . '\%(:.\{-}\)\?\\\@<!}'
+    call setline(a:line, substitute(current_line, pattern,
+          \ '\$<'.cnt.':'.escape(default, '\').'>', ''))
+    let pos[2] += len('$<'.cnt.':')
+  else
+    " Substitute holder.
+    call setline(a:line,
+          \ substitute(current_line, pattern, escape(default, '\'), ''))
+  endif
+
+  call setpos('.', pos)
+
+  if default_len > 0
+    " Select default value.
+    let len = default_len-1
+    if &l:selection == "exclusive"
+      let len += 1
     endif
 
-    " Next line.
-    let l:line += 1
-  endwhile
+    stopinsert
+    execute "normal! v". repeat('l', len) . "\<C-g>"
+  elseif pos[2] < col('$')
+    startinsert
+  else
+    startinsert!
+  endif
+endfunction"}}}
+function! s:search_sync_placeholder(start, end, number)"{{{
+  if a:end == 0
+    " Search in current buffer.
+    let cnt = matchstr(getline(a:start),
+          \ '\${\zs\d\+\ze\%(:.\{-}\)\?\\\@<!}')
+    return search('\$'.cnt.'\d\@!', 'nw') > 0 ? cnt : 0
+  endif
+
+  let pattern = '\$'.a:number.'\d\@!'
+  for line in filter(range(a:start, a:end),
+        \ 'getline(v:val) =~ pattern')
+    return s:snippet_holder_cnt
+  endfor
 
   return 0
 endfunction"}}}
 function! s:substitute_marker(start, end)"{{{
   if s:snippet_holder_cnt > 1
-    let l:cnt = s:snippet_holder_cnt-1
-    let l:marker = '\$<'.l:cnt.'\%(:.\{-}\)\?\\\@<!>'
-    let l:line = a:start
-    while l:line <= a:end
-      if getline(l:line) =~ l:marker
-        let l:sub = escape(matchstr(getline(l:line), '\$<'.l:cnt.':\zs.\{-}\ze\\\@<!>'), '/\')
-        silent! execute printf('%d,%ds/$%d\d\@!/%s/g', 
-              \a:start, a:end, l:cnt, l:sub)
-        silent! execute l:line.'s/'.l:marker.'/'.l:sub.'/'
+    let cnt = s:snippet_holder_cnt-1
+    let marker = '\$<'.cnt.'\%(:.\{-}\)\?\\\@<!>'
+    let line = a:start
+    while line <= a:end
+      if getline(line) =~ marker
+        let sub = escape(matchstr(getline(line), '\$<'.cnt.':\zs.\{-}\ze\\\@<!>'), '/\')
+        silent! execute printf('%d,%ds/$%d\d\@!/%s/' . (&gdefault ? '' : 'g'),
+              \a:start, a:end, cnt, sub)
+        silent! execute line.'s/'.marker.'/'.sub.'/' . (&gdefault ? 'g' : '')
         break
       endif
 
-      let l:line += 1
+      let line += 1
     endwhile
   elseif search('\$<\d\+\%(:.\{-}\)\?\\\@<!>', 'wb') > 0
-    let l:sub = escape(matchstr(getline('.'), '\$<\d\+:\zs.\{-}\ze\\\@<!>'), '/\')
-    let l:cnt = matchstr(getline('.'), '\$<\zs\d\+\ze\%(:.\{-}\)\?\\\@<!>')
-    silent! execute printf('%%s/$%d\d\@!/%s/g', l:cnt, l:sub)
-    silent! execute '%s/'.'\$<'.l:cnt.'\%(:.\{-}\)\?\\\@<!>'.'/'.l:sub.'/'
+    let sub = escape(matchstr(getline('.'), '\$<\d\+:\zs.\{-}\ze\\\@<!>'), '/\')
+    let cnt = matchstr(getline('.'), '\$<\zs\d\+\ze\%(:.\{-}\)\?\\\@<!>')
+    silent! execute printf('%%s/$%d\d\@!/%s/' . (&gdefault ? 'g' : ''), cnt, sub)
+    silent! execute '%s/'.'\$<'.cnt.'\%(:.\{-}\)\?\\\@<!>'.'/'.sub.'/'
+          \ . (&gdefault ? 'g' : '')
   endif
 endfunction"}}}
 function! s:trigger(function)"{{{
-  let l:cur_text = neocomplcache#get_cur_text(1)
-  return printf("\<ESC>:call %s(%s,%d)\<CR>", a:function, string(l:cur_text), col('.'))
+  let cur_text = neocomplcache#get_cur_text(1)
+  return printf("\<ESC>:call %s(%s,%d)\<CR>", a:function, string(cur_text), col('.'))
 endfunction"}}}
 function! s:eval_snippet(snippet_text)"{{{
-  let l:snip_word = ''
-  let l:prev_match = 0
-  let l:match = match(a:snippet_text, '\\\@<!`.\{-}\\\@<!`')
+  let snip_word = ''
+  let prev_match = 0
+  let match = match(a:snippet_text, '\\\@<!`.\{-}\\\@<!`')
 
-  try
-    while l:match >= 0
-      if l:match - l:prev_match > 0
-        let l:snip_word .= a:snippet_text[l:prev_match : l:match - 1]
-      endif
-      let l:prev_match = matchend(a:snippet_text, '\\\@<!`.\{-}\\\@<!`', l:match)
-      let l:snip_word .= eval(a:snippet_text[l:match+1 : l:prev_match - 2])
-
-      let l:match = match(a:snippet_text, '\\\@<!`.\{-}\\\@<!`', l:prev_match)
-    endwhile
-    if l:prev_match >= 0
-      let l:snip_word .= a:snippet_text[l:prev_match :]
+  while match >= 0
+    if match - prev_match > 0
+      let snip_word .= a:snippet_text[prev_match : match - 1]
     endif
-  catch
-    return ''
-  endtry
+    let prev_match = matchend(a:snippet_text, '\\\@<!`.\{-}\\\@<!`', match)
+    let snip_word .= eval(a:snippet_text[match+1 : prev_match - 2])
 
-  return l:snip_word
+    let match = match(a:snippet_text, '\\\@<!`.\{-}\\\@<!`', prev_match)
+  endwhile
+  if prev_match >= 0
+    let snip_word .= a:snippet_text[prev_match :]
+  endif
+
+  return snip_word
 endfunction"}}}
 function! neocomplcache#sources#snippets_complete#get_snippets()"{{{
   " Get buffer filetype.
-  let l:ft = neocomplcache#get_context_filetype(1)
+  let filetype = neocomplcache#get_context_filetype(1)
 
-  let l:snippets = copy(s:snippets['_'])
-  for l:t in split(l:ft, '\.')
-    if has_key(s:snippets, l:t)
-      call extend(l:snippets, s:snippets[l:t])
-    endif
+  let snippets = {}
+  for source in neocomplcache#get_sources_list(s:snippets, filetype)
+      call extend(snippets, source, 'keep')
   endfor
+  call extend(snippets, copy(s:snippets['_']), 'keep')
 
-  " Get same filetype.
-  if has_key(g:neocomplcache_same_filetype_lists, l:ft)
-    for l:same_ft in split(g:neocomplcache_same_filetype_lists[l:ft], ',')
-      if has_key(s:snippets, l:same_ft)
-        call extend(l:snippets, s:snippets[l:same_ft], 'keep')
-      endif
-    endfor
-  endif
-
-  return l:snippets
+  return snippets
 endfunction"}}}
 
 function! s:SID_PREFIX()
@@ -784,14 +774,22 @@ function! s:SID_PREFIX()
 endfunction
 
 " Plugin key-mappings.
-inoremap <silent><expr> <Plug>(neocomplcache_snippets_expand) <SID>trigger(<SID>SID_PREFIX().'snippets_expand_or_jump')
-snoremap <silent><expr> <Plug>(neocomplcache_snippets_expand) <SID>trigger(<SID>SID_PREFIX().'snippets_expand_or_jump')
-inoremap <silent><expr> <Plug>(neocomplcache_snippets_jump) <SID>trigger(<SID>SID_PREFIX().'snippets_jump_or_expand')
-snoremap <silent><expr> <Plug>(neocomplcache_snippets_jump) <SID>trigger(<SID>SID_PREFIX().'snippets_jump_or_expand')
-inoremap <silent><expr> <Plug>(neocomplcache_snippets_force_expand) <SID>trigger(<SID>SID_PREFIX().'snippets_force_expand')
-snoremap <silent><expr> <Plug>(neocomplcache_snippets_force_expand) <SID>trigger(<SID>SID_PREFIX().'snippets_force_expand')
-inoremap <silent><expr> <Plug>(neocomplcache_snippets_force_jump) <SID>trigger(<SID>SID_PREFIX().'snippets_force_jump')
-snoremap <silent><expr> <Plug>(neocomplcache_snippets_force_jump) <SID>trigger(<SID>SID_PREFIX().'snippets_force_jump')
+inoremap <silent><expr> <Plug>(neocomplcache_snippets_expand)
+      \ <SID>trigger(<SID>SID_PREFIX().'snippets_expand_or_jump')
+snoremap <silent><expr> <Plug>(neocomplcache_snippets_expand)
+      \ <SID>trigger(<SID>SID_PREFIX().'snippets_expand_or_jump')
+inoremap <silent><expr> <Plug>(neocomplcache_snippets_jump)
+      \ <SID>trigger(<SID>SID_PREFIX().'snippets_jump_or_expand')
+snoremap <silent><expr> <Plug>(neocomplcache_snippets_jump)
+      \ <SID>trigger(<SID>SID_PREFIX().'snippets_jump_or_expand')
+inoremap <silent><expr> <Plug>(neocomplcache_snippets_force_expand)
+      \ <SID>trigger(<SID>SID_PREFIX().'snippets_force_expand')
+snoremap <silent><expr> <Plug>(neocomplcache_snippets_force_expand)
+      \ <SID>trigger(<SID>SID_PREFIX().'snippets_force_expand')
+inoremap <silent><expr> <Plug>(neocomplcache_snippets_force_jump)
+      \ <SID>trigger(<SID>SID_PREFIX().'snippets_force_jump')
+snoremap <silent><expr> <Plug>(neocomplcache_snippets_force_jump)
+      \ <SID>trigger(<SID>SID_PREFIX().'snippets_force_jump')
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
