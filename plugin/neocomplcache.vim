@@ -31,10 +31,6 @@ if v:version < 702
   finish
 elseif exists('g:loaded_neocomplcache')
   finish
-elseif $SUDO_USER != ''
-  echoerr '"sudo vim" is detected. Please use sudo.vim or other plugins instead.'
-  echoerr 'neocomplcache is disabled.'
-  finish
 endif
 
 let s:save_cpo = &cpo
