@@ -817,8 +817,6 @@ let g:cycle_default_groups = [
       \ 'Friday', 'Saturday'], 'hard_case', {'name': 'Days'}],
       \ [["enable", "disable"]],
       \ ]
-"   Lua[[[2
-let g:lua_complete_omni = 1
 "   Erlang[[[2
 let g:erlangHighlightBif = 1
 let g:erlangFold = 1
