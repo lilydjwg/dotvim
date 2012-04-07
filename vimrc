@@ -784,6 +784,8 @@ let g:neocomplcache_enable_at_startup = 1
 let g:neocomplcache_enable_camel_case_completion = 1
 let g:neocomplcache_enable_underbar_completion = 1
 let g:neocomplcache_force_overwrite_completefunc = 1
+"   禁用此项（而不是开启）。与 fcitx「数字后使用半角符号」功能冲突
+let g:neocomplcache_enable_cursor_hold_i = 1
 "   cycle[[[2
 "   https://github.com/lilydjwg/vim-cycle
 nnoremap <expr> <silent> <C-X> Lilydjwg_trycycle('x')
