@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: include_complete.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 05 Jan 2012.
+" Last Modified: 31 Mar 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -38,17 +38,21 @@ function! s:source.initialize()"{{{
   " Initialize
   let s:include_info = {}
   let s:include_cache = {}
+  let s:cache_accessed_time = {}
   let s:async_include_cache = {}
   let s:cached_pattern = {}
-  let s:completion_length = neocomplcache#get_auto_completion_length('include_complete')
+  let s:completion_length =
+        \ neocomplcache#get_auto_completion_length('include_complete')
 
   " Set rank.
-  call neocomplcache#set_dictionary_helper(g:neocomplcache_plugin_rank, 'include_complete', 8)
+  call neocomplcache#set_dictionary_helper(
+        \ g:neocomplcache_source_rank, 'include_complete', 8)
 
   if neocomplcache#has_vimproc()
     augroup neocomplcache
       " Caching events
       autocmd BufWritePost * call s:check_buffer('', 0)
+      autocmd CursorHold * call s:check_cache()
     augroup END
   endif
 
@@ -89,8 +93,8 @@ function! s:source.initialize()"{{{
   endif
 
   " Create cache directory.
-  if !isdirectory(g:neocomplcache_temporary_dir . '/include_cache')
-    call mkdir(g:neocomplcache_temporary_dir . '/include_cache', 'p')
+  if !isdirectory(neocomplcache#get_temporary_directory() . '/include_cache')
+    call mkdir(neocomplcache#get_temporary_directory() . '/include_cache', 'p')
   endif
 
   " Add command.
@@ -128,6 +132,7 @@ function! s:source.get_keyword_list(cur_keyword_str)"{{{
           \ 'include_cache', include, s:async_include_cache,
           \ s:include_cache, s:completion_length)
     if has_key(s:include_cache, include)
+      let s:cache_accessed_time[include] = localtime()
       let keyword_list += neocomplcache#dictionary_filter(
             \ s:include_cache[include], a:cur_keyword_str, s:completion_length)
     endif
@@ -142,10 +147,15 @@ endfunction"}}}
 
 function! neocomplcache#sources#include_complete#get_include_files(bufnumber)"{{{
   if has_key(s:include_info, a:bufnumber)
-    return s:include_info[a:bufnumber].include_files
+    return copy(s:include_info[a:bufnumber].include_files)
   else
     return []
   endif
+endfunction"}}}
+
+function! neocomplcache#sources#include_complete#get_include_tags(bufnumber)"{{{
+  return filter(map(neocomplcache#sources#include_complete#get_include_files(a:bufnumber),
+        \ "neocomplcache#cache#encode_name('tags_output', v:val)"), 'filereadable(v:val)')
 endfunction"}}}
 
 " For Debug.
@@ -352,6 +362,17 @@ function! s:get_include_files(nestlevel, lines, filetype, pattern, path, expr)"{
   endfor"}}}
 
   return include_files
+endfunction"}}}
+
+function! s:check_cache()"{{{
+  let release_accessd_time = localtime() - g:neocomplcache_release_cache_time
+
+  for key in keys(s:include_cache)
+    if has_key(s:cache_accessed_time, key)
+          \ && s:cache_accessed_time[key] < release_accessd_time
+      call remove(s:include_cache, key)
+    endif
+  endfor
 endfunction"}}}
 
 function! s:initialize_include(filename, filetype)"{{{

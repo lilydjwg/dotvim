@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: syntax_complete.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 15 Jan 2012.
+" Last Modified: 31 Mar 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -40,7 +40,7 @@ function! s:source.initialize()"{{{
 
   " Set rank.
   call neocomplcache#set_dictionary_helper(
-        \ g:neocomplcache_plugin_rank, 'syntax_complete', 7)
+        \ g:neocomplcache_source_rank, 'syntax_complete', 7)
 
   " Set caching event.
   autocmd neocomplcache Syntax * call s:caching()
@@ -50,8 +50,8 @@ function! s:source.initialize()"{{{
         \ NeoComplCacheCachingSyntax call s:recaching(<q-args>)
 
   " Create cache directory.
-  if !isdirectory(g:neocomplcache_temporary_dir . '/syntax_cache')
-    call mkdir(g:neocomplcache_temporary_dir . '/syntax_cache')
+  if !isdirectory(neocomplcache#get_temporary_directory() . '/syntax_cache')
+    call mkdir(neocomplcache#get_temporary_directory() . '/syntax_cache')
   endif
 
   " Initialize check.
@@ -71,7 +71,8 @@ function! s:source.get_keyword_list(cur_keyword_str)"{{{
 
   let filetype = neocomplcache#get_context_filetype()
   if !has_key(s:syntax_list, filetype)
-    let keyword_lists = neocomplcache#cache#index_load_from_cache('syntax_cache', filetype, s:completion_length)
+    let keyword_lists = neocomplcache#cache#index_load_from_cache('syntax_cache',
+          \ filetype, s:completion_length)
     if !empty(keyword_lists)
       " Caching from cache.
       let s:syntax_list[filetype] = keyword_lists
@@ -79,7 +80,8 @@ function! s:source.get_keyword_list(cur_keyword_str)"{{{
   endif
 
   for source in neocomplcache#get_sources_list(s:syntax_list, filetype)
-    let list += neocomplcache#dictionary_filter(source, a:cur_keyword_str, s:completion_length)
+    let list += neocomplcache#dictionary_filter(
+          \ source, a:cur_keyword_str, s:completion_length)
   endfor
 
   return list

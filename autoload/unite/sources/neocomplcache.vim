@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: neocomplcache.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 06 Nov 2011.
+" Last Modified: 07 Mar 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -30,7 +30,6 @@ set cpo&vim
 function! unite#sources#neocomplcache#define() "{{{
   if !exists('*unite#version') || unite#version() < 150
     echoerr 'Your unite.vim is too old.'
-    echoerr 'Please install unite.vim Ver.1.5 or above.'
     return []
   endif
 
@@ -115,20 +114,14 @@ function! s:start_complete(is_quick_match)
   endif
   if !exists(':Unite')
     echoerr 'unite.vim is not installed.'
-    echoerr 'Please install unite.vim Ver.1.5 or above.'
     return ''
   elseif unite#version() < 300
     echoerr 'Your unite.vim is too old.'
-    echoerr 'Please install unite.vim Ver.3.0 or above.'
     return ''
   endif
 
-  let winheight =
-        \ (&pumheight != 0) ? &pumheight : (winheight(0) - winline())
-
   return unite#start_complete(['neocomplcache'], {
-        \ 'auto_preview' : 1, 'winheight' : winheight,
-        \ 'auto_resize' : 1, 'quick_match' : a:is_quick_match,
+        \ 'auto_preview' : 1, 'quick_match' : a:is_quick_match,
         \ })
 endfunction
 

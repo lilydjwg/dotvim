@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: cache.vim
 " AUTHOR: Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 11 Nov 2011.
+" Last Modified: 02 Apr 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -30,35 +30,35 @@ set cpo&vim
 let s:Cache = vital#of('neocomplcache').import('System.Cache')
 
 " Cache loader.
-function! neocomplcache#cache#check_cache(cache_dir, key, async_cache_dictionary,
-      \ keyword_list_dictionary, completion_length) "{{{
+function! neocomplcache#cache#check_cache_list(cache_dir, key, async_cache_dictionary, index_keyword_list, completion_length) "{{{
   if !has_key(a:async_cache_dictionary, a:key)
     return
   endif
 
-  for cache in a:async_cache_dictionary[a:key]
-    " Check cache name.
-    if filereadable(cache.cachename)
-      " Caching.
-      let a:keyword_list_dictionary[a:key] = {}
+  for cache in filter(copy(a:async_cache_dictionary[a:key]),
+        \ 'filereadable(v:val.cachename)')
+    let keyword_list = []
+    for cache in a:async_cache_dictionary[a:key]
+      let keyword_list +=
+            \ neocomplcache#cache#load_from_cache(a:cache_dir, cache.filename)
+    endfor
 
-      let keyword_list = []
-      for cache in a:async_cache_dictionary[a:key]
-        let keyword_list +=
-              \ neocomplcache#cache#load_from_cache(a:cache_dir, cache.filename)
-      endfor
+    call neocomplcache#cache#list2index(keyword_list,
+          \ a:index_keyword_list, a:completion_length)
 
-      call neocomplcache#cache#list2index(
-            \ keyword_list,
-            \ a:keyword_list_dictionary[a:key],
-            \ a:completion_length)
-
-      " Delete from dictionary.
-      call remove(a:async_cache_dictionary, a:key)
-
-      return
-    endif
+    " Delete from dictionary.
+    call remove(a:async_cache_dictionary, a:key)
+    break
   endfor
+endfunction"}}}
+function! neocomplcache#cache#check_cache(cache_dir, key, async_cache_dictionary, keyword_list_dictionary, completion_length) "{{{
+  " Caching.
+  if !has_key(a:keyword_list_dictionary, a:key)
+    let a:keyword_list_dictionary[a:key] = {}
+  endif
+  return neocomplcache#cache#check_cache_list(
+        \ a:cache_dir, a:key, a:async_cache_dictionary,
+        \ a:keyword_list_dictionary[a:key], a:completion_length)
 endfunction"}}}
 function! neocomplcache#cache#load_from_cache(cache_dir, filename)"{{{
   try
@@ -124,28 +124,28 @@ endfunction"}}}
 
 " Cache helper.
 function! neocomplcache#cache#getfilename(cache_dir, filename)"{{{
-  let cache_dir = g:neocomplcache_temporary_dir . '/' . a:cache_dir
+  let cache_dir = neocomplcache#get_temporary_directory() . '/' . a:cache_dir
   return s:Cache.getfilename(cache_dir, a:filename)
 endfunction"}}}
 function! neocomplcache#cache#filereadable(cache_dir, filename)"{{{
-  let cache_dir = g:neocomplcache_temporary_dir . '/' . a:cache_dir
+  let cache_dir = neocomplcache#get_temporary_directory() . '/' . a:cache_dir
   return s:Cache.filereadable(cache_dir, a:filename)
 endfunction"}}}
 function! neocomplcache#cache#readfile(cache_dir, filename)"{{{
-  let cache_dir = g:neocomplcache_temporary_dir . '/' . a:cache_dir
+  let cache_dir = neocomplcache#get_temporary_directory() . '/' . a:cache_dir
   return s:Cache.readfile(cache_dir, a:filename)
 endfunction"}}}
 function! neocomplcache#cache#writefile(cache_dir, filename, list)"{{{
-  let cache_dir = g:neocomplcache_temporary_dir . '/' . a:cache_dir
+  let cache_dir = neocomplcache#get_temporary_directory() . '/' . a:cache_dir
   return s:Cache.writefile(cache_dir, a:filename, a:list)
 endfunction"}}}
 function! neocomplcache#cache#encode_name(cache_dir, filename)
   " Check cache directory.
-  let cache_dir = g:neocomplcache_temporary_dir . '/' . a:cache_dir
+  let cache_dir = neocomplcache#get_temporary_directory() . '/' . a:cache_dir
   return s:Cache.getfilename(cache_dir, a:filename)
 endfunction
 function! neocomplcache#cache#check_old_cache(cache_dir, filename)"{{{
-  let cache_dir = g:neocomplcache_temporary_dir . '/' . a:cache_dir
+  let cache_dir = neocomplcache#get_temporary_directory() . '/' . a:cache_dir
   return  s:Cache.check_old_cache(cache_dir, a:filename)
 endfunction"}}}
 
@@ -250,7 +250,21 @@ function! s:async_load(argv, cache_dir, filename)"{{{
 
   " if 0
   if neocomplcache#has_vimproc()
-    let args = ['vim', '-u', 'NONE', '-i', 'NONE', '-n',
+    let base_path = neocomplcache#util#substitute_path_separator(
+          \ fnamemodify(vimproc#get_command_name(v:progname), ':p:h'))
+    let vim_path = base_path . (neocomplcache#util#is_windows() ? '/vim.exe' : '/vim')
+    if !executable(vim_path) && neocomplcache#util#is_mac()
+      " Note: Search "Vim" instead of vim.
+      let vim_path = base_path. '/Vim'
+    endif
+
+    if !executable(vim_path)
+      call neocomplcache#print_error(
+            \ printf('Vim path : "%s" is not found.', vim_path))
+      return
+    endif
+
+    let args = [vim_path, '-u', 'NONE', '-i', 'NONE', '-n',
           \       '-N', '-S', 'async_cache.vim']
           \ + a:argv
     call vimproc#system_bg(args)
