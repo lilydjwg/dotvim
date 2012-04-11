@@ -33,3 +33,4 @@ return
 system
 undefined
 where
+isAlpha
