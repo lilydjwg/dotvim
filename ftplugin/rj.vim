@@ -1,7 +1,6 @@
 " Vim script file
 " FileType:     RJ （日记）
 " Author:       lilydjwg
-" Last Change:  2010-10-14
 
 if exists("b:did_ftplugin")
   finish
@@ -60,8 +59,7 @@ function! Lilydjwg_rj_tab()
   if l =~ '^$'
     return '    '
   else
-    " return "\<Tab>"
-    return CleverTab()
+    return "\<Tab>"
   endif
 endfunction
 
