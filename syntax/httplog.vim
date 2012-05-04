@@ -17,7 +17,7 @@ syn match httplogBrowser	/\<UCWEB\d\@=/
 syn match httplogBrowser	/\v(".*Chrome.*)@<!<Safari>/
 syn match httplogBrowser	/\v(".*)@<=<Chrome>(.*Chrome.*")@!/
 syn keyword httplogBrowser	Firefox MSIE Konqueror ChromePlus Opera w3m Wget Lynx Epiphany Links TheWorld contained
-syn keyword httplogBrowser	gvfs
+syn keyword httplogBrowser	gvfs curl
 syn keyword httplogBrowser	Googlebot Baiduspider W3C_Validator Jigsaw PhantomJS contained
 syn match httplogLAN	/\v(192\.168\.\d+\.\d+)/ contained
 syn match httplogLocal	/\v(::1|127\.0\.0\.1|192\.168\.1\.11)\s/ contained
