@@ -26,13 +26,8 @@ augroup filetypedetect
   au BufNewFile,BufRead *.md				setf markdown
   au BufRead		grub.cfg			setf sh
   au BufRead		$HOME/temp/mb			setf mb
-  au BufRead		*/itsalltext/lilydjwg.is-programmer.com*	setf html
   au BufRead		lilydjwg.is-programmer.com_edit*		setf html
-  au BufRead		forum.ubuntu.org.cn_*	 	setf bbcode
-  au BufRead		*/itsalltext/*forum*		setf bbcode
-  au BufRead		*/itsalltext/easwy.com.*	setf bbcode
-  au BufRead		*/itsalltext/*mail*		setf mail
-  au BufRead		*/itsalltext/groups.google*	setf mail
+  au BufRead		forum.ubuntu.org.cn_*,bbs.archlinuxcn.org_post.php*.txt		setf bbcode
   au BufRead		*fck_source.html*		setf html
   au BufRead		*docs.google.com_Doc*		setf html
   au BufNewFile,BufRead	*.mw,*wpTextbox*.txt,*wiki__text*.txt		setf wiki
