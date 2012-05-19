@@ -10,7 +10,9 @@ def LilyPaste():
   echon(msg)
   vim.command('redraw')
   curl = subprocess.Popen(['curl', '-F', 'vimcn=<-', 'http://p.vim-cn.com'],
-                          stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+                          stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                          stderr=open(os.devnull, 'w'),
+                         )
   for l in vim.current.range:
     curl.stdin.write(l.encode('utf-8') + b'\n')
   curl.stdin.close()
