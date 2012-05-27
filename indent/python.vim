@@ -266,7 +266,7 @@ function! GetPythonIndent(lnum)
 
         " If the previous line ended with a colon, indent relative to
         " statement start.
-        if pline =~ ':\s*$'
+	if pline =~ ':\s*\(#.*\)\?$'
             "Mod-Begin by dantezhu in 2011-02-24 19:30:52
             "FROM
             "return indent(sslnum) + &sw
