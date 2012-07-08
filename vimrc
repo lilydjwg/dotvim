@@ -773,8 +773,6 @@ command -nargs=? Snippets silent call Lilydjwg_snippets("<args>")
 command Path VE %:p:h
 command -nargs=1 Enc e ++bad=keep ++enc=<args> %
 command CenterFull call CenterFull()
-"   Awesome 下全屏时有点 bug，这里将之加回去
-command Larger set lines+=1
 command MusicSelect runtime so/musicselect.vim
 command -nargs=1 -range -complete=customlist,Lilydjwg_Align_complete LA <line1>,<line2>call Lilydjwg_Align("<args>")
 command -range=% Paste :<line1>,<line2>py3 LilyPaste()
@@ -972,5 +970,5 @@ if has("cscope") && executable("cscope")
   nmap cs<Space> :cs find 
 endif
 " 最后 [[[1
-runtime temp.vim
+runtime local.vim
 " vim:fdm=marker:fmr=[[[,]]]

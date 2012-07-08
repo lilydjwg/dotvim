@@ -236,3 +236,4 @@ warnings
 xpath
 partial
 fcntl
+endswith
