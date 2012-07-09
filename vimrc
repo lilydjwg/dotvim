@@ -419,7 +419,10 @@ set tags+=./../tags,./../../tags,./../../../tags
 if has('arabic')
   set noarabicshape
 endif
-" Linux 与 Windows [[[2
+" Linux 与 Windows 等 [[[2
+if has("gui_macvim")
+  set macmeta
+end
 if has("win32") || has("win64")
   let g:LustyExplorerSuppressRubyWarning = 1
   " Win 路径 [[[3
@@ -441,8 +444,6 @@ if has("win32") || has("win64")
   " Win 配置 [[[3
   command FScreen simalt ~x
   command Fscreen simalt ~r
-elseif has("gui_macvim")
-  set macmeta
 else
   " Linux 路径 [[[3
   let g:VEConf_favorite = expand("~/.vim/ve_favorite")
