@@ -441,6 +441,8 @@ if has("win32") || has("win64")
   " Win 配置 [[[3
   command FScreen simalt ~x
   command Fscreen simalt ~r
+elseif has("gui_macvim")
+  set macmeta
 else
   " Linux 路径 [[[3
   let g:VEConf_favorite = expand("~/.vim/ve_favorite")
