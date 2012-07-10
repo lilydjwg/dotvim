@@ -307,13 +307,15 @@ function Lilydjwg_open_url()
     echohl None
   else
     echo '打开URL：' . s:url
-    if !(has("win32") || has("win64"))
-      " call system("gnome-open " . s:url)
-      call system("setsid firefox '" . s:url . "' &")
-    else
+    if has("win32") || has("win64")
       " start 不是程序，所以无效。并且，cmd 只能使用双引号
       " call system("start '" . s:url . "'")
       call system("cmd /q /c start \"" . s:url . "\"")
+    elseif has("mac")
+      call system("open '" . s:url . "'")
+    else
+      " call system("gnome-open " . s:url)
+      call system("setsid firefox '" . s:url . "' &")
     endif
   endif
   unlet s:url
