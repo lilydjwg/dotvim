@@ -16,6 +16,11 @@ runtime vimrc_example.vim
 "]]]
 " 我的设置
 " 函数[[[1
+"   Perl-style quoted lists[[[2
+function Lilydjwg_qw()
+  let in = input('', 'qw(')
+  return system('qw', in)
+endfunction
 "   使用分隔符连接多行 [[[2
 function Lilydjwg_join(sep, bang) range
   if a:sep[0] == '\'
@@ -302,13 +307,15 @@ function Lilydjwg_open_url()
     echohl None
   else
     echo '打开URL：' . s:url
-    if !(has("win32") || has("win64"))
-      " call system("gnome-open " . s:url)
-      call system("setsid firefox '" . s:url . "' &")
-    else
+    if has("win32") || has("win64")
       " start 不是程序，所以无效。并且，cmd 只能使用双引号
       " call system("start '" . s:url . "'")
       call system("cmd /q /c start \"" . s:url . "\"")
+    elseif has("mac")
+      call system("open '" . s:url . "'")
+    else
+      " call system("gnome-open " . s:url)
+      call system("setsid firefox '" . s:url . "' &")
     endif
   endif
   unlet s:url
@@ -414,7 +421,10 @@ set tags+=./../tags,./../../tags,./../../../tags
 if has('arabic')
   set noarabicshape
 endif
-" Linux 与 Windows [[[2
+" Linux 与 Windows 等 [[[2
+if has("gui_macvim")
+  set macmeta
+end
 if has("win32") || has("win64")
   let g:LustyExplorerSuppressRubyWarning = 1
   " Win 路径 [[[3
@@ -459,7 +469,7 @@ else
   nmap <C-S-F5> :!gnome-open "%"<CR>
   set grepprg=grep\ -nH\ $*
   command Hex silent !setsid ghex2 '%'
-  command SHELL silent cd %:p:h|silent exe '!setsid gnome-terminal'|silent cd -
+  command SHELL silent cd %:p:h|silent exe '!setsid terminal'|silent cd -
   command Nautilus silent !nautilus %:p:h
   autocmd BufWritePost    * call Lilydjwg_chmodx()
   " Linux 配置 [[[3
@@ -629,7 +639,7 @@ nmap ' <C-W>
 nmap Y y$
 nmap 'm :MarksBrowser<CR>
 nmap :: :!
-nmap cd :silent lcd %:p:h<CR>:echo expand('%:p:h')<CR>
+nmap cd :lcd %:p:h<CR>:echo expand('%:p:h')<CR>
 nmap gb :setl fenc=gb18030<CR>
 nmap d<CR> :%s/\r//eg<CR>``
 nmap cac :call Lilydjwg_changeColor()<CR>
@@ -639,6 +649,7 @@ inoremap <S-CR> <CR>
 inoremap <M-c> <C-R>=Lilydjwg_colorpicker()<CR>
 inoremap <C-J> <C-P>
 inoremap <M-j> <C-N>
+inoremap <M-q> <C-R>=Lilydjwg_qw()<CR>
 imap <S-BS> <C-W>
 cmap <S-BS> <C-W>
 "     日期和时间 [[[3
@@ -769,8 +780,6 @@ command -nargs=? Snippets silent call Lilydjwg_snippets("<args>")
 command Path VE %:p:h
 command -nargs=1 Enc e ++bad=keep ++enc=<args> %
 command CenterFull call CenterFull()
-"   Awesome 下全屏时有点 bug，这里将之加回去
-command Larger set lines+=1
 command MusicSelect runtime so/musicselect.vim
 command -nargs=1 -range -complete=customlist,Lilydjwg_Align_complete LA <line1>,<line2>call Lilydjwg_Align("<args>")
 command -range=% Paste :<line1>,<line2>py3 LilyPaste()
@@ -792,6 +801,7 @@ let g:cycle_no_mappings = 1
 let g:cycle_default_groups = [
       \ [['true', 'false']],
       \ [['yes', 'no']],
+      \ [['and', 'or']],
       \ [['on', 'off']],
       \ [['>', '<']],
       \ [['==', '!=']],
@@ -806,14 +816,12 @@ let g:cycle_default_groups = [
       \ [["asc", "desc"]],
       \ [["next", "prev"]],
       \ [["encode", "decode"]],
-      \ [['{:}', '[:]', '(:)'], 'sub_pairs'],
-      \ [['（:）', '「:」', '『:』'], 'sub_pairs'],
+      \ [["left", "right"]],
+      \ [['「:」', '『:』'], 'sub_pairs'],
       \ [['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday',
       \ 'Friday', 'Saturday'], 'hard_case', {'name': 'Days'}],
       \ [["enable", "disable"]],
       \ ]
-"   Lua[[[2
-let g:lua_complete_omni = 1
 "   Erlang[[[2
 let g:erlangHighlightBif = 1
 let g:erlangFold = 1
@@ -969,5 +977,5 @@ if has("cscope") && executable("cscope")
   nmap cs<Space> :cs find 
 endif
 " 最后 [[[1
-runtime temp.vim
+runtime local.vim
 " vim:fdm=marker:fmr=[[[,]]]

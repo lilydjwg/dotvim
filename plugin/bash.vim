@@ -31,6 +31,7 @@ function s:Bash_setup()
   noremap! <M-f> <S-Right>
   noremap! <M-h> <Del>
   cnoremap <silent> <M-d> <C-\>e<SID>Bash_killline_cmd()<CR>
+  cnoremap <silent> <M-a> <C-A>
   " <M-d> 删除光标后的字符
   inoremap <silent> <M-d> <C-G>u<C-R>=<SID>Bash_killline()<CR>
   for i in range(10)

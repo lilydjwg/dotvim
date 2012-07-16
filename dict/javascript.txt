@@ -47,3 +47,4 @@ true
 typeof
 undefined
 unshift
+encodeURIComponent
