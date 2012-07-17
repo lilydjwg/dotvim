@@ -424,6 +424,8 @@ endif
 " Linux 与 Windows 等 [[[2
 if has("gui_macvim")
   set macmeta
+  autocmd InsertLeave * set imdisable
+  autocmd InsertEnter * set noimdisable
 end
 if has("win32") || has("win64")
   let g:LustyExplorerSuppressRubyWarning = 1
