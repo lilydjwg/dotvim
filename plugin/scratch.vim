@@ -133,7 +133,11 @@ function s:scratch_eval(engine)
     let rstr = system('python3 -c ''print('.exp.')''')
     let r = split(rstr, '\n')
   endif
-  call append('.', r)
+  if type(r) == type(0.0)
+    call append('.', printf('%lg', r))
+  else
+    call append('.', r)
+  endif
   startinsert!
 endfunction
 function! s:BackupScratchBuffer()
