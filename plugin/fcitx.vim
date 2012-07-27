@@ -19,18 +19,22 @@ endif
 let s:keepcpo = &cpo
 set cpo&vim
 " this is quicker than expand()
-let s:fcitxsocketfile = '/tmp/fcitx-socket-' . $DISPLAY
-if !filewritable(s:fcitxsocketfile) "try again
-  if strridx(s:fcitxsocketfile, '.') > 0
-    let s:fcitxsocketfile = strpart(s:fcitxsocketfile, 0,
-	  \ strridx(s:fcitxsocketfile, '.'))
-  else
-    let s:fcitxsocketfile = s:fcitxsocketfile . '.0'
-    if !filewritable(s:fcitxsocketfile)
-      echohl WarningMsg
-      echomsg "socket file of fcitx not found, fcitx.vim not loaded."
-      echohl None
-      finish
+if exists('$FCITX_SOCKET')
+  let s:fcitxsocketfile = $FCITX_SOCKET
+else
+  let s:fcitxsocketfile = '/tmp/fcitx-socket-' . $DISPLAY
+  if !filewritable(s:fcitxsocketfile) "try again
+    if strridx(s:fcitxsocketfile, '.') > 0
+      let s:fcitxsocketfile = strpart(s:fcitxsocketfile, 0,
+            \ strridx(s:fcitxsocketfile, '.'))
+    else
+      let s:fcitxsocketfile = s:fcitxsocketfile . '.0'
+      if !filewritable(s:fcitxsocketfile)
+        echohl WarningMsg
+        echomsg "socket file of fcitx not found, fcitx.vim not loaded."
+        echohl None
+        finish
+      endif
     endif
   endif
 endif
