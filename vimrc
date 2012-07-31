@@ -605,7 +605,7 @@ nmap tw :call Lilydjwg_toggle_ambiwidth()<CR>
 "     w 开头 [[[3
 nmap wc :set cursorline!<CR>
 nmap wd :diffsplit 
-nmap wf :NERDTreeToggle<CR>
+nmap wf :NERDTree `=expand('%:h')`<CR>
 nmap <silent> wn :call Lilydjwg_toggle_number()<CR>
 nnoremap <silent> wt :TlistToggle<CR>
 nnoremap <silent> wb :TagbarToggle<CR>
