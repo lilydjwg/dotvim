@@ -38,7 +38,7 @@ function Lilydjwg_join(sep, bang) range
   if a:bang != '!'
     call map(lines, "substitute(v:val, '^\\s\\+\\|\\s\\+$', '', 'g')")
   endif
-  call append(a:firstline -1, join(lines, sep))
+  call append(a:firstline-1, join(lines, sep))
   if dellast
     $d_
   endif
@@ -782,6 +782,9 @@ command MusicSelect runtime so/musicselect.vim
 command -nargs=1 -range -complete=customlist,Lilydjwg_Align_complete LA <line1>,<line2>call Lilydjwg_Align("<args>")
 command -range=% Paste :<line1>,<line2>py3 LilyPaste()
 " 插件配置[[[1
+"   easymotion[[[2
+let EasyMotion_leader_key = '<M-q>'
+let EasyMotion_keys = 'abcdefghijklmnopqrstuvwxyz'
 "   neocomplcache[[[2
 let g:neocomplcache_enable_at_startup = 1
 let g:neocomplcache_enable_camel_case_completion = 1
