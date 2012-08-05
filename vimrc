@@ -38,7 +38,7 @@ function Lilydjwg_join(sep, bang) range
   if a:bang != '!'
     call map(lines, "substitute(v:val, '^\\s\\+\\|\\s\\+$', '', 'g')")
   endif
-  call append(a:firstline -1, join(lines, sep))
+  call append(a:firstline-1, join(lines, sep))
   if dellast
     $d_
   endif
@@ -480,10 +480,10 @@ endif
 if $LANGUAGE =~ '^zh' || ($LANGUAGE == '' && v:lang =~ '^zh')
   nmap gs :echo getfsize(expand('%')) '字节'<CR>
   " 缓冲区号 文件名 行数 修改 帮助 只读 编码 换行符 BOM ======== 字符编码 位置 百分比位置
-  set statusline=%n\ %<%f\ %L行\ %{&modified?'[+]':&modifiable\|\|&ft=~'^\\vhelp\|qf$'?'':'[-]'}%h%r%{&fenc=='utf-8'\|\|&fenc==''?'':'['.&fenc.']'}%{&ff=='unix'?'':'['.&ff.']'}%{&bomb?'[BOM]':''}%{&eol?'':'[noeol]'}%=\ 0x%-4.4B\ \ \ \ %-14.(%l,%c%V%)\ %P
+  set statusline=%n\ %<%f\ %L行\ %{&modified?'[+]':&modifiable\|\|&ft=~'^\\vhelp\|qf$'?'':'[-]'}%h%r%{&fenc=='utf-8'\|\|&fenc==''?'':'['.&fenc.']'}%{&ff=='unix'?'':'['.&ff.']'}%{&bomb?'[BOM]':''}%{&eol?'':'[noeol]'}%=\ 0x%-4.8B\ \ \ \ %-14.(%l,%c%V%)\ %P
 else
   nmap gs :echo getfsize(expand('%')) 'bytes'<CR>
-  set statusline=%n\ %<%f\ %LL\ %{&modified?'[+]':&modifiable\|\|&ft=~'^\\vhelp\|qf$'?'':'[-]'}%h%r%{&fenc=='utf-8'\|\|&fenc==''?'':'['.&fenc.']'}%{&ff=='unix'?'':'['.&ff.']'}%{&bomb?'[BOM]':''}%{&eol?'':'[noeol]'}%=\ 0x%-4.4B\ \ \ \ %-14.(%l,%c%V%)\ %P
+  set statusline=%n\ %<%f\ %LL\ %{&modified?'[+]':&modifiable\|\|&ft=~'^\\vhelp\|qf$'?'':'[-]'}%h%r%{&fenc=='utf-8'\|\|&fenc==''?'':'['.&fenc.']'}%{&ff=='unix'?'':'['.&ff.']'}%{&bomb?'[BOM]':''}%{&eol?'':'[noeol]'}%=\ 0x%-4.8B\ \ \ \ %-14.(%l,%c%V%)\ %P
 endif
 " 图形与终端 [[[2
 let colorscheme = 'lilypink'
@@ -605,7 +605,7 @@ nmap tw :call Lilydjwg_toggle_ambiwidth()<CR>
 "     w 开头 [[[3
 nmap wc :set cursorline!<CR>
 nmap wd :diffsplit 
-nmap wf :NERDTreeToggle<CR>
+nmap wf :NERDTree `=expand('%:h')`<CR>
 nmap <silent> wn :call Lilydjwg_toggle_number()<CR>
 nnoremap <silent> wt :TlistToggle<CR>
 nnoremap <silent> wb :TagbarToggle<CR>
@@ -784,6 +784,9 @@ command MusicSelect runtime so/musicselect.vim
 command -nargs=1 -range -complete=customlist,Lilydjwg_Align_complete LA <line1>,<line2>call Lilydjwg_Align("<args>")
 command -range=% Paste :<line1>,<line2>py3 LilyPaste()
 " 插件配置[[[1
+"   easymotion[[[2
+let EasyMotion_leader_key = '<M-q>'
+let EasyMotion_keys = 'abcdefghijklmnopqrstuvwxyz'
 "   neocomplcache[[[2
 let g:neocomplcache_enable_at_startup = 1
 let g:neocomplcache_enable_camel_case_completion = 1
