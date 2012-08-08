@@ -16,6 +16,18 @@ runtime vimrc_example.vim
 "]]]
 " 我的设置
 " 函数[[[1
+"   打开 NERDTree，使用当前文件目录或者当前目录
+function Lilydjwg_NERDTreeOpen()
+  if exists("t:NERDTreeBufName")
+    NERDTreeToggle
+  else
+    try
+      NERDTree `=expand('%:h')`
+    catch /E121/
+      NERDTree `=getcwd()`
+    endtry
+  endif
+endfunction
 "   Perl-style quoted lists[[[2
 function Lilydjwg_qw()
   let in = input('', 'qw(')
@@ -605,8 +617,8 @@ nmap tw :call Lilydjwg_toggle_ambiwidth()<CR>
 "     w 开头 [[[3
 nmap wc :set cursorline!<CR>
 nmap wd :diffsplit 
-nmap wf :NERDTree `=expand('%:h')`<CR>
-nmap <silent> wn :call Lilydjwg_toggle_number()<CR>
+nnoremap <silent> wf :call Lilydjwg_NERDTreeOpen()<CR>
+nnoremap <silent> wn :call Lilydjwg_toggle_number()<CR>
 nnoremap <silent> wt :TlistToggle<CR>
 nnoremap <silent> wb :TagbarToggle<CR>
 "     - 开头 [[[3
