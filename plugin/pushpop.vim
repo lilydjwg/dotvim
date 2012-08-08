@@ -12,28 +12,28 @@ set cpo&vim
 " ---------------------------------------------------------------------
 " Functions:
 let g:stack = []
-let g:stack_top = 0
+let g:stack_top = -1
 function s:push()
   let pos = getpos('.')
   let line = getline('.')
   let pos[0] = bufnr('%')
+  let g:stack_top += 1
   if len(g:stack) > g:stack_top
     call remove(g:stack, g:stack_top, -1)
   endif
   call add(g:stack, [pos, line])
-  let g:stack_top += 1
 endfunction
 function s:pop()
-  if g:stack_top == 0
+  if g:stack_top < 0
     echohl ErrorMsg
     echo "pushpop: jump stack empty"
     echohl None
     return
   endif
-  let g:stack_top -= 1
   let pos = g:stack[g:stack_top][0]
   exec "buffer" pos[0]
   call setpos('.', pos)
+  let g:stack_top -= 1
 endfunction
 function s:pplist()
   if len(g:stack) == 0
@@ -46,13 +46,13 @@ function s:pplist()
   let i = 1
   for posinfo in g:stack
     let pos = posinfo[0]
-    if i == g:stack_top
+    if i == g:stack_top + 1
       echohl CursorLine
     endif
     echon i . ".\t"
     echon printf('%4d', pos[1]) . "\t"
     echon fnamemodify(bufname(pos[0]), ':~:.') . "\n"
-    if i == g:stack_top
+    if i == g:stack_top + 1
       echohl None
     endif
     echohl Comment
@@ -65,8 +65,8 @@ function s:pplist()
     return
   endif
 
-  let g:stack_top = res
-  let pos = g:stack[g:stack_top-1][0]
+  let g:stack_top = res - 1
+  let pos = g:stack[g:stack_top][0]
   exec "buffer" pos[0]
   call setpos('.', pos)
 endfunction
