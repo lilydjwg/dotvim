@@ -1,6 +1,5 @@
 " escalt.vim    控制台下让用 <M-x> 也可用
 " Author:       lilydjwg <lilydjwg@gmail.com>
-" Last Change:  2010年12月15日
 " ---------------------------------------------------------------------
 " Load Once:
 if &cp || exists("g:loaded_escalt") || has("gui_running") || has("win32") || has("win64")
@@ -15,6 +14,9 @@ function Escalt_console()
   for i in range(48, 57) + range(65, 90) + range(97, 122)
     exe "set <M-".nr2char(i).">=\<Esc>".nr2char(i)
   endfor
+  " 10, 22, 34, 62, 124 can't be set
+  set <M-,>=,
+  set <M-.>=.
   set ttimeoutlen=50
   if &term =~ 'xterm'
     set <F1>=OP
