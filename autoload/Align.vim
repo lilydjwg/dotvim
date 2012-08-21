@@ -1059,6 +1059,8 @@ fun! s:Strlen(x)
    call setline(line("."),a:x)
    let ret= virtcol("$") - 1
    d
+   " lilydjwg: 这样才不会让光标乱跑
+   normal k
    let &l:mod= modkeep
 
   else
