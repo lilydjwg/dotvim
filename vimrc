@@ -791,8 +791,9 @@ command Path VE %:p:h
 command -nargs=1 Enc e ++bad=keep ++enc=<args> %
 command CenterFull call CenterFull()
 command MusicSelect runtime so/musicselect.vim
-command -nargs=1 -range -complete=customlist,Lilydjwg_Align_complete LA <line1>,<line2>call Lilydjwg_Align("<args>")
-command -range=% Paste :<line1>,<line2>py3 LilyPaste()
+command -nargs=1 -range=% -complete=customlist,Lilydjwg_Align_complete LA <line1>,<line2>call Lilydjwg_Align("<args>")
+command -nargs=1 -range=% Column <line1>,<line2>Align! w<args>0P1p \S\@<=\s\@=
+command -range=% Paste <line1>,<line2>py3 LilyPaste()
 " 插件配置[[[1
 "   easymotion[[[2
 let EasyMotion_leader_key = '<M-q>'

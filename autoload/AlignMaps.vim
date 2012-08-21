@@ -1,15 +1,25 @@
 " AlignMaps.vim : support functions for AlignMaps
 "   Author: Charles E. Campbell, Jr.
-"   Date:   Mar 03, 2009
-" Version:           41
+"     Date: Jun 18, 2012
+"  Version: 42
+" Copyright:    Copyright (C) 1999-2012 Charles E. Campbell, Jr. {{{1
+"               Permission is hereby granted to use and distribute this code,
+"               with or without modifications, provided that this copyright
+"               notice is copied with it. Like anything else that's free,
+"               Align.vim is provided *as is* and comes with no warranty
+"               of any kind, either expressed or implied. By using this
+"               plugin, you agree that in no event will the copyright
+"               holder be liable for any damages resulting from the use
+"redraw!|call DechoSep()|call inputsave()|call input("Press <cr> to continue")|call inputrestore()
 " ---------------------------------------------------------------------
 "  Load Once: {{{1
 if &cp || exists("g:loaded_AlignMaps")
  finish
 endif
-let g:loaded_AlignMaps= "v41"
+let g:loaded_AlignMaps= "v42"
 let s:keepcpo         = &cpo
 set cpo&vim
+"DechoTabOn
 
 " =====================================================================
 " Functions: {{{1
@@ -20,7 +30,7 @@ fun! AlignMaps#WrapperStart(vis) range
 "  call Dfunc("AlignMaps#WrapperStart(vis=".a:vis.")")
 
   if a:vis
-   norm! '<ma'>
+   keepj norm! '<ma'>
   endif
 
   if line("'y") == 0 || line("'z") == 0 || !exists("s:alignmaps_wrapcnt") || s:alignmaps_wrapcnt <= 0
@@ -34,22 +44,22 @@ fun! AlignMaps#WrapperStart(vis) range
    let s:alignmaps_posn       = SaveWinPosn(0)
    " set up fencepost blank lines
    put =''
-   norm! mz'a
+   keepj norm! mz'a
    put! =''
    ky
    let s:alignmaps_zline      = line("'z")
-   exe "'y,'zs/@/\177/ge"
+   exe "keepj 'y,'zs/@/\177/ge"
   else
 "   call Decho("embedded wrapper")
    let s:alignmaps_wrapcnt    = s:alignmaps_wrapcnt + 1
-   norm! 'yjma'zk
+   keepj norm! 'yjma'zk
   endif
 
   " change some settings to align-standard values
   set nogd
   set ch=2
   AlignPush
-  norm! 'zk
+  keepj norm! 'zk
 "  call Dret("AlignMaps#WrapperStart : alignmaps_wrapcnt=".s:alignmaps_wrapcnt." my=".line("'y")." mz=".line("'z"))
 endfun
 
@@ -59,7 +69,7 @@ fun! AlignMaps#WrapperEnd() range
 "  call Dfunc("AlignMaps#WrapperEnd() alignmaps_wrapcnt=".s:alignmaps_wrapcnt." my=".line("'y")." mz=".line("'z"))
 
   " remove trailing white space introduced by whatever in the modification zone
-  'y,'zs/ \+$//e
+  keepj 'y,'zs/ \+$//e
 
   " restore AlignCtrl settings
   AlignPop
@@ -67,14 +77,14 @@ fun! AlignMaps#WrapperEnd() range
   let s:alignmaps_wrapcnt= s:alignmaps_wrapcnt - 1
   if s:alignmaps_wrapcnt <= 0
    " initial wrapper ending
-   exe "'y,'zs/\177/@/ge"
+   exe "keepj 'y,'zs/\177/@/ge"
 
    " if the 'z line hasn't moved, then go ahead and restore window position
    let zstationary= s:alignmaps_zline == line("'z")
 
    " remove fencepost blank lines.
    " restore 'a
-   norm! 'yjmakdd'zdd
+   keepj norm! 'yjmakdd'zdd
 
    " restore original 'y, 'z, and window positioning
    call RestoreMark(s:alignmaps_keepmy)
@@ -135,10 +145,10 @@ fun! AlignMaps#CharJoiner(chr)
   let aline = line("'a")
   let rep   = line(".") - aline
   while rep > 0
-  	norm! 'a
+  	keepj norm! 'a
   	while match(getline(aline),a:chr . "\s*$") != -1 && rep >= 0
   	  " while = at end-of-line, delete it and join with next
-  	  norm! 'a$
+  	  keepj norm! 'a$
   	  j!
   	  let rep = rep - 1
   	endwhile
@@ -149,7 +159,7 @@ fun! AlignMaps#CharJoiner(chr)
   	  break
   	endif
   	" prepare for next line
-  	norm! jma
+  	keepj norm! jma
   	let aline = line("'a")
   endwhile
 "  call Dret("AlignMaps#CharJoiner")
@@ -159,31 +169,32 @@ endfun
 " AlignMaps#Equals: supports \t= and \T= {{{2
 fun! AlignMaps#Equals() range
 "  call Dfunc("AlignMaps#Equals()")
-  'a,'zs/\s\+\([*/+\-%|&\~^]\==\)/ \1/e
-  'a,'zs@ \+\([*/+\-%|&\~^]\)=@\1=@ge
-  'a,'zs/==/\="\<Char-0x0f>\<Char-0x0f>"/ge
-  'a,'zs/\([!<>:]\)=/\=submatch(1)."\<Char-0x0f>"/ge
-  norm g'zk
+  keepj 'a,'zs/\s\+\([*/+\-%|&\~^]\==\)/ \1/e
+  keepj 'a,'zs@ \+\([*/+\-%|&\~^]\)=@\1=@ge
+  keepj 'a,'zs/==/\="\<Char-0x0f>\<Char-0x0f>"/ge
+  keepj 'a,'zs/\([!<>:]\)=/\=submatch(1)."\<Char-0x0f>"/ge
+  keepj norm g'zk
   AlignCtrl mIp1P1=l =
   AlignCtrl g =
-  'a,'z-1Align
-  'a,'z-1s@\([*/+\-%|&\~^!=]\)\( \+\)=@\2\1=@ge
-  'a,'z-1s/\( \+\);/;\1/ge
+  keepj 'a,'z-1Align
+  keepj 'a,'z-1s@\([*/%|&\~^!=]\)\( \+\)=@\2\1=@ge
+  keepj 'a,'z-1s@[^+\-]\zs\([+\-]\)\( \+\)=@\2\1=@ge
+  keepj 'a,'z-1s/\( \+\);/;\1/ge
   if &ft == "c" || &ft == "cpp"
 "   call Decho("exception for ".&ft)
-   'a,'z-1v/^\s*\/[*/]/s/\/[*/]/@&@/e
-   'a,'z-1v/^\s*\/[*/]/s/\*\//@&/e
+   keepj 'a,'z-1v/^\s*\/[*/]/s/\/[*/]/@&@/e
+   keepj 'a,'z-1v/^\s*\/[*/]/s/\*\//@&/e
    if exists("g:mapleader")
-    exe "norm 'zk"
+    exe "keepj norm 'zk"
     call AlignMaps#StdAlign(1)
    else
-    exe "norm 'zk"
+    exe "keepj norm 'zk"
     call AlignMaps#StdAlign(1)
    endif
-   'y,'zs/^\(\s*\) @/\1/e
+   keepj 'y,'zs/^\(\s*\) @/\1/e
   endif
-  'a,'z-1s/\%x0f/=/ge
-  'y,'zs/ @//eg
+  keepj 'a,'z-1s/\%x0f/=/ge
+  keepj 'y,'zs/ @//eg
 "  call Dret("AlignMaps#Equals")
 endfun
 
@@ -194,10 +205,11 @@ fun! AlignMaps#Afnc()
 "  call Dfunc("AlignMaps#Afnc()")
 
   " keep display quiet
-  let chkeep = &ch
-  let gdkeep = &gd
-  let vekeep = &ve
-  set ch=2 nogd ve=
+  let chkeep = &l:ch
+  let gdkeep = &l:gd
+  let wwkeep = &l:ww
+  let vekeep = &l:ve
+  setlocal ch=2 nogd ve= ww=b,s,<,>,[,]
 
   " will use marks y,z ; save current values
   let mykeep = SaveMark("'y")
@@ -206,7 +218,7 @@ fun! AlignMaps#Afnc()
   " Find beginning of function -- be careful to skip over comments
   let cmmntid  = synIDtrans(hlID("Comment"))
   let stringid = synIDtrans(hlID("String"))
-  exe "norm! ]]"
+  exe "keepj norm! ]]"
   while search(")","bW") != 0
 "   call Decho("line=".line(".")." col=".col("."))
    let parenid= synIDtrans(synID(line("."),col("."),1))
@@ -214,23 +226,23 @@ fun! AlignMaps#Afnc()
    	break
    endif
   endwhile
-  norm! %my
-  s/(\s*\(\S\)/(\r  \1/e
-  exe "norm! `y%"
-  s/)\s*\(\/[*/]\)/)\r\1/e
-  exe "norm! `y%mz"
-  'y,'zs/\s\+$//e
-  'y,'zs/^\s\+//e
-  'y+1,'zs/^/  /
+  keepj norm! %my
+  keepj s/(\s*\(\S\)/(\r  \1/e
+  exe "keepj norm! `y%"
+  keepj s/)\s*\(\/[*/]\)/)\r\1/e
+  exe "keepj norm! `y%mz"
+  keepj 'y,'zs/\s\+$//e
+  keepj 'y,'zs/^\s\+//e
+  keepj 'y+1,'zs/^/  /
 
   " insert newline after every comma only one parenthesis deep
-  sil! exe "norm! `y\<right>h"
+  exe "sil! keepj norm! `y\<right>h"
   let parens   = 1
   let cmmnt    = 0
   let cmmntline= -1
   while parens >= 1
-"   call Decho("parens=".parens." @a=".@a)
-   exe 'norm! ma "ay`a '
+   exe 'keepj norm! ma "ay`a '
+"   call Decho("parens=".parens." cmmnt=".cmmnt." cmmntline=".cmmntline." line(.)=".line(".")." @a<".@a."> line<".getline(".").">")
    if @a == "("
     let parens= parens + 1
    elseif @a == ")"
@@ -261,41 +273,42 @@ fun! AlignMaps#Afnc()
 	endif
 
    elseif @a == "," && parens == 1 && cmmnt == 0
-	exe "norm! i\<CR>\<Esc>"
+	exe "keepj norm! i\<CR>\<Esc>"
    endif
   endwhile
-  norm! `y%mz%
-  sil! 'y,'zg/^\s*$/d
+  sil! keepj norm! `y%mz%
+  sil! keepj 'y,'zg/^\s*$/d
 
   " perform substitutes to mark fields for Align
-  sil! 'y+1,'zv/^\//s/^\s\+\(\S\)/  \1/e
-  sil! 'y+1,'zv/^\//s/\(\S\)\s\+/\1 /eg
-  sil! 'y+1,'zv/^\//s/\* \+/*/ge
-  sil! 'y+1,'zv/^\//s/\w\zs\s*\*/ */ge
+  sil! keepj 'y+1,'zv/^\//s/^\s\+\(\S\)/  \1/e
+  sil! keepj 'y+1,'zv/^\//s/\(\S\)\s\+/\1 /eg
+  sil! keepj 'y+1,'zv/^\//s/\* \+/*/ge
+  sil! keepj 'y+1,'zv/^\//s/\w\zs\s*\*/ */ge
   "                                                 func
   "                    ws  <- declaration   ->    <-ptr  ->   <-var->    <-[array][]    ->   <-glop->      <-end->
-  sil! 'y+1,'zv/^\//s/^\s*\(\(\K\k*\s*\)\+\)\s\+\([(*]*\)\s*\(\K\k*\)\s*\(\(\[.\{-}]\)*\)\s*\(.\{-}\)\=\s*\([,)]\)\s*$/  \1@#\3@\4\5@\7\8/e
-  sil! 'y+1,'z+1g/^\s*\/[*/]/norm! kJ
-  sil! 'y+1,'z+1s%/[*/]%@&@%ge
-  sil! 'y+1,'z+1s%*/%@&%ge
+  sil! keepj 'y+1,'zv/^\//s/^\s*\(\(\K\k*\s*\)\+\)\s\+\([(*]*\)\s*\(\K\k*\)\s*\(\(\[.\{-}]\)*\)\s*\(.\{-}\)\=\s*\([,)]\)\s*$/  \1@#\3@\4\5@\7\8/e
+  sil! keepj 'y+1,'z+1g/^\s*\/[*/]/norm! kJ
+  sil! keepj 'y+1,'z+1s%/[*/]%@&@%ge
+  sil! keepj 'y+1,'z+1s%*/%@&%ge
   AlignCtrl mIp0P0=l @
-  sil! 'y+1,'zAlign
-  sil! 'y,'zs%@\(/[*/]\)@%\t\1 %e
-  sil! 'y,'zs%@\*/% */%e
-  sil! 'y,'zs/@\([,)]\)/\1/
-  sil! 'y,'zs/@/ /
+  sil! keepj 'y+1,'zAlign
+  sil! keepj 'y,'zs%@\(/[*/]\)@%\t\1 %e
+  sil! keepj 'y,'zs%@\*/% */%e
+  sil! keepj 'y,'zs/@\([,)]\)/\1/
+  sil! keepj 'y,'zs/@/ /
   AlignCtrl mIlrp0P0= # @
-  sil! 'y+1,'zAlign
-  sil! 'y+1,'zs/#/ /
-  sil! 'y+1,'zs/@//
-  sil! 'y+1,'zs/\(\s\+\)\([,)]\)/\2\1/e
+  sil! keepj 'y+1,'zAlign
+  sil! keepj 'y+1,'zs/#/ /
+  sil! keepj 'y+1,'zs/@//
+  sil! keepj 'y+1,'zs/\(\s\+\)\([,)]\)/\2\1/e
 
   " Restore
   call RestoreMark(mykeep)
   call RestoreMark(mzkeep)
-  let &ch= chkeep
-  let &gd= gdkeep
-  let &ve= vekeep
+  let &l:ch= chkeep
+  let &l:gd= gdkeep
+  let &l:ww= wwkeep
+  let &l:ve= vekeep
 
 "  call Dret("AlignMaps#Afnc")
 endfun
@@ -310,17 +323,67 @@ fun! AlignMaps#FixMultiDec()
   let curline = getline(".")
 "  call Decho("curline<".curline.">")
 
+"  " Attempt to ignore function calls (ie. double x=pow(2.,3.),...
+"  let leader= substitute(curline,'^\s*\([a-zA-Z_ \t][a-zA-Z0-9<>_ \t]*\)\s\+.*$','\1','')
+"  let i     = strlen(leader)
+"  let paren = 0
+"  let fmd   = strpart(curline,i)
+"  let ifmd  = i
+"  call Decho("fmd<".fmd."> ifmd=".ifmd)
+"  while i < strlen(curline)
+"   if strpart(curline,i,1) == '('
+"	let paren= paren+1
+"   elseif strpart(curline,i,1) == ')' && paren > 0
+"	let paren= paren-1
+"   elseif strpart(curline,i,1) == '='
+"	let eq= 1
+"   elseif strpart(curline,i,1) == ';'
+"	let paren = 0
+"	let eq    = 0
+"	let fmd   = fmd.strpart(fmd,ifmd,i-ifmd).";\<cr>"
+"	let ifmd  = i + 2
+"	let i     = i + 1
+"    let leader= substitute(curline,'^\s*\([a-zA-Z_ \t][a-zA-Z0-9<>_ \t]*\)\s\+.*$','\1','')
+"   elseif strpart(curline,i,1) == ','
+"	if paren == 0
+"     let fmd   = fmd.strpart(fmd,ifmd,i-ifmd).";\<cr>"
+"     let ifmd  = i + 2
+"     let i     = i + 1
+"	endif
+"   endif
+"   let i= i + 1
+"  endwhile
   " Get the type.  I'm assuming one type per line (ie.  int x; double y;   on one line will not be handled properly)
-  let @x=substitute(curline,'^\(\s*[a-zA-Z_ \t][a-zA-Z0-9_ \t]*\)\s\+[(*]*\h.*$','\1','')
+  let @x=substitute(curline,'^\(\s*[a-zA-Z_ \t][a-zA-Z0-9<>_ \t]*\)\s\+[(*]*\h.*$','\1','')
 "  call Decho("@x<".@x.">")
 
   " transform line
-  exe 's/,/;\r'.@x.' /ge'
+  exe 'keepj s/,/;\r'.@x.' /ge'
 
   "restore register x
   let @x= xkeep
 
 "  call Dret("AlignMaps#FixMultiDec : my=".line("'y")." mz=".line("'z"))
+endfun
+
+" ---------------------------------------------------------------------
+" AlignMaps#AlignMapsClean: this function removes the AlignMaps plugin {{{2
+fun! AlignMaps#AlignMapsClean()
+"  call Dfunc("AlignMaps#AlignMapsClean()")
+  for home in split(&rtp,',') + ['']
+"   call Decho("considering home<".home.">")
+   if isdirectory(home)
+	if filereadable(home."/autoload/AlignMaps.vim")
+"	 call Decho("deleting ".home."/autoload/AlignMaps.vim")
+	 call delete(home."/autoload/AlignMaps.vim")
+	endif
+	if filereadable(home."/plugin/AlignMapsPlugin.vim")
+"	 call Decho("deleting ".home."/plugin/AlignMapsPlugin.vim")
+	 call delete(home."/plugin/AlignMapsPlugin.vim")
+	endif
+   endif
+  endfor
+"  call Dret("AlignMaps#AlignMapsClean")
 endfun
 
 " ---------------------------------------------------------------------
