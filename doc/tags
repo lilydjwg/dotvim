@@ -54,6 +54,7 @@
 .snippet	snipMate.txt	/*.snippet*
 .snippets	snipMate.txt	/*.snippets*
 :Abolish	abolish.txt	/*:Abolish*
+:AlignMapsClean	Align.txt	/*:AlignMapsClean*
 :ColorSchemeEditor	ColorSchemeEditor.txt	/*:ColorSchemeEditor*
 :Explore	pi_netrw.txt	/*:Explore*
 :Hexplore	pi_netrw.txt	/*:Hexplore*
@@ -416,6 +417,7 @@ align-usage	Align.txt	/*align-usage*
 align-userguide	Align.txt	/*align-userguide*
 align-utf	Align.txt	/*align-utf*
 align-utf8	Align.txt	/*align-utf8*
+align-xstrlen	Align.txt	/*align-xstrlen*
 align.txt	Align.txt	/*align.txt*
 alignctrl	Align.txt	/*alignctrl*
 alignctrl-	Align.txt	/*alignctrl-*
@@ -429,8 +431,11 @@ alignctrl-C	Align.txt	/*alignctrl-C*
 alignctrl-I	Align.txt	/*alignctrl-I*
 alignctrl-P	Align.txt	/*alignctrl-P*
 alignctrl-W	Align.txt	/*alignctrl-W*
+alignctrl-alignskip	Align.txt	/*alignctrl-alignskip*
 alignctrl-c	Align.txt	/*alignctrl-c*
 alignctrl-g	Align.txt	/*alignctrl-g*
+alignctrl-init	Align.txt	/*alignctrl-init*
+alignctrl-initialization	Align.txt	/*alignctrl-initialization*
 alignctrl-l	Align.txt	/*alignctrl-l*
 alignctrl-m	Align.txt	/*alignctrl-m*
 alignctrl-no-option	Align.txt	/*alignctrl-no-option*
@@ -438,6 +443,7 @@ alignctrl-p	Align.txt	/*alignctrl-p*
 alignctrl-r	Align.txt	/*alignctrl-r*
 alignctrl-separators	Align.txt	/*alignctrl-separators*
 alignctrl-settings	Align.txt	/*alignctrl-settings*
+alignctrl-star	Align.txt	/*alignctrl-star*
 alignctrl-v	Align.txt	/*alignctrl-v*
 alignctrl-w	Align.txt	/*alignctrl-w*
 alignman	Align.txt	/*alignman*
@@ -620,7 +626,10 @@ fugitive-statusline	fugitive.txt	/*fugitive-statusline*
 fugitive-~	fugitive.txt	/*fugitive-~*
 fugitive.txt	fugitive.txt	/*fugitive.txt*
 g%	matchit.txt	/*g%*
+g:AlignSkip	Align.txt	/*g:AlignSkip*
 g:NetrwTopLvlMenu	pi_netrw.txt	/*g:NetrwTopLvlMenu*
+g:alignmaps_euronumber	Align.txt	/*g:alignmaps_euronumber*
+g:alignmaps_usanumber	Align.txt	/*g:alignmaps_usanumber*
 g:bufExplorerDefaultHelp	bufexplorer.txt	/*g:bufExplorerDefaultHelp*
 g:bufExplorerDetailedHelp	bufexplorer.txt	/*g:bufExplorerDetailedHelp*
 g:bufExplorerFindActive	bufexplorer.txt	/*g:bufExplorerFindActive*
