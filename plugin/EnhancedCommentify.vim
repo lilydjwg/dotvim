@@ -760,7 +760,7 @@ function s:GetFileTypeSettings(ft)
 		\ 'clipper\|cs\|dot\|dylan\|hercules\|idl\|ishd\|javascript\|'.
 		\ 'kscript\|mel\|named\|openroad\|pccts\|pfmain\|pike\|'.
 		\ 'pilrc\|plm\|pov\|rc\|scilab\|specman\|tads\|tsalt\|uc\|'.
-		\ 'xkb\)$'
+		\ 'xkb\|scss\)$'
 	let b:ECcommentOpen = '//'
 	let b:ECcommentClose = ''
     elseif fileType =~ '^\(vim\|abel\)$'
