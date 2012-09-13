@@ -49,3 +49,6 @@ undefined
 unshift
 encodeURIComponent
 hasOwnProperty
+responseText
+accessKeyLabel
+clearTimeout

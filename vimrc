@@ -831,6 +831,7 @@ let g:cycle_default_groups = [
       \ [["next", "prev"]],
       \ [["encode", "decode"]],
       \ [["left", "right"]],
+      \ [["hide", "show"]],
       \ [['「:」', '『:』'], 'sub_pairs'],
       \ [['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday',
       \ 'Friday', 'Saturday'], 'hard_case', {'name': 'Days'}],
