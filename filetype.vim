@@ -48,6 +48,7 @@ augroup filetypedetect
   au BufNewFile,BufRead	*fluxbox/menu			setf fluxbox
   au BufNewFile,BufRead hg-editor-*.txt			setf hgcommit
   au BufNewFile,BufRead *openvpn*/*.conf,*.ovpn		setf openvpn
-  au BufNewFile,BufRead	*.pxi   			setf pyrex
+  au BufNewFile,BufRead	*.pxi				setf pyrex
   au BufRead		$HOME/.cabal/config		setf cabal
+  au BufNewFile,BufRead *.stp				setf stap
 augroup END

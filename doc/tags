@@ -54,6 +54,7 @@
 .snippet	snipMate.txt	/*.snippet*
 .snippets	snipMate.txt	/*.snippets*
 :Abolish	abolish.txt	/*:Abolish*
+:AlignMapsClean	Align.txt	/*:AlignMapsClean*
 :ColorSchemeEditor	ColorSchemeEditor.txt	/*:ColorSchemeEditor*
 :Explore	pi_netrw.txt	/*:Explore*
 :FufBookmarkDir	fuf.txt	/*:FufBookmarkDir*
@@ -106,6 +107,8 @@
 :IndentGuidesDisable	indent_guides.txt	/*:IndentGuidesDisable*
 :IndentGuidesEnable	indent_guides.txt	/*:IndentGuidesEnable*
 :IndentGuidesToggle	indent_guides.txt	/*:IndentGuidesToggle*
+:Linediff	linediff.txt	/*:Linediff*
+:LinediffReset	linediff.txt	/*:LinediffReset*
 :Mark	mark.txt	/*:Mark*
 :MarkClear	mark.txt	/*:MarkClear*
 :MarkLoad	mark.txt	/*:MarkLoad*
@@ -451,6 +454,7 @@ align-usage	Align.txt	/*align-usage*
 align-userguide	Align.txt	/*align-userguide*
 align-utf	Align.txt	/*align-utf*
 align-utf8	Align.txt	/*align-utf8*
+align-xstrlen	Align.txt	/*align-xstrlen*
 align.txt	Align.txt	/*align.txt*
 alignctrl	Align.txt	/*alignctrl*
 alignctrl-	Align.txt	/*alignctrl-*
@@ -464,8 +468,11 @@ alignctrl-C	Align.txt	/*alignctrl-C*
 alignctrl-I	Align.txt	/*alignctrl-I*
 alignctrl-P	Align.txt	/*alignctrl-P*
 alignctrl-W	Align.txt	/*alignctrl-W*
+alignctrl-alignskip	Align.txt	/*alignctrl-alignskip*
 alignctrl-c	Align.txt	/*alignctrl-c*
 alignctrl-g	Align.txt	/*alignctrl-g*
+alignctrl-init	Align.txt	/*alignctrl-init*
+alignctrl-initialization	Align.txt	/*alignctrl-initialization*
 alignctrl-l	Align.txt	/*alignctrl-l*
 alignctrl-m	Align.txt	/*alignctrl-m*
 alignctrl-no-option	Align.txt	/*alignctrl-no-option*
@@ -473,6 +480,7 @@ alignctrl-p	Align.txt	/*alignctrl-p*
 alignctrl-r	Align.txt	/*alignctrl-r*
 alignctrl-separators	Align.txt	/*alignctrl-separators*
 alignctrl-settings	Align.txt	/*alignctrl-settings*
+alignctrl-star	Align.txt	/*alignctrl-star*
 alignctrl-v	Align.txt	/*alignctrl-v*
 alignctrl-w	Align.txt	/*alignctrl-w*
 alignman	Align.txt	/*alignman*
@@ -722,7 +730,10 @@ fugitive-~	fugitive.txt	/*fugitive-~*
 fugitive.txt	fugitive.txt	/*fugitive.txt*
 fuzzyfinder	fuf.txt	/*fuzzyfinder*
 g%	matchit.txt	/*g%*
+g:AlignSkip	Align.txt	/*g:AlignSkip*
 g:NetrwTopLvlMenu	pi_netrw.txt	/*g:NetrwTopLvlMenu*
+g:alignmaps_euronumber	Align.txt	/*g:alignmaps_euronumber*
+g:alignmaps_usanumber	Align.txt	/*g:alignmaps_usanumber*
 g:bufExplorerDefaultHelp	bufexplorer.txt	/*g:bufExplorerDefaultHelp*
 g:bufExplorerDetailedHelp	bufexplorer.txt	/*g:bufExplorerDetailedHelp*
 g:bufExplorerFindActive	bufexplorer.txt	/*g:bufExplorerFindActive*
@@ -1065,6 +1076,13 @@ l9-installation	l9.txt	/*l9-installation*
 l9-introduction	l9.txt	/*l9-introduction*
 l9-usage	l9.txt	/*l9-usage*
 l9.txt	l9.txt	/*l9.txt*
+linediff	linediff.txt	/*linediff*
+linediff-commands	linediff.txt	/*linediff-commands*
+linediff-contents	linediff.txt	/*linediff-contents*
+linediff-installation	linediff.txt	/*linediff-installation*
+linediff-internals	linediff.txt	/*linediff-internals*
+linediff-issues	linediff.txt	/*linediff-issues*
+linediff-usage	linediff.txt	/*linediff-usage*
 list-snippets	snipMate.txt	/*list-snippets*
 local_markfilelist	pi_netrw.txt	/*local_markfilelist*
 manpageview	manpageview.txt	/*manpageview*

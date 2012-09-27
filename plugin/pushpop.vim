@@ -12,26 +12,28 @@ set cpo&vim
 " ---------------------------------------------------------------------
 " Functions:
 let g:stack = []
-let g:stack_top = 0
+let g:stack_top = -1
 function s:push()
   let pos = getpos('.')
+  let line = getline('.')
   let pos[0] = bufnr('%')
+  let g:stack_top += 1
   if len(g:stack) > g:stack_top
     call remove(g:stack, g:stack_top, -1)
   endif
-  call add(g:stack, pos)
-  let g:stack_top += 1
+  call add(g:stack, [pos, line])
 endfunction
 function s:pop()
-  if g:stack_top == 0
+  if g:stack_top < 0
     echohl ErrorMsg
     echo "pushpop: jump stack empty"
     echohl None
+    return
   endif
-  let g:stack_top -= 1
-  let pos = g:stack[g:stack_top]
+  let pos = g:stack[g:stack_top][0]
   exec "buffer" pos[0]
   call setpos('.', pos)
+  let g:stack_top -= 1
 endfunction
 function s:pplist()
   if len(g:stack) == 0
@@ -42,16 +44,20 @@ function s:pplist()
   echohl PreProc | echo "Current poppush stack:"
   echohl Title | echo "#\t line\tbuf\n" | echohl None
   let i = 1
-  for pos in g:stack
-    if i == g:stack_top
+  for posinfo in g:stack
+    let pos = posinfo[0]
+    if i == g:stack_top + 1
       echohl CursorLine
     endif
     echon i . ".\t"
     echon printf('%4d', pos[1]) . "\t"
-    echon bufname(pos[0]) . "\n"
-    if i == g:stack_top
+    echon fnamemodify(bufname(pos[0]), ':~:.') . "\n"
+    if i == g:stack_top + 1
       echohl None
     endif
+    echohl Comment
+    echo printf("                %.*s\n", &columns, posinfo[1])
+    echohl None
     let i = i + 1
   endfor
   let res = input('Type number and <Enter> (empty cancels): ') + 0
@@ -59,8 +65,8 @@ function s:pplist()
     return
   endif
 
-  let g:stack_top = res
-  let pos = g:stack[g:stack_top-1]
+  let g:stack_top = res - 1
+  let pos = g:stack[g:stack_top][0]
   exec "buffer" pos[0]
   call setpos('.', pos)
 endfunction
