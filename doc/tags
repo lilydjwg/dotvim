@@ -73,6 +73,8 @@
 :IndentGuidesDisable	indent_guides.txt	/*:IndentGuidesDisable*
 :IndentGuidesEnable	indent_guides.txt	/*:IndentGuidesEnable*
 :IndentGuidesToggle	indent_guides.txt	/*:IndentGuidesToggle*
+:Linediff	linediff.txt	/*:Linediff*
+:LinediffReset	linediff.txt	/*:LinediffReset*
 :Mark	mark.txt	/*:Mark*
 :MarkClear	mark.txt	/*:MarkClear*
 :MarkLoad	mark.txt	/*:MarkLoad*
@@ -889,6 +891,13 @@ javacomplete-todo	javacomplete.txt	/*javacomplete-todo*
 javacomplete-usage	javacomplete.txt	/*javacomplete-usage*
 javacomplete.txt	javacomplete.txt	/*javacomplete.txt*
 keyword_complete	neocomplcache.txt	/*keyword_complete*
+linediff	linediff.txt	/*linediff*
+linediff-commands	linediff.txt	/*linediff-commands*
+linediff-contents	linediff.txt	/*linediff-contents*
+linediff-installation	linediff.txt	/*linediff-installation*
+linediff-internals	linediff.txt	/*linediff-internals*
+linediff-issues	linediff.txt	/*linediff-issues*
+linediff-usage	linediff.txt	/*linediff-usage*
 list-snippets	snipMate.txt	/*list-snippets*
 local_markfilelist	pi_netrw.txt	/*local_markfilelist*
 manpageview	manpageview.txt	/*manpageview*
