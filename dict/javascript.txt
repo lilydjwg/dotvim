@@ -52,3 +52,4 @@ hasOwnProperty
 responseText
 accessKeyLabel
 clearTimeout
+navigator
