@@ -387,6 +387,8 @@ function Lilydjwg_trycycle(dir)
 endfunction
 " set 相关[[[1
 "   一般设置[[[2
+" needed when root
+syntax on
 " set guifont=文泉驿等宽正黑\ Medium\ 10
 set smarttab
 " 不要响铃，更不要闪屏
