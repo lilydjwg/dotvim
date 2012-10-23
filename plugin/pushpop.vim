@@ -37,11 +37,11 @@ function s:pop()
 endfunction
 function s:pplist()
   if len(g:stack) == 0
-    echohl WarningMsg | echo "Nothing in poppush stack yet." | echohl None
+    echohl WarningMsg | echo "Nothing in pushpop stack yet." | echohl None
     return
   endif
 
-  echohl PreProc | echo "Current poppush stack:"
+  echohl PreProc | echo "Current pushpop stack:"
   echohl Title | echo "#\t line\tbuf\n" | echohl None
   let i = 1
   for posinfo in g:stack

@@ -39,13 +39,8 @@ endfunction
 function! Lilydjwg_c_noCStyle()
   let pos = getpos('.')
   " 将 C 风格的代码改成我喜欢的样式
-  let f = tempname()
-  sil exe "w ".f
-  call system("indent -bap -br -brf -brs -ce -cdw -nlp -ci4 -nss -npcs -ncss -nsaf -npsl -nsai -nsaw -nprs -ppi 3 -sc ".f)
-  %d
-  sil exe 'r '.f
+  %!indent -bap -br -brf -brs -ce -cdw -nlp -ci4 -nss -npcs -ncss -nsaf -npsl -nsai -nsaw -nprs -ppi 3 -sc
   setlocal nofoldenable
-  1d
   sil %s/)\s\+{/){/ge
   sil %s/\v\}\s+else(\s|\{|)@=/}else/ge
   sil %s/\v(\s|}|)@<=else\s+\{/else{/ge

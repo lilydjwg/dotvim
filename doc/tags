@@ -1015,6 +1015,7 @@ g:vimwiki_w32_dir_enc	vimwiki.txt	/*g:vimwiki_w32_dir_enc*
 g:visincr_datedivset	visincr.txt	/*g:visincr_datedivset*
 global_markfilelist	pi_netrw.txt	/*global_markfilelist*
 gundo.txt	gundo.txt	/*gundo.txt*
+gundo_auto_preview	gundo.txt	/*gundo_auto_preview*
 gundo_close_on_revert	gundo.txt	/*gundo_close_on_revert*
 gundo_disable	gundo.txt	/*gundo_disable*
 gundo_help	gundo.txt	/*gundo_help*
