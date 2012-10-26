@@ -272,4 +272,15 @@ fun! ShowAvailableSnips()
 	call complete(col, matches)
 	return ''
 endf
+
+fun GetSnippetsList(ft)
+	let s = {}
+	for i in ['s:snippets["_"]', 's:multi_snips["_"]',
+		\ 's:snippets[a:ft]', 's:multi_snips[a:ft]']
+		if exists(i)
+			let s = extend(s, deepcopy(eval(i)))
+		endif
+	endfor
+	return s
+endf
 " vim:noet:sw=4:ts=4:ft=vim
