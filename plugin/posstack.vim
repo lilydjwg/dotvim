@@ -1,13 +1,13 @@
-" pushpop.vim	mannually maintained jump position stack
+" posstack.vim	mannually maintained jump position stack
 " Author:       lilydjwg <lilydjwg@gmail.com>
 " License:	Vim License  (see vim's :help license)
 " ---------------------------------------------------------------------
 " Load Once:
-if &cp || exists("g:loaded_pushpop")
+if &cp || exists("g:loaded_posstack")
   finish
 endif
 let s:keepcpo = &cpo
-let g:loaded_pushpop = 1
+let g:loaded_posstack = 1
 set cpo&vim
 " ---------------------------------------------------------------------
 " Functions:
@@ -26,7 +26,7 @@ endfunction
 function s:pop()
   if g:stack_top < 0
     echohl ErrorMsg
-    echo "pushpop: jump stack empty"
+    echo "posstack: jump stack empty"
     echohl None
     return
   endif
@@ -35,13 +35,13 @@ function s:pop()
   call setpos('.', pos)
   let g:stack_top -= 1
 endfunction
-function s:pplist()
+function s:pslist()
   if len(g:stack) == 0
-    echohl WarningMsg | echo "Nothing in pushpop stack yet." | echohl None
+    echohl WarningMsg | echo "Nothing in pos stack yet." | echohl None
     return
   endif
 
-  echohl PreProc | echo "Current pushpop stack:"
+  echohl PreProc | echo "Current pos stack:"
   echohl Title | echo "#\t line\tbuf\n" | echohl None
   let i = 1
   for posinfo in g:stack
@@ -74,7 +74,7 @@ endfunction
 " Commands And Mappings:
 command Push call <SID>push()
 command Pop call <SID>pop()
-command PPList call <SID>pplist()
+command PSList call <SID>pslist()
 nnoremap <Plug>Push :Push<CR>
 nnoremap <Plug>Pop :Pop<CR>
 if !hasmapto('<Plug>Push', 'n')
