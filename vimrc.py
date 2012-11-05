@@ -9,7 +9,7 @@ def LilyPaste():
   msg = 'Pasting...'
   echon(msg)
   vim.command('redraw')
-  curl = subprocess.Popen(['curl', '-m', '60', '-Ss', '-F', 'vimcn=<-', 'http://p.vim-cn.com'],
+  curl = subprocess.Popen(['curl', '--compressed', '-m', '60', '-Ss', '-F', 'vimcn=<-', 'http://p.vim-cn.com'],
                           stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                          )
   for l in vim.current.range:
