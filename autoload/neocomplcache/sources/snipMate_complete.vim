@@ -34,7 +34,7 @@ function! s:source.get_keyword_list(cur_keyword_str)
     endif
 
     let l:abbr = substitute(
-      \ substitute(s:triger, '\n', '', 'g'),
+      \ substitute(s:triger, '\n', '⏎', 'g'),
       \ '\s', ' ', 'g')
     let l:menu = printf(l:menu_pattern, trig)
     let list += [{'word' : trig, 'menu' : l:menu, 'abbr' : l:abbr}]
