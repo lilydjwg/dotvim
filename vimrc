@@ -16,7 +16,7 @@ runtime vimrc_example.vim
 "]]]
 " 我的设置
 " 函数[[[1
-"   打开 NERDTree，使用当前文件目录或者当前目录
+"   打开 NERDTree，使用当前文件目录或者当前目录[[[2
 function Lilydjwg_NERDTreeOpen()
   if exists("t:NERDTreeBufName")
     NERDTreeToggle
