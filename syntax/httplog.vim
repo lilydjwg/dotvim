@@ -1,6 +1,8 @@
 " Vim syntax file
 " FileType:     Access log of Apache, nginx, etc
 " Author:       lilydjwg <lilydjwg@gmail.com>
+" Contributor:	Audrius Kažukauskas
+" Version:	0.4
 " ---------------------------------------------------------------------
 
 syntax clear
