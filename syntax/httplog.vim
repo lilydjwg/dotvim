@@ -8,7 +8,7 @@ syntax case match
 
 syn match httplogIP	/\v^[[:xdigit:].:]+/ contains=httplogLocal,httplogLAN
 syn match httplogTime	/\v\s\zs\[[^]]+\]\ze\s/
-syn match httplogPage	/\v\s\zs"(GET|POST|HEAD|PUT|DELETE|CONNECT) [^"]+"\ze\s/
+syn match httplogPage	/\v\s\zs"(GET|POST|HEAD|PUT|DELETE|CONNECT|OPTIONS|PATCH|TRACE) [^"]+"\ze\s/
 syn match httplogResult	/\v\s\zs[1-4]\d{2}\ze\s%(\d+|-)/
 syn match httplogError	/\v\s\zs5\d{2}\ze\s%(\d+|-)/
 syn match httplogRef	/\v\s\zs"(http[^"]+|-)"\ze\s/
@@ -22,6 +22,7 @@ syn keyword httplogBrowser	Firefox MSIE Konqueror Chromium ChromePlus Opera w3m 
 syn keyword httplogBrowser	gvfs curl pacman PackageKit contained
 syn keyword httplogBrowser	Googlebot Baiduspider Sosospider W3C_Validator Jigsaw PhantomJS contained
 syn match httplogLAN	/\v^192\.168\.\d+\.\d+/ contained
+syn match httplogLAN	/\v^172\.(1[6-9]|2[0-9]|3[01])\.\d+\.\d+/ contained
 syn match httplogLAN	/\v^10\.\d+\.\d+\.\d+/ contained
 syn match httplogLocal	/^::1|^127\.0\.0\.1\>/ contained
 
