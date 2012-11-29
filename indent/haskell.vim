@@ -16,7 +16,7 @@ setlocal indentexpr=HaskellIndent()
 for i in split('0{,:,0#,e', ',')
   exec "setlocal indentkeys-=" . i
 endfor
-setlocal indentkeys+=0=else,0=in,0=,0,,0=where,0)
+setlocal indentkeys+=0=else,0=in,0=where,0),0<bar>
 setlocal tabstop=8
 setlocal expandtab
 
