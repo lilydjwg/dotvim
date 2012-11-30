@@ -1,8 +1,8 @@
 " File: mru.vim
 " Author: Yegappan Lakshmanan (yegappan AT yahoo DOT com)
-" Version: 3.3
-" Last Modified: December 18, 2009
-" Copyright: Copyright (C) 2003-2009 Yegappan Lakshmanan
+" Version: 3.4
+" Last Modified: April 13, 2012
+" Copyright: Copyright (C) 2003-2012 Yegappan Lakshmanan
 "            Permission is hereby granted to use and distribute this code,
 "            with or without modifications, provided that this copyright
 "            notice is copied with it. Like anything else that's free,
@@ -97,7 +97,7 @@
 "
 " To display only files matching a pattern from the MRU list in the MRU
 " window, you can specify a pattern to the ":MRU" command. For example, to
-" display only file names containing "vim" in them, you can use the following
+" display only file names matching "vim" in them, you can use the following
 " command ":MRU vim".  When you specify a partial file name and only one
 " matching filename is found, then the ":MRU" command will edit that file.
 "
@@ -283,6 +283,22 @@ if !exists('MRU_Max_Submenu_Entries')
     let MRU_Max_Submenu_Entries = 10
 endif
 
+" When only a single matching filename is found in the MRU list, the following
+" option controls whether the file name is displayed in the MRU window or the
+" file is directly opened. When this variable is set to 0 and a single
+" matching file name is found, then the file is directly opened.
+if !exists('MRU_Window_Open_Always')
+    let MRU_Window_Open_Always = 0
+endif
+
+" When opening a file from the MRU list, the file is opened in the current
+" tab. If the selected file has to be opened in a tab always, then set the
+" following variable to 1. If the file is already opened in a tab, then the
+" cursor will be moved to that tab.
+if !exists('MRU_Open_File_Use_Tabs')
+    let MRU_Open_File_Use_Tabs = 0
+endif
+
 " Control to temporarily lock the MRU list. Used to prevent files from
 " getting added to the MRU list when the ':vimgrep' command is executed.
 let s:mru_list_locked = 0
@@ -413,7 +429,7 @@ endfunction
 " MRU_Edit_File                         {{{1
 " Edit the specified file
 "   filename - Name of the file to edit
-"   sanitized - Specifies whether the filename is already escape for special
+"   sanitized - Specifies whether the filename is already escaped for special
 "   characters or not.
 function! s:MRU_Edit_File(filename, sanitized)
     if !a:sanitized
@@ -421,6 +437,15 @@ function! s:MRU_Edit_File(filename, sanitized)
     else
 	let esc_fname = a:filename
     endif
+
+    " If the user wants to always open the file in a tab, then open the file
+    " in a tab. If it is already opened in a tab, then the cursor will be
+    " moved to that tab.
+    if g:MRU_Open_File_Use_Tabs
+	call s:MRU_Open_File_In_Tab(a:filename, esc_fname)
+	return
+    endif
+
     " If the file is already open in one of the windows, jump to it
     let winnum = bufwinnr('^' . a:filename . '$')
     if winnum != -1
@@ -438,6 +463,42 @@ function! s:MRU_Edit_File(filename, sanitized)
     endif
 endfunction
 
+" MRU_Open_File_In_Tab
+" Open a file in a tab. If the file is already opened in a tab, jump to the
+" tab. Otherwise, create a new tab and open the file.
+"   fname     : Name of the file to open
+"   esc_fname : File name with special characters escaped
+function! s:MRU_Open_File_In_Tab(fname, esc_fname)
+    " If the selected file is already open in the current tab or in
+    " another tab, jump to it. Otherwise open it in a new tab
+    if bufwinnr('^' . a:fname . '$') == -1
+	let tabnum = -1
+	let i = 1
+	let bnum = bufnr('^' . a:fname . '$')
+	while i <= tabpagenr('$')
+	    if index(tabpagebuflist(i), bnum) != -1
+		let tabnum = i
+		break
+	    endif
+	    let i += 1
+	endwhile
+
+	if tabnum != -1
+	    " Goto the tab containing the file
+	    exe 'tabnext ' . i
+	else
+	    " Open a new tab as the last tab page
+	    exe '999tabnew ' . a:esc_fname
+	endif
+    endif
+
+    " Jump to the window containing the file
+    let winnum = bufwinnr('^' . a:fname . '$')
+    if winnum != winnr()
+	exe winnum . 'wincmd w'
+    endif
+endfunction
+
 " MRU_Window_Edit_File                  {{{1
 "   fname     : Name of the file to edit. May specify single or multiple
 "               files.
@@ -451,44 +512,25 @@ endfunction
 "               useopen - If the file is already present in a window, then
 "                         jump to that window.  Otherwise, open the file in
 "                         the previous window.
-"               newwin  - Open the file in a new window.
+"               newwin_horiz - Open the file in a new horizontal window.
+"               newwin_vert - Open the file in a new vertical window.
 "               newtab  - Open the file in a new tab. If the file is already
 "                         opened in a tab, then jump to that tab.
 function! s:MRU_Window_Edit_File(fname, multi, edit_type, open_type)
     let esc_fname = s:MRU_escape_filename(a:fname)
 
-    if a:open_type == 'newwin'
-        " Edit the file in a new window
-        exe 'leftabove new ' . esc_fname
-    elseif a:open_type == 'newtab'
-        " If the selected file is already open in the current tab or in
-        " another tab, jump to it. Otherwise open it in a new tab
-        if bufwinnr('^' . a:fname . '$') == -1
-            let tabnum = -1
-            let i = 1
-            let bnum = bufnr('^' . a:fname . '$')
-            while i <= tabpagenr('$')
-                if index(tabpagebuflist(i), bnum) != -1
-                    let tabnum = i
-                    break
-                endif
-                let i += 1
-            endwhile
-
-            if tabnum != -1
-                " Goto the tab containing the file
-                exe 'tabnext ' . i
-            else
-                " Open a new tab as the last tab page
-                exe '999tabnew ' . esc_fname
-            endif
-        endif
-
-        " Jump to the window containing the file
-        let winnum = bufwinnr('^' . a:fname . '$')
-        if winnum != winnr()
-            exe winnum . 'wincmd w'
-        endif
+    if a:open_type == 'newwin_horiz'
+        " Edit the file in a new horizontally split window above the previous
+        " window
+        wincmd p
+        exe 'belowright new ' . esc_fname
+    elseif a:open_type == 'newwin_vert'
+        " Edit the file in a new vertically split window above the previous
+        " window
+        wincmd p
+        exe 'belowright vnew ' . esc_fname
+    elseif a:open_type == 'newtab' || g:MRU_Open_File_Use_Tabs
+	call s:MRU_Open_File_In_Tab(a:fname, esc_fname)
     else
         " If the selected file is already open in one of the windows,
         " jump to it
@@ -555,10 +597,11 @@ endfunction
 "
 "   'opt' has two values separated by comma. The first value specifies how to
 "   edit the file  and can be either 'edit' or 'view'. The second value
-"   specifies where to open the file. It can be 'useopen' to open file in the
-"   previous window. It can be 'newwin' to open the file in a new window. It
-"   can be 'newtab' to open the file in a new tab.
-"
+"   specifies where to open the file. It can take one of the following values:
+"     'useopen' to open file in the previous window
+"     'newwin_horiz' to open the file in a new horizontal split window
+"     'newwin_vert' to open the file in a new vertical split window.
+"     'newtab' to open the file in a new tab.
 " If multiple file names are selected using visual mode, then open multiple
 " files (either in split windows or tabs)
 function! s:MRU_Select_File_Cmd(opt) range
@@ -579,7 +622,10 @@ function! s:MRU_Select_File_Cmd(opt) range
             continue
         endif
 
-        call s:MRU_Window_Edit_File(f, multi, edit_type, open_type)
+        " The text in the MRU window contains the filename in parenthesis
+        let file = matchstr(f, '(\zs.*\ze)')
+
+        call s:MRU_Window_Edit_File(file, multi, edit_type, open_type)
 
         if a:firstline != a:lastline
             " Opening multiple files
@@ -684,9 +730,13 @@ function! s:MRU_Open_Window(...)
     vnoremap <buffer> <silent> <CR>
                 \ :call <SID>MRU_Select_File_Cmd('edit,useopen')<CR>
     nnoremap <buffer> <silent> o
-                \ :call <SID>MRU_Select_File_Cmd('edit,newwin')<CR>
+                \ :call <SID>MRU_Select_File_Cmd('edit,newwin_horiz')<CR>
     vnoremap <buffer> <silent> o
-                \ :call <SID>MRU_Select_File_Cmd('edit,newwin')<CR>
+                \ :call <SID>MRU_Select_File_Cmd('edit,newwin_horiz')<CR>
+    nnoremap <buffer> <silent> O
+                \ :call <SID>MRU_Select_File_Cmd('edit,newwin_vert')<CR>
+    vnoremap <buffer> <silent> O
+                \ :call <SID>MRU_Select_File_Cmd('edit,newwin_vert')<CR>
     nnoremap <buffer> <silent> t
                 \ :call <SID>MRU_Select_File_Cmd('edit,newtab')<CR>
     vnoremap <buffer> <silent> t
@@ -707,7 +757,7 @@ function! s:MRU_Open_Window(...)
     " Display the MRU list
     if a:0 == 0
         " No search pattern specified. Display the complete list
-        silent! 0put =s:MRU_files
+        let m = copy(s:MRU_files)
     else
         " Display only the entries matching the specified pattern
 	" First try using it as a literal pattern
@@ -716,10 +766,15 @@ function! s:MRU_Open_Window(...)
 	    " No match. Try using it as a regular expression
 	    let m = filter(copy(s:MRU_files), 'v:val =~# a:1')
 	endif
-        silent! 0put =m
     endif
 
-    $del _
+    " Get the tail part of the file name (without the directory) and display
+    " it along with the full path
+    let  output = map(m, 'fnamemodify(v:val, ":t") . " (" . v:val . ")"')
+    silent! 0put =output
+
+    " Delete the empty line at the end of the buffer
+    $delete _
 
     " Move the cursor to the beginning of the file
     normal! gg
@@ -769,17 +824,17 @@ function! s:MRU_Cmd(...)
 
     " First use the specified string as a literal string and search for
     " filenames containing the string. If only one filename is found,
-    " then edit it.
+    " then edit it (unless the user wants to open the MRU window always)
     let m = filter(copy(s:MRU_files), 'stridx(v:val, pat) != -1')
     if len(m) > 0
-	if len(m) == 1
+	if len(m) == 1 && !g:MRU_Window_Open_Always
 	    call s:MRU_Edit_File(m[0], 0)
 	    return
 	endif
 
 	" More than one file matches. Try find an accurate match
 	let new_m = filter(m, 'v:val ==# pat')
-	if len(new_m) == 1
+	if len(new_m) == 1 && !g:MRU_Window_Open_Always
 	    call s:MRU_Edit_File(new_m[0], 0)
 	    return
 	endif
@@ -804,11 +859,11 @@ function! s:MRU_Cmd(...)
 
         " No filenames matching the specified pattern are found
         call s:MRU_Warn_Msg("MRU file list doesn't contain " .
-                    \ "files containing " . pat)
+                    \ "files matching " . pat)
         return
     endif
 
-    if len(m) == 1
+    if len(m) == 1 && !g:MRU_Window_Open_Always
         call s:MRU_Edit_File(m[0], 0)
         return
     endif
@@ -958,4 +1013,4 @@ command! MRUCheck call s:MRU_Check()
 let &cpo = s:cpo_save
 unlet s:cpo_save
 
-" vim:set foldenable foldmethod=marker sw=4:
+" vim:set foldenable foldmethod=marker:
