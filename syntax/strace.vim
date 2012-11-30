@@ -30,7 +30,7 @@ syn region straceReturned start="\s=\s" end="$" contains=StraceEquals,straceNumb
 syn match straceEquals "\s=\s"ms=s+1,me=e-1
 syn match straceParenthesis "[][(){}]"
 syn match straceTime "\%(^\|\]\s\)\@<=[0-9:.]\+"
-syn match straceSysCall "\w\+(\@="
+syn match straceSysCall "\S\@<!\w\+(\@="
 syn match straceOtherPID "^\[[^]]*\]" contains=stracePID,straceNumber skipwhite
 syn keyword stracePID pid contained
 syn match straceOperator "[-+=*/!%&|:,]"
