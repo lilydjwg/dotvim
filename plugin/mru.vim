@@ -622,10 +622,7 @@ function! s:MRU_Select_File_Cmd(opt) range
             continue
         endif
 
-        " The text in the MRU window contains the filename in parenthesis
-        let file = matchstr(f, '(\zs.*\ze)')
-
-        call s:MRU_Window_Edit_File(file, multi, edit_type, open_type)
+        call s:MRU_Window_Edit_File(f, multi, edit_type, open_type)
 
         if a:firstline != a:lastline
             " Opening multiple files
