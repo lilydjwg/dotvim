@@ -757,7 +757,7 @@ function! s:MRU_Open_Window(...)
     " Display the MRU list
     if a:0 == 0
         " No search pattern specified. Display the complete list
-        let m = copy(s:MRU_files)
+        silent! 0put =s:MRU_files
     else
         " Display only the entries matching the specified pattern
 	" First try using it as a literal pattern
@@ -766,12 +766,8 @@ function! s:MRU_Open_Window(...)
 	    " No match. Try using it as a regular expression
 	    let m = filter(copy(s:MRU_files), 'v:val =~# a:1')
 	endif
+        silent! 0put =m
     endif
-
-    " Get the tail part of the file name (without the directory) and display
-    " it along with the full path
-    let  output = map(m, 'fnamemodify(v:val, ":t") . " (" . v:val . ")"')
-    silent! 0put =output
 
     " Delete the empty line at the end of the buffer
     $delete _
