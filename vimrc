@@ -402,6 +402,7 @@ endfunction
 " maybe necessary when root
 syntax on
 " set guifont=文泉驿等宽正黑\ Medium\ 10
+set number
 set smarttab
 " 不要响铃，更不要闪屏
 set visualbell t_vb=
@@ -515,7 +516,6 @@ if has("gui_running")
   " 有些终端不能改变大小
   set columns=88
   set lines=38
-  set number
   set cursorline
   exe 'colorscheme' colorscheme
 elseif has("unix")
@@ -537,7 +537,6 @@ elseif has("unix")
     endif
     if &term == "fbterm"
       set cursorline
-      set number
       exe 'colorscheme' colorscheme
     elseif $TERMCAP =~ 'Co#256'
       set t_Co=256
