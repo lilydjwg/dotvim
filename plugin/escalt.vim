@@ -31,25 +31,34 @@ function Escalt_console()
     set <S-F2>=[1;2Q
     set <S-F3>=[1;2R
     set <S-F4>=[1;2S
+    set <S-F5>=[15;2~
+    set <S-F6>=[17;2~
+    set <S-F7>=[18;2~
+    set <S-F8>=[19;2~
+    set <S-F9>=[20;2~
+    set <S-F10>=[21;2~
+    set <S-F11>=[23;2~
+    set <S-F12>=[24;2~
     set <Home>=[1~
     set <End>=[4~
     " In xterm and tmux
     " 2 & 3 are Ins and Del, 5 & 6 are PgUp and PgDn
+  elseif &term == 'linux'
+    " Linux console keys, only S-F3 & S-F5 actually works
+    " set <S-F1>=[25~
+    " set <S-F2>=[26~
+    set <S-F3>=[28~
+    " set <S-F4>=[29~
+    set <S-F5>=[31~
+    " set <S-F6>=[32~
+    " set <S-F7>=[33~
+    " set <S-F8>=[34~
   else
     set <S-F1>=O1;2P
     set <S-F2>=O1;2Q
     set <S-F3>=O1;2R
     set <S-F4>=O1;2S
   endif
-  " Linux console keys, only S-F3 & S-F5 actually works
-  set <S-F1>=[25~
-  set <S-F2>=[26~
-  set <S-F3>=[28~
-  set <S-F4>=[29~
-  set <S-F5>=[31~
-  set <S-F6>=[32~
-  set <S-F7>=[33~
-  set <S-F8>=[34~
 endfunction
 " ---------------------------------------------------------------------
 " Call Functions:
