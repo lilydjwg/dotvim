@@ -18,26 +18,44 @@ function Escalt_console()
   set <M-,>=,
   set <M-.>=.
   set ttimeoutlen=50
-  if &term =~ 'xterm'
-    set <F1>=OP
-    set <F2>=OQ
-    set <F3>=OR
-    set <F4>=OS
-    set <Home>=OH
-    set <End>=OF
+  " xterm keys, may also work in tmux with xterm-keys on
+  set <F1>=OP
+  set <F2>=OQ
+  set <F3>=OR
+  set <F4>=OS
+  set <Home>=OH
+  set <End>=OF
+  set <S-Delete>=[3;2~
+  if exists("$TMUX")
+    set <S-F1>=[1;2P
+    set <S-F2>=[1;2Q
+    set <S-F3>=[1;2R
+    set <S-F4>=[1;2S
+    set <Home>=[1~
+    set <End>=[4~
+    " In xterm and tmux
+    " 2 & 3 are Ins and Del, 5 & 6 are PgUp and PgDn
+  else
+    set <S-F1>=O1;2P
+    set <S-F2>=O1;2Q
+    set <S-F3>=O1;2R
+    set <S-F4>=O1;2S
   endif
-  for i in ["", "c", "i", "x"]
-    exe i . "map Ï1;2P <S-F1>"
-    exe i . "map Ï1;2Q <S-F2>"
-    exe i . "map Ï1;2R <S-F3>"
-    exe i . "map Ï1;2S <S-F4>"
-  endfor
+  " Linux console keys, only S-F3 & S-F5 actually works
+  set <S-F1>=[25~
+  set <S-F2>=[26~
+  set <S-F3>=[28~
+  set <S-F4>=[29~
+  set <S-F5>=[31~
+  set <S-F6>=[32~
+  set <S-F7>=[33~
+  set <S-F8>=[34~
 endfunction
 " ---------------------------------------------------------------------
 " Call Functions:
 call Escalt_console()
 " ---------------------------------------------------------------------
-"  Restoration And Modelines:
+" Restoration And Modelines:
 let &cpo= s:keepcpo
 unlet s:keepcpo
 " vim:fdm=expr:fde=getline(v\:lnum-1)=~'\\v"\\s*-{20,}'?'>1'\:1
