@@ -420,7 +420,6 @@ set diffopt+=vertical,context:3,foldcolumn:0
 set fileencodings=ucs-bom,utf-8,gb18030,cp936,latin1
 set fileformats=unix,dos,mac
 set formatoptions=croqn2mB1
-set formatexpr=autofmt#uax14#formatexpr()
 set nojoinspaces
 set virtualedit=block
 set nostartofline
