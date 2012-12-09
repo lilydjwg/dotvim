@@ -35,7 +35,7 @@ augroup filetypedetect
   au BufNewFile,BufRead	*.wiki				setf vimwiki
   au BufNewFile,BufRead $HOME/.vim/dict/*.txt,$VIM/vimfiles/dict/*.txt	setf dict
   au BufNewFile,BufRead /lib/udev/rules.d/*		setf udevrules
-  au BufNewFile,BufRead fcitx_skin.conf,*fcitx*/config,*/fcitx/*.conf,*/fcitx/profile	setf desktop
+  au BufNewFile,BufRead fcitx_skin.conf,*/fcitx/*/*.conf*,*/fcitx/profile	setf desktop
   au BufNewFile,BufRead mimeapps.list			setf desktop
   au BufRead		*tmux.conf			setf tmux
   au BufRead		rc.conf				setf sh
