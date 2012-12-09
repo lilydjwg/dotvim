@@ -44,6 +44,7 @@ True
 TypeError
 UnicodeDecodeError
 UnicodeEncodeError
+UserString
 UserWarning
 ValueError
 WindowsError
@@ -119,6 +120,7 @@ expandvars
 extend
 extension
 extractall
+fcntl
 fileno
 filterwarnings
 finally
@@ -171,6 +173,7 @@ nonlocal
 normpath
 ntohl
 parse
+partial
 pickle
 pickleddata
 platform
@@ -234,6 +237,3 @@ unicodedata
 urllib
 warnings
 xpath
-partial
-fcntl
-endswith
