@@ -16,6 +16,24 @@ runtime vimrc_example.vim
 "]]]
 " 我的设置
 " 函数[[[1
+"   转成 HTML，只要 pre 标签部分[[[2
+"   http://bootleq.blogspot.com/2012/12/tohtml-html-document-function-tohtmldoc.html
+function Lilydjwg_to_html(line1, line2)
+  let save_number = get(g:, 'html_number_lines', -1)
+  let g:html_number_lines = 0
+  call tohtml#Convert2HTML(a:line1, a:line2)
+  setlocal buftype=nofile bufhidden=hide noswapfile nobuflisted
+  call search("<pre[^<]*>")
+  normal! dit
+  %delete _
+  let @" = '<pre>' . substitute(@", '\v^\n\s*', '', '') . '</pre>'
+  call setline(1, split(@", '\n'))
+  if save_number > -1
+    let g:html_number_lines = save_number
+  else
+    unlet g:html_number_lines
+  endif
+endfunction
 "   获取可读的文件大小[[[2
 function Lilydjwg_getfsize(file)
   let size = getfsize(a:file)
@@ -807,6 +825,7 @@ command MusicSelect runtime so/musicselect.vim
 command -nargs=1 -range=% -complete=customlist,Lilydjwg_Align_complete LA <line1>,<line2>call Lilydjwg_Align("<args>")
 command -nargs=1 -range=% Column <line1>,<line2>Align! w<args>0P1p \S\@<=\s\@=
 command -range=% Paste <line1>,<line2>py3 LilyPaste()
+command -range=% Tohtml :call Lilydjwg_to_html(<line1>, <line2>)
 " 插件配置[[[1
 "   easymotion[[[2
 let EasyMotion_leader_key = '<M-q>'
