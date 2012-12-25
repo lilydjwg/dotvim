@@ -237,3 +237,4 @@ unicodedata
 urllib
 warnings
 xpath
+total_ordering
