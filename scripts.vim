@@ -26,3 +26,7 @@ if getline(1) =~ '^#!\s*/usr/bin/sage\s\+-python'
   setfiletype python
   finish
 endif
+if getline(1) =~ '^#!.*\<io'
+  setfiletype io
+  finish
+endif

@@ -52,4 +52,5 @@ augroup filetypedetect
   au BufNewFile,BufRead	*.pxi				setf pyrex
   au BufRead		$HOME/.cabal/config		setf cabal
   au BufNewFile,BufRead *.stp				setf stap
+  au BufNewFile,BufRead *.io				setf io
 augroup END
