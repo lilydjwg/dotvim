@@ -477,7 +477,7 @@ if has("win32") || has("win64")
   let g:undodir = expand("$TMP/vimundo")
   let g:vimfiles = expand("$VIM/vimfiles")
   let g:dictfilePrefix = expand('$VIM/vimfiles/dict/')
-  set errorfile=$TMP/error
+  set errorfile=$TMP/.error
   if has("python3")
     py3file $VIM/vimfiles/vimrc.py
   endif
@@ -497,8 +497,8 @@ else
   let g:undodir = expand("~/tmpfs/.vimundo")
   let g:vimfiles = expand("~/.vim")
   let g:dictfilePrefix = expand('~/.vim/dict/')
-  set errorfile=~/tmpfs/error
-  let my_diary_file = expand('~/secret/diary/2012.rj')
+  set errorfile=~/tmpfs/.error
+  let my_diary_file = expand('~/secret/diary/2013.rj')
   let g:MuttVim_configfile = expand('~/scripts/python/pydata/muttvim.json')
   cmap <C-T> ~/tmpfs/
   " cron 的目录不要备份
