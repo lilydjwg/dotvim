@@ -12,3 +12,4 @@ resume
 tonumber
 tostring
 require
+loadstring
