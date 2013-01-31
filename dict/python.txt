@@ -4,6 +4,7 @@ AF_UNIX
 AssertionError
 AttributeError
 BytesIO
+CharsNotIn
 Condition
 EOFError
 Element
@@ -24,6 +25,7 @@ None
 NotImplemented
 NotImplementedError
 OSError
+OneOrMore
 OrderedDict
 OverflowError
 PIPE
@@ -34,9 +36,11 @@ SIGALRM
 SIG_IGN
 SMTPServer
 Semaphore
+SkipTo
 StopIteration
 StringIO
 SubElement
+Suppress
 SyntaxError
 SystemExit
 Thread
@@ -48,6 +52,7 @@ UserString
 UserWarning
 ValueError
 WindowsError
+Word
 __bool__
 __builtins__
 __call__
@@ -107,6 +112,7 @@ daemon
 datetime
 decode
 defaultdict
+delimitedList
 easygui
 encode
 endswith
@@ -159,12 +165,15 @@ issubclass
 itertools
 lambda
 latin1
+lineEnd
+lineStart
 list2cmdline
 listdir
 localhost
 logging
 lru_cache
 makefile
+matchPreviousLiteral
 message_from_file
 message_from_string
 metaclass
@@ -204,6 +213,8 @@ rstrip
 select
 self
 send_error
+setParseAction
+setResultsName
 setattr
 signal
 sleep
@@ -224,12 +235,14 @@ strftime
 strptime
 struct
 subprocess
+suppress
 system
 tempfile
 threading
 timedelta
 today
 tostring
+total_ordering
 traceback
 traverse
 unicode_literals
@@ -237,4 +250,3 @@ unicodedata
 urllib
 warnings
 xpath
-total_ordering
