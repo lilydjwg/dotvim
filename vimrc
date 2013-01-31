@@ -460,6 +460,10 @@ set maxcombine=4
 set cedit=<C-Y>
 set whichwrap=b,s,[,]
 set tags+=./../tags,./../../tags,./../../../tags
+try
+  set matchpairs=(:),{:},[:],《:》,〈:〉,［:］,（:）,「:」,『:』,‘:’,“:”
+catch /^Vim\%((\a\+)\)\=:E474/
+endtry
 " Avoid command-line redraw on every entered character by turning off Arabic
 " shaping (which is implemented poorly).
 if has('arabic')
