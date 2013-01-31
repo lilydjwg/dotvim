@@ -562,8 +562,10 @@ elseif has("unix")
     else
       " 暂时只有这个配色比较适合了
       colorscheme default
-      " 在终端下自动加载vimim输入法
-      runtime so/vimim.vim
+      " 在终端下，如果码表存在，则自动加载vimim输入法
+      if len(split(globpath(&rtp, 'so/vimim.wubi.txt'), '\n')) > 0
+	runtime so/vimim.vim
+      endif
     endif
   endif
   " 在不同模式下使用不同颜色的光标
