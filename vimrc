@@ -690,7 +690,7 @@ nmap gb :setl fenc=gb18030<CR>
 nmap d<CR> :%s/\r//eg<CR>``
 nmap cac :call Lilydjwg_changeColor()<CR>
 nmap gl :IndentGuidesToggle<CR>
-nmap gs :echo Lilydjwg_getfsize(expand('%'))<CR>
+nnoremap <silent> gs :echo Lilydjwg_getfsize(expand('%'))<CR>
 "   imap [[[2
 inoremap <S-CR> <CR>    
 inoremap <M-c> <C-R>=Lilydjwg_colorpicker()<CR>
