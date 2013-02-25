@@ -7,9 +7,6 @@ import sys
 import io
 import token, tokenize
 
-def EvaluateCurrentRange():
-  eval(compile('\n'.join(vim.current.range),'','exec'),globals())
-
 def getpath():
   path = sys.path[:]
   if '' in path:
