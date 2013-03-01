@@ -513,11 +513,10 @@ else
   endif
   " Linux 程序 [[[3
   "   用默认的程序打开文件
-  "   FIXME xdg-open 的配置在哪里？为什么不用浏览器打开 HTML 文件呢？
   nmap <C-S-F5> :!gnome-open "%"<CR>
   set grepprg=grep\ -nH\ $*
   command Hex silent !setsid ghex2 '%'
-  command SHELL silent cd %:p:h|silent exe '!setsid terminal'|silent cd -
+  command SHELL silent cd %:p:h|silent exe '!setsid xfce4-terminal'|silent cd -
   command Nautilus silent !nautilus %:p:h
   autocmd BufWritePost    * call Lilydjwg_chmodx()
   " Linux 配置 [[[3
