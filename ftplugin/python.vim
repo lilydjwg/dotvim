@@ -23,9 +23,5 @@ setlocal makeprg=python3\ -c\ \"import\ py_compile,sys;\ sys.stderr=sys.stdout;\
 setlocal errorformat=%C\ %.%#,%A\ \ File\ \"%f\"\\,\ line\ %l%.%#,%Z%[%^\ ]%\\@=%m,
       \%m(%f\\,\ line\ %l)
 
-" FIXME 如果是 grep 命令呢？
-au QuickFixCmdPre <buffer> lcd %:p:h
-au QuickFixCmdPost <buffer> lcd -
-
 " modeline {{{1
 " vim:set fdm=marker:
