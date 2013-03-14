@@ -856,6 +856,7 @@ let g:cycle_default_groups = [
       \ [['>', '<']],
       \ [['==', '!=']],
       \ [['是', '否']],
+      \ [['有', '无']],
       \ [["in", "out"]],
       \ [["min", "max"]],
       \ [["get", "post"]],
@@ -872,6 +873,7 @@ let g:cycle_default_groups = [
       \ [['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday',
       \ 'Friday', 'Saturday'], 'hard_case', {'name': 'Days'}],
       \ [["enable", "disable"]],
+      \ [["add", "remove"]],
       \ ]
 "   Erlang[[[2
 let g:erlangHighlightBif = 1
