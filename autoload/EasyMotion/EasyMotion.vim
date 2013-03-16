@@ -3,63 +3,8 @@
 " Author: Kim Silkebækken <kim.silkebaekken+vim@gmail.com>
 " Source repository: https://github.com/Lokaltog/vim-easymotion
 
-" Default configuration functions {{{
-	function! EasyMotion#InitOptions(options) " {{{
-		for [key, value] in items(a:options)
-			if ! exists('g:EasyMotion_' . key)
-				exec 'let g:EasyMotion_' . key . ' = ' . string(value)
-			endif
-		endfor
-	endfunction " }}}
-	function! EasyMotion#InitHL(group, colors) " {{{
-		let group_default = a:group . 'Default'
-
-		" Prepare highlighting variables
-		let guihl = printf('guibg=%s guifg=%s gui=%s', a:colors.gui[0], a:colors.gui[1], a:colors.gui[2])
-		if !exists('g:CSApprox_loaded')
-			let ctermhl = &t_Co == 256
-				\ ? printf('ctermbg=%s ctermfg=%s cterm=%s', a:colors.cterm256[0], a:colors.cterm256[1], a:colors.cterm256[2])
-				\ : printf('ctermbg=%s ctermfg=%s cterm=%s', a:colors.cterm[0], a:colors.cterm[1], a:colors.cterm[2])
-		else
-			let ctermhl = ''
-		endif
-
-		" Create default highlighting group
-		execute printf('hi default %s %s %s', group_default, guihl, ctermhl)
-
-		" Check if the hl group exists
-		if hlexists(a:group)
-			redir => hlstatus | exec 'silent hi ' . a:group | redir END
-
-			" Return if the group isn't cleared
-			if hlstatus !~ 'cleared'
-				return
-			endif
-		endif
-
-		" No colors are defined for this group, link to defaults
-		execute printf('hi default link %s %s', a:group, group_default)
-	endfunction " }}}
-	function! EasyMotion#InitMappings(motions) "{{{
-		for motion in keys(a:motions)
-			call EasyMotion#InitOptions({ 'mapping_' . motion : g:EasyMotion_leader_key . motion })
-		endfor
-
-		if g:EasyMotion_do_mapping
-			for [motion, fn] in items(a:motions)
-				if empty(g:EasyMotion_mapping_{motion})
-					continue
-				endif
-
-				silent exec 'nnoremap <silent> ' . g:EasyMotion_mapping_{motion} . '      :call EasyMotion#' . fn.name . '(0, ' . fn.dir . ')<CR>'
-				silent exec 'onoremap <silent> ' . g:EasyMotion_mapping_{motion} . '      :call EasyMotion#' . fn.name . '(0, ' . fn.dir . ')<CR>'
-				silent exec 'vnoremap <silent> ' . g:EasyMotion_mapping_{motion} . ' :<C-U>call EasyMotion#' . fn.name . '(1, ' . fn.dir . ')<CR>'
-			endfor
-		endif
-	endfunction "}}}
-" }}}
 " Motion functions {{{
-	function! EasyMotion#F(visualmode, direction) " {{{
+	function! EasyMotion#EasyMotion#F(visualmode, direction) " {{{
 		let char = s:GetSearchChar(a:visualmode)
 
 		if empty(char)
@@ -70,7 +15,7 @@
 
 		call s:EasyMotion(re, a:direction, a:visualmode ? visualmode() : '', mode(1))
 	endfunction " }}}
-	function! EasyMotion#T(visualmode, direction) " {{{
+	function! EasyMotion#EasyMotion#T(visualmode, direction) " {{{
 		let char = s:GetSearchChar(a:visualmode)
 
 		if empty(char)
@@ -85,22 +30,22 @@
 
 		call s:EasyMotion(re, a:direction, a:visualmode ? visualmode() : '', mode(1))
 	endfunction " }}}
-	function! EasyMotion#WB(visualmode, direction) " {{{
+	function! EasyMotion#EasyMotion#WB(visualmode, direction) " {{{
 		call s:EasyMotion('\(\<.\|^$\)', a:direction, a:visualmode ? visualmode() : '', '')
 	endfunction " }}}
-	function! EasyMotion#WBW(visualmode, direction) " {{{
+	function! EasyMotion#EasyMotion#WBW(visualmode, direction) " {{{
 		call s:EasyMotion('\(\(^\|\s\)\@<=\S\|^$\)', a:direction, a:visualmode ? visualmode() : '', '')
 	endfunction " }}}
-	function! EasyMotion#E(visualmode, direction) " {{{
+	function! EasyMotion#EasyMotion#E(visualmode, direction) " {{{
 		call s:EasyMotion('\(.\>\|^$\)', a:direction, a:visualmode ? visualmode() : '', mode(1))
 	endfunction " }}}
-	function! EasyMotion#EW(visualmode, direction) " {{{
+	function! EasyMotion#EasyMotion#EW(visualmode, direction) " {{{
 		call s:EasyMotion('\(\S\(\s\|$\)\|^$\)', a:direction, a:visualmode ? visualmode() : '', mode(1))
 	endfunction " }}}
-	function! EasyMotion#JK(visualmode, direction) " {{{
+	function! EasyMotion#EasyMotion#JK(visualmode, direction) " {{{
 		call s:EasyMotion('^\(\w\|\s*\zs\|$\)', a:direction, a:visualmode ? visualmode() : '', '')
 	endfunction " }}}
-	function! EasyMotion#Search(visualmode, direction) " {{{
+	function! EasyMotion#EasyMotion#Search(visualmode, direction) " {{{
 		call s:EasyMotion(@/, a:direction, a:visualmode ? visualmode() : '', '')
 	endfunction " }}}
 " }}}
@@ -146,14 +91,17 @@
 	endfunction " }}}
 	function! s:GetChar() " {{{
 		let char = getchar()
-		if char == 27 " Escape key pressed
+
+		if char == 27
+			" Escape key pressed
 			redraw
-			throw("Cancelled")
+
+			call s:Message('Cancelled')
+
+			return ''
 		endif
+
 		return nr2char(char)
-	endfunction " }}}
-	function! s:GetTwoCharKeyCombo() " {{{
-		return s:GetChar() . s:GetChar()
 	endfunction " }}}
 	function! s:GetSearchChar(visualmode) " {{{
 		call s:Prompt('Search for character')
@@ -171,21 +119,6 @@
 		endif
 
 		return char
-	endfunction " }}}
-	function! s:GenerateTwoKeyCombos() " {{{
-		let usable_keys = split(g:EasyMotion_keys, '\zs')
-
-		let difficult_to_type_combos = {'fv':1,'fg':1,'hj':1,'nj':1,'mj':1,'ft':1,'fr':1,'fb':1,'fc':1,'de':1,'sw':1,'sx':1,'aq':1,'az':1}
-
-		let two_key_combos = []
-		for key1 in usable_keys
-			for key2 in usable_keys
-				if !has_key(difficult_to_type_combos, key1 . key2) && !has_key(difficult_to_type_combos, key2 . key1)
-					let two_key_combos += [key1 . key2]
-				end
-			endfor
-		endfor
-		return two_key_combos
 	endfunction " }}}
 " }}}
 " Grouping algorithms {{{
@@ -392,7 +325,7 @@
 				" This has to be done in order to match the correct
 				" column; \%c matches the byte column and not display
 				" column.
-				let target_char_len = strlen(matchstr(lines[line_num]['marker'], '\%' . col_num . 'c..'))
+				let target_char_len = strlen(matchstr(lines[line_num]['marker'], '\%' . col_num . 'c.'))
 				let target_key_len = strlen(target_key)
 
 				" Solve multibyte issues by matching the byte column
@@ -401,14 +334,14 @@
 
 				if strlen(lines[line_num]['marker']) > 0
 					" Substitute marker character if line length > 0
-					let lines[line_num]['marker'] = substitute(lines[line_num]['marker'], '\%' . col_num . 'c..', target_key, '')
+					let lines[line_num]['marker'] = substitute(lines[line_num]['marker'], '\%' . col_num . 'c.', target_key, '')
 				else
 					" Set the line to the marker character if the line is empty
 					let lines[line_num]['marker'] = target_key
 				endif
 
 				" Add highlighting coordinates
-				call add(hl_coords, '\%' . line_num . 'l\%' . col_num . 'c..')
+				call add(hl_coords, '\%' . line_num . 'l\%' . col_num . 'c')
 
 				" Add marker/target lenght difference for multibyte
 				" compensation
@@ -429,7 +362,8 @@
 
 			" Get target character {{{
 				call s:Prompt('Target key')
-				let char = s:GetTwoCharKeyCombo()
+
+				let char = s:GetChar()
 			" }}}
 		finally
 			" Restore original lines
@@ -505,13 +439,11 @@
 			" }}}
 
 			let GroupingFn = function('s:GroupingAlgorithm' . s:grouping_algorithms[g:EasyMotion_grouping])
-
-			" Take available keys and generate all possible two key combos
-			let groups = GroupingFn(targets, s:GenerateTwoKeyCombos())
+			let groups = GroupingFn(targets, split(g:EasyMotion_keys, '\zs'))
 
 			" Shade inactive source {{{
 				if g:EasyMotion_do_shade
-					let shade_hl_pos = '\%' . orig_pos[0] . 'l\%'. orig_pos[1] .'c..'
+					let shade_hl_pos = '\%' . orig_pos[0] . 'l\%'. orig_pos[1] .'c'
 
 					if a:direction == 1
 						" Backward
