@@ -829,7 +829,8 @@ command CenterFull call CenterFull()
 command -nargs=1 -range=% -complete=customlist,Lilydjwg_Align_complete LA <line1>,<line2>call Lilydjwg_Align("<args>")
 command -nargs=1 -range=% Column <line1>,<line2>Align! w<args>0P1p \S\@<=\s\@=
 command -range=% Paste <line1>,<line2>py3 LilyPaste()
-command -range=% Tohtml :call Lilydjwg_to_html(<line1>, <line2>)
+command -range=% Tohtml call Lilydjwg_to_html(<line1>, <line2>)
+command Agg exe 'Ag -Q ' . expand('<cword>')
 " 插件配置[[[1
 "   easymotion[[[2
 let EasyMotion_leader_key = '<M-q>'
