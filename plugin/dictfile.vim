@@ -37,7 +37,6 @@ function SetDictFilePre()
     call SetDictFile('dom')
   elseif &ft =~ '\v^(javascript|python)$'
     call SetDictFile('dom')
-    call SetDictFile('jquery')
   endif
 endfunction
 function OpenDict(ft)

@@ -12,3 +12,4 @@ submit
 textarea
 title
 blockquote
+fieldset
