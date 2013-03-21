@@ -476,15 +476,7 @@ end
 if has("win32") || has("win64")
   let g:LustyExplorerSuppressRubyWarning = 1
   " Win 路径 [[[3
-  let g:VEConf_favorite = expand("$VIM/vimfiles/ve_favorite")
-  let g:NERDTreeBookmarksFile = expand("$VIM/vimfiles/NERDTreeBookmarks")
-  let g:undodir = expand("$TMP/vimundo")
-  let g:vimfiles = expand("$VIM/vimfiles")
-  let g:dictfilePrefix = expand('$VIM/vimfiles/dict/')
-  set errorfile=$TMP/.error
-  if has("python3")
-    py3file $VIM/vimfiles/vimrc.py
-  endif
+  let g:mytmpdir = $TMP
   " Win 程序 [[[3
   "   用默认的程序打开文件
   nmap <C-S-F5> :!"%"<CR>
@@ -496,21 +488,17 @@ if has("win32") || has("win64")
   command Fscreen simalt ~r
 else
   " Linux 路径 [[[3
-  let g:VEConf_favorite = expand("~/.vim/ve_favorite")
-  let g:NERDTreeBookmarksFile = expand("~/.vim/NERDTreeBookmarks")
-  let g:undodir = expand("~/tmpfs/.vimundo")
-  let g:vimfiles = expand("~/.vim")
-  let g:dictfilePrefix = expand('~/.vim/dict/')
-  set errorfile=~/tmpfs/.error
+  if exists('$VIMTMP')
+    let g:mytmpdir = $VIMTMP
+  else
+    let g:mytmpdir = expand("~/tmpfs")
+  endif
   let my_diary_file = expand('~/secret/diary/2013.rj')
   let g:MuttVim_configfile = expand('~/scripts/python/pydata/muttvim.json')
   cmap <C-T> ~/tmpfs/
   " cron 的目录不要备份
   set backupskip+=/etc/cron.*/*
   set backupdir=.,~/temp,/tmp
-  if has("python3")
-    py3file ~/.vim/vimrc.py
-  endif
   " Linux 程序 [[[3
   "   用默认的程序打开文件
   nmap <C-S-F5> :!gnome-open "%"<CR>
@@ -530,6 +518,16 @@ if $LANGUAGE =~ '^zh' || ($LANGUAGE == '' && v:lang =~ '^zh')
 else
   set statusline=%n\ %<%f\ %LL\ %{&modified?'[+]':&modifiable\|\|&ft=~'^\\vhelp\|qf$'?'':'[-]'}%h%r%{&fenc=='utf-8'\|\|&fenc==''?'':'['.&fenc.']'}%{&ff=='unix'?'':'['.&ff.']'}%{&bomb?'[BOM]':''}%{&eol?'':'[noeol]'}%=\ 0x%-4.8B\ \ \ \ %-14.(%l,%c%V%)\ %P
 endif
+" 路径相关 [[[3split(&runtimepath, ',')[0]
+let g:vimfiles = split(&runtimepath, ',')[0]
+let g:VEConf_favorite = g:vimfiles . "/ve_favorite"
+let g:NERDTreeBookmarksFile = g:vimfiles . "/NERDTreeBookmarks"
+let g:dictfilePrefix = g:vimfiles . "/dict/"
+if has("python3")
+  exe "py3file" g:vimfiles . "/vimrc.py"
+endif
+let g:undodir = g:mytmpdir . "/.vimundo"
+let &errorfile= g:mytmpdir . "/.error"
 " 图形与终端 [[[2
 let colorscheme = 'lilypink'
 if has("gui_running")
