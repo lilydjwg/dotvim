@@ -18,6 +18,7 @@ ImportError
 IndexError
 KeyError
 KeyboardInterrupt
+Literal
 LookupError
 NameError
 NamedTemporaryFile
@@ -83,6 +84,7 @@ abstractmethod
 accept
 access
 acquire
+alphas
 append
 argparse
 as_string
@@ -154,6 +156,7 @@ hasattr
 hexdigest
 httpsession
 import
+indentedBlock
 input
 is_alive
 is_zipfile
