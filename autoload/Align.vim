@@ -1,10 +1,10 @@
 " Align: tool to align multiple fields based on one or more separators
-"   Author:		Charles E. Campbell, Jr.
-"   Date:		Jun 18, 2012
-"   Version:	36
+"   Author:		Charles E. Campbell
+"   Date:		Mar 12, 2013
+"   Version:	37
 " GetLatestVimScripts: 294 1 :AutoInstall: Align.vim
 " GetLatestVimScripts: 1066 1 :AutoInstall: cecutil.vim
-" Copyright:    Copyright (C) 1999-2012 Charles E. Campbell, Jr. {{{1
+" Copyright:    Copyright (C) 1999-2012 Charles E. Campbell {{{1
 "               Permission is hereby granted to use and distribute this code,
 "               with or without modifications, provided that this copyright
 "               notice is copied with it. Like anything else that's free,
@@ -25,7 +25,7 @@
 if exists("g:loaded_Align") || &cp
  finish
 endif
-let g:loaded_Align = "v36"
+let g:loaded_Align = "v37"
 if v:version < 700
  echohl WarningMsg
  echo "***warning*** this version of Align needs vim 7.0"
@@ -43,7 +43,11 @@ set cpo&vim
 " ---------------------------------------------------------------------
 " Options: {{{1
 if !exists("g:Align_xstrlen")
- if &enc == "latin1" || $LANG == "en_US.UTF-8" || !has("multi_byte")
+ if exists("g:drawit_xstrlen")
+  let g:Align_xstrlen= g:drawit_xstrlen
+ elseif exists("g:netrw_xstrlen")
+  let g:Align_xstrlen= g:netrw_xstrlen
+ elseif &enc == "latin1" || !has("multi_byte")
   let g:Align_xstrlen= 0
  else
   let g:Align_xstrlen= 1
@@ -529,19 +533,19 @@ fun! Align#Align(hasctrl,...) range
 "   call Decho(" ")
 "   call Decho("---- Pass ".pass.": ----")
 
-   let line= begline
-   while line <= endline
+   let curline= begline
+   while curline <= endline
     " Process each line
-    let txt = getline(line)
+    let txt = getline(curline)
 "    call Decho(" ")
-"    call Decho("Pass".pass.": Line ".line." <".txt.">")
+"    call Decho("Pass".pass.": Line ".curline." <".txt.">")
 
     " AlignGPat support: allows a selector pattern (akin to g/selector/cmd )
     if exists("s:AlignGPat")
 "	 call Decho("Pass".pass.": AlignGPat<".s:AlignGPat.">")
 	 if match(txt,s:AlignGPat) == -1
 "	  call Decho("Pass".pass.": skipping")
-	  let line= line + 1
+	  let curline= curline + 1
 	  continue
 	 endif
     endif
@@ -551,7 +555,7 @@ fun! Align#Align(hasctrl,...) range
 "	 call Decho("Pass".pass.": AlignVPat<".s:AlignVPat.">")
 	 if match(txt,s:AlignVPat) != -1
 "	  call Decho("Pass".pass.": skipping")
-	  let line= line + 1
+	  let curline= curline + 1
 	  continue
 	 endif
     endif
@@ -559,12 +563,12 @@ fun! Align#Align(hasctrl,...) range
 	" Always skip blank lines
 	if match(txt,'^\s*$') != -1
 "	  call Decho("Pass".pass.": skipping")
-	 let line= line + 1
+	 let curline= curline + 1
 	 continue
 	endif
 
     " Extract visual-block selected text (init bgntxt, endtxt)
-     let txtlen= s:Strlen(txt)
+    let txtlen= s:Strlen(txt)
     if begcol > 0
 	 " Record text to left of selected area
      let bgntxt= strpart(txt,0,begcol)
@@ -655,7 +659,7 @@ fun! Align#Align(hasctrl,...) range
 	  if alignop == '*' && exists("g:AlignSkip") && type(g:AlignSkip) == 2
 "	   call Decho("Pass".pass.": endfield=match(txt<".txt.">,seppat<".seppat.">,bgnfield=".bgnfield.")=".endfield." alignop=".alignop)
 	   " a '*' acts like a '-' while the g:AlignSkip function reference is true except that alignop doesn't advance
-	   while g:AlignSkip(line,endfield) && endfield != -1
+	   while g:AlignSkip(curline,endfield) && endfield != -1
 	    let endfield  = match(txt,seppat,skipfield)
 	    let sepfield  = matchend(txt,seppat,skipfield)
 	    let skipfield = sepfield
@@ -688,22 +692,20 @@ fun! Align#Align(hasctrl,...) range
 	    let field = bgntxt.field
 	    let bgntxt= ""
 	   endif
-	   let fieldlen   = s:Strlen(field)
-	   let sFieldSize = "FieldSize_".ifield
-	   if !exists(sFieldSize)
+	   let fieldlen= s:Strlen(field)
+	   if !exists("FieldSize_{ifield}")
 	    let FieldSize_{ifield}= fieldlen
-"	    call Decho("Pass".pass.":  set FieldSize_{".ifield."}=".FieldSize_{ifield}." <".field.">")
+"		call Decho("Pass".pass.": set FieldSize_{".ifield."}=".FieldSize_{ifield}." <".field."> (init)")
 	   elseif fieldlen > FieldSize_{ifield}
 	    let FieldSize_{ifield}= fieldlen
-"	    call Decho("Pass".pass.": oset FieldSize_{".ifield."}=".FieldSize_{ifield}." <".field.">")
+"		call Decho("Pass".pass.": set FieldSize_{".ifield."}=".FieldSize_{ifield}." <".field."> (fieldlen>FieldSize_".ifield.")")
 	   endif
-	   let sSepSize= "SepSize_".ifield
-	   if !exists(sSepSize)
+	   if !exists("SepSize_{ifield}")
 		let SepSize_{ifield}= seplen
-"	    call Decho(" set SepSize_{".ifield."}=".SepSize_{ifield}." <".field.">")
+"		call Decho("Pass".pass.": set SepSize_{".ifield."}=".SepSize_{ifield}." <".field."> (init)")
 	   elseif seplen > SepSize_{ifield}
 		let SepSize_{ifield}= seplen
-"	    call Decho("Pass".pass.": oset SepSize_{".ifield."}=".SepSize_{ifield}." <".field.">")
+"		call Decho("Pass".pass.": set SepSize_{".ifield."}=".SepSize_{ifield}." <".field."> (seplen>SepSize_".ifield.")")
 	   endif
 
 	  else
@@ -714,6 +716,8 @@ fun! Align#Align(hasctrl,...) range
 	   let alignprepad  = strpart(alignprepad,1).strpart(alignprepad,0,1)
 	   let alignpostpad = strpart(alignpostpad,1).strpart(alignpostpad,0,1)
 	   let field        = substitute(strpart(txt,bgnfield,endfield-bgnfield),'^\s*\(.\{-}\)\s*$','\1','')
+"	   call Decho("Pass".pass.": alignprepad <".alignprepad."> prepad =".prepad)
+"	   call Decho("Pass".pass.": alignpostpad<".alignpostpad."> postpad=".postpad)
        if s:AlignLeadKeep == 'W'
 	    let field = bgntxt.field
 	    let bgntxt= ""
@@ -724,21 +728,26 @@ fun! Align#Align(hasctrl,...) range
 	   endif
 	   let fieldlen   = s:Strlen(field)
 	   let sep        = s:MakeSpace(prepad).strpart(txt,endfield,sepfield-endfield).s:MakeSpace(postpad)
+"	   call Decho("Pass".pass.": sep<".sep."> (after prepad, sepfield-endfield,postpad)")
 	   if seplen < SepSize_{ifield}
 		if alignsepop == "<"
 		 " left-justify separators
 		 let sep       = sep.s:MakeSpace(SepSize_{ifield}-seplen)
+"		 call Decho("Pass".pass.": sep<".sep."> (left-justified)")
 		elseif alignsepop == ">"
 		 " right-justify separators
 		 let sep       = s:MakeSpace(SepSize_{ifield}-seplen).sep
+"		 call Decho("Pass".pass.": sep<".sep."> (right-justified)")
 		else
 		 " center-justify separators
 		 let sepleft   = (SepSize_{ifield} - seplen)/2
 		 let sepright  = SepSize_{ifield} - seplen - sepleft
 		 let sep       = s:MakeSpace(sepleft).sep.s:MakeSpace(sepright)
+"		 call Decho("Pass".pass.": sep<".sep."> (center-justified)")
 		endif
 	   endif
 	   let spaces = FieldSize_{ifield} - fieldlen
+"	   call Decho("Pass".pass.": spaces=[FieldSize_".ifield."=".FieldSize_{ifield}."] - [fieldlen=".fieldlen."]=".spaces)
 "	   call Decho("Pass".pass.": Field #".ifield."<".field."> spaces=".spaces." be[".bgnfield.",".endfield."] pad=".prepad.','.postpad." FS_".ifield."<".FieldSize_{ifield}."> sep<".sep."> ragged=".ragged." doend=".doend." alignop<".alignop.">")
 
 	    " Perform alignment according to alignment style justification
@@ -786,18 +795,20 @@ fun! Align#Align(hasctrl,...) range
 
 	if pass == 2
 	 " Write altered line to buffer
-"     call Decho("Pass".pass.": bgntxt<".bgntxt."> line=".line)
+"     call Decho("Pass".pass.": bgntxt<".bgntxt."> curline=".curline)
 "     call Decho("Pass".pass.": newtxt<".newtxt.">")
 "     call Decho("Pass".pass.": endtxt<".endtxt.">")
-	 keepj call setline(line,bgntxt.newtxt.endtxt)
+	 keepj call setline(curline,bgntxt.newtxt.endtxt)
 	endif
+"	call Decho("Pass".pass.": line#".curline."<".getline(".")."> (end-of-while)")
 
-    let line = line + 1
-   endwhile	" line loop
+    let curline = curline + 1
+   endwhile	" curline loop
 
    let pass= pass + 1
   endwhile	" pass loop
 "  call Decho("end of two pass loop")
+"  call Decho("ENDWHILE: cursor at (".line(".").",".col(".").") curline#".curline)
 
   " restore original leading whitespace
   if s:AlignLeadKeep == 'W'
@@ -1059,8 +1070,7 @@ fun! s:Strlen(x)
    call setline(line("."),a:x)
    let ret= virtcol("$") - 1
    d
-   " lilydjwg: 这样才不会让光标乱跑
-   normal k
+   keepj norm! k
    let &l:mod= modkeep
 
   else

@@ -59,6 +59,8 @@
 :AgFile	ag.txt	/*:AgFile*
 :AgFromSearch	ag.txt	/*:AgFromSearch*
 :AgHelp	ag.txt	/*:AgHelp*
+:Align	Align.txt	/*:Align*
+:AlignCtrl	Align.txt	/*:AlignCtrl*
 :AlignMapsClean	Align.txt	/*:AlignMapsClean*
 :ColorSchemeEditor	ColorSchemeEditor.txt	/*:ColorSchemeEditor*
 :Explore	pi_netrw.txt	/*:Explore*
