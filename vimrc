@@ -940,11 +940,7 @@ let g:html_indent_inctags = "html,body,head,tbody,p,li,dd,marquee,header,nav,art
 let g:html_indent_script1 = "inc"
 let g:html_indent_style1 = "inc"
 "   mru[[[2
-if has("win32") || has("win64")
-  let MRU_File = '$VIM/vimfiles/vim_mru_files'
-else
-  let MRU_File = '~/.vim/vim_mru_files'
-endif
+let MRU_File = g:vimfiles . '/vim_mru_files'
 let MRU_Max_Entries = 2000
 let MRU_Exclude_Files = '\v^.*\~$|/COMMIT_EDITMSG$|/itsalltext/|^/tmp/'
 "  加载菜单太耗时
