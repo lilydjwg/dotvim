@@ -65,6 +65,7 @@ snapshotItem
 snapshotLength
 srcElement
 stopPropagation
+stringify
 styleSheets
 substring
 true
