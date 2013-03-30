@@ -5,7 +5,7 @@
 " Add something like the following in modeline to your templates:
 " {# vim:se syntax=html.tornadotmpl: #}
 
-syntax region tmplCode matchgroup=PreProc start="{[%{]!\@!" end="[%}]}" contains=@Python,tmplKeyword
+syntax region tmplCode matchgroup=PreProc start="{[%{]!\@!" end="[%}]}" contains=@Python,tmplKeyword containedin=ALL
 syntax region tmplComment matchgroup=PreProc start="{#!\@!" end="#}"
 syntax region tmplComment matchgroup=PreProc start="{%\s\+comment\s\+" end="%}"
 syntax keyword tmplKeyword end include apply autoescape block extends module raw set
