@@ -11,6 +11,7 @@ Element
 Ellipsis
 Exception
 False
+FileNotFoundError
 GB18030
 HTTPServer
 IOError
@@ -253,4 +254,3 @@ unicodedata
 urllib
 warnings
 xpath
-FileNotFoundError
