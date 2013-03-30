@@ -919,6 +919,8 @@ let g:sh_fold_enabled = 3 " 打开函数和 here 文档的折叠
 "   Align[[[2
 let g:Align_xstrlen = 4 " use strdisplaywidth
 "   Lilydjwg_Align
+"   Meanings:
+"     colon: dict definition like 'key: value,'
 let g:Myalign_def = {
       \   'css': ['WP0p1l:', ':\@<=', 'v \v^\s*/\*|\{|\}'],
       \   'comma': ['WP0p1l:', ',\@<=', 'g ,'],
