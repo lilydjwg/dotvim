@@ -422,6 +422,7 @@ syntax on
 " set guifont=文泉驿等宽正黑\ Medium\ 10
 set number
 set smarttab
+set expandtab
 " 不要响铃，更不要闪屏
 set visualbell t_vb=
 au GUIEnter * set t_vb=
