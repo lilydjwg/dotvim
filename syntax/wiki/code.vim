@@ -8,6 +8,8 @@
 syntax region wikiCodePlain matchgroup=htmlTag start="<code \w\+>" end="</code>"
 hi link wikiCodePlain Normal
 
+let b:current_syntax_save = b:current_syntax
+
 unlet b:current_syntax
 syntax include @Python syntax/python.vim
 syntax region wikiCodePython matchgroup=htmlTag start="<code python>" end="</code>" contains=@Python
@@ -27,4 +29,6 @@ syntax region wikiCodeLua matchgroup=htmlTag start="<code lua>" end="</code>" co
 unlet b:current_syntax
 syntax include @Javascript  syntax/javascript.vim
 syntax region wikiCodeJavascript matchgroup=htmlTag start="<code javascript>" end="</code>" contains=@Javascript
-unlet b:current_syntax
+
+let b:current_syntax = b:current_syntax_save
+unlet b:current_syntax_save

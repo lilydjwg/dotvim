@@ -422,6 +422,7 @@ syntax on
 " set guifont=文泉驿等宽正黑\ Medium\ 10
 set number
 set smarttab
+set expandtab
 " 不要响铃，更不要闪屏
 set visualbell t_vb=
 au GUIEnter * set t_vb=
@@ -919,6 +920,8 @@ let g:sh_fold_enabled = 3 " 打开函数和 here 文档的折叠
 "   Align[[[2
 let g:Align_xstrlen = 4 " use strdisplaywidth
 "   Lilydjwg_Align
+"   Meanings:
+"     colon: dict definition like 'key: value,'
 let g:Myalign_def = {
       \   'css': ['WP0p1l:', ':\@<=', 'v \v^\s*/\*|\{|\}'],
       \   'comma': ['WP0p1l:', ',\@<=', 'g ,'],
