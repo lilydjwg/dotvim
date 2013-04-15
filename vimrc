@@ -921,13 +921,15 @@ let g:sh_fold_enabled = 3 " 打开函数和 here 文档的折叠
 let g:Align_xstrlen = 4 " use strdisplaywidth
 "   Lilydjwg_Align
 "   Meanings:
-"     colon: dict definition like 'key: value,'
+"     colon:   dict definition like 'key: value,'
+"     comment: #-style comments
 let g:Myalign_def = {
       \   'css': ['WP0p1l:', ':\@<=', 'v \v^\s*/\*|\{|\}'],
       \   'comma': ['WP0p1l:', ',\@<=', 'g ,'],
       \   'colon': ['WP0p1l:', ':\@<=', 'g ,'],
       \   'commalist': ['WP0p1l', ',\@<=', 'g ,'],
       \   'define': ['WP0p1l:', ' \d\@=', 'g ^#define\s'],
+      \   'comment': ['WP1p1l:', '#'],
       \ }
 "   EnhancedCommentify[[[2
 let g:EnhCommentifyRespectIndent = 'Yes'
