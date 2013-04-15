@@ -217,7 +217,7 @@ function Lilydjwg_Align(type) range
   call Align#AlignPop()
 endfunction
 function Lilydjwg_Align_complete(ArgLead, CmdLine, CursorPos)
-  return keys(g:Myalign_def)
+  return filter(keys(g:Myalign_def), 'stridx(v:val, a:ArgLead) == 0')
 endfunction
 "  退格删除自动缩进 [[[2
 function! Lilydjwg_checklist_bs(pat)
