@@ -5,6 +5,7 @@ AssertionError
 AttributeError
 BytesIO
 CharsNotIn
+Combine
 Condition
 EOFError
 Element
@@ -19,6 +20,7 @@ ImportError
 IndexError
 KeyError
 KeyboardInterrupt
+LineStart
 Literal
 LookupError
 NameError
@@ -55,6 +57,7 @@ UserWarning
 ValueError
 WindowsError
 Word
+ZeroOrMore
 __bool__
 __builtins__
 __call__
@@ -209,6 +212,7 @@ release
 rename
 replace
 request
+restOfLine
 return
 returncode
 reversed
@@ -248,6 +252,7 @@ today
 tostring
 total_ordering
 traceback
+transformString
 traverse
 unicode_literals
 unicodedata
