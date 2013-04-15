@@ -217,7 +217,7 @@ function Lilydjwg_Align(type) range
   call Align#AlignPop()
 endfunction
 function Lilydjwg_Align_complete(ArgLead, CmdLine, CursorPos)
-  return keys(g:Myalign_def)
+  return filter(keys(g:Myalign_def), 'stridx(v:val, a:ArgLead) == 0')
 endfunction
 "  退格删除自动缩进 [[[2
 function! Lilydjwg_checklist_bs(pat)
@@ -831,6 +831,10 @@ command -range=% Paste <line1>,<line2>py3 LilyPaste()
 command -range=% Tohtml call Lilydjwg_to_html(<line1>, <line2>)
 command Agg exe 'Ag -Q ' . expand('<cword>')
 " 插件配置[[[1
+"   NrrRgn[[[2
+let g:nrrw_rgn_vert = 1
+let g:nrrw_rgn_wdth = 80
+let g:nrrw_rgn_hl = 'Folded'
 "   easymotion[[[2
 let EasyMotion_leader_key = '<M-q>'
 let EasyMotion_keys = 'abcdefghijklmnopqrstuvwxyz'
@@ -906,6 +910,7 @@ let Tlist_Show_One_File = 1
 let tlist_vimwiki_settings = 'wiki;h:headers'
 let tlist_tex_settings = 'latex;h:headers'
 let tlist_wiki_settings = 'wiki;h:headers'
+let tlist_tracwiki_settings = 'wiki;h:headers'
 let tlist_diff_settings = 'diff;f:file'
 let tlist_git_settings = 'diff;f:file'
 let tlist_gitcommit_settings = 'gitcommit;f:file'
@@ -921,13 +926,19 @@ let g:sh_fold_enabled = 3 " 打开函数和 here 文档的折叠
 let g:Align_xstrlen = 4 " use strdisplaywidth
 "   Lilydjwg_Align
 "   Meanings:
-"     colon: dict definition like 'key: value,'
+"     colon:     dict definition like 'key: value,'
+"     colonl:    list items like this one
+"     comment:   #-style comments
+"     jscomment: //-style comments
 let g:Myalign_def = {
-      \   'css': ['WP0p1l:', ':\@<=', 'v \v^\s*/\*|\{|\}'],
-      \   'comma': ['WP0p1l:', ',\@<=', 'g ,'],
-      \   'colon': ['WP0p1l:', ':\@<=', 'g ,'],
+      \   'colon':     ['WP0p1l:', ':\@<=', 'g ,'],
+      \   'colonl':    ['WP0p1l:', ':\@<='],
+      \   'comma':     ['WP0p1l:', ',\@<=', 'g ,'],
       \   'commalist': ['WP0p1l', ',\@<=', 'g ,'],
-      \   'define': ['WP0p1l:', ' \d\@=', 'g ^#define\s'],
+      \   'comment':   ['WP1p1l:', '#'],
+      \   'css':       ['WP0p1l:', ':\@<=', 'v \v^\s*/\*|\{|\}'],
+      \   'define':    ['WP0p1l:', ' \d\@=', 'g ^#define\s'],
+      \   'jscomment': ['WP0p1l:', '//'],
       \ }
 "   EnhancedCommentify[[[2
 let g:EnhCommentifyRespectIndent = 'Yes'

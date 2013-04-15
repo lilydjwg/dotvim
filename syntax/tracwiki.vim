@@ -45,7 +45,8 @@ syn match   tracLine        "^----$"
 
 syn region tracItalic       start=+''+ end=+''+ containedin=tracHead contains=tracEscape
 syn region tracBold         start=+'''+ end=+'''+ containedin=tracHead contains=tracEscape
-syn region tracBoldItalic   start=+'''''+ end=+'''''+ containedin=tracHead contains=tracEscape
+" These aren't pairs in fact.
+" syn region tracBoldItalic   start=+'''''+ end=+'''''+ containedin=tracHead contains=tracEscape
 syn region tracUnderline    start=+__+hs=s+2 end=+__+he=e-2 containedin=tracHead contains=tracEscape
 syn region tracStrike       start=+\~\~+ end=+\~\~+ containedin=tracHead contains=tracEscape
 syn region tracSuper        start=+\^+ end=+\^+ containedin=tracHead contains=tracEscape
