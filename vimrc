@@ -906,6 +906,7 @@ let Tlist_Show_One_File = 1
 let tlist_vimwiki_settings = 'wiki;h:headers'
 let tlist_tex_settings = 'latex;h:headers'
 let tlist_wiki_settings = 'wiki;h:headers'
+let tlist_tracwiki_settings = 'wiki;h:headers'
 let tlist_diff_settings = 'diff;f:file'
 let tlist_git_settings = 'diff;f:file'
 let tlist_gitcommit_settings = 'gitcommit;f:file'
@@ -921,15 +922,19 @@ let g:sh_fold_enabled = 3 " 打开函数和 here 文档的折叠
 let g:Align_xstrlen = 4 " use strdisplaywidth
 "   Lilydjwg_Align
 "   Meanings:
-"     colon:   dict definition like 'key: value,'
-"     comment: #-style comments
+"     colon:     dict definition like 'key: value,'
+"     colonl:    list items like this one
+"     comment:   #-style comments
+"     jscomment: //-style comments
 let g:Myalign_def = {
-      \   'css': ['WP0p1l:', ':\@<=', 'v \v^\s*/\*|\{|\}'],
-      \   'comma': ['WP0p1l:', ',\@<=', 'g ,'],
-      \   'colon': ['WP0p1l:', ':\@<=', 'g ,'],
+      \   'colon':     ['WP0p1l:', ':\@<=', 'g ,'],
+      \   'colonl':    ['WP0p1l:', ':\@<='],
+      \   'comma':     ['WP0p1l:', ',\@<=', 'g ,'],
       \   'commalist': ['WP0p1l', ',\@<=', 'g ,'],
-      \   'define': ['WP0p1l:', ' \d\@=', 'g ^#define\s'],
-      \   'comment': ['WP1p1l:', '#'],
+      \   'comment':   ['WP1p1l:', '#'],
+      \   'css':       ['WP0p1l:', ':\@<=', 'v \v^\s*/\*|\{|\}'],
+      \   'define':    ['WP0p1l:', ' \d\@=', 'g ^#define\s'],
+      \   'jscomment': ['WP0p1l:', '//'],
       \ }
 "   EnhancedCommentify[[[2
 let g:EnhCommentifyRespectIndent = 'Yes'
