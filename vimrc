@@ -831,6 +831,10 @@ command -range=% Paste <line1>,<line2>py3 LilyPaste()
 command -range=% Tohtml call Lilydjwg_to_html(<line1>, <line2>)
 command Agg exe 'Ag -Q ' . expand('<cword>')
 " 插件配置[[[1
+"   NrrRgn[[[2
+let g:nrrw_rgn_vert = 1
+let g:nrrw_rgn_wdth = 80
+let g:nrrw_rgn_hl = 'Folded'
 "   easymotion[[[2
 let EasyMotion_leader_key = '<M-q>'
 let EasyMotion_keys = 'abcdefghijklmnopqrstuvwxyz'
