@@ -597,7 +597,7 @@ function! s:Tlist_Window_Display_Help()
         call append(4, '" u : Update tag list')
         call append(5, '" s : Select sort field')
         call append(6, '" d : Remove file from taglist')
-        call append(7, '" x : Zoom-out/Zoom-in taglist window')
+        call append(7, '" a : Zoom-out/Zoom-in taglist window')
         call append(8, '" + : Open a fold')
         call append(9, '" - : Close a fold')
         call append(10, '" * : Open all folds')
@@ -1652,7 +1652,7 @@ function! s:Tlist_Window_Init()
     nnoremap <buffer> <silent> <Space> :call <SID>Tlist_Window_Show_Info()<CR>
     nnoremap <buffer> <silent> u :call <SID>Tlist_Window_Update_File()<CR>
     nnoremap <buffer> <silent> d :call <SID>Tlist_Remove_File(-1, 1)<CR>
-    nnoremap <buffer> <silent> x :call <SID>Tlist_Window_Zoom()<CR>
+    nnoremap <buffer> <silent> a :call <SID>Tlist_Window_Zoom()<CR>
     nnoremap <buffer> <silent> [[ :call <SID>Tlist_Window_Move_To_File(-1)<CR>
     nnoremap <buffer> <silent> <BS> :call <SID>Tlist_Window_Move_To_File(-1)<CR>
     nnoremap <buffer> <silent> ]] :call <SID>Tlist_Window_Move_To_File(1)<CR>
@@ -1694,7 +1694,7 @@ function! s:Tlist_Window_Init()
     inoremap <buffer> <silent> u
                             \ <C-o>:call <SID>Tlist_Window_Update_File()<CR>
     inoremap <buffer> <silent> d    <C-o>:call <SID>Tlist_Remove_File(-1, 1)<CR>
-    inoremap <buffer> <silent> x    <C-o>:call <SID>Tlist_Window_Zoom()<CR>
+    inoremap <buffer> <silent> a    <C-o>:call <SID>Tlist_Window_Zoom()<CR>
     inoremap <buffer> <silent> [[   <C-o>:call <SID>Tlist_Window_Move_To_File(-1)<CR>
     inoremap <buffer> <silent> <BS> <C-o>:call <SID>Tlist_Window_Move_To_File(-1)<CR>
     inoremap <buffer> <silent> ]]   <C-o>:call <SID>Tlist_Window_Move_To_File(1)<CR>
