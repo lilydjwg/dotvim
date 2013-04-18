@@ -124,6 +124,7 @@ encode
 endswith
 enumerate
 errno
+exc_info
 except
 execute
 exists
