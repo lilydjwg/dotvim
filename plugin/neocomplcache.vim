@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: neocomplcache.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 10 Apr 2012.
+" Last Modified: 17 Feb 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -22,44 +22,72 @@
 "     TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 "     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 " }}}
-" Version: 7.0, for Vim 7.2
 " GetLatestVimScripts: 2620 1 :AutoInstall: neocomplcache
 "=============================================================================
 
 if exists('g:loaded_neocomplcache')
   finish
-elseif v:version < 702
-  echoerr 'neocomplcache does not work this version of Vim (' . v:version . ').'
+endif
+let g:loaded_neocomplcache = 1
+
+if v:version < 702
+  echohl Error
+  echomsg 'neocomplcache does not work this version of Vim (' . v:version . ').'
+  echohl None
+  finish
+elseif $SUDO_USER != '' && $USER !=# $SUDO_USER
+      \ && $HOME !=# expand('~'.$USER)
+      \ && $HOME ==# expand('~'.$SUDO_USER)
+  echohl Error
+  echomsg 'neocomplcache disabled: "sudo vim" is detected and $HOME is set to '
+        \.'your user''s home. '
+        \.'You may want to use the sudo.vim plugin, the "-H" option '
+        \.'with "sudo" or set always_set_home in /etc/sudoers instead.'
+  echohl None
   finish
 endif
 
 let s:save_cpo = &cpo
 set cpo&vim
 
-command! -nargs=0 NeoComplCacheEnable call neocomplcache#enable()
-command! -nargs=0 NeoComplCacheDisable call neocomplcache#disable()
-command! -nargs=0 NeoComplCacheLock call neocomplcache#lock()
-command! -nargs=0 NeoComplCacheUnlock call neocomplcache#unlock()
-command! -nargs=0 NeoComplCacheToggle call neocomplcache#toggle_lock()
-command! -nargs=1 NeoComplCacheLockSource call neocomplcache#lock_source(<q-args>)
-command! -nargs=1 NeoComplCacheUnlockSource call neocomplcache#unlock_source(<q-args>)
+command! -nargs=0 -bar NeoComplCacheEnable
+      \ call neocomplcache#enable()
+command! -nargs=0 -bar NeoComplCacheDisable
+      \ call neocomplcache#disable()
+command! -nargs=0 -bar NeoComplCacheLock
+      \ call neocomplcache#lock()
+command! -nargs=0 -bar NeoComplCacheUnlock
+      \ call neocomplcache#unlock()
+command! -nargs=0 -bar NeoComplCacheToggle
+      \ call neocomplcache#toggle_lock()
+command! -nargs=1 -bar NeoComplCacheLockSource
+      \ call neocomplcache#lock_source(<q-args>)
+command! -nargs=1 -bar NeoComplCacheUnlockSource
+      \ call neocomplcache#unlock_source(<q-args>)
+if v:version >= 703
+  command! -nargs=1 -bar -complete=filetype NeoComplCacheSetFileType
+        \ call neocomplcache#set_file_type(<q-args>)
+else
+  command! -nargs=1 -bar NeoComplCacheSetFileType
+        \ call neocomplcache#set_file_type(<q-args>)
+endif
 
-" Warning if using obsolute mappings."{{{
-inoremap <unique> <Plug>(neocomplcache_snippets_expand)
+" Warning if using obsolute mappings. "{{{
+silent! inoremap <unique> <Plug>(neocomplcache_snippets_expand)
       \ <C-o>:echoerr <SID>print_snippets_complete_error()<CR>
-snoremap <unique> <Plug>(neocomplcache_snippets_expand)
+silent! snoremap <unique> <Plug>(neocomplcache_snippets_expand)
       \ :<C-u>:echoerr <SID>print_snippets_complete_error()<CR>
-inoremap <unique> <Plug>(neocomplcache_snippets_jump)
+silent! inoremap <unique> <Plug>(neocomplcache_snippets_jump)
       \ <C-o>:echoerr <SID>print_snippets_complete_error()<CR>
-snoremap <unique> <Plug>(neocomplcache_snippets_jump)
+silent! snoremap <unique> <Plug>(neocomplcache_snippets_jump)
       \ :<C-u>:echoerr <SID>print_snippets_complete_error()<CR>
-inoremap <unique> <Plug>(neocomplcache_snippets_force_expand)
+silent! inoremap <unique> <Plug>(neocomplcache_snippets_force_expand)
       \ <C-o>:echoerr <SID>print_snippets_complete_error()<CR>
-snoremap <unique> <Plug>(neocomplcache_snippets_force_expand)
+silent! snoremap <unique> <Plug>(neocomplcache_snippets_force_expand)
       \ :<C-u>:echoerr <SID>print_snippets_complete_error()<CR>
-inoremap <unique> <Plug>(neocomplcache_snippets_force_jump)
+silent! inoremap <unique> <Plug>(neocomplcache_snippets_force_jump)
       \ <C-o>:echoerr <SID>print_snippets_complete_error()<CR>
-snoremap <unique> <Plug>(neocomplcache_snippets_force_jump)
+silent! snoremap <unique> <Plug>(neocomplcache_snippets_force_jump)
       \ :<C-u>:echoerr <SID>print_snippets_complete_error()<CR>
 function! s:print_snippets_complete_error()
   return 'Warning: neocomplcache snippets source was splitted!'
@@ -67,7 +95,7 @@ function! s:print_snippets_complete_error()
       \ .' "https://github.com/Shougo/neocomplcache-snippets-complete"'
 endfunction"}}}
 
-" Global options definition."{{{
+" Global options definition. "{{{
 let g:neocomplcache_max_list =
       \ get(g:, 'neocomplcache_max_list', 100)
 let g:neocomplcache_max_keyword_width =
@@ -122,20 +150,30 @@ let g:neocomplcache_force_overwrite_completefunc =
       \ get(g:, 'neocomplcache_force_overwrite_completefunc', 0)
 let g:neocomplcache_enable_prefetch =
       \ get(g:, 'neocomplcache_enable_prefetch',
-      \ 1)
-" Note: This feature is temporary disabled.
-      " \  !(v:version > 703 || v:version == 703 && has('patch418')
-      " \  && (!has('xim') || !has('gui_running'))
-      " \ ))
+      \  !(v:version > 703 || v:version == 703 && has('patch519'))
+      \ || (has('gui_running') && has('xim'))
+      \ )
+let g:neocomplcache_lock_iminsert =
+      \ get(g:, 'neocomplcache_lock_iminsert', 0)
 let g:neocomplcache_release_cache_time =
       \ get(g:, 'neocomplcache_release_cache_time', 900)
+let g:neocomplcache_wildcard_characters =
+      \ get(g:, 'neocomplcache_wildcard_characters', {
+      \ '_' : '*' })
+let g:neocomplcache_skip_auto_completion_time =
+      \ get(g:, 'neocomplcache_skip_auto_completion_time', '0.3')
+let g:neocomplcache_enable_auto_close_preview =
+      \ get(g:, 'neocomplcache_enable_auto_close_preview', 0)
 
-if exists('g:neocomplcache_plugin_disable')
-  let g:neocomplcache_source_disable =
-        \ g:neocomplcache_plugin_disable
+let g:neocomplcache_sources_list =
+      \ get(g:, 'neocomplcache_sources_list', {})
+let g:neocomplcache_disabled_sources_list =
+      \ get(g:, 'neocomplcache_disabled_sources_list', {})
+if exists('g:neocomplcache_source_disable')
+  let g:neocomplcache_disabled_sources_list._ =
+        \ keys(filter(copy(g:neocomplcache_source_disable), 'v:val'))
 endif
-let g:neocomplcache_source_disable =
-      \ get(g:, 'neocomplcache_source_disable', {})
+
 if exists('g:neocomplcache_plugin_completion_length')
   let g:neocomplcache_source_completion_length =
         \ g:neocomplcache_plugin_completion_length
@@ -152,17 +190,15 @@ let g:neocomplcache_temporary_dir =
       \ get(g:, 'neocomplcache_temporary_dir', expand('~/.neocon'))
 let g:neocomplcache_enable_debug =
       \ get(g:, 'neocomplcache_enable_debug', 0)
-if exists('g:neocomplcache_enable_at_startup') && g:neocomplcache_enable_at_startup
+if get(g:, 'neocomplcache_enable_at_startup', 0)
   augroup neocomplcache
-    autocmd!
     " Enable startup.
-    autocmd VimEnter * call neocomplcache#enable()
+    autocmd CursorHold,CursorMovedI
+          \ * call neocomplcache#lazy_initialize()
   augroup END
 endif"}}}
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
-
-let g:loaded_neocomplcache = 1
 
 " vim: foldmethod=marker
