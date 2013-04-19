@@ -591,14 +591,6 @@ function! s:initialize_others() "{{{
         \   '__attribute_pure__,__attribute_warn_unused_result__,__attribute__+')
   "}}}
 
-  " Initialize text mode filetypes. "{{{
-  call neocomplcache#util#set_default(
-        \ 'g:neocomplcache_text_mode_filetypes', {})
-  call neocomplcache#util#set_default_dictionary(
-        \ 'g:neocomplcache_text_mode_filetypes',
-        \ 'text,help,tex,gitcommit,vcs-commit', 1)
-  "}}}
-
   " Initialize tags filter patterns. "{{{
   call neocomplcache#util#set_default(
         \ 'g:neocomplcache_tags_filter_patterns', {})
@@ -1466,11 +1458,6 @@ function! neocomplcache#is_multibyte_input(cur_text) "{{{
   return (exists('b:skk_on') && b:skk_on)
         \     || char2nr(split(a:cur_text, '\zs')[-1]) > 0x80
 endfunction"}}}
-function! neocomplcache#is_text_mode() "{{{
-  let neocomplcache = neocomplcache#get_current_neocomplcache()
-  return get(g:neocomplcache_text_mode_filetypes,
-        \ neocomplcache.context_filetype, 0)
-endfunction"}}}
 function! neocomplcache#is_windows() "{{{
   return neocomplcache#util#is_windows()
 endfunction"}}}
@@ -1777,7 +1764,6 @@ function! neocomplcache#get_complete_words(complete_results, cur_keyword_pos, cu
   let words = []
   let icase = g:neocomplcache_enable_ignore_case &&
         \!(g:neocomplcache_enable_smart_case && a:cur_keyword_str =~ '\u')
-        \ && !neocomplcache#is_text_mode()
   for keyword in complete_words
     if has_key(keyword, 'kind') && keyword.kind == ''
       " Remove kind key.
@@ -1840,32 +1826,6 @@ function! neocomplcache#get_complete_words(complete_results, cur_keyword_pos, cu
   if neocomplcache#complete_check()
     return []
   endif
-
-  " Convert words.
-  if neocomplcache#is_text_mode() "{{{
-    let convert_candidates = filter(copy(complete_words),
-          \ "get(v:val, 'neocomplcache__convertable', 1)
-          \  && v:val.word =~ '^\\u\\+$\\|^\\u\\?\\l\\+$'")
-
-    if a:cur_keyword_str =~ '^\l\+$'
-      for keyword in convert_candidates
-        let keyword.word = tolower(keyword.word)
-        let keyword.abbr = tolower(keyword.abbr)
-      endfor
-    elseif a:cur_keyword_str =~ '^\u\+$'
-      for keyword in convert_candidates
-        let keyword.word = toupper(keyword.word)
-        let keyword.abbr = toupper(keyword.abbr)
-      endfor
-    elseif a:cur_keyword_str =~ '^\u\l\+$'
-      for keyword in convert_candidates
-        let keyword.word = toupper(keyword.word[0]).
-              \ tolower(keyword.word[1:])
-        let keyword.abbr = toupper(keyword.abbr[0]).
-              \ tolower(keyword.abbr[1:])
-      endfor
-    endif
-  endif"}}}
 
   if g:neocomplcache_max_keyword_width >= 0 "{{{
     " Abbr check.
@@ -1959,9 +1919,7 @@ function! s:set_complete_results_words(complete_results) "{{{
     " Save options.
     let ignorecase_save = &ignorecase
 
-    if neocomplcache#is_text_mode()
-      let &ignorecase = 1
-    elseif g:neocomplcache_enable_smart_case
+    if g:neocomplcache_enable_smart_case
           \ && result.cur_keyword_str =~ '\u'
       let &ignorecase = 0
     else
@@ -2295,9 +2253,7 @@ function! neocomplcache#complete_common_string() "{{{
   let [cur_keyword_pos, cur_keyword_str] =
         \ neocomplcache#match_word(s:get_cur_text())
 
-  if neocomplcache#is_text_mode()
-    let &ignorecase = 1
-  elseif g:neocomplcache_enable_smart_case && cur_keyword_str =~ '\u'
+  if g:neocomplcache_enable_smart_case && cur_keyword_str =~ '\u'
     let &ignorecase = 0
   else
     let &ignorecase = g:neocomplcache_enable_ignore_case
