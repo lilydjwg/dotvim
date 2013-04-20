@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: vim_complete.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 26 Mar 2012.
+" Last Modified: 19 Oct 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -33,17 +33,18 @@ let s:source = {
       \ 'filetypes' : { 'vim' : 1, },
       \}
 
-function! s:source.initialize()"{{{
+function! s:source.initialize() "{{{
   " Initialize.
 
-  " Initialize complete function list."{{{
+  " Initialize complete function list. "{{{
   if !exists('g:neocomplcache_vim_completefuncs')
     let g:neocomplcache_vim_completefuncs = {}
   endif
   "}}}
 
   " Set rank.
-  call neocomplcache#set_dictionary_helper(g:neocomplcache_source_rank,
+  call neocomplcache#util#set_default_dictionary(
+        \ 'g:neocomplcache_source_rank',
         \ 'vim_complete', 300)
 
   " Call caching event.
@@ -58,7 +59,7 @@ function! s:source.initialize()"{{{
         \ call neocomplcache#sources#vim_complete#helper#recaching(<q-args>)
 endfunction"}}}
 
-function! s:source.finalize()"{{{
+function! s:source.finalize() "{{{
   delcommand NeoComplCacheCachingVim
 
   if neocomplcache#exists_echodoc()
@@ -66,7 +67,7 @@ function! s:source.finalize()"{{{
   endif
 endfunction"}}}
 
-function! s:source.get_keyword_pos(cur_text)"{{{
+function! s:source.get_keyword_pos(cur_text) "{{{
   let cur_text = neocomplcache#sources#vim_complete#get_cur_text()
 
   if cur_text =~ '^\s*"'
@@ -88,6 +89,12 @@ function! s:source.get_keyword_pos(cur_text)"{{{
 
   let [cur_keyword_pos, cur_keyword_str] =
         \ neocomplcache#match_word(a:cur_text, pattern)
+  if cur_keyword_pos < 0
+    " Use args pattern.
+    let [cur_keyword_pos, cur_keyword_str] =
+          \ neocomplcache#match_word(a:cur_text, '\S\+$')
+  endif
+
   if a:cur_text !~ '\.\%(\h\w*\)\?$' && neocomplcache#is_auto_complete()
         \ && bufname('%') !=# '[Command Line]'
         \ && neocomplcache#util#mb_strlen(cur_keyword_str)
@@ -98,7 +105,7 @@ function! s:source.get_keyword_pos(cur_text)"{{{
   return cur_keyword_pos
 endfunction"}}}
 
-function! s:source.get_complete_words(cur_keyword_pos, cur_keyword_str)"{{{
+function! s:source.get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
   let cur_text = neocomplcache#sources#vim_complete#get_cur_text()
   if neocomplcache#is_auto_complete() && cur_text !~ '\h\w*\.\%(\h\w*\)\?$'
         \ && len(a:cur_keyword_str) < g:neocomplcache_auto_completion_start_length
@@ -109,7 +116,8 @@ function! s:source.get_complete_words(cur_keyword_pos, cur_keyword_str)"{{{
   if cur_text =~ '\h\w*\.\%(\h\w*\)\?$'
     " Dictionary.
     let cur_keyword_str = matchstr(cur_text, '.\%(\h\w*\)\?$')
-    let list = neocomplcache#sources#vim_complete#helper#var_dictionary(cur_text, cur_keyword_str)
+    let list = neocomplcache#sources#vim_complete#helper#var_dictionary(
+          \ cur_text, cur_keyword_str)
     return neocomplcache#keyword_filter(list, cur_keyword_str)
   elseif a:cur_keyword_str =~# '^&\%([gl]:\)\?'
     " Options.
@@ -160,28 +168,31 @@ function! s:source.get_complete_words(cur_keyword_pos, cur_keyword_str)"{{{
   return neocomplcache#keyword_filter(copy(list), a:cur_keyword_str)
 endfunction"}}}
 
-function! neocomplcache#sources#vim_complete#define()"{{{
+function! neocomplcache#sources#vim_complete#define() "{{{
   return s:source
 endfunction"}}}
 
-function! neocomplcache#sources#vim_complete#get_cur_text()"{{{
+function! neocomplcache#sources#vim_complete#get_cur_text() "{{{
   let cur_text = neocomplcache#get_cur_text(1)
   if &filetype == 'vimshell' && exists('*vimshell#get_secondary_prompt')
+        \   && empty(b:vimshell.continuation)
     return cur_text[len(vimshell#get_secondary_prompt()) :]
   endif
 
   let line = line('.')
   let cnt = 0
   while cur_text =~ '^\s*\\' && line > 1 && cnt < 5
-    let cur_text = getline(line - 1) . substitute(cur_text, '^\s*\\', '', '')
+    let cur_text = getline(line - 1) .
+          \ substitute(cur_text, '^\s*\\', '', '')
     let line -= 1
     let cnt += 1
   endwhile
 
   return split(cur_text, '\s\+|\s\+\|<bar>', 1)[-1]
 endfunction"}}}
-function! neocomplcache#sources#vim_complete#get_command(cur_text)"{{{
-  return matchstr(a:cur_text, '\<\%(\d\+\)\?\zs\h\w*\ze!\?\|\<\%([[:digit:],[:space:]$''<>]\+\)\?\zs\h\w*\ze/.*')
+function! neocomplcache#sources#vim_complete#get_command(cur_text) "{{{
+  return matchstr(a:cur_text, '\<\%(\d\+\)\?\zs\h\w*\ze!\?\|'.
+        \ '\<\%([[:digit:],[:space:]$''<>]\+\)\?\zs\h\w*\ze/.*')
 endfunction"}}}
 
 let &cpo = s:save_cpo

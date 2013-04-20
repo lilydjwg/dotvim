@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: util.vim
 " AUTHOR: Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 15 Mar 2012.
+" Last Modified: 19 Jan 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -28,35 +28,36 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 let s:V = vital#of('neocomplcache')
+let s:List = vital#of('neocomplcache').import('Data.List')
 
-function! neocomplcache#util#truncate_smart(...)"{{{
+function! neocomplcache#util#truncate_smart(...) "{{{
   return call(s:V.truncate_smart, a:000)
 endfunction"}}}
 
-function! neocomplcache#util#truncate(...)"{{{
+function! neocomplcache#util#truncate(...) "{{{
   return call(s:V.truncate, a:000)
 endfunction"}}}
 
-function! neocomplcache#util#strchars(...)"{{{
+function! neocomplcache#util#strchars(...) "{{{
   return call(s:V.strchars, a:000)
 endfunction"}}}
-function! neocomplcache#util#wcswidth(...)"{{{
+function! neocomplcache#util#wcswidth(...) "{{{
   return call(s:V.wcswidth, a:000)
 endfunction"}}}
-function! neocomplcache#util#strwidthpart(...)"{{{
+function! neocomplcache#util#strwidthpart(...) "{{{
   return call(s:V.strwidthpart, a:000)
 endfunction"}}}
-function! neocomplcache#util#strwidthpart_reverse(...)"{{{
+function! neocomplcache#util#strwidthpart_reverse(...) "{{{
   return call(s:V.strwidthpart_reverse, a:000)
 endfunction"}}}
 
-function! neocomplcache#util#substitute_path_separator(...)"{{{
+function! neocomplcache#util#substitute_path_separator(...) "{{{
   return call(s:V.substitute_path_separator, a:000)
 endfunction"}}}
-function! neocomplcache#util#mb_strlen(...)"{{{
+function! neocomplcache#util#mb_strlen(...) "{{{
   return call(s:V.strchars, a:000)
 endfunction"}}}
-function! neocomplcache#util#uniq(list)"{{{
+function! neocomplcache#util#uniq(list) "{{{
   let dict = {}
   for item in a:list
     if !has_key(dict, item)
@@ -66,26 +67,47 @@ function! neocomplcache#util#uniq(list)"{{{
 
   return values(dict)
 endfunction"}}}
-function! neocomplcache#util#system(...)"{{{
+function! neocomplcache#util#system(...) "{{{
   return call(s:V.system, a:000)
 endfunction"}}}
-function! neocomplcache#util#has_vimproc(...)"{{{
+function! neocomplcache#util#has_vimproc(...) "{{{
   return call(s:V.has_vimproc, a:000)
 endfunction"}}}
-function! neocomplcache#util#is_windows(...)"{{{
+function! neocomplcache#util#is_windows(...) "{{{
   return call(s:V.is_windows, a:000)
 endfunction"}}}
-function! neocomplcache#util#is_mac(...)"{{{
+function! neocomplcache#util#is_mac(...) "{{{
   return call(s:V.is_mac, a:000)
 endfunction"}}}
-function! neocomplcache#util#get_last_status(...)"{{{
+function! neocomplcache#util#get_last_status(...) "{{{
   return call(s:V.get_last_status, a:000)
 endfunction"}}}
-function! neocomplcache#util#escape_pattern(...)
+function! neocomplcache#util#escape_pattern(...) "{{{
   return call(s:V.escape_pattern, a:000)
-endfunction
+endfunction"}}}
+function! neocomplcache#util#iconv(...) "{{{
+  return call(s:V.iconv, a:000)
+endfunction"}}}
+function! neocomplcache#util#uniq(...) "{{{
+  return call(s:List.uniq, a:000)
+endfunction"}}}
 
-function! neocomplcache#util#glob(pattern, ...)"{{{
+function! neocomplcache#util#glob(pattern, ...) "{{{
+  if a:pattern =~ "'"
+    " Use glob('*').
+    let cwd = getcwd()
+    let base = neocomplcache#util#substitute_path_separator(
+          \ fnamemodify(a:pattern, ':h'))
+    execute 'lcd' fnameescape(base)
+
+    let files = map(split(neocomplcache#util#substitute_path_separator(
+          \ glob('*')), '\n'), "base . '/' . v:val")
+
+    execute 'lcd' fnameescape(cwd)
+
+    return files
+  endif
+
   " let is_force_glob = get(a:000, 0, 0)
   let is_force_glob = get(a:000, 0, 1)
 
@@ -103,20 +125,60 @@ function! neocomplcache#util#glob(pattern, ...)"{{{
     return split(neocomplcache#util#substitute_path_separator(glob(glob)), '\n')
   endif
 endfunction"}}}
-function! neocomplcache#util#expand(path)"{{{
+function! neocomplcache#util#expand(path) "{{{
   return expand(escape(a:path, '*?[]"={}'), 1)
 endfunction"}}}
-function! neocomplcache#util#set_default_dictionary_helper(variable, keys, value)"{{{
-  for key in split(a:keys, '\s*,\s*')
-    if !has_key(a:variable, key)
-      let a:variable[key] = a:value
-    endif
-  endfor
+
+function! neocomplcache#util#set_default(var, val, ...)  "{{{
+  if !exists(a:var) || type({a:var}) != type(a:val)
+    let alternate_var = get(a:000, 0, '')
+
+    let {a:var} = exists(alternate_var) ?
+          \ {alternate_var} : a:val
+  endif
 endfunction"}}}
-function! neocomplcache#util#set_dictionary_helper(variable, keys, value)"{{{
-  for key in split(a:keys, '\s*,\s*')
-    let a:variable[key] = a:value
-  endfor
+function! neocomplcache#util#set_dictionary_helper(...) "{{{
+  return call(s:V.set_dictionary_helper, a:000)
+endfunction"}}}
+
+function! neocomplcache#util#set_default_dictionary(variable, keys, value) "{{{
+  if !exists('s:disable_dictionaries')
+    let s:disable_dictionaries = {}
+  endif
+
+  if has_key(s:disable_dictionaries, a:variable)
+    return
+  endif
+
+  call neocomplcache#util#set_dictionary_helper({a:variable}, a:keys, a:value)
+endfunction"}}}
+function! neocomplcache#util#disable_default_dictionary(variable) "{{{
+  if !exists('s:disable_dictionaries')
+    let s:disable_dictionaries = {}
+  endif
+
+  let s:disable_dictionaries[a:variable] = 1
+endfunction"}}}
+
+function! neocomplcache#util#split_rtp(...) "{{{
+  let rtp = a:0 ? a:1 : &runtimepath
+  if type(rtp) == type([])
+    return rtp
+  endif
+
+  if rtp !~ '\\'
+    return split(rtp, ',')
+  endif
+
+  let split = split(rtp, '\\\@<!\%(\\\\\)*\zs,')
+  return map(split,'substitute(v:val, ''\\\([\\,]\)'', "\\1", "g")')
+endfunction"}}}
+function! neocomplcache#util#join_rtp(list) "{{{
+  return join(map(copy(a:list), 's:escape(v:val)'), ',')
+endfunction"}}}
+" Escape a path for runtimepath.
+function! s:escape(path)"{{{
+  return substitute(a:path, ',\|\\,\@=', '\\\0', 'g')
 endfunction"}}}
 
 let &cpo = s:save_cpo

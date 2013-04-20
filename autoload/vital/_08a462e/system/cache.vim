@@ -5,9 +5,9 @@ set cpo&vim
 
 let s:is_windows = has('win16') || has('win32') || has('win64')
 let s:is_cygwin = has('win32unix')
-let s:is_mac = !s:is_windows &&
-      \ (has('mac') || has('macunix') || has('gui_macvim')
-      \  || system('uname') =~? '^darwin')
+let s:is_mac = !s:is_windows && !s:is_cygwin
+      \ && (has('mac') || has('macunix') || has('gui_macvim') ||
+      \   (!executable('xdg-open') && system('uname') =~? '^darwin'))
 
 function! s:getfilename(cache_dir, filename)
   let cache_name = s:_encode_name(a:cache_dir, a:filename)
@@ -84,3 +84,6 @@ function! s:create_hash(dir, str)
 endfunction
 
 let &cpo = s:save_cpo
+unlet s:save_cpo
+
+" vim:set et ts=2 sts=2 sw=2 tw=0:
