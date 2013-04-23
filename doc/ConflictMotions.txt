@@ -1,0 +1,174 @@
+*ConflictMotions.txt*   Motions to and inside SCM conflict markers.
+
+		      CONFLICT MOTIONS    by Ingo Karkat
+							 *ConflictMotions.vim*
+description			|ConflictMotions-description|
+usage				|ConflictMotions-usage|
+installation			|ConflictMotions-installation|
+configuration			|ConflictMotions-configuration|
+limitations			|ConflictMotions-limitations|
+known problems			|ConflictMotions-known-problems|
+todo				|ConflictMotions-todo|
+history				|ConflictMotions-history|
+
+==============================================================================
+DESCRIPTION					 *ConflictMotions-description*
+
+This plugin defines movement commands and text objects to go to and operate on
+conflicting lines, as indicated by many revision control systems, like
+Subversion, Git, etc. The source code management system inserts conflict
+markers such as <<<<<<<, =======, and >>>>>>> on merges to indicate that the
+automatic resolution failed; this plugin helps you with locating and resolving
+these conflicts.
+
+RELATED WORKS								     *
+
+To be alerted to the existence of conflict markers and to visually
+differentiate the conflicted lines, you can use the highlighting, warnings and
+custom buffer status provided by the companion |ConflictDetection.vim| plugin
+(vimscript #4129).
+
+==============================================================================
+USAGE						       *ConflictMotions-usage*
+   *]x* *]X* *[x* *[X* *v_]x* *v_]X* *v_[x* *v_[X* *o_]x* *o_]X* *o_[x* *o_[X*
+]x			Go to [count] next start of a conflict.
+]X			Go to [count] next end of a conflict.
+[x			Go to [count] previous start of a conflict.
+[X			Go to [count] previous end of a conflict.
+					 *]=* *[=* *v_]=* *v_[=* *o_]=* *o_[=*
+]=			Go to [count] next conflict marker.
+[=			Go to [count] previous conflict marker.
+			Mnemonic: = is in the separator between our and their
+			changes.
+
+								   *ax* *v_ax*
+ax			"a conflict" text object, select [count] conflicts,
+			including the conflict markers.
+								   *a=* *v_a=*
+a=			"a conflict section" text object, select [count]
+			sections (i.e. either ours, theirs, or base) including
+			the conflict marker above, and in the case of "theirs"
+			changes, also the ending conflict marker below.
+								   *i=* *v_i=*
+i=			"inner conflict section" text object, select current
+			section (i.e. either ours, theirs, or base) without
+			the surrounding conflict markers.
+
+							       *:ConflictTake*
+:ConflictTake		From the conflict the cursor is in, remove the markers
+			and keep the section the cursor is inside.
+:ConflictTake [none this ours base theirs both all query] [...]
+:ConflictTake [-.<|>+*?][...]
+			From the conflict the cursor is in, remove the markers
+			and keep the passed section(s) (in the order they are
+			specified).
+			    none, - = delete the entire conflict
+			    both    = ours theirs		(+ = <>)
+			    all     = ours [base] theirs	(* = <|>)
+			    query   = ask which sections to take
+:[range]ConflictTake [none this ours base theirs both all range query] [...]
+:[range]ConflictTake [-.<|>+*:?][...]
+			When the cursor is inside a conflict, and the [range]
+			covers part of that conflict:
+			From the conflict the cursor is in, remove the markers
+			and keep the passed range (without contained markers)
+			(and any passed sections in addition; include the
+			"range" argument to put the range somewhere other than
+			the end).
+			Otherwise, when a large range (like %) is passed:
+			For each conflict that starts in [range], remove the
+			markers and keep the passed section(s) / ask which
+			section(s) should be kept. You can answer the question
+			with either the symbol or the choice's starting
+			letter. An uppercase letter will apply the choice to
+			all following conflicts.
+
+	      *<Leader>xd* *<Leader>x.* *<Leader>x<* *<Leader>x|* *<Leader>x>*
+<Leader>xd		Delete the entire current conflict.
+<Leader>x.		Keep the current conflict section, delete the rest.
+<Leader>x<		Keep our changes, delete the rest.
+<Leader>x|		Keep the change base, delete the rest.
+<Leader>x>		Keep their changes, delete the rest.
+
+==============================================================================
+INSTALLATION					*ConflictMotions-installation*
+
+This script is packaged as a |vimball|. If you have the "gunzip" decompressor
+in your PATH, simply edit the *.vmb.gz package in Vim; otherwise, decompress
+the archive first, e.g. using WinZip. Inside Vim, install by sourcing the
+vimball or via the |:UseVimball| command. >
+    vim ConflictMotions*.vmb.gz
+    :so %
+To uninstall, use the |:RmVimball| command.
+
+DEPENDENCIES					*ConflictMotions-dependencies*
+
+- Requires Vim 7.0 or higher.
+- Requires the CountJump plugin (vimscript #3130).
+- Requires the |ingo-library.vim| plugin (vimscript #4433), version 1.004 or
+  higher.
+
+==============================================================================
+CONFIGURATION				       *ConflictMotions-configuration*
+
+For a permanent configuration, put the following commands into your |vimrc|:
+
+						       *ConflictMotions-remap*
+To change the default motion mappings, use: >
+    let g:ConflictMotions_ConflictBeginMapping = 'x'
+    let g:ConflictMotions_ConflictEndMapping = 'X'
+    let g:ConflictMotions_MarkerMapping = '='
+To also change the [ / ] prefix to something else, follow the instructions for
+|CountJump-remap-motions|. (This requires CountJump 1.60.)
+
+To change the default text object mappings, use: >
+    let g:ConflictMotions_ConflictMapping = 'x'
+    let g:ConflictMotions_SectionMapping = '='
+To also change the i / a prefix to something else, follow the instructions for
+|CountJump-remap-text-objects|. (This requires CountJump 1.60.)
+
+If you don't want the mappings for |:ConflictTake|: >
+    let g:ConflictMotions_TakeMappingPrefix = ''
+To redefine the mappings, either clear the prefix and use the
+<Plug>(ConflictMotionsTake...) mapping targets, or adapt via the prefix and
+mapping configuration, e.g.: >
+    let g:ConflictMotions_TakeMappingPrefix = '<Leader>='
+    let g:ConflictMotions_TakeMappings = [['d', 'None'], ['x', 'This'], ['o', 'Ours'], ['b', 'Base'], ['t', 'Theirs']]
+<
+==============================================================================
+LIMITATIONS					 *ConflictMotions-limitations*
+
+KNOWN PROBLEMS				      *ConflictMotions-known-problems*
+
+TODO							*ConflictMotions-todo*
+
+IDEAS						       *ConflictMotions-ideas*
+
+==============================================================================
+HISTORY						     *ConflictMotions-history*
+
+2.00	23-Apr-2013
+- FIX: Don't create the default mapping for
+  <Plug>(ConflictMotionsTakeSelection) in select mode; it should insert a
+  literal <Leader> there.
+- Add the :ConflictTake command to resolve a conflict by picking a section(s).
+- Add dependency to ingo-library (vimscript #4433).
+
+1.10	06-Sep-2012
+The [z / ]z mappings disable the built-in mappings for moving over the current
+open fold. Oops! Change default to [= / ]= / i= / a=. (= as for the characters
+in the separator between our and their change).
+
+1.00	28-Mar-2012
+First published version.
+
+0.01	12-Mar-2012
+Started development.
+
+==============================================================================
+Copyright: (C) 2012-2013 Ingo Karkat
+The VIM LICENSE applies to this plugin; see |copyright|.
+
+Maintainer:	Ingo Karkat <ingo@karkat.de>
+==============================================================================
+ vim:tw=78:ts=8:ft=help:norl:

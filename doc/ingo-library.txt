@@ -1,0 +1,97 @@
+*ingo-library.txt*              Vimscript library of common functions.
+
+			INGO-LIBRARY    by Ingo Karkat
+							    *ingo-library.vim*
+description			|ingo-library-description|
+installation			|ingo-library-installation|
+limitations			|ingo-library-limitations|
+known problems			|ingo-library-known-problems|
+todo				|ingo-library-todo|
+history				|ingo-library-history|
+
+==============================================================================
+DESCRIPTION					    *ingo-library-description*
+
+This library contains common autoload functions that are used by almost all of
+my plugins (http://www.vim.org/account/profile.php?user_id=9713). Instead of
+duplicating the functionality, or installing potentially conflicting versions
+with each plugin, this one core dependency fosters a lean Vim runtime and
+easier plugin updates.
+
+RELATED WORKS								     *
+
+Other authors have published separate support libraries, too:
+
+- genutils (vimscript #197) by Hari Krishna Dara
+- lh-vim-lib (vimscript #214) by Luc Hermitte
+- cecutil (vimscript #1066) by DrChip
+- tlib (vimscript #1863) by Thomas Link
+- TOVL (vimscript #1963) by Marc Weber
+- l9 (vimscript #3252) by Takeshi Nishida
+- anwolib (vimscript #3800) by Andy Wokula
+
+There have been initiatives to gather and consolidate useful functions into a
+"standard Vim library", but these efforts have mostly fizzled out.
+
+==============================================================================
+INSTALLATION					   *ingo-library-installation*
+
+This script is packaged as a |vimball|. If you have the "gunzip" decompressor
+in your PATH, simply edit the *.vmb.gz package in Vim; otherwise, decompress
+the archive first, e.g. using WinZip. Inside Vim, install by sourcing the
+vimball or via the |:UseVimball| command. >
+    vim ingo-library*.vmb.gz
+    :so %
+To uninstall, use the |:RmVimball| command.
+
+DEPENDENCIES					   *ingo-library-dependencies*
+
+- Requires Vim 7.0 or higher.
+
+==============================================================================
+LIMITATIONS					    *ingo-library-limitations*
+
+KNOWN PROBLEMS					 *ingo-library-known-problems*
+
+TODO							   *ingo-library-todo*
+
+IDEAS							  *ingo-library-ideas*
+
+==============================================================================
+HISTORY							*ingo-library-history*
+
+1.004	10-Apr-2013
+- Add ingo/compat.vim module.
+- Add ingo/lines module.
+- Add ingo/matches module.
+- Add ingo/mbyte/virtcol module.
+- Add ingo/window/* modules.
+- FIX: ingo#external#LaunchGvim() broken with "E117: Unknown function: s:externalLaunch".
+
+1.003	27-Mar-2013
+- Add ingo#msg#ShellError().
+- Add ingo#system#Chomped().
+- Add ingo/fs/traversal.vim module.
+- Add search/timelimited.vim module.
+
+1.002	08-Mar-2013
+- Minor: Allow to specify filespec of GVIM executable in
+  ingo#external#LaunchGvim().
+- Add err module for LineJugglerCommands.vim plugin.
+
+1.001	21-Feb-2013
+Add cmdargs and collections modules for use by PatternsOnText.vim plugin.
+
+1.000	12-Feb-2013
+First published version as separate shared library.
+
+0.001	05-Jan-2009
+Started development of shared autoload functionality.
+
+==============================================================================
+Copyright: (C) 2009-2013 Ingo Karkat
+The VIM LICENSE applies to this plugin; see |copyright|.
+
+Maintainer:	Ingo Karkat <ingo@karkat.de>
+==============================================================================
+ vim:tw=78:ts=8:ft=help:norl:
