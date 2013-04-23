@@ -1,4 +1,4 @@
-"    Copyright: Copyright (C) 2007-2011 Stephen Bach
+"    Copyright: Copyright (C) 2007-2012 Stephen Bach
 "               Permission is hereby granted to use and distribute this code,
 "               with or without modifications, provided that this copyright
 "               notice is copied with it. Like anything else that's free,
@@ -19,8 +19,8 @@
 "               Donald Curtis, Jan Zwiener, Giuseppe Rota, Toby O'Connell,
 "               Göran Gustafsson, Joel Elkins
 "
-" Release Date: November 25, 2011
-"      Version: 4.2
+" Release Date: February 24, 2012
+"      Version: 4.3
 "
 "        Usage:
 "                 <Leader>lf  - Opens the filesystem explorer.
@@ -231,9 +231,6 @@ if !has("ruby") || version < 700
   endif
   finish
 endif
-
-
-
 
 let g:loaded_lustyexplorer = "yep"
 
@@ -1831,6 +1828,10 @@ class Display
       VIM::command "setlocal nobuflisted"
       VIM::command "setlocal textwidth=0"
       VIM::command "setlocal noreadonly"
+
+      if VIM::exists? '&relativenumber'
+        VIM::command "setlocal norelativenumber"
+      end
 
       # Non-buffer-local (Vim is annoying).
       # (Update SavedSettings if adding to below.)
