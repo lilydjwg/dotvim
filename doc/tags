@@ -257,8 +257,13 @@ CountJump-example	CountJump.txt	/*CountJump-example*
 CountJump-history	CountJump.txt	/*CountJump-history*
 CountJump-ideas	CountJump.txt	/*CountJump-ideas*
 CountJump-installation	CountJump.txt	/*CountJump-installation*
+CountJump-integration	CountJump.txt	/*CountJump-integration*
 CountJump-known-problems	CountJump.txt	/*CountJump-known-problems*
 CountJump-limitations	CountJump.txt	/*CountJump-limitations*
+CountJump-plug-motions	CountJump.txt	/*CountJump-plug-motions*
+CountJump-plug-text-objects	CountJump.txt	/*CountJump-plug-text-objects*
+CountJump-remap-motions	CountJump.txt	/*CountJump-remap-motions*
+CountJump-remap-text-objects	CountJump.txt	/*CountJump-remap-text-objects*
 CountJump-todo	CountJump.txt	/*CountJump-todo*
 CountJump-usage	CountJump.txt	/*CountJump-usage*
 CountJump.txt	CountJump.txt	/*CountJump.txt*
@@ -729,6 +734,7 @@ fugitive.txt	fugitive.txt	/*fugitive.txt*
 fuzzyfinder	fuf.txt	/*fuzzyfinder*
 g%	matchit.txt	/*g%*
 g:AlignSkip	Align.txt	/*g:AlignSkip*
+g:CountJump_Context	CountJump.txt	/*g:CountJump_Context*
 g:alignmaps_euronumber	Align.txt	/*g:alignmaps_euronumber*
 g:alignmaps_usanumber	Align.txt	/*g:alignmaps_usanumber*
 g:bufExplorerDefaultHelp	bufexplorer.txt	/*g:bufExplorerDefaultHelp*

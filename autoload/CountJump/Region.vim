@@ -1,4 +1,4 @@
-" Region.vim: Move to borders of a region defined by lines matching a pattern. 
+" CountJump/Region.vim: Move to borders of a region defined by lines matching a pattern. 
 "
 " DEPENDENCIES:
 "
@@ -8,6 +8,10 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS 
+"   1.50.010	30-Aug-2011	Also support a match()-like Funcref instead of a
+"				pattern to define the range. 
+"				Initialize global g:CountJump_Context object for
+"				custom use by Funcrefs. 
 "   1.41.009	13-Jun-2011	FIX: Directly ring the bell to avoid problems
 "				when running under :silent!. 
 "   1.40.008	20-Dec-2010	Jump functions again return position (and
@@ -79,17 +83,19 @@ function! s:DoJump( position, isToEndOfLine )
     return a:position
 endfunction
 
-function! s:SearchInLineMatching( line, pattern, isMatch )
+function! s:SearchInLineMatching( line, Expr, isMatch )
 "******************************************************************************
 "* PURPOSE:
-"   Search for the first (depending on a:isMatch, non-)match with a:pattern in a:line. 
+"   Search for the first (depending on a:isMatch, non-)match with a:Expr in a:line. 
 "* ASSUMPTIONS / PRECONDITIONS:
 "   None. 
 "* EFFECTS / POSTCONDITIONS:
 "   None. 
 "* INPUTS:
 "   a:line  Line in the current buffer to search. Can be an invalid one. 
-"   a:pattern	Regular expression to (not) match. 
+"   a:Expr	Regular expression to (not) match. 
+"		Or Funcref to a function that takes a line number and returns
+"		the matching byte offset (or -1), just like |match()|. 
 "   a:isMatch	Flag whether to match. 
 "* RETURN VALUES: 
 "   Screen column of the first match, 1 in case of desired non-match, 0 if there
@@ -99,18 +105,25 @@ function! s:SearchInLineMatching( line, pattern, isMatch )
 	return 0
     endif
 
-    let l:col = match(getline(a:line), a:pattern)
+    if type(a:Expr) == type('')
+	let l:col = match(getline(a:line), a:Expr)
+    elseif type(a:Expr) == 2 " Funcref
+	let l:col = call(a:Expr, [a:line])
+    else
+	throw 'ASSERT: Wrong type, must be either a regexp or a Funcref'
+    endif
+
     if (l:col == -1 && a:isMatch) || (l:col != -1 && ! a:isMatch)
 	return 0
     endif
 
     return (a:isMatch ? l:col + 1 : 1)	" Screen columns start at 1, match returns zero-based index. 
 endfunction
-function! s:SearchForLastLineContinuouslyMatching( startLine, pattern, isMatch, step )
+function! s:SearchForLastLineContinuouslyMatching( startLine, Expr, isMatch, step )
 "******************************************************************************
 "* PURPOSE:
 "   Search for the last line (from a:startLine, using a:step as direction) that
-"   matches (or not, according to a:isMatch) a:pattern. 
+"   matches (or not, according to a:isMatch) a:Expr. 
 "* ASSUMPTIONS / PRECONDITIONS:
 "   None. 
 "* EFFECTS / POSTCONDITIONS:
@@ -118,7 +131,9 @@ function! s:SearchForLastLineContinuouslyMatching( startLine, pattern, isMatch, 
 "* INPUTS:
 "   a:startLine	Line in the current buffer where the search starts. Can be an
 "		invalid one. 
-"   a:pattern	Regular expression to (not) match. 
+"   a:Expr	Regular expression to (not) match. 
+"		Or Funcref to a function that takes a line number and returns
+"		the matching byte offset (or -1), just like |match()|. 
 "   a:isMatch	Flag whether to search matching (vs. non-matching) lines. 
 "   a:step	Increment to go to next line. Use 1 for forward, -1 for backward
 "		search. 
@@ -129,7 +144,7 @@ function! s:SearchForLastLineContinuouslyMatching( startLine, pattern, isMatch, 
     let l:line = a:startLine
     let l:foundPosition = [0, 0]
     while 1
-	let l:col = s:SearchInLineMatching(l:line, a:pattern, a:isMatch)
+	let l:col = s:SearchInLineMatching(l:line, a:Expr, a:isMatch)
 	if l:col == 0 | break | endif
 	let l:foundPosition = [l:line, l:col]
 	let l:line += a:step
@@ -137,19 +152,21 @@ function! s:SearchForLastLineContinuouslyMatching( startLine, pattern, isMatch, 
     return l:foundPosition
 endfunction
 
-function! CountJump#Region#SearchForRegionEnd( count, pattern, isMatch, step )
+function! CountJump#Region#SearchForRegionEnd( count, Expr, isMatch, step )
 "******************************************************************************
 "* PURPOSE:
 "   Starting from the current line, search for the position where the a:count'th
-"   region (as defined by contiguous lines that (don't) match a:pattern) ends. 
+"   region (as defined by contiguous lines that (don't) match a:Expr) ends. 
 "* ASSUMPTIONS / PRECONDITIONS:
 "   None. 
 "* EFFECTS / POSTCONDITIONS:
 "   None. 
 "* INPUTS:
 "   a:count Number of regions to cover. 
-"   a:pattern	Regular expression that defines the region, i.e. must (not)
+"   a:Expr	Regular expression that defines the region, i.e. must (not)
 "		match in all lines belonging to it. 
+"		Or Funcref to a function that takes a line number and returns
+"		the matching byte offset (or -1), just like |match()|. 
 "   a:isMatch	Flag whether to search matching (vs. non-matching) lines. 
 "   a:step	Increment to go to next line. Use 1 for forward, -1 for backward
 "		search. 
@@ -159,9 +176,11 @@ function! CountJump#Region#SearchForRegionEnd( count, pattern, isMatch, step )
 "******************************************************************************
     let l:c = a:count
     let l:line = line('.')
+    let g:CountJump_Context = {}
+
     while 1
 	" Search for the current region's end. 
-	let [l:line, l:col] = s:SearchForLastLineContinuouslyMatching(l:line, a:pattern, a:isMatch, a:step)
+	let [l:line, l:col] = s:SearchForLastLineContinuouslyMatching(l:line, a:Expr, a:isMatch, a:step)
 	if l:line == 0
 	    return [0, 0]
 	endif
@@ -174,7 +193,7 @@ function! CountJump#Region#SearchForRegionEnd( count, pattern, isMatch, step )
 
 	" Otherwise, search for the next region's start. 
 	let l:line += a:step
-	let [l:line, l:col] = s:SearchForLastLineContinuouslyMatching(l:line, a:pattern, ! a:isMatch, a:step)
+	let [l:line, l:col] = s:SearchForLastLineContinuouslyMatching(l:line, a:Expr, ! a:isMatch, a:step)
 	if l:line == 0
 	    return [0, 0]
 	endif
@@ -184,16 +203,16 @@ function! CountJump#Region#SearchForRegionEnd( count, pattern, isMatch, step )
 
     return [l:line, l:col]
 endfunction
-function! CountJump#Region#JumpToRegionEnd( count, pattern, isMatch, step, isToEndOfLine )
-    let l:position = CountJump#Region#SearchForRegionEnd(a:count, a:pattern, a:isMatch, a:step)
+function! CountJump#Region#JumpToRegionEnd( count, Expr, isMatch, step, isToEndOfLine )
+    let l:position = CountJump#Region#SearchForRegionEnd(a:count, a:Expr, a:isMatch, a:step)
     return s:DoJump(l:position, a:isToEndOfLine)
 endfunction
 
-function! CountJump#Region#SearchForNextRegion( count, pattern, isMatch, step, isAcrossRegion )
+function! CountJump#Region#SearchForNextRegion( count, Expr, isMatch, step, isAcrossRegion )
 "******************************************************************************
 "* PURPOSE:
 "   Starting from the current line, search for the position where the a:count'th
-"   region (as defined by contiguous lines that (don't) match a:pattern)
+"   region (as defined by contiguous lines that (don't) match a:Expr)
 "   begins/ends. 
 "   If the current line is inside the border of a region, jumps to the next one.
 "   If it is actually inside a region, jumps to the current region's border. 
@@ -204,8 +223,10 @@ function! CountJump#Region#SearchForNextRegion( count, pattern, isMatch, step, i
 "   Moves cursor to match if it exists. 
 "* INPUTS:
 "   a:count Number of regions to cover. 
-"   a:pattern	Regular expression that defines the region, i.e. must (not)
+"   a:Expr	Regular expression that defines the region, i.e. must (not)
 "		match in all lines belonging to it. 
+"		Or Funcref to a function that takes a line number and returns
+"		the matching byte offset (or -1), just like |match()|. 
 "   a:isMatch	Flag whether to search matching (vs. non-matching) lines. 
 "   a:step	Increment to go to next line. Use 1 for forward, -1 for backward
 "		search. 
@@ -219,15 +240,16 @@ function! CountJump#Region#SearchForNextRegion( count, pattern, isMatch, step, i
     let l:c = a:count
     let l:isDone = 0
     let l:line = line('.')
+    let g:CountJump_Context = {}
 
     " Check whether we're currently on the border of a region. 
-    let l:isInRegion = (s:SearchInLineMatching(l:line, a:pattern, a:isMatch) != 0)
-    let l:isNextInRegion = (s:SearchInLineMatching((l:line + a:step), a:pattern, a:isMatch) != 0)
+    let l:isInRegion = (s:SearchInLineMatching(l:line, a:Expr, a:isMatch) != 0)
+    let l:isNextInRegion = (s:SearchInLineMatching((l:line + a:step), a:Expr, a:isMatch) != 0)
 "****D echomsg '**** in region:' (l:isInRegion ? 'current' : '') (l:isNextInRegion ? 'next' : '')
     if l:isInRegion
 	if l:isNextInRegion
 	    " We're inside a region; search for the current region's end. 
-	    let [l:line, l:col] = s:SearchForLastLineContinuouslyMatching(l:line, a:pattern, a:isMatch, a:step)
+	    let [l:line, l:col] = s:SearchForLastLineContinuouslyMatching(l:line, a:Expr, a:isMatch, a:step)
 	    if a:isAcrossRegion
 		if l:c == 1
 		    " We're done already! 
@@ -255,7 +277,7 @@ function! CountJump#Region#SearchForNextRegion( count, pattern, isMatch, step, i
 "****D echomsg '**** starting iteration on line' l:line
     while ! l:isDone
 	" Search for the next region's start. 
-	let [l:line, l:col] = s:SearchForLastLineContinuouslyMatching(l:line, a:pattern, ! a:isMatch, a:step)
+	let [l:line, l:col] = s:SearchForLastLineContinuouslyMatching(l:line, a:Expr, ! a:isMatch, a:step)
 	if l:line == 0
 	    return [0, 0]
 	endif
@@ -267,13 +289,13 @@ function! CountJump#Region#SearchForNextRegion( count, pattern, isMatch, step, i
 	if l:c == 0
 	    if a:isAcrossRegion
 		" Search for the current region's end. 
-		let [l:line, l:col] = s:SearchForLastLineContinuouslyMatching(l:line, a:pattern, a:isMatch, a:step)
+		let [l:line, l:col] = s:SearchForLastLineContinuouslyMatching(l:line, a:Expr, a:isMatch, a:step)
 		if l:line == 0
 		    return [0, 0]
 		endif
 	    else
 		" Check whether another region starts at the current line. 
-		let l:col = s:SearchInLineMatching(l:line, a:pattern, a:isMatch)
+		let l:col = s:SearchInLineMatching(l:line, a:Expr, a:isMatch)
 		if l:col == 0
 		    return [0, 0]
 		endif
@@ -283,7 +305,7 @@ function! CountJump#Region#SearchForNextRegion( count, pattern, isMatch, step, i
 	endif
 
 	" Otherwise, we're not done; skip over the next region. 
-	let [l:line, l:col] = s:SearchForLastLineContinuouslyMatching(l:line, a:pattern, a:isMatch, a:step)
+	let [l:line, l:col] = s:SearchForLastLineContinuouslyMatching(l:line, a:Expr, a:isMatch, a:step)
 	if l:line == 0
 	    return [0, 0]
 	endif
@@ -292,9 +314,9 @@ function! CountJump#Region#SearchForNextRegion( count, pattern, isMatch, step, i
 
     return [l:line, l:col]
 endfunction
-function! CountJump#Region#JumpToNextRegion( count, pattern, isMatch, step, isAcrossRegion, isToEndOfLine )
-    let l:position = CountJump#Region#SearchForNextRegion(a:count, a:pattern, a:isMatch, a:step, a:isAcrossRegion)
+function! CountJump#Region#JumpToNextRegion( count, Expr, isMatch, step, isAcrossRegion, isToEndOfLine )
+    let l:position = CountJump#Region#SearchForNextRegion(a:count, a:Expr, a:isMatch, a:step, a:isAcrossRegion)
     return s:DoJump(l:position, a:isToEndOfLine)
 endfunction
 
-" vim: set sts=4 sw=4 noexpandtab ff=unix fdm=syntax :
+" vim: set ts=8 sts=4 sw=4 noexpandtab ff=unix fdm=syntax :
