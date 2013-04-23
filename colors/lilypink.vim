@@ -3,7 +3,7 @@
 " See http://www.vim.org/scripts/script.php?script_id=2778 for more info
 " Vim colorscheme: a dark one
 " Maintainer:  lilydjwg <lilydjwg@gmail.com>
-" Version:     1.1
+" Version:     1.2
 " License:     Vim license, see :help 'license'
 " http://www.vim.org/scripts/script.php?script_id=3323
 
@@ -27,6 +27,9 @@ if version >= 700
   highlight PmenuSbar guibg=#333333 ctermbg=236 cterm=NONE
   highlight PmenuThumb gui=reverse cterm=reverse
   highlight PmenuSel guifg=#000000 guibg=#cae682 ctermfg=16 ctermbg=149 cterm=NONE
+endif
+if version >= 703
+  highlight ColorColumn guibg=#000000 ctermbg=0 cterm=NONE
 endif
 
 " General colors
