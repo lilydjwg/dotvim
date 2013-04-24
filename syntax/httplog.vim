@@ -2,7 +2,7 @@
 " FileType:     Access log of Apache, nginx, etc
 " Author:       lilydjwg <lilydjwg@gmail.com>
 " Contributor:	Audrius Kažukauskas
-" Version:	0.4
+" Version:	0.5
 " ---------------------------------------------------------------------
 
 syntax clear
@@ -21,6 +21,7 @@ syn match httplogBrowser	/\v(".*%(Chrom|Google Web Preview).*)@<!<Chrome>(.*Chro
 syn match httplogBrowser	/\<Feedfetcher-Google\>/
 syn match httplogBrowser	/\<Google Web Preview\>/
 syn match httplogBrowser	"\<bingbot\>/\@="
+syn match httplogBrowser	/\<Sogou web spider\>/
 syn keyword httplogBrowser	Firefox MSIE Konqueror Chromium ChromePlus Opera w3m Wget Lynx Epiphany Links TheWorld contained
 syn keyword httplogBrowser	gvfs curl pacman PackageKit contained
 syn keyword httplogBrowser	Googlebot Baiduspider Sosospider YandexBot W3C_Validator Jigsaw PhantomJS contained
