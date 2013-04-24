@@ -477,6 +477,7 @@ end
 if has("win32") || has("win64")
   let g:LustyExplorerSuppressRubyWarning = 1
   " Win 路径 [[[3
+  let g:vimfiles = split(&runtimepath, ',')[1]
   let g:mytmpdir = $TMP
   " Win 程序 [[[3
   "   用默认的程序打开文件
@@ -489,6 +490,7 @@ if has("win32") || has("win64")
   command Fscreen simalt ~r
 else
   " Linux 路径 [[[3
+  let g:vimfiles = split(&runtimepath, ',')[0]
   if exists('$VIMTMP')
     let g:mytmpdir = $VIMTMP
   else
@@ -519,8 +521,7 @@ if $LANGUAGE =~ '^zh' || ($LANGUAGE == '' && v:lang =~ '^zh')
 else
   set statusline=%n\ %<%f\ %LL\ %{&modified?'[+]':&modifiable\|\|&ft=~'^\\vhelp\|qf$'?'':'[-]'}%h%r%{&fenc=='utf-8'\|\|&fenc==''?'':'['.&fenc.']'}%{&ff=='unix'?'':'['.&ff.']'}%{&bomb?'[BOM]':''}%{&eol?'':'[noeol]'}%=\ 0x%-4.8B\ \ \ \ %-14.(%l,%c%V%)\ %P
 endif
-" 路径相关 [[[3split(&runtimepath, ',')[0]
-let g:vimfiles = split(&runtimepath, ',')[0]
+" 路径相关 [[[3
 let g:VEConf_favorite = g:vimfiles . "/ve_favorite"
 let g:NERDTreeBookmarksFile = g:vimfiles . "/NERDTreeBookmarks"
 let g:dictfilePrefix = g:vimfiles . "/dict/"
