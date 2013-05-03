@@ -170,34 +170,6 @@ function! GetPythonIndent(lnum)
                 "    ):1
                 "}
 
-                "Add-Begin by dantezhu in 2011-02-26 23:23:08
-                "增加了对
-                "x = user.getdata1_(
-                "   a,
-                "   b,
-                "   c
-                "   )
-                "的支持
-                if match(getline(parlnum), '\(\a\|\d\|_\)\s*(\s*$', 0) != -1
-                    "增加了对
-                    "x(
-                    "    1,
-                    "    2,
-                    "    3
-                    " )
-                    "user.login(
-                    "    1,
-                    "    2,
-                    "    3
-                    "    )
-                    " 的支持
-                    if (parcol -1 - indent(parlnum)) < 4
-                        return parcol - 1
-                    else
-                        return indent(parlnum) + &sw
-                    endif
-                endif
-                "Add-End
                 if match(getline(a:lnum), ')\s*:') != -1 && 
                             \ match(getline(parlnum), '\(def\|class\|if\|elif\|while\)\(\s\+\|(\)') != -1
                     return indent(parlnum) + &sw
