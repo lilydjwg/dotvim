@@ -70,11 +70,16 @@ function s:pslist()
   exec "buffer" pos[0]
   call setpos('.', pos)
 endfunction
+function s:clear()
+  let g:stack = []
+  let g:stack_top = -1
+endfunction
 " ---------------------------------------------------------------------
 " Commands And Mappings:
 command Push call <SID>push()
 command Pop call <SID>pop()
 command PSList call <SID>pslist()
+command PSClear call <SID>clear()
 nnoremap <Plug>Push :Push<CR>
 nnoremap <Plug>Pop :Pop<CR>
 if !hasmapto('<Plug>Push', 'n')
