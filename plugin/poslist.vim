@@ -12,38 +12,55 @@ set cpo&vim
 " ---------------------------------------------------------------------
 " Functions:
 let g:poslist = []
-let g:poslist_top = -1
+let g:poslist_pos = 0
 function s:record()
   let pos = getpos('.')
   let line = getline('.')
   let pos[0] = bufnr('%')
-  let g:poslist_top += 1
-  if len(g:poslist) > g:poslist_top
-    call remove(g:poslist, g:poslist_top, -1)
+  if len(g:poslist) > g:poslist_pos
+    call remove(g:poslist, g:poslist_pos, -1)
   endif
+  let g:poslist_pos += 1
   call add(g:poslist, [pos, line])
 endfunction
-function s:backward()
-  if g:poslist_top -1 < 0
+function s:back_pos()
+  if g:poslist_pos <= 0
     echohl ErrorMsg
     echo "poslist: bottom already"
     echohl None
-    return
+    return []
   endif
-  let g:poslist_top -= 1
-  let pos = g:poslist[g:poslist_top][0]
+  let g:poslist_pos -= 1
+  return g:poslist[g:poslist_pos][0]
+endfunction
+function s:backward()
+  let pos = s:back_pos()
+  if pos == []
+    return
+  end
+
+  " same pos: the user has set a pos and wants to go back then back here
+  let curpos = getpos('.')
+  let curpos[0] = bufnr('%')
+  if curpos == pos
+    let pos = s:back_pos()
+    if pos == []
+      return
+    end
+  endif
+
   exec "buffer" pos[0]
   call setpos('.', pos)
 endfunction
 function s:forward()
-  if g:poslist_top + 1 >= len(g:poslist)
+  if g:poslist_pos + 1 >= len(g:poslist)
     echohl ErrorMsg
     echo "poslist: top already"
     echohl None
     return
   endif
-  let g:poslist_top += 1
-  let pos = g:poslist[g:poslist_top][0]
+  let g:poslist_pos += 1
+  let pos = g:poslist[g:poslist_pos][0]
   exec "buffer" pos[0]
   call setpos('.', pos)
 endfunction
@@ -58,13 +75,13 @@ function s:pslist()
   let i = 1
   for posinfo in g:poslist
     let pos = posinfo[0]
-    if i == g:poslist_top + 1
+    if i == g:poslist_pos + 1
       echohl CursorLine
     endif
     echon i . ".\t"
     echon printf('%4d', pos[1]) . "\t"
     echon fnamemodify(bufname(pos[0]), ':~:.') . "\n"
-    if i == g:poslist_top + 1
+    if i == g:poslist_pos + 1
       echohl None
     endif
     echohl Comment
@@ -77,14 +94,14 @@ function s:pslist()
     return
   endif
 
-  let g:poslist_top = res - 1
-  let pos = g:poslist[g:poslist_top][0]
+  let g:poslist_pos = res - 1
+  let pos = g:poslist[g:poslist_pos][0]
   exec "buffer" pos[0]
   call setpos('.', pos)
 endfunction
 function s:clear()
   let g:poslist = []
-  let g:poslist_top = -1
+  let g:poslist_pos = 0
 endfunction
 " ---------------------------------------------------------------------
 " Commands And Mappings:
