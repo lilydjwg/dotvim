@@ -239,6 +239,7 @@ startswith
 staticmethod
 status
 stderr
+store_true
 strerror
 strftime
 strptime

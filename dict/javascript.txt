@@ -16,6 +16,7 @@ clientY
 closest
 continue
 cssRules
+dblclick
 delegate
 dispatchEvent
 document
