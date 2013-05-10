@@ -475,7 +475,6 @@ if has("gui_macvim")
   set macmeta
 end
 if has("win32") || has("win64")
-  let g:LustyExplorerSuppressRubyWarning = 1
   " Win 路径 [[[3
   let g:vimfiles = split(&runtimepath, ',')[1]
   let g:mytmpdir = $TMP
@@ -673,6 +672,7 @@ endfor
 nmap <M-b> :LustyBufferExplorer<CR>
 nmap <M-g> :LustyBufferGrep<CR>
 nmap <M-l> :LustyFilesystemExplorerFromHere<CR>
+let g:LustyExplorerSuppressRubyWarning = 1
 "     FuzzyFinder [[[4
 nmap <M-L> :FufFile<CR>
 "     其它开头的 [[[3
