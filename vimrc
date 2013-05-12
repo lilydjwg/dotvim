@@ -425,7 +425,7 @@ set smarttab
 set expandtab
 " 不要响铃，更不要闪屏
 set visualbell t_vb=
-au GUIEnter * set t_vb=
+autocmd GUIEnter * set t_vb=
 set viminfo='100,:10000,<50,s10,h
 set history=10000
 set wildmenu
@@ -444,7 +444,6 @@ set virtualedit=block
 set nostartofline
 " set guioptions=egmrLtai
 set guioptions=acit
-set mousemodel=popup
 " 没必要，而且很多时候 = 表示赋值
 set isfname-==
 set nolinebreak
@@ -532,6 +531,7 @@ let &errorfile= g:mytmpdir . "/.error"
 " 图形与终端 [[[2
 let colorscheme = 'lilypink'
 if has("gui_running")
+  set mousemodel=popup
   " 有些终端不能改变大小
   set columns=88
   set lines=38
