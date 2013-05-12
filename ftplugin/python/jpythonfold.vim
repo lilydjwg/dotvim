@@ -1,3 +1,4 @@
+scriptencoding utf-8
 " Fold routines for python code, version 3.2
 " Source: http://www.vim.org/scripts/script.php?script_id=2527
 " Last Change: 2009 Feb 25
