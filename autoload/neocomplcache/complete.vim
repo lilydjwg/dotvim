@@ -240,7 +240,6 @@ function! neocomplcache#complete#_get_words(sources, complete_pos, complete_str)
   " Check dup and set icase.
   let icase = g:neocomplcache_enable_ignore_case &&
         \!(g:neocomplcache_enable_smart_case && a:complete_str =~ '\u')
-        \ && !neocomplcache#is_text_mode()
   for candidate in candidates
     if has_key(candidate, 'kind') && candidate.kind == ''
       " Remove kind key.
@@ -340,9 +339,7 @@ function! neocomplcache#complete#_set_results_words(sources) "{{{
 
     let context = source.neocomplcache__context
 
-    if neocomplcache#is_text_mode()
-      let &ignorecase = 1
-    elseif g:neocomplcache_enable_smart_case
+    if g:neocomplcache_enable_smart_case
           \ && context.complete_str =~ '\u'
       let &ignorecase = 0
     else

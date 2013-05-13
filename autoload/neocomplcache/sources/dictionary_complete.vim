@@ -79,12 +79,7 @@ endfunction"}}}
 function! s:source.get_keyword_list(complete_str) "{{{
   let list = []
 
-  let filetype = neocomplcache#is_text_mode() ?
-        \ 'text' : neocomplcache#get_context_filetype()
-  if !has_key(s:dictionary_list, filetype)
-    " Caching.
-    call s:caching()
-  endif
+  let filetype = neocomplcache#get_context_filetype()
 
   for ft in neocomplcache#get_source_filetypes(filetype)
     call neocomplcache#cache#check_cache('dictionary_cache', ft,
@@ -103,8 +98,7 @@ function! s:caching() "{{{
     return
   endif
 
-  let key = neocomplcache#is_text_mode() ?
-        \ 'text' : neocomplcache#get_context_filetype()
+  let key = neocomplcache#get_context_filetype()
   for filetype in neocomplcache#get_source_filetypes(key)
     if !has_key(s:dictionary_list, filetype)
           \ && !has_key(s:async_dictionary_list, filetype)

@@ -101,9 +101,7 @@ function! neocomplcache#mappings#complete_common_string() "{{{
   let [complete_pos, complete_str] =
         \ neocomplcache#match_word(neocomplcache#get_cur_text(1))
 
-  if neocomplcache#is_text_mode()
-    let &ignorecase = 1
-  elseif g:neocomplcache_enable_smart_case && complete_str =~ '\u'
+  if g:neocomplcache_enable_smart_case && complete_str =~ '\u'
     let &ignorecase = 0
   else
     let &ignorecase = g:neocomplcache_enable_ignore_case

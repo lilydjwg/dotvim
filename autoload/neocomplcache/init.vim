@@ -585,14 +585,6 @@ function! neocomplcache#init#_variables() "{{{
         \   '__attribute_pure__,__attribute_warn_unused_result__,__attribute__+')
   "}}}
 
-  " Initialize text mode filetypes. "{{{
-  call neocomplcache#util#set_default(
-        \ 'g:neocomplcache_text_mode_filetypes', {})
-  call neocomplcache#util#set_default_dictionary(
-        \ 'g:neocomplcache_text_mode_filetypes',
-        \ 'text,help,tex,gitcommit,vcs-commit', 1)
-  "}}}
-
   " Initialize tags filter patterns. "{{{
   call neocomplcache#util#set_default(
         \ 'g:neocomplcache_tags_filter_patterns', {})

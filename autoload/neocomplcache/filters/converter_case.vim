@@ -37,10 +37,6 @@ let s:converter = {
       \}
 
 function! s:converter.filter(context) "{{{
-  if neocomplcache#is_text_mode()
-    return a:context.candidates
-  endif
-
   let convert_candidates = filter(copy(a:context.candidates),
         \ "get(v:val, 'neocomplcache__convertable', 1)
         \  && v:val.word =~ '^\\u\\+$\\|^\\u\\?\\l\\+$'")
