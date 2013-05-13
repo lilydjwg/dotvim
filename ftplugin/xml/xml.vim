@@ -32,6 +32,7 @@ endif
 let b:did_ftplugin = 1
 
 setlocal commentstring=<!--%s-->
+setlocal iskeyword=@,48-57,_,192-255,58
 
 " XML:  thanks to Johannes Zellner and Akbar Ibrahim
 " - case sensitive
@@ -50,6 +51,10 @@ if exists("loaded_matchit")
      \  '<\@<=\([^ \t>/]\+\)\%(\s\+[^>]*\%([^/]>\|$\)\|>\|$\):<\@<=/\1>,'.
      \  '<\@<=\%([^ \t>/]\+\)\%(\s\+[^/>]*\|$\):/>'
 endif
+
+function! s:SID()
+  return matchstr(expand('<sfile>'), '<SNR>\zs\d\+\ze_SID$')
+endfunction
 
 " Script rgular expresion used. Documents those nasty criters      {{{1
 let s:NoSlashBeforeGt = '\(\/\)\@\<!>'
@@ -78,8 +83,15 @@ elseif &filetype == 'xhtml'
 	let b:xml_use_xhtml = 1
 en
 
+if ! exists("b:xmlPluginMappedKeys")
+  let b:xmlPluginMappedKeys = []
+endif
+
 let b:undo_ftplugin = "setlocal cms< isk<"
-  \ . "| unlet! b:match_ignorecase b:match_words"
+  \ . "| if exists('b:match_ignorecase') | unlet b:match_ignorecase | endif"
+  \ . "| if exists('b:match_words') | unlet b:match_words | endif"
+  \ . "| call <SNR>" . s:SID() . "_unmapKeys()"
+  \ . "| unlet b:xmlPluginMappedKeys"
 
 
 
@@ -1193,6 +1205,33 @@ endf
 en
 
 
+" mapKey()                         {{{1
+function! s:mapKey(mode, key, cmd)
+  if maparg(a:key, a:mode) == ''
+    execute a:mode . "noremap <silent> <buffer> " .
+          \ a:key . " " .
+          \ a:cmd
+    let b:xmlPluginMappedKeys += [[a:mode, a:key]]
+
+  elseif exists("g:xml_warn_on_duplicate_mapping")
+        \ && g:xml_warn_on_duplicate_mapping
+
+    redraw
+    let s:duplicate_mapping_msg = 'Mapping already exists: ' .
+          \ a:key .
+          \ " in mode " . a:mode
+    echohl WarningMsg | echomsg s:duplicate_mapping_msg | echohl None
+  endif
+endfunction
+
+" unmapKeys()                         {{{1
+function! s:unmapKeys()
+  for mapped in b:xmlPluginMappedKeys
+    execute "silent! " . mapped[0] . "unmap <buffer> " . mapped[1]
+  endfor
+  let b:xmlPluginMappedKeys = []
+endfunction
+
 " Menu options: {{{1
 augroup XML_menu_autos
 au!
@@ -1394,62 +1433,66 @@ if (s:install_status == 1)
 endif
 
 
-" Mappings of keys to functions                                      {{{1
-nnoremap <silent> <buffer> <LocalLeader>5 :call <SID>Matches()<Cr>
-vnoremap <silent> <buffer> <LocalLeader>5 <Esc>:call <SID>MatchesVisual()<Cr>
-nnoremap <silent> <buffer> <LocalLeader>% :call <SID>Matches()<Cr>
-vnoremap <silent> <buffer> <LocalLeader>% <Esc>:call <SID>MatchesVisual()<Cr>
-nnoremap <silent> <buffer> <LocalLeader>c :call <SID>Change()<Cr>
-nnoremap <silent> <buffer> <LocalLeader>C :call <SID>ChangeWholeTag()<Cr>
-nnoremap <silent> <buffer> <LocalLeader>d :call <SID>Delete()<Cr>
-nnoremap <silent> <buffer> <LocalLeader>D :call <SID>DeleteSection()<Cr>
-nnoremap <silent> <buffer> <LocalLeader>e :call <SID>EndTag()<Cr>
-nnoremap <silent> <buffer> <LocalLeader>] :call <SID>DelComment()<Cr>
-nnoremap <silent> <buffer> <LocalLeader>} :call <SID>DelCommentSection()<Cr>
-nnoremap <silent> <buffer> <LocalLeader>f :call <SID>FoldTag()<Cr>
-nnoremap <silent> <buffer> <LocalLeader>F :call <SID>FoldTagAll()<Cr>
-nnoremap <silent> <buffer> <LocalLeader>g :call <SID>FormatTag()<Cr>
-nnoremap <silent> <buffer> <LocalLeader>G :call <SID>FormatTagAll()<Cr>
-nnoremap <silent> <buffer> <LocalLeader>I :call <SID>IndentAll()<Cr>
-nnoremap <silent> <buffer> <LocalLeader>j :call <SID>Join()<Cr>
-nnoremap <silent> <buffer> <LocalLeader>O :call <SID>BeforeTag()<Cr>
-nnoremap <silent> <buffer> <LocalLeader>= :call <SID>CommentTag()<Cr>
-nnoremap <silent> <buffer> <LocalLeader>o :call <SID>AfterTag()<Cr>
-nnoremap <silent> <buffer> <LocalLeader>s :call <SID>StartTag()<Cr>
-nnoremap <silent> <buffer> <LocalLeader>[ :call <SID>DelCData()<Cr>
-nnoremap <silent> <buffer> <LocalLeader>{ :call <SID>DelCDataSection()<Cr>
-nnoremap <silent> <buffer> <LocalLeader>> :call <SID>ShiftRight()<Cr>
-nnoremap <silent> <buffer> <LocalLeader>< :call <SID>ShiftLeft()<Cr>
-vnoremap <silent> <buffer> <LocalLeader>l <Esc>:call <SID>vlistitem()<Cr>
-vnoremap <silent> <buffer> <LocalLeader>v <Esc>:call <SID>BlockTag(0)<Cr>
-vnoremap <silent> <buffer> <LocalLeader>V <Esc>:call <SID>BlockTag(1)<Cr>
-vnoremap <silent> <buffer> <LocalLeader>c <Esc>:call <SID>BlockWith('<![CDATA[',']]>')<Cr>
-vnoremap <silent> <buffer> <LocalLeader>< <Esc>:call <SID>BlockWith('<!--','-->')<Cr>
+" Mappings                                                                {{{1
 
-" Move around functions.
-noremap <silent><buffer> [[ m':call <SID>findOpenTag("bW")<CR>
-noremap <silent><buffer> ]] m':call <SID>findOpenTag( "W")<CR>
-noremap <silent><buffer> [] m':call <SID>findCloseTag( "bW")<CR>
-noremap <silent><buffer> ][ m':call <SID>findCloseTag( "W")<CR>
+call s:unmapKeys()
 
-" Move around comments
-noremap <silent><buffer> ]" :call search('^\(\s*<!--.*\n\)\@<!\(\s*-->\)', "W")<CR>
-noremap <silent><buffer> [" :call search('\%(^\s*<!--.*\n\)\%(^\s*-->\)\@!', "bW")<CR>
+  " Mappings of keys to functions                                         {{{2
+  call <SID>mapKey('n', '<LocalLeader>5', ':call <SID>Matches()<Cr>')
+  call <SID>mapKey('v', '<LocalLeader>5', '<Esc>:call <SID>MatchesVisual()<Cr>')
+  call <SID>mapKey('n', '<LocalLeader>%', ':call <SID>Matches()<Cr>')
+  call <SID>mapKey('v', '<LocalLeader>%', '<Esc>:call <SID>MatchesVisual()<Cr>')
+  call <SID>mapKey('n', '<LocalLeader>c', ':call <SID>Change()<Cr>')
+  call <SID>mapKey('n', '<LocalLeader>C', ':call <SID>ChangeWholeTag()<Cr>')
+  call <SID>mapKey('n', '<LocalLeader>d', ':call <SID>Delete()<Cr>')
+  call <SID>mapKey('n', '<LocalLeader>D', ':call <SID>DeleteSection()<Cr>')
+  call <SID>mapKey('n', '<LocalLeader>e', ':call <SID>EndTag()<Cr>')
+  call <SID>mapKey('n', '<LocalLeader>]', ':call <SID>DelComment()<Cr>')
+  call <SID>mapKey('n', '<LocalLeader>}', ':call <SID>DelCommentSection()<Cr>')
+  call <SID>mapKey('n', '<LocalLeader>f', ':call <SID>FoldTag()<Cr>')
+  call <SID>mapKey('n', '<LocalLeader>F', ':call <SID>FoldTagAll()<Cr>')
+  call <SID>mapKey('n', '<LocalLeader>g', ':call <SID>FormatTag()<Cr>')
+  call <SID>mapKey('n', '<LocalLeader>G', ':call <SID>FormatTagAll()<Cr>')
+  call <SID>mapKey('n', '<LocalLeader>I', ':call <SID>IndentAll()<Cr>')
+  call <SID>mapKey('n', '<LocalLeader>j', ':call <SID>Join()<Cr>')
+  call <SID>mapKey('n', '<LocalLeader>O', ':call <SID>BeforeTag()<Cr>')
+  call <SID>mapKey('n', '<LocalLeader>=', ':call <SID>CommentTag()<Cr>')
+  call <SID>mapKey('n', '<LocalLeader>o', ':call <SID>AfterTag()<Cr>')
+  call <SID>mapKey('n', '<LocalLeader>s', ':call <SID>StartTag()<Cr>')
+  call <SID>mapKey('n', '<LocalLeader>[', ':call <SID>DelCData()<Cr>')
+  call <SID>mapKey('n', '<LocalLeader>{', ':call <SID>DelCDataSection()<Cr>')
+  call <SID>mapKey('n', '<LocalLeader>>', ':call <SID>ShiftRight()<Cr>')
+  call <SID>mapKey('n', '<LocalLeader><', ':call <SID>ShiftLeft()<Cr>')
+  call <SID>mapKey('v', '<LocalLeader>l', '<Esc>:call <SID>vlistitem()<Cr>')
+  call <SID>mapKey('v', '<LocalLeader>v', '<Esc>:call <SID>BlockTag(0)<Cr>')
+  call <SID>mapKey('v', '<LocalLeader>V', '<Esc>:call <SID>BlockTag(1)<Cr>')
+  call <SID>mapKey('v', '<LocalLeader>c', '<Esc>:call <SID>BlockWith("<![CDATA[","]]>")<Cr>')
+  call <SID>mapKey('v', '<LocalLeader><', '<Esc>:call <SID>BlockWith("<!--","-->")<Cr>')
 
+  " Move around functions                                                 {{{2
+  call <SID>mapKey('n', '[[', "m':call <SID>findOpenTag('bW')<CR>")
+  call <SID>mapKey('n', ']]', "m':call <SID>findOpenTag('W')<CR>")
+  call <SID>mapKey('n', '[]', "m':call <SID>findCloseTag('bW')<CR>")
+  call <SID>mapKey('n', '][', "m':call <SID>findCloseTag('W')<CR>")
 
-setlocal iskeyword=@,48-57,_,192-255,58  
-exe 'inoremap <silent> <buffer> '.b:suffix. " ><Esc>db:call <SID>makeElement()<Cr>"
-if !exists("g:xml_tag_completion_map")
-    inoremap <silent> <buffer> > ><Esc>:call <SID>CloseTagFun()<Cr>
-else
-    execute "inoremap <silent> <buffer> " . g:xml_tag_completion_map . " ><Esc>:call <SID>CloseTagFun()<Cr>"
-endif
+  " Move around comments                                                  {{{2
+  call <SID>mapKey('n', ']"', substitute(':call search("^\(\s*<!--.*\n\)\@<!\(\s*-->\)", "W")<CR>', '"', "'", 'g'))
+  call <SID>mapKey('n', '["', substitute(':call search("\%(^\s*<!--.*\n\)\%(^\s*-->\)\@!", "bW")<CR>', '"', "'", 'g'))
 
+  " insert mode shortcuts                                                 {{{2
+  call <SID>mapKey('i', b:suffix, ' ><Esc>db:call <SID>makeElement()<Cr>')
+  if !exists("g:xml_tag_completion_map")
+    call <SID>mapKey('i', '>', ' ><Esc>:call <SID>CloseTagFun()<Cr>')
+  else
+    call <SID>mapKey('i', g:xml_tag_completion_map, ' ><Esc>:call <SID>CloseTagFun()<Cr>')
+  endif
 
+" finish                                                                  {{{1
 
 finish
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""/*}}}*/
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""/*}}}*/
+
 " Section: Documentation content                                          {{{1
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 === START_DOC
@@ -1507,6 +1550,13 @@ xml_tag_completion_map
 	you wanted Control-L to perform auto completion inmstead of typing a
 	`>' place the following into your .vimrc: >
             let xml_tag_completion_map = "<C-l>"
+<
+xml_warn_on_duplicate_mapping
+gits
+	If a key mapping already exists, xml.vim won't overwrite it (thus the
+	functionality just unavailable). Set this option to 1 will display a
+	warning when it happens: >
+            let g:xml_warn_on_duplicate_mapping = 1
 <
 xml_no_auto_nesting (Not Working!!!!!)
 	This turns off the auto nesting feature. After a completion is made

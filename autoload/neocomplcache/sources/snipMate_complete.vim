@@ -1,3 +1,4 @@
+scriptencoding utf-8
 let s:source = {
       \ 'name' : 'snipMate_complete',
       \ 'kind' : 'plugin',

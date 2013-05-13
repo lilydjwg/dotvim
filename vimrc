@@ -425,7 +425,7 @@ set smarttab
 set expandtab
 " 不要响铃，更不要闪屏
 set visualbell t_vb=
-au GUIEnter * set t_vb=
+autocmd GUIEnter * set t_vb=
 set viminfo='100,:10000,<50,s10,h
 set history=10000
 set wildmenu
@@ -444,7 +444,6 @@ set virtualedit=block
 set nostartofline
 " set guioptions=egmrLtai
 set guioptions=acit
-set mousemodel=popup
 " 没必要，而且很多时候 = 表示赋值
 set isfname-==
 set nolinebreak
@@ -475,7 +474,6 @@ if has("gui_macvim")
   set macmeta
 end
 if has("win32") || has("win64")
-  let g:LustyExplorerSuppressRubyWarning = 1
   " Win 路径 [[[3
   let g:vimfiles = split(&runtimepath, ',')[1]
   let g:mytmpdir = $TMP
@@ -533,6 +531,7 @@ let &errorfile= g:mytmpdir . "/.error"
 " 图形与终端 [[[2
 let colorscheme = 'lilypink'
 if has("gui_running")
+  set mousemodel=popup
   " 有些终端不能改变大小
   set columns=88
   set lines=38
@@ -673,6 +672,7 @@ endfor
 nmap <M-b> :LustyBufferExplorer<CR>
 nmap <M-g> :LustyBufferGrep<CR>
 nmap <M-l> :LustyFilesystemExplorerFromHere<CR>
+let g:LustyExplorerSuppressRubyWarning = 1
 "     FuzzyFinder [[[4
 nmap <M-L> :FufFile<CR>
 "     其它开头的 [[[3

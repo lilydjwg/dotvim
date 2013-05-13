@@ -53,6 +53,13 @@ xml_tag_completion_map
 	`>' place the following into your .vimrc: >
             let xml_tag_completion_map = "<C-l>"
 <
+xml_warn_on_duplicate_mapping
+gits
+	If a key mapping already exists, xml.vim won't overwrite it (thus the
+	functionality just unavailable). Set this option to 1 will display a
+	warning when it happens: >
+            let g:xml_warn_on_duplicate_mapping = 1
+<
 xml_no_auto_nesting (Not Working!!!!!)
 	This turns off the auto nesting feature. After a completion is made
 	and another `>' is typed xml-edit automatically will break the tag
