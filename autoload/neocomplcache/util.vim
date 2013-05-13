@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: util.vim
 " AUTHOR: Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 19 Jan 2013.
+" Last Modified: 25 Apr 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -73,6 +73,11 @@ endfunction"}}}
 function! neocomplcache#util#has_vimproc(...) "{{{
   return call(s:V.has_vimproc, a:000)
 endfunction"}}}
+function! neocomplcache#util#has_lua() "{{{
+  " Note: Disabled if_lua feature if less than 7.3.885.
+  " Because if_lua has double free problem.
+  return has('lua') && (v:version > 703 || v:version == 703 && has('patch885'))
+endfunction"}}}
 function! neocomplcache#util#is_windows(...) "{{{
   return call(s:V.is_windows, a:000)
 endfunction"}}}
@@ -91,6 +96,9 @@ endfunction"}}}
 function! neocomplcache#util#uniq(...) "{{{
   return call(s:List.uniq, a:000)
 endfunction"}}}
+function! neocomplcache#util#sort_by(...)
+  return call(s:List.sort_by, a:000)
+endfunction
 
 function! neocomplcache#util#glob(pattern, ...) "{{{
   if a:pattern =~ "'"
@@ -179,6 +187,38 @@ endfunction"}}}
 " Escape a path for runtimepath.
 function! s:escape(path)"{{{
   return substitute(a:path, ',\|\\,\@=', '\\\0', 'g')
+endfunction"}}}
+
+function! neocomplcache#util#has_vimproc() "{{{
+  " Initialize.
+  if !exists('g:neocomplcache_use_vimproc')
+    " Check vimproc.
+    try
+      call vimproc#version()
+      let exists_vimproc = 1
+    catch
+      let exists_vimproc = 0
+    endtry
+
+    let g:neocomplcache_use_vimproc = exists_vimproc
+  endif
+
+  return g:neocomplcache_use_vimproc
+endfunction"}}}
+
+function! neocomplcache#util#dup_filter(list) "{{{
+  let dict = {}
+  for keyword in a:list
+    if !has_key(dict, keyword.word)
+      let dict[keyword.word] = keyword
+    endif
+  endfor
+
+  return values(dict)
+endfunction"}}}
+
+function! neocomplcache#util#convert2list(expr) "{{{
+  return type(a:expr) ==# type([]) ? a:expr : [a:expr]
 endfunction"}}}
 
 let &cpo = s:save_cpo

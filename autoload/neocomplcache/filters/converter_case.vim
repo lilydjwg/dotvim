@@ -1,7 +1,7 @@
 "=============================================================================
-" FILE: abbrev_complete.vim
+" FILE: converter_case.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 17 Aug 2010
+" Last Modified: 25 Apr 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -27,43 +27,50 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-let s:source = {
-      \ 'name' : 'abbrev_complete',
-      \ 'kind' : 'plugin',
+function! neocomplcache#filters#converter_case#define() "{{{
+  return s:converter
+endfunction"}}}
+
+let s:converter = {
+      \ 'name' : 'converter_case',
+      \ 'description' : 'case converter',
       \}
 
-function! s:source.initialize() "{{{
-  " Initialize.
-endfunction"}}}
+function! s:converter.filter(context) "{{{
+  if neocomplcache#is_text_mode()
+    return a:context.candidates
+  endif
 
-function! s:source.finalize() "{{{
-endfunction"}}}
+  let convert_candidates = filter(copy(a:context.candidates),
+        \ "get(v:val, 'neocomplcache__convertable', 1)
+        \  && v:val.word =~ '^\\u\\+$\\|^\\u\\?\\l\\+$'")
 
-function! s:source.get_keyword_list(cur_keyword_str) "{{{
-  " Get current abbrev list.
-  let abbrev_list = ''
-  redir => abbrev_list
-  silent! iabbrev
-  redir END
+  if a:context.complete_str =~ '^\l\+$'
+    for candidate in convert_candidates
+      let candidate.word = tolower(candidate.word)
+      if has_key(candidate, 'abbr')
+        let candidate.abbr = tolower(candidate.abbr)
+      endif
+    endfor
+  elseif a:context.complete_str =~ '^\u\+$'
+    for candidate in convert_candidates
+      let candidate.word = toupper(candidate.word)
+      if has_key(candidate, 'abbr')
+        let candidate.abbr = toupper(candidate.abbr)
+      endif
+    endfor
+  elseif a:context.complete_str =~ '^\u\l\+$'
+    for candidate in convert_candidates
+      let candidate.word = toupper(candidate.word[0]).
+            \ tolower(candidate.word[1:])
+      if has_key(candidate, 'abbr')
+        let candidate.abbr = toupper(candidate.abbr[0]).
+              \ tolower(candidate.abbr[1:])
+      endif
+    endfor
+  endif
 
-  let list = []
-  for line in split(abbrev_list, '\n')
-    let abbrev = split(line)
-
-    if abbrev[0] !~ '^[!i]$'
-      " No abbreviation found.
-      return []
-    endif
-
-    call add(list, 
-          \{ 'word' : abbrev[1], 'menu' : printf('[A] %.'. g:neocomplcache_max_menu_width.'s', abbrev[2]) })
-  endfor
-
-  return neocomplcache#keyword_filter(list, a:cur_keyword_str)
-endfunction"}}}
-
-function! neocomplcache#sources#abbrev_complete#define() "{{{
-  return s:source
+  return a:context.candidates
 endfunction"}}}
 
 let &cpo = s:save_cpo

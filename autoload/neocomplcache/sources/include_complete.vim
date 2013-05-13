@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: include_complete.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 24 Feb 2013.
+" Last Modified: 24 Apr 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -29,15 +29,12 @@ set cpo&vim
 
 let s:source = {
       \ 'name' : 'include_complete',
-      \ 'kind' : 'plugin',
+      \ 'kind' : 'keyword',
+      \ 'rank' : 8,
       \}
 
 function! s:source.initialize() "{{{
   call s:initialize_variables()
-
-  " Set rank.
-  call neocomplcache#util#set_default_dictionary(
-        \ 'g:neocomplcache_source_rank', 'include_complete', 8)
 
   if neocomplcache#has_vimproc()
     augroup neocomplcache
@@ -52,7 +49,8 @@ function! s:source.initialize() "{{{
 
   " Create cache directory.
   if !isdirectory(neocomplcache#get_temporary_directory() . '/include_cache')
-    call mkdir(neocomplcache#get_temporary_directory() . '/include_cache', 'p')
+    call mkdir(neocomplcache#get_temporary_directory()
+          \ . '/include_cache', 'p')
   endif
 
   if neocomplcache#exists_echodoc()
@@ -62,13 +60,13 @@ endfunction"}}}
 
 function! s:source.finalize() "{{{
   delcommand NeoComplCacheCachingInclude
-  
+
   if neocomplcache#exists_echodoc()
     call echodoc#unregister('include_complete')
   endif
 endfunction"}}}
 
-function! s:source.get_keyword_list(cur_keyword_str) "{{{
+function! s:source.get_keyword_list(complete_str) "{{{
   if neocomplcache#within_comment()
     return []
   endif
@@ -87,12 +85,12 @@ function! s:source.get_keyword_list(cur_keyword_str) "{{{
     if has_key(s:include_cache, include)
       let s:cache_accessed_time[include] = localtime()
       let keyword_list += neocomplcache#dictionary_filter(
-            \ s:include_cache[include], a:cur_keyword_str)
+            \ s:include_cache[include], a:complete_str)
     endif
   endfor
 
   return neocomplcache#keyword_filter(
-        \ neocomplcache#dup_filter(keyword_list), a:cur_keyword_str)
+        \ neocomplcache#dup_filter(keyword_list), a:complete_str)
 endfunction"}}}
 
 function! neocomplcache#sources#include_complete#define() "{{{

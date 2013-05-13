@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: member_complete.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 31 Dec 2012.
+" Last Modified: 01 May 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -34,7 +34,10 @@ endif
 
 let s:source = {
       \ 'name' : 'member_complete',
-      \ 'kind' : 'complfunc',
+      \ 'kind' : 'manual',
+      \ 'mark' : '[M]',
+      \ 'rank' : 5,
+      \ 'min_pattern_length' : 0,
       \}
 
 function! s:source.initialize() "{{{
@@ -44,14 +47,6 @@ function! s:source.initialize() "{{{
     autocmd InsertEnter,InsertLeave *
           \ call neocomplcache#sources#member_complete#caching_current_line()
   augroup END"}}}
-
-  " Set rank.
-  call neocomplcache#util#set_default_dictionary(
-        \ 'g:neocomplcache_source_rank',
-        \ 'member_complete', 5)
-
-  " Set completion length.
-  call neocomplcache#set_completion_length('member_complete', 0)
 
   " Initialize member prefix patterns. "{{{
   if !exists('g:neocomplcache_member_prefix_patterns')
@@ -96,12 +91,12 @@ function! s:source.get_keyword_pos(cur_text) "{{{
 
   let member = s:get_member_pattern(filetype)
   let prefix = g:neocomplcache_member_prefix_patterns[filetype]
-  let cur_keyword_pos = matchend(a:cur_text,
+  let complete_pos = matchend(a:cur_text,
         \ '\%(' . member . '\%(' . prefix . '\m\)\)\+\ze\w*$')
-  return cur_keyword_pos
+  return complete_pos
 endfunction"}}}
 
-function! s:source.get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
+function! s:source.get_complete_words(complete_pos, complete_str) "{{{
   " Check member prefix pattern.
   let filetype = neocomplcache#get_context_filetype()
   if !has_key(g:neocomplcache_member_prefix_patterns, filetype)
@@ -118,7 +113,7 @@ function! s:source.get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
   endif
 
   return neocomplcache#keyword_filter(
-        \ copy(s:get_member_list(cur_text, var_name)), a:cur_keyword_str)
+        \ copy(s:get_member_list(cur_text, var_name)), a:complete_str)
 endfunction"}}}
 
 function! neocomplcache#sources#member_complete#define() "{{{
@@ -147,7 +142,6 @@ function! s:caching_current_buffer(start, end) "{{{
   endif
 
   let source = s:member_sources[bufnr('%')]
-  let menu = '[M] member'
   let keyword_pattern =
         \ '\%(' . s:get_member_pattern(filetype) . '\%('
         \ . g:neocomplcache_member_prefix_patterns[filetype]
@@ -177,8 +171,7 @@ function! s:caching_current_buffer(start, end) "{{{
           let source.member_cache[var_name] = {}
         endif
         if !has_key(source.member_cache[var_name], member_name)
-          let source.member_cache[var_name][member_name] =
-                \ { 'word' : member_name, 'menu' : menu }
+          let source.member_cache[var_name][member_name] = member_name
         endif
 
         let match_str = matchstr(var_name, keyword_pattern2)
