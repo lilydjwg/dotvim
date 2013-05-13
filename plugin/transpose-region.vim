@@ -11,9 +11,8 @@
 
 if has('python3')
     command! -nargs=1 PythonUsedInTransposeRegion python3 <args>
-elseif has('python')
-    command! -nargs=1 PythonUsedInTransposeRegion python <args>
 else
+    echoerr "transpose-region: No +python3 support!"
     finish
 end
 
@@ -50,26 +49,34 @@ def transpose_region(snd_region):
     fst_region['e'] = tuple(int(x) for x in fst_region['e'])
     snd_region['e'] = tuple(int(x) for x in snd_region['e'])
 
-    def canonize_pos(pos):
-        b = list(pos['b'])
-        e = list(pos['e'])
+    def canonize_region(region):
+        b = list(region['b'])
+        e = list(region['e'])
         b[0] -= 1
         e[0] -= 1
+
+        enc = vim.eval('&l:encoding')
+        line = vim.current.buffer[b[0]] + '\n'
+        b[1] = len(line.encode(enc)[0:b[1]-1].decode(enc)) + 1
+        line = vim.current.buffer[e[0]] + '\n'
+        e[1] = len(line.encode(enc)[0:e[1]-1].decode(enc)) + 1
+
         b[1] -= 1
-        if pos['mode'] == 'V':
+        if region['mode'] == 'V':
             e = len(vim.current.buffer[e[0]]) + 1
             # + 1 because of the '\n' on line end
             return
-        if pos['selection'] == 'exclusive':
+        if region['selection'] == 'exclusive':
             if e[1] == 1:
                 e[0] -= 1
                 e[1] = len(vim.current.buffer[e[0]]) + 1
             else:
                 e[0] -= 1
+
         return {'b': tuple(b), 'e': tuple(e)}
 
-    fst_region = canonize_pos(fst_region)
-    snd_region = canonize_pos(snd_region)
+    fst_region = canonize_region(fst_region)
+    snd_region = canonize_region(snd_region)
     if fst_region['b'] > snd_region['b']:
         fst_region, snd_region = snd_region, fst_region
     if fst_region['e'] > snd_region['b']:
