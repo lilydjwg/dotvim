@@ -11,8 +11,10 @@
 
 if has('python3')
     command! -nargs=1 PythonUsedInTransposeRegion python3 <args>
-else
+elseif has('python')
     command! -nargs=1 PythonUsedInTransposeRegion python <args>
+else
+    finish
 end
 
 function! s:mark_region()
