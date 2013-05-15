@@ -1277,7 +1277,6 @@ snippet	snipMate.txt	/*snippet*
 snippet-syntax	snipMate.txt	/*snippet-syntax*
 snippets	snipMate.txt	/*snippets*
 surround	surround.txt	/*surround*
-surround-author	surround.txt	/*surround-author*
 surround-customizing	surround.txt	/*surround-customizing*
 surround-issues	surround.txt	/*surround-issues*
 surround-mappings	surround.txt	/*surround-mappings*
@@ -1473,7 +1472,6 @@ visman	vis.txt	/*visman*
 vismanual	vis.txt	/*vismanual*
 viwmiki-global-options	vimwiki.txt	/*viwmiki-global-options*
 viwmiki-local-options	vimwiki.txt	/*viwmiki-local-options*
-vs	surround.txt	/*vs*
 xml-plugin-callbacks	xml-plugin.txt	/*xml-plugin-callbacks*
 xml-plugin-html	xml-plugin.txt	/*xml-plugin-html*
 xml-plugin-mappings	xml-plugin.txt	/*xml-plugin-mappings*
