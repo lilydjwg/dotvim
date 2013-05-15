@@ -12,7 +12,6 @@
 if has('python3')
     command! -nargs=1 PythonUsedInTransposeRegion python3 <args>
 else
-    echoerr "transpose-region: No +python3 support!"
     finish
 end
 
