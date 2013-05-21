@@ -832,6 +832,9 @@ command -range=% Paste <line1>,<line2>py3 LilyPaste()
 command -range=% Tohtml call Lilydjwg_to_html(<line1>, <line2>)
 command Agg exe 'Ag -Q ' . expand('<cword>')
 " 插件配置[[[1
+"   ConflictMotions [[[1
+" 禁用 \x 开头的映射；它们与 EnhancedCommentify 冲突了
+let g:ConflictMotions_TakeMappingPrefix = ''
 "   NrrRgn[[[2
 let g:nrrw_rgn_vert = 1
 let g:nrrw_rgn_wdth = 80
