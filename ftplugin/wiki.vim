@@ -20,7 +20,6 @@ xnoremap <buffer> <Down> gj
 " 我自定义的映射 {{{1
 nmap <silent> <buffer> = :call Lilydjwg_wiki_title(1)<CR>
 nmap <silent> <buffer> + :call Lilydjwg_wiki_title(0)<CR>
-nmap <buffer> <Space> I <ESC>
 vmap <buffer> [ <ESC>`>a]<ESC>`<i[<ESC>
 vmap <buffer> ] <ESC>`<i[<ESC>`>la]<ESC>
 vmap <buffer> <Space> ^<C-V>I <ESC>

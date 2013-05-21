@@ -728,12 +728,6 @@ nmap <M-j> gj
 nmap <M-k> gk
 vmap <M-j> gj
 vmap <M-k> gk
-"   surround [[[2
-"      比起 c，我更喜欢用 s
-xmap c <Plug>Vsurround
-xmap C <Plug>VSurround
-"      原 cs 和 cscope 的冲突了
-nmap cS <Plug>Csurround
 "     以 % 表示的字符 [[[2
 map <silent> t% :w !ascii2uni -a J -q<CR>
 nmap <silent> t% :call Lilydjwg_hexchar()<CR>
@@ -835,6 +829,25 @@ command Agg exe 'Ag -Q ' . expand('<cword>')
 "   ConflictMotions [[[1
 " 禁用 \x 开头的映射；它们与 EnhancedCommentify 冲突了
 let g:ConflictMotions_TakeMappingPrefix = ''
+"   surround [[[2
+"      比起 c，我更喜欢用 s
+let g:surround_no_mappings = 1
+" original
+nmap ds  <Plug>Dsurround
+nmap ys  <Plug>Ysurround
+nmap yS  <Plug>YSurround
+nmap yss <Plug>Yssurround
+nmap ySs <Plug>YSsurround
+nmap ySS <Plug>YSsurround
+xmap S   <Plug>VSurround
+xmap gS  <Plug>VgSurround
+imap <C-G>s <Plug>Isurround
+imap <C-G>S <Plug>ISurround
+" mine
+xmap c <Plug>VSurround
+xmap C <Plug>VSurround
+" cs is for cscope
+nmap cS <Plug>Csurround
 "   NrrRgn[[[2
 let g:nrrw_rgn_vert = 1
 let g:nrrw_rgn_wdth = 80
