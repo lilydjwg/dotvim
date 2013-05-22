@@ -858,6 +858,10 @@ let g:neocomplcache_enable_camel_case_completion = 1
 let g:neocomplcache_enable_underbar_completion = 1
 let g:neocomplcache_force_overwrite_completefunc = 1
 let g:neocomplcache_temporary_dir = expand('~/.neocon') " he's changing it!
+" 补全所有 buffer 里的内容
+" http://forum.ubuntu.org.cn/viewtopic.php?f=68&t=429131&p=3002378#p3002378
+let g:neocomplcache_same_filetype_lists = {}
+let g:neocomplcache_same_filetype_lists._ = '_'
 "   cycle[[[2
 "   https://github.com/lilydjwg/vim-cycle
 nnoremap <expr> <silent> <C-X> Lilydjwg_trycycle('x')
