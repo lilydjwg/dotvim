@@ -48,6 +48,7 @@ parseInt
 prepend
 prependTo
 preventDefault
+previousElementSibling
 pushState
 removeAttr
 removeClass
