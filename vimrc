@@ -425,6 +425,8 @@ set smarttab
 set expandtab
 " 不要响铃，更不要闪屏
 set visualbell t_vb=
+" when will this cause problems?
+set ttyfast
 autocmd GUIEnter * set t_vb=
 set viminfo='100,:10000,<50,s10,h
 set history=10000
