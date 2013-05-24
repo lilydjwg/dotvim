@@ -59,6 +59,16 @@ if v:version < 700
     finish
 endif
 
+if exists("*strwidth")
+    function s:strwidth(s)
+        return strwidth(a:s)
+    endfunction
+else
+    function s:strwidth(s)
+        return len(a:s)
+    endfunction
+endif
+
 " Create commands {{{2
 command! BufExplorer :call BufExplorer()
 command! BufExplorerHorizontalSplit :call BufExplorerHorizontalSplit()
@@ -607,10 +617,10 @@ function! s:GetBufferInfo(bufnr)
         call add(all, b)
 
         for n in keys(s:types)
-            call add(allwidths[n], len(b[n]))
+            call add(allwidths[n], s:strwidth(b[n]))
 
             if b.attributes !~ "u"
-                call add(listedwidths[n], len(b[n]))
+                call add(listedwidths[n], s:strwidth(b[n]))
             endif
         endfor
     endfor
@@ -666,7 +676,7 @@ function! s:BuildBufferList()
             let type = (g:bufExplorerShowRelativePath) ? "relativepath" : "path"
             let path = buf[type]
             let pad  = (g:bufExplorerShowUnlisted) ? s:allpads.shortname : s:listedpads.shortname
-            let line .= buf.shortname." ".strpart(pad.path, len(buf.shortname))
+            let line .= buf.shortname." ".strpart(pad.path, s:strwidth(buf.shortname))
         else
             let type = (g:bufExplorerShowRelativePath) ? "relativename" : "fullname"
             let path = buf[type]
@@ -676,7 +686,7 @@ function! s:BuildBufferList()
         let pads = (g:bufExplorerShowUnlisted) ? s:allpads : s:listedpads
 
         if !empty(pads[type])
-            let line .= strpart(pads[type], len(path))." "
+            let line .= strpart(pads[type], s:strwidth(path))." "
         endif
 
         let line .= buf.line
