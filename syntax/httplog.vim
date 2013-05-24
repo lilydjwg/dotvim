@@ -22,7 +22,7 @@ syn match httplogBrowser	/\<Feedfetcher-Google\>/
 syn match httplogBrowser	/\<Google Web Preview\>/
 syn match httplogBrowser	"\<bingbot\>/\@="
 syn match httplogBrowser	/\<Sogou web spider\>/
-syn keyword httplogBrowser	Firefox MSIE Konqueror Chromium ChromePlus Opera w3m Wget Lynx Epiphany Links TheWorld contained
+syn keyword httplogBrowser	Firefox MSIE Konqueror Chromium ChromePlus Opera w3m Wget aria2 Lynx Epiphany Links TheWorld contained
 syn keyword httplogBrowser	gvfs curl pacman PackageKit contained
 syn keyword httplogBrowser	Googlebot Baiduspider Sosospider YandexBot W3C_Validator Jigsaw PhantomJS contained
 syn match httplogLAN	/\v^192\.168\.\d+\.\d+/ contained
