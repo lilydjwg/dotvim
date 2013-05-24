@@ -152,11 +152,14 @@ endfunction
 
 function! s:_redir(cmd)
   let oldverbosefile = &verbosefile
+  let oldverbose = &verbose
+  set verbose=0
   set verbosefile=
   redir => res
     silent! execute a:cmd
   redir END
   let &verbosefile = oldverbosefile
+  let &verbose = oldverbose
   return res
 endfunction
 
