@@ -430,8 +430,8 @@ function! s:MapKeys()
     nnoremap <script> <silent> <buffer> <F1>          :call <SID>ToggleHelp()<CR>
     nnoremap <script> <silent> <buffer> <s-cr>        :call <SID>SelectBuffer("tab")<CR>
     nnoremap <script> <silent> <buffer> B             :call <SID>ToggleOnlyOneTab()<CR>
-    nnoremap <script> <silent> <buffer> d             :call <SID>RemoveBuffer("delete")<CR>
-    nnoremap <script> <silent> <buffer> D             :call <SID>RemoveBuffer("wipe")<CR>
+    nnoremap <script> <silent> <buffer> x             :call <SID>RemoveBuffer("delete")<CR>
+    nnoremap <script> <silent> <buffer> X             :call <SID>RemoveBuffer("wipe")<CR>
     nnoremap <script> <silent> <buffer> f             :call <SID>ToggleFindActive()<CR>
     nnoremap <script> <silent> <buffer> m             :call <SID>MRUListShow()<CR>
     nnoremap <script> <silent> <buffer> o             :call <SID>SelectBuffer()<CR>
@@ -548,8 +548,8 @@ function! s:CreateHelp()
         call add(header, '" <enter> or o or Mouse-Double-Click : open buffer under cursor')
         call add(header, '" <shift-enter> or t : open buffer in another tab')
         call add(header, '" B : toggle if to save/use recent tab or not')
-        call add(header, '" d : delete buffer')
-        call add(header, '" D : wipe buffer')
+        call add(header, '" x : delete buffer')
+        call add(header, '" X : wipe buffer')
         call add(header, '" f : toggle find active buffer')
         call add(header, '" p : toggle spliting of file and path name')
         call add(header, '" q : quit')
