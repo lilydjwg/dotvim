@@ -29,7 +29,7 @@ function LoadTemplate(read)
   let fname = templatePrefix . &ft
   let fname = expand(fname)
   if a:read == 0 && filereadable(fname)
-    sil exe 'read ' . fname
+    sil exe 'keepalt read ' . fname
     " 删除空行
     normal ggdd
     setlocal nomodified
