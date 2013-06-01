@@ -476,6 +476,15 @@ if has("gui_macvim")
   set macmeta
 end
 if has("win32") || has("win64")
+  " Win 编码 [[[3
+  " 行禁则补丁要求 encoding 为 'utf-8'
+  set encoding=utf-8
+  set fileencoding=cp936
+  language messages zh_CN.UTF-8
+  set termencoding=cp936
+  set langmenu=chinese_gb.936
+  source $VIMRUNTIME/delmenu.vim
+  source $VIMRUNTIME/menu.vim
   " Win 路径 [[[3
   let g:vimfiles = split(&runtimepath, ',')[1]
   let g:mytmpdir = $TMP
