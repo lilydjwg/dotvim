@@ -19,3 +19,5 @@ unlet b:current_syntax_save
 highlight link tmplCode Normal
 highlight link tmplComment Comment
 highlight link tmplKeyword Keyword
+
+set iskeyword-=58
