@@ -1,13 +1,8 @@
 " Vim script file
-" FileType:     git commit
+" FileType:     git
 " Author:       lilydjwg <lilydjwg@gmail.com>
 
 " ---------------------------------------------------------------------
-"  排版
-setlocal fo-=c
-setlocal nomodeline
-"  置于第一行
-0
 runtime ftplugin/diff_movement.vim
 " ---------------------------------------------------------------------
 " Vim Modeline:

@@ -4,13 +4,15 @@
 "   - CountJump.vim, CountJump/Motion.vim, CountJump/TextObjects.vim autoload
 "     scripts. 
 "
-" Copyright: (C) 2009-2010 Ingo Karkat
+" Copyright: (C) 2009-2011 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'. 
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS 
-" 1.00.004	03-Aug-2010	FIX: Multiple [count] text objects were broken
+"   1.01.005	21-Sep-2011	Avoid use of s:function() by using autoload
+"				function name.
+"   1.00.004	03-Aug-2010	FIX: Multiple [count] text objects were broken
 "				by the jump to the actual diff hunk start; must
 "				only do a one-step jump there. 
 "	003	02-Aug-2010	Tested with new CountJump 1.20, adapted and
@@ -27,7 +29,6 @@
 if v:version < 700
     finish
 endif 
-
 let s:save_cpo = &cpo
 set cpo&vim
 
@@ -83,10 +84,7 @@ call CountJump#Motion#MakeBracketMotion('<buffer>', '', '',
 "ah			"a hunk" text object, select [count] hunks, including
 "			the header. 
 " Note: For context diffs, these selections are off by one or a few lines. 
-function! s:function(name)
-    return function(substitute(a:name, '^s:', matchstr(expand('<sfile>'), '<SNR>\d\+_\zefunction$'),''))
-endfunction 
-function! s:JumpToHunkBegin( count, isInner )
+function! diff_movement#JumpToHunkBegin( count, isInner )
     " Enable selection of inner hunk even if the cursor is positioned on the
     " hunk header. 
     if a:isInner
@@ -101,7 +99,7 @@ function! s:JumpToHunkBegin( count, isInner )
     endif
     return l:pos
 endfunction
-function! s:JumpToHunkEnd( count, isInner )
+function! diff_movement#JumpToHunkEnd( count, isInner )
     " Due to the multi-line pattern, we somehow must navigate to the actual
     " start of the diff hunk. This only differs from the cursor position (after
     " the diff hunk header, position 1) by less than one full line, if at all,
@@ -121,11 +119,10 @@ function! s:JumpToHunkEnd( count, isInner )
     return l:pos
 endfunction
 call CountJump#TextObject#MakeWithJumpFunctions('<buffer>', 'h', 'aI', 'V',
-\   s:function('s:JumpToHunkBegin'),
-\   s:function('s:JumpToHunkEnd'),
+\   function('diff_movement#JumpToHunkBegin'),
+\   function('diff_movement#JumpToHunkEnd'),
 \)
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
-
-" vim: set sts=4 sw=4 noexpandtab ff=unix fdm=syntax :
+" vim: set ts=8 sts=4 sw=4 noexpandtab ff=unix fdm=syntax :
