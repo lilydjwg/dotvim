@@ -87,12 +87,12 @@ function Lilydjwg_join(sep, bang) range
 endfunction
 "   切换显示行号/相对行号/不显示 [[[2
 function Lilydjwg_toggle_number()
-  if &nu
-    setl rnu
-  elseif &rnu
-    setl nornu
+  if &nu && &rnu
+    set nonu nornu
+  elseif &nu && !&rnu
+    set rnu
   else
-    setl nu
+    set nu
   endif
 endfunction
 "   更改缩进[[[2
