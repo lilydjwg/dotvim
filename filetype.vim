@@ -53,4 +53,5 @@ augroup filetypedetect
   au BufRead		$HOME/.cabal/config		setf cabal
   au BufNewFile,BufRead *.stp				setf stap
   au BufNewFile,BufRead *.io				setf io
+  au BufNewFile,BufRead supervisor*.conf                setf dosini
 augroup END
