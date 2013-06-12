@@ -50,7 +50,7 @@ let s:COMPOUND_ASSIGNMENT = '[:=]\s*\%(if\|unless\|for\|while\|until\|'
 " A postfix condition like `return ... if ...`.
 let s:POSTFIX_CONDITION = '\S\s\+\zs\<\%(if\|unless\)\>'
 
-" A single-line else statement like `else ...` but not `else if ...
+" A single line else statement like `else ...` but not `else if ...`
 let s:SINGLE_LINE_ELSE = '^else\s\+\%(\<\%(if\|unless\)\>\)\@!'
 
 " Max lines to look back for a match
@@ -92,8 +92,7 @@ function! s:IsCommentLine(linenum)
   return s:IsComment(a:linenum, indent(a:linenum) + 1)
 endfunction
 
-" Repeatedly search a line for a regex until one is found outside a string or
-" comment.
+" Search a line for a regex until one is found outside a string or comment.
 function! s:SmartSearch(linenum, regex)
   " Start at the first column.
   let col = 0
@@ -117,18 +116,19 @@ function! s:SmartSearch(linenum, regex)
   return 0
 endfunction
 
-" Skip a match if it's in a comment or string, is a single-line statement that
-" isn't adjacent, or is a postfix condition.
+" Check if a match should be skipped.
 function! s:ShouldSkip(startlinenum, linenum, col)
+  " Skip if in a comment or string.
   if s:IsCommentOrString(a:linenum, a:col)
     return 1
   endif
 
-  " Check for a single-line statement that isn't adjacent.
+  " Skip if a single line statement that isn't adjacent.
   if s:SmartSearch(a:linenum, '\<then\>') && a:startlinenum - a:linenum > 1
     return 1
   endif
 
+  " Skip if a postfix condition.
   if s:SmartSearch(a:linenum, s:POSTFIX_CONDITION) &&
   \ !s:SmartSearch(a:linenum, s:COMPOUND_ASSIGNMENT)
     return 1
@@ -186,7 +186,7 @@ endfunction
 function! s:GetPrevNormalLine(startlinenum)
   let curlinenum = a:startlinenum
 
-  while curlinenum > 0
+  while curlinenum
     let curlinenum = prevnonblank(curlinenum - 1)
 
     if !s:IsCommentLine(curlinenum)
@@ -199,18 +199,23 @@ endfunction
 
 " Try to find a comment in a line.
 function! s:FindComment(linenum)
-  let col = 0
+  call cursor(a:linenum, 0)
 
-  while 1
-    call cursor(a:linenum, col + 1)
-    let [_, col] = searchpos('#', 'cn', a:linenum)
+  " Current column
+  let cur = 0
+  " Last column in the line
+  let end = col('$') - 1
 
-    if !col
+  while cur != end
+    call cursor(0, cur + 1)
+    let [_, cur] = searchpos('#', 'cn', a:linenum)
+
+    if !cur
       break
     endif
 
-    if s:IsComment(a:linenum, col)
-      return col
+    if s:IsComment(a:linenum, cur)
+      return cur
     endif
   endwhile
 
@@ -232,28 +237,41 @@ function! s:GetTrimmedLine(linenum)
   \                                  '\s\+$', '', '')
 endfunction
 
-function! s:GetCoffeeIndent(curlinenum)
+function! GetCoffeeIndent(curlinenum)
+  " Don't do anything if on the first line.
+  if a:curlinenum == 1
+    return -1
+  endif
+
+  let prevlinenum = a:curlinenum - 1
+
+  " If continuing a comment, keep the indent level.
+  if s:IsCommentLine(prevlinenum)
+    return indent(prevlinenum)
+  endif
+
   let prevlinenum = s:GetPrevNormalLine(a:curlinenum)
 
-  " Don't do anything if there's no previous line.
+  " Don't do anything if there's no code before.
   if !prevlinenum
     return -1
   endif
 
+  " Indent based on the current line.
   let curline = s:GetTrimmedLine(a:curlinenum)
 
-  " Try to find a previous matching statement. This handles outdenting.
+  " Try to find a matching statement. This handles outdenting.
   let matchlinenum = s:GetMatch(curline)
 
   if matchlinenum
     return indent(matchlinenum)
   endif
 
-  " Try to find a matching `when`.
+  " Try to find a matching when.
   if curline =~ '^when\>' && !s:SmartSearch(prevlinenum, '\<switch\>')
     let linenum = a:curlinenum
 
-    while linenum > 0
+    while linenum
       let linenum = s:GetPrevNormalLine(linenum)
 
       if getline(linenum) =~ '^\s*when\>'
@@ -264,6 +282,7 @@ function! s:GetCoffeeIndent(curlinenum)
     return -1
   endif
 
+  " Indent based on the previous line.
   let prevline = s:GetTrimmedLine(prevlinenum)
   let previndent = indent(prevlinenum)
 
@@ -274,9 +293,27 @@ function! s:GetCoffeeIndent(curlinenum)
 
   " Indent after a continuation if it's the first.
   if prevline =~ s:CONTINUATION
+    " If the line ends in a slash, make sure it isn't a regex.
+    if prevline =~ '/$'
+      " Move to the line so we can get the last column.
+      call cursor(prevlinenum)
+
+      if s:IsString(prevlinenum, col('$') - 1)
+        return -1
+      endif
+    endif
+
     let prevprevlinenum = s:GetPrevNormalLine(prevlinenum)
+
+    " If the continuation is the first in the file, there can't be others before
+    " it.
+    if !prevprevlinenum
+      return previndent + &shiftwidth
+    endif
+
     let prevprevline = s:GetTrimmedLine(prevprevlinenum)
 
+    " Only indent after the first continuation.
     if prevprevline !~ s:CONTINUATION && prevprevline !~ s:CONTINUATION_BLOCK
       return previndent + &shiftwidth
     endif
@@ -285,7 +322,7 @@ function! s:GetCoffeeIndent(curlinenum)
   endif
 
   " Indent after these keywords and compound assignments if they aren't a
-  " single-line statement.
+  " single line statement.
   if prevline =~ s:INDENT_AFTER_KEYWORD || prevline =~ s:COMPOUND_ASSIGNMENT
     if !s:SmartSearch(prevlinenum, '\<then\>') && prevline !~ s:SINGLE_LINE_ELSE
       return previndent + &shiftwidth
@@ -308,15 +345,7 @@ function! s:GetCoffeeIndent(curlinenum)
     endif
   endif
 
-  " No indenting or outdenting is needed.
-  return -1
-endfunction
-
-" Wrap s:GetCoffeeIndent to keep the cursor position.
-function! GetCoffeeIndent(curlinenum)
-  let oldcursor = getpos('.')
-  let indent = s:GetCoffeeIndent(a:curlinenum)
-  call setpos('.', oldcursor)
-
-  return indent
+  " If no indent or outdent is needed, keep the indent level of the previous
+  " line.
+  return previndent
 endfunction
