@@ -652,7 +652,7 @@ nmap <silent> tf :call Lilydjwg_open_url()<CR>
 "     less style 清除高亮
 nmap <silent> <M-u> :nohls<CR>
 nmap tj Jx
-nmap tl ^v$h
+nnoremap tl ^vg_
 nmap <silent> to :call append('.', '')<CR>j
 nmap <silent> tO :call append(line('.')-1, '')<CR>k
 nmap tp "+P
