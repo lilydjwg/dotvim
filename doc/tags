@@ -62,6 +62,10 @@
 :Align	Align.txt	/*:Align*
 :AlignCtrl	Align.txt	/*:AlignCtrl*
 :AlignMapsClean	Align.txt	/*:AlignMapsClean*
+:CoffeeCompile	coffee-script.txt	/*:CoffeeCompile*
+:CoffeeLint	coffee-script.txt	/*:CoffeeLint*
+:CoffeeMake	coffee-script.txt	/*:CoffeeMake*
+:CoffeeRun	coffee-script.txt	/*:CoffeeRun*
 :ColorSchemeEditor	ColorSchemeEditor.txt	/*:ColorSchemeEditor*
 :ConflictTake	ConflictMotions.txt	/*:ConflictTake*
 :FufBookmarkDir	fuf.txt	/*:FufBookmarkDir*
@@ -600,6 +604,15 @@ cecutil-saveusermaps	cecutil.txt	/*cecutil-saveusermaps*
 cecutil-savewinposn	cecutil.txt	/*cecutil-savewinposn*
 cecutil-swp	cecutil.txt	/*cecutil-swp*
 cecutil.txt	cecutil.txt	/*cecutil.txt*
+coffee-script	coffee-script.txt	/*coffee-script*
+coffee-script-author	coffee-script.txt	/*coffee-script-author*
+coffee-script-commands	coffee-script.txt	/*coffee-script-commands*
+coffee-script-contents	coffee-script.txt	/*coffee-script-contents*
+coffee-script-introduction	coffee-script.txt	/*coffee-script-introduction*
+coffee-script-license	coffee-script.txt	/*coffee-script-license*
+coffee-script-settings	coffee-script.txt	/*coffee-script-settings*
+coffee-script.txt	coffee-script.txt	/*coffee-script.txt*
+compiler-coffee-script	coffee-script.txt	/*compiler-coffee-script*
 cr	abolish.txt	/*cr*
 cs	surround.txt	/*cs*
 cycle	cycle.txt	/*cycle*
@@ -651,6 +664,7 @@ ex-visincr-IMDY	visincr.txt	/*ex-visincr-IMDY*
 ex-visincr-IYMD	visincr.txt	/*ex-visincr-IYMD*
 filename_complete	neocomplcache.txt	/*filename_complete*
 filename_include	neocomplcache.txt	/*filename_include*
+ft-coffee-script-syntax	coffee-script.txt	/*ft-coffee-script-syntax*
 fuf	fuf.txt	/*fuf*
 fuf#setOneTimeVariables()	fuf.txt	/*fuf#setOneTimeVariables()*
 fuf-abbreviation	fuf.txt	/*fuf-abbreviation*
@@ -779,6 +793,11 @@ g:bufExplorerSplitHorzSize	bufexplorer.txt	/*g:bufExplorerSplitHorzSize*
 g:bufExplorerSplitOutPathName	bufexplorer.txt	/*g:bufExplorerSplitOutPathName*
 g:bufExplorerSplitRight	bufexplorer.txt	/*g:bufExplorerSplitRight*
 g:bufExplorerSplitVertSize	bufexplorer.txt	/*g:bufExplorerSplitVertSize*
+g:coffee_compile_vert	coffee-script.txt	/*g:coffee_compile_vert*
+g:coffee_compiler	coffee-script.txt	/*g:coffee_compiler*
+g:coffee_lint_options	coffee-script.txt	/*g:coffee_lint_options*
+g:coffee_linter	coffee-script.txt	/*g:coffee_linter*
+g:coffee_make_options	coffee-script.txt	/*g:coffee_make_options*
 g:cycle_auto_visual	cycle.txt	/*g:cycle_auto_visual*
 g:cycle_default_groups	cycle.txt	/*g:cycle_default_groups*
 g:cycle_default_groups_for_{filetype}	cycle.txt	/*g:cycle_default_groups_for_{filetype}*
