@@ -1,7 +1,6 @@
 " Vim script file
 " FileType:     ConteXt
 " Author:       lilydjwg <lilydjwg@gmail.com>
-" Last Change:  2011年2月9日
 " ---------------------------------------------------------------------
 if $PATH !~ 'context'
   echohl WarningMsg
@@ -10,6 +9,7 @@ if $PATH !~ 'context'
 endif
 runtime ftplugin/texcommon.vim
 nmap <buffer> <C-F5> :call texcommon#tex2pdf('context')<CR>
+vmap <buffer> mr <ESC>`>a}{}<ESC>`<i\ruby{<ESC>f};
 " ---------------------------------------------------------------------
 " Vim Modeline:
 " vim:fdm=expr:fde=getline(v\:lnum-1)=~'\\v"\\s*-{20,}'?'>1'\:1
