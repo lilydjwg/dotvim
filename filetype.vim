@@ -39,7 +39,7 @@ augroup filetypedetect
   au BufNewFile,BufRead mimeapps.list			setf desktop
   au BufRead		*tmux.conf			setf tmux
   au BufRead		rc.conf				setf sh
-  au BufRead		*.grf				setf dosini
+  au BufRead		*.grf,*.url			setf dosini
   au BufRead		accels				setf lisp
   au BufNewFile,BufRead	PKGBUILD			setf sh
   au BufNewFile,BufRead	*.install,install		setf sh
