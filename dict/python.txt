@@ -7,6 +7,7 @@ BytesIO
 CharsNotIn
 Combine
 Condition
+DB_CREATE_OR_OPEN
 EOFError
 Element
 Ellipsis
@@ -57,6 +58,7 @@ UserWarning
 ValueError
 WindowsError
 Word
+WritableDatabase
 ZeroOrMore
 __bool__
 __builtins__
@@ -256,6 +258,7 @@ total_ordering
 traceback
 transformString
 traverse
+unicode
 unicode_literals
 unicodedata
 urllib
