@@ -471,6 +471,7 @@ endtry
 if has('arabic')
   set noarabicshape
 endif
+set wildignore+=*~,*.pyo,__pycache__,.*.swp
 " Linux 与 Windows 等 [[[2
 if has("gui_macvim")
   set macmeta
