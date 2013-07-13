@@ -1,0 +1,318 @@
+*signify.txt*                                      Seeing changes like a boss.
+*signify*
+
+                                              ___
+                    __                  __  /'___\
+               ____/\_\     __     ___ /\_\/\ \__/  __  __
+              /',__\/\ \  /'_ `\ /' _ `\/\ \ \ ,__\/\ \/\ \
+             /\__, `\ \ \/\ \L\ \/\ \/\ \ \ \ \ \_/\ \ \_\ \
+             \/\____/\ \_\ \____ \ \_\ \_\ \_\ \_\  \/`____ \
+              \/___/  \/_/\/___L\ \/_/\/_/\/_/\/_/   `/___/> \
+                            /\____/                     /\___/
+                            \_/__/                      \/__/
+
+
+
+                              Reference Manual
+
+
+==============================================================================
+CONTENTS                                                      *signify-contents*
+
+    1.Intro..........................................|signify-intro|
+    2.Usage..........................................|signify-usage|
+    3.Options........................................|signify-options|
+    4.Commands.......................................|signify-commands|
+    4.Mappings.......................................|signify-mappings|
+    5.Colors.........................................|signify-colors|
+    6.Author.........................................|signify-author|
+    7.Credits........................................|signify-credits|
+    8.License........................................|signify-license|
+
+
+==============================================================================
+1. Intro                                                         *signify-intro*
+
+Signify, or just sy for short, is an quite unobtrusive plugin. If there is
+information about changes (in form of patch hunks) since the last commit, they
+will be shown on the left side in Vim's sign column.
+
+Easy-peasy!
+
+
+==============================================================================
+2. Usage                                                         *signify-usage*
+
+The usage is pretty straight-forward. By default you should only notice a
+difference, if you're working in a directory that is managed by a supported
+version control system:
+
+    - git
+    - mercurial
+    - darcs
+    - bzr
+    - subversion
+    - cvs
+    - rcs
+    - fossil
+
+Sign explanation:
+
+    +
+
+A new line was added. The sign is shown on the same line as the new line.
+
+    _1
+
+A line was deleted. The sign is shown on the line above the deleted line. The
+second character indicates the number of deleted lines: 1-9, and # for
+everything above.
+
+    !
+
+A line was changed. Something was changed, but the amount of lines stayed the
+same. The sign is shown on the same line.
+
+    !_
+
+A line was changed and one or more of the lines below were deleted. A
+combination of ! and _. The sign is shown on the same line.
+
+    ‾
+
+This is used instead of _ in the special case of the first line being removed.
+
+
+==============================================================================
+3. Options                                                     *signify-options*
+
+Put these variables into your vimrc. The provided examples also indicate the
+default values, as long as no "Default:" section is given.
+
+============-
+
+    let g:signify_vcs_list = [ 'git', 'hg' ]
+
+Default: ['git', 'hg', 'svn', 'darcs', 'bzr', 'fossil', 'cvs', 'rcs']
+
+This variable determines the VCS to check for and in what order. If you only
+use git and mercurial, you can shorten the list to the shown example. If you
+use mostly mercurial and only sometimes git, put 'hg' in the front of the
+list. It's basically a priority list.
+
+This can improve buffer loading time since by default all supported VCS will
+be checked for, so you are advised to change this variable to your needs.
+
+NOTE: This only happens once the first time signs get updated. Afterwards, the
+VCS will be remembered anyway.
+
+NOTE: If you don't change this list and Sy is activated, updating signs for a
+non-VCS file can lead to significant delay since all supported VCS will be
+tested for.
+
+============-
+
+    let g:signify_disable_by_default = 0
+
+Don't run Sy by default. You can toggle it anytime via :SignifyToggle.
+
+============-
+
+    let g:signify_mapping_next_hunk = '<leader>gj'
+    let g:signify_mapping_prev_hunk = '<leader>gk'
+
+Mapping for jumping to the start of the next or previous hunk.
+
+============-
+
+    let g:signify_mapping_toggle_highlight = '<leader>gh'
+
+Mapping for toggling line highlighting for lines containing changes.
+
+============-
+
+    let g:signify_mapping_toggle = '<leader>gt'
+
+Mapping for toggling the plugin for the current buffer only.
+
+============-
+
+    let g:signify_skip_filetype = { 'vim': 1, 'c': 1 }
+    let g:signify_skip_filename = { '/home/user/.vimrc': 1 }
+
+Don't activate the plugin for these filetypes and/or filenames.
+
+NOTE: Filenames have to be absolute paths.
+
+Default: Both are empty.
+
+============-
+
+    let g:signify_sign_overwrite = 1
+
+Overwrite signs set by other plugins by default.
+
+============-
+
+    let g:signify_update_on_bufenter = 0
+
+Update signs when entering a buffer that was modified.
+
+NOTE: This also saves the buffer to disk!
+
+============-
+
+    let g:signify_line_highlight = 0
+
+Enable line highlighting in addition to using signs by default.
+
+============-
+
+    let g:signify_sign_add               = '+'
+    let g:signify_sign_change            = '!'
+    let g:signify_sign_change_delete     = '!_'
+    let g:signify_sign_delete            = '_'
+    let g:signify_sign_delete_first_line = '‾'
+
+The sign to use if a line was added, deleted or changed or a combination of
+these.
+
+============-
+
+    let g:signify_cursorhold_normal = 0
+    let g:signify_cursorhold_insert = 0
+
+Additionally trigger sign updates in normal or insert mode after 'updatetime'
+miliseconds without any keypresses. This fires only once between keypresses,
+thus not every 'updatetime' miliseconds.
+
+NOTE: This also saves the buffer to disk!
+
+============-
+
+    let g:signify_difftool = 'gnudiff'
+
+This will avoid the attempt to find the proper diff tool for version control
+systems that rely on an external diff tool that supports the -U0 flag. These
+are: svn, bzr, darcs, fossil.
+
+Otherwise 'diff' will be used.
+
+Default: Does not exist.
+
+
+==============================================================================
+4. Commands                                                   *signify-commands*
+4. Mappings                                                   *signify-mappings*
+
+
+    :SignifyToggle
+
+Toggle the plugin for the current buffer only.
+Default mapping:  <leader>gt
+
+============-
+
+    :SignifyToggleHighlight
+
+Toggle line highlighting for lines containing changes.
+Default mapping:  <leader>gh
+
+============-
+
+    :SignifyJumpToNextHunk
+
+Jump to the next start of a hunk. There are two mappings available:
+
+Hardcoded mapping:     ]c
+Configurable mapping:  <leader>gj
+
+============-
+
+    :SignifyJumpToPrevHunk
+
+Jump to the previous start of a hunk. There are two mappings available:
+
+Hardcoded mapping:     [c
+Configurable mapping:  <leader>gk
+
+
+==============================================================================
+5. Colors                                                       *signify-colors*
+
+This plugin defines highlighting groups for two different places: for lines
+and signs. Per default these don't really exist but are linked to the standard
+highlighting groups: DiffAdd, DiffChange, DiffDelete:
+
+    highlight link SignifyLineAdd    DiffAdd
+    highlight link SignifyLineChange DiffChange
+    highlight link SignifyLineDelete DiffDelete
+
+    highlight link SignifySignAdd    DiffAdd
+    highlight link SignifySignChange DiffChange
+    highlight link SignifySignDelete DiffDelete
+
+Thus if you do not want to change the standard highlighting groups, but want
+different colors for either your signs or lines, you can define one of these 6
+Signify groups yourself in your vimrc.
+
+Personally I use (256 colors terminal):
+
+    " highlight lines in Sy and vimdiff etc.)
+
+    highlight DiffAdd           cterm=bold ctermbg=none ctermfg=119
+    highlight DiffDelete        cterm=bold ctermbg=none ctermfg=167
+    highlight DiffChange        cterm=bold ctermbg=none ctermfg=227
+
+    " highlight signs in Sy
+
+    highlight SignifySignAdd    cterm=bold ctermbg=237  ctermfg=119
+    highlight SignifySignDelete cterm=bold ctermbg=237  ctermfg=167
+    highlight SignifySignChange cterm=bold ctermbg=237  ctermfg=227
+
+For Unix people there is a small script, showcolors.bash, in the repo that
+shows all 256 colors available to the terminal. That makes picking the right
+numbers much easier.
+
+
+==============================================================================
+6. About the author                                             *signify-author*
+
+My nick on Freenode IRC is mhi^.
+
+For latest developments: https://github.com/mhinz
+
+If you use any of my plugins, star it on github. This is a great way of
+getting feedback! Same for issues or feature requests.
+
+Thank you for flying mhi airlines. Get the Vim on!
+
+
+==============================================================================
+7. Credits                                                     *signify-credits*
+
+People who contributed to sy. Format: Person (Github account)
+
+
+Jeremy Mack            (mutewinter)
+Chong Li               (chongli)
+Robin Munn             (rmunn)
+Martin Hoch            (rtwo)
+fritzophrenic          (Ben Fritz)
+Morgan Fouesneau       (mfouesneau)
+Zhao Cai               (zhaocai)
+Otto Modinos           (otommod)
+Ryan Kois              (kid-icarus)
+Jon Kinney             (j2fly)
+Israel Chauca Fuentes  (Raimondi)
+
+
+==============================================================================
+8. Licence                                                     *signify-license*
+
+Copyright © Marco Hinz. Distributed under the same terms as Vim itself.
+
+See |license|.
+
+
+vim: tw=78
