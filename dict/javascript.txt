@@ -50,6 +50,7 @@ prependTo
 preventDefault
 previousElementSibling
 pushState
+querySelector
 removeAttr
 removeClass
 removeData
