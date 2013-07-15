@@ -16,7 +16,9 @@ function! linediff#differ#New(sign_name, sign_number)
         \ 'Init':                      function('linediff#differ#Init'),
         \ 'IsBlank':                   function('linediff#differ#IsBlank'),
         \ 'Reset':                     function('linediff#differ#Reset'),
+        \ 'CloseAndReset':             function('linediff#differ#CloseAndReset'),
         \ 'Lines':                     function('linediff#differ#Lines'),
+        \ 'Indent':                    function('linediff#differ#Indent'),
         \ 'CreateDiffBuffer':          function('linediff#differ#CreateDiffBuffer'),
         \ 'SetupDiffBuffer':           function('linediff#differ#SetupDiffBuffer'),
         \ 'CloseDiffBuffer':           function('linediff#differ#CloseDiffBuffer'),
@@ -51,8 +53,6 @@ endfunction
 " Resets the differ to the blank state. Invoke `Init(from, to)` on it later to
 " make it usable again.
 function! linediff#differ#Reset() dict
-  call self.CloseDiffBuffer()
-
   let self.original_buffer = -1
   let self.diff_buffer     = -1
   let self.filetype        = ''
@@ -64,6 +64,13 @@ function! linediff#differ#Reset() dict
   exe "sign unplace ".self.sign_number."2"
 
   let self.is_blank = 1
+endfunction
+
+" Closes the diff buffer and resets. The two actions are separate to avoid
+" problems with closing already closed buffers.
+function! linediff#differ#CloseAndReset() dict
+  call self.CloseDiffBuffer()
+  call self.Reset()
 endfunction
 
 " Extracts the relevant lines from the original buffer and returns them as a
@@ -78,15 +85,24 @@ function! linediff#differ#CreateDiffBuffer(edit_command) dict
   let lines     = self.Lines()
   let temp_file = tempname()
 
-  exe a:edit_command . " " . temp_file
+  silent exe a:edit_command . " " . temp_file
   call append(0, lines)
-  normal! Gdd
+  silent $delete _
   set nomodified
+  normal! gg
 
   let self.diff_buffer = bufnr('%')
   call self.SetupDiffBuffer()
+  call self.Indent()
 
   diffthis
+endfunction
+
+" Indents the current buffer content so that format can be ignored.
+function! linediff#differ#Indent() dict
+  if g:linediff_indent
+    silent normal! gg=G
+  endif
 endfunction
 
 " Sets up the temporary buffer's filetype and statusline.
@@ -99,11 +115,11 @@ function! linediff#differ#SetupDiffBuffer() dict
 
   let statusline = printf('[%s:%%{b:differ.from}-%%{b:differ.to}]', bufname(self.original_buffer))
   if &statusline =~ '%[fF]'
-    let statusline = substitute(&statusline, '%[fF]', statusline, '')
+    let statusline = substitute(&statusline, '%[fF]', escape(statusline, '\'), '')
   endif
-  exe "setlocal statusline=" . escape(statusline, ' |')
+  exe "setlocal statusline=" . escape(statusline, ' |\')
   exe "set filetype=" . self.filetype
-  setlocal bufhidden=hide
+  setlocal bufhidden=wipe
 
   autocmd BufWrite <buffer> silent call b:differ.UpdateOriginalBuffer()
 endfunction
@@ -126,17 +142,24 @@ endfunction
 " update the other differ's data, provided a few conditions are met. See
 " linediff#differ#PossiblyUpdateOtherDiffer() for details.
 function! linediff#differ#UpdateOriginalBuffer() dict
+  if self.IsBlank()
+    return
+  endif
+
+  let saved_diff_buffer_view = winsaveview()
   let new_lines = getbufline('%', 0, '$')
 
   " Switch to the original buffer, delete the relevant lines, add the new
   " ones, switch back to the diff buffer.
+  set bufhidden=hide
   call linediff#util#SwitchBuffer(self.original_buffer)
-  let saved_cursor = getpos('.')
+  let saved_original_buffer_view = winsaveview()
   call cursor(self.from, 1)
   exe "normal! ".(self.to - self.from + 1)."dd"
   call append(self.from - 1, new_lines)
-  call setpos('.', saved_cursor)
+  call winrestview(saved_original_buffer_view)
   call linediff#util#SwitchBuffer(self.diff_buffer)
+  set bufhidden=wipe
 
   " Keep the difference in lines to know how to update the other differ if
   " necessary.
@@ -148,6 +171,7 @@ function! linediff#differ#UpdateOriginalBuffer() dict
   call self.SetupSigns()
 
   call self.PossiblyUpdateOtherDiffer(new_line_count - line_count)
+  call winrestview(saved_diff_buffer_view)
 endfunction
 
 " If the other differ originates from the same buffer and it's located below
