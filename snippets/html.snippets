@@ -61,3 +61,11 @@ snippet >
 # for tornado templates
 snippet {
 	{% ${1} %}${2}
+# for Bootstrap
+snippet cg
+	<div class="control-group">
+		<label class="control-label" for="${1:id/name}">${2}</label>
+		<div class="controls">
+			<input type="text" id="$1" name="$1" placeholder="${3}"/>
+		</div>
+	</div>

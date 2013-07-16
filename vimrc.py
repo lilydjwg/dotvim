@@ -16,6 +16,8 @@ def LilyPaste():
     curl.stdin.write(l.encode('utf-8') + b'\n')
   curl.stdin.close()
   url = curl.stdout.read().decode('utf-8').strip()
+  if not url:
+    vimprint('Error', 'Failed to paste code.')
   ft = vim.eval('&ft')
   if ft:
     url = '%s/%s' % (url, ft)
