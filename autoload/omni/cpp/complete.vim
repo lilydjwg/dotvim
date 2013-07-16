@@ -35,10 +35,10 @@ let s:bMayComplete = 0
 function! omni#cpp#complete#Init()
     call omni#cpp#settings#Init()
     set omnifunc=omni#cpp#complete#Main
-    inoremap <expr> <C-X><C-O> omni#cpp#maycomplete#Complete()
-    inoremap <expr> . omni#cpp#maycomplete#Dot()
-    inoremap <expr> > omni#cpp#maycomplete#Arrow()
-    inoremap <expr> : omni#cpp#maycomplete#Scope()
+    inoremap <buffer> <expr> <C-X><C-O> omni#cpp#maycomplete#Complete()
+    inoremap <buffer> <expr> . omni#cpp#maycomplete#Dot()
+    inoremap <buffer> <expr> > omni#cpp#maycomplete#Arrow()
+    inoremap <buffer> <expr> : omni#cpp#maycomplete#Scope()
 endfunc
 
 " Find the start position of the completion
