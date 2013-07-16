@@ -11,3 +11,4 @@ shape
 style
 subgraph
 triangle
+ellipse
