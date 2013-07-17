@@ -1,0 +1,858 @@
+==============================================================================
+CONTENTS                                      *splitjoin* *splitjoin-contents*
+
+    Installation...........................: |splitjoin-installation|
+    Usage..................................: |splitjoin-usage|
+    Ruby...................................: |splitjoin-ruby|
+    Python.................................: |splitjoin-python|
+    Perl...................................: |splitjoin-perl|
+    Coffeescript...........................: |splitjoin-coffee|
+    Lua....................................: |splitjoin-lua|
+    Javascript.............................: |splitjoin-javascript|
+    PHP....................................: |splitjoin-php|
+    Vimscript..............................: |splitjoin-vimscript|
+    HTML...................................: |splitjoin-html|
+    CSS....................................: |splitjoin-css|
+    YAML...................................: |splitjoin-yaml|
+    Eruby..................................: |splitjoin-eruby|
+    Settings...............................: |splitjoin-settings|
+    Internals..............................: |splitjoin-internals|
+    Issues.................................: |splitjoin-issues|
+
+
+==============================================================================
+INSTALLATION                                          *splitjoin-installation*
+
+There are several ways to install the plugin. The recommended one is by using
+Tim Pope's pathogen (http://www.vim.org/scripts/script.php?script_id=2332). In
+that case, you can clone the plugin's git repository like so:
+>
+    git clone git://github.com/AndrewRadev/splitjoin.vim.git ~/.vim/bundle/splitjoin
+<
+If your vim configuration is under git version control, you could also set up
+the repository as a submodule, which would allow you to update more easily.
+The command is (provided you're in ~/.vim):
+>
+    git submodule add git://github.com/AndrewRadev/splitjoin.vim.git bundle/splitjoin
+<
+
+Another way is to simply copy all the essential directories inside the ~/.vim
+directory: plugin, ftplugin, autoload, doc.
+
+
+==============================================================================
+USAGE                                                        *splitjoin-usage*
+
+                                                           *SplitjoinSplit* *gS*
+                                                           *SplitjoinJoin*  *gJ*
+
+After the plugin is installed, the mapping |gS| will perform splitting and |gJ|
+-- joining of the code under the cursor. These mappings are configurable
+with |g:splitjoin_split_mapping| and |g:splitjoin_join_mapping|, respectively.
+You could also use the commands |:SplitjoinSplit| and |:SplitjoinJoin|, either
+directly, or in your own scripts.
+
+Note that |gJ| is a built-in mapping that is used for joining lines while
+preserving whitespace. However, if no splitting/joining is possible at this
+point, the plugin will fall back to the default mapping. If you'd rather have
+the splitjoin mappings be no-ops in that case, you could set the mapping
+variables to empty strings, which will simply not create them at all. You can
+then make your own simple mappings by using the commands:
+>
+    let g:splitjoin_split_mapping = ''
+    let g:splitjoin_join_mapping = ''
+
+    nmap <Leader>j :SplitjoinJoin<cr>
+    nmap <Leader>s :SplitjoinSplit<cr>
+<
+For the record, my personal preference is to avoid mnemonics in this case and
+go for an approach that makes more sense to my fingers instead:
+>
+    nmap sj :SplitjoinSplit<cr>
+    nmap sk :SplitjoinJoin<cr>
+<
+Notice that I'm using "sj" for splitting, not joining. To me, "splitting" a
+line results in expanding it downwards, so using "j" seems more intuitive,
+likewise for "k". The "s" key is ordinarily taken (try :help s), but I don't
+use it, so I've mapped it to <Nop>. Your mileage may vary.
+
+Splitting a line consists of checking for blocks of text that the plugin knows
+how to split and, well, doing that. For example, if we have a ruby hash:
+>
+    { :one => 'two', :three => 'four' }
+<
+Then, with the cursor within the hash, we can split it to get:
+>
+    {
+      :one => 'two',
+      :three => 'four'
+    }
+<
+This works for various other things, you can see some examples for each
+filetype below.
+
+If there are several different kinds of splittings that can be executed, there
+is a fixed priority. For instance, this:
+>
+    { :one => 'two', :three => 'four' } if foo?
+<
+will be split into this:
+>
+    if foo?
+      { :one => 'two', :three => 'four' }
+    end
+<
+In this case, the plugin does not take into account where exactly the cursor
+is located on the line, it just always gives priority to the if clause.
+
+For ruby hashes in particular, the cursor position is considered, however.
+Let's take this as an example:
+>
+    foo 1, 2, { :bar => :baz }, { :baz => :qux }
+<
+If the cursor is located on the first hash, the result will be:
+>
+    foo 1, 2, {
+      :bar => :baz
+    }, { :baz => :qux }
+<
+If it's on the second hash, or on any other part of the method call (like on
+"foo"), you'll get this:
+>
+    foo 1, 2, { :bar => :baz }, {
+      :baz => :qux
+    }
+<
+In general, if you're trying to split a structure, try to "be inside" when you
+do so. This doesn't make sense in cases like the "if" statement, but it does
+for hashes.
+
+Joining might impose more constraints. Take this as an example:
+>
+    if foo?
+      bar
+    end
+<
+In order to turn this into:
+>
+    bar if foo?
+<
+you need to place your cursor on the line with the "if" clause. If your cursor
+is on the "bar" line, joining will not work. This might be considered a bug (I
+find it simpler cognitively to join blocks when I'm within them), but it
+simplifies the implementation and solves some ambiguity. This might be a nice
+example:
+>
+    if foo?
+      {
+        :one => :two,
+        :three => :four
+      }
+    end
+<
+Joining when on the line ":one => :two" would currently do nothing. However,
+if we wanted to detect the type of joining we could do, we might give priority
+to the if clause instead of the hash, which would not make a lot of sense. Of
+course, with smart prioritization (or a change in implementation), it might be
+possible to get things working sensibly, but this seems to be good enough for
+now: To join the hash, be on the "{" line, to join the "if" clause (not a good
+idea, mind you, doesn't do anything that makes sense), be on the "if foo?"
+line.
+
+The basic rule of thumb here is that, to join a structure, the cursor should
+usually be at its beginning (the opening tag, the opening brace, etc.).
+
+Now for some examples for the filetypes that have splitjoin implementations.
+
+==============================================================================
+RUBY                                                          *splitjoin-ruby*
+
+If/unless/while/until clauses ~
+
+Joining works for more-than-one-line "if" clauses as well, but it doesn't look
+very pretty. It's generally recommended to use it only when the body is a
+single line.
+>
+    return "the answer" if 6 * 9 == 42
+
+    if 6 * 9 == 42
+      return "the answer"
+    end
+<
+Hashes ~
+
+To split a hash, you need to be within the curly brackets. Otherwise, the
+plugin attempts to split it as a block.
+>
+    foo = { :bar => 'baz', :one => 'two' }
+
+    foo = {
+      :bar => 'baz',
+      :one => 'two'
+    }
+<
+Option hashes ~
+
+There's an option, |g:splitjoin_ruby_curly_braces|, that controls whether the
+curly braces are present after splitting or joining.
+>
+    foo 1, 2, :one => 1, :two => 2
+
+    foo 1, 2, {
+      :one => 1,
+      :two => 2
+    }
+
+    # note that after joining, the result will be:
+
+    foo 1, 2, { :one => 1, :two => 2 }
+<
+Caching constructs  ~
+>
+    @two ||= 1 + 1
+
+    @two ||= begin
+               1 + 1
+             end
+<
+Blocks ~
+>
+    Bar.new { |b| puts b.to_s }
+
+    Bar.new do |b|
+      puts b.to_s
+    end
+<
+Heredocs ~
+>
+    string = 'something'
+
+    string = <<-EOF
+    something
+    EOF
+<
+
+==============================================================================
+PYTHON                                                      *splitjoin-python*
+
+Just like in ruby, the cursor needs to be inside the dict in order to split it
+correctly, otherwise it tries to split it as a statement (which works, due to
+the dict having ":" characters in it).
+
+Dicts ~
+>
+    knights = {'gallahad': 'the pure', 'robin': 'the brave'}
+
+    knights = {
+            'gallahad': 'the pure',
+            'robin': 'the brave'
+            }
+<
+Lists ~
+>
+    spam = [1, 2, 3]
+
+    spam = [1,
+            2,
+            3]
+<
+Tuples ~
+>
+    spam = (1, 2, 3)
+
+    spam = (1,
+            2,
+            3)
+<
+Statements ~
+>
+    if foo: bar()
+
+    if foo:
+        bar()
+<
+Imports ~
+>
+    from foo import bar, baz
+
+    from foo import bar,\
+            baz
+<
+
+==============================================================================
+PERL                                                          *splitjoin-perl*
+
+If/unless/while/until clauses ~
+
+The variable |g:splitjoin_perl_brace_on_same_line| controls the format of the
+curly braces when joining. If it's set to 0, the opening curly brace will be
+on its own line. Otherwise, it'll be placed on the same line as the if-clause
+(the default behaviour).
+>
+    print "a = $a\n" if $debug;
+
+    if ($debug) {
+      print "a = $a\n";
+    }
+<
+And/or clauses ~
+
+It only makes sense to split these -- joining results in joining an if/unless
+clause. The variable |g:splitjoin_perl_brace_on_same_line| affects the results
+just like explained above.
+>
+    open PID, ">", $pidfile or die;
+
+    unless (open PID, ">", $pidfile) {
+      die;
+    }
+<
+
+==============================================================================
+COFFEESCRIPT                                                *splitjoin-coffee*
+
+Functions ~
+>
+    (foo, bar) -> console.log foo
+
+    (foo, bar) ->
+      console.log foo
+<
+If/unless/while/until clauses ~
+
+Since it's possible to join a multiline if into either a postfix or suffix
+variant, a variable controls which one it'll be,
+|g:splitjoin_coffee_suffix_if_clause|. By default, it's 1, which joins into
+the suffix format.
+>
+    console.log bar if foo?
+    if foo? then console.log bar
+
+    if foo?
+      console.log bar
+<
+Ternary operator ~
+
+Only splitting is available at this time, since joining an if-else clause into
+a ternary operator is more complicated.
+>
+    foo = if bar? then 'baz' else 'qux'
+
+    if bar?
+      foo = 'baz'
+    else
+      foo = 'qux'
+<
+Object literals ~
+>
+    one = { one: "two", three: "four" }
+
+    one =
+      one: "two"
+      three: "four"
+<
+Multiline strings ~
+
+Note that strings are split only at the end of the line. This seems to be the
+most common case, and the restriction avoids conflicts with other kinds of
+splitting.
+>
+    foo = "example with #{interpolation} and \"nested\" quotes"
+    foo = """
+      example with #{interpolation} and "nested" quotes
+    """
+
+    bar = 'example with single quotes'
+    bar = '''
+      example with single quotes
+    '''
+<
+
+==============================================================================
+LUA                                                            *splitjoin-lua*
+
+For lua, only splitting and joining functions is implemented at this point.
+Note that joining a function attempts to connect the lines of the body by
+using ";". This doesn't always work -- a few constructs are not syntactically
+valid if joined in this way. Still, the idea is to inline small functions, so
+this shouldn't be a big issue.
+
+Functions ~
+>
+    function example ()
+      print("foo")
+      print("bar")
+    end
+
+    function example () print("foo"); print("bar") end
+
+    local something = other(function (one, two)
+      print("foo")
+    end)
+
+    local something = other(function (one, two) print("foo") end)
+<
+
+==============================================================================
+JAVASCRIPT                                              *splitjoin-javascript*
+
+Objects ~
+
+Just like in ruby and python, the cursor needs to be inside the object in
+order to split it.
+
+This could also work just fine for JSON. If you're dealing with files with
+that kind of content, you could simply set the filetype to "javascript". If
+you're using a plugin to set a specific "json" filetype instead, you could
+copy the "ftplugin/javascript/splitjoin.vim" file's contents into a
+"ftplugin/json.vim" file.
+>
+    var one = { one: "two", three: "four" };
+
+    var one = {
+      one: "two",
+      three: "four"
+    };
+<
+Functions ~
+
+When the cursor is on the "function" keyword, the script attempts to split the
+curly braces of the function. This is a bit more convenient for the common
+use-case of one-line to multi-line functions. Joining functions also works,
+because it falls back to the above object joining.
+>
+    var callback = function (something, other) { something_else; };
+
+    var callback = function (something, other) {
+      something_else;
+    };
+<
+
+==============================================================================
+PHP                                                            *splitjoin-php*
+
+Arrays ~
+>
+    foo = array('one' => 'two', 'two' => 'three')
+
+    foo = array(
+      'one' => 'two',
+      'two' => 'three'
+    )
+<
+
+==============================================================================
+VIMSCRIPT                                                *splitjoin-vimscript*
+
+Vimscript can generally be split anywhere by simply placing the remainder of
+the line on the next one, prefixed by a backslash. That's why joining is
+fairly easy to do for the most general case -- anything that is followed by a
+line, starting with a backslash, can be joined with the current one.
+>
+    let example_one = {
+        \ 'one': 'two',
+        \ 'three': 'four'
+        \ }
+
+    " is joined into:
+
+    let example_one = { 'one': 'two', 'three': 'four' }
+
+    command! Foo if one |
+        \   'two'     |
+        \ else        |
+        \   'three'   |
+        \ endif
+
+    " is joined into:
+
+    command! Foo if one | 'two' | else | 'three' | endif
+<
+Splitting is a bit trickier, since anything can be split at any point. While
+it's possible to handle some specific cases like dictionaries, arrays, and
+commands, for now the plugin takes the simple approach of splitting precisely
+where the cursor is right now. In the future, this may be replaced with
+specific splits based on the context.
+
+
+==============================================================================
+HTML                                                          *splitjoin-html*
+
+Tags ~
+>
+    <div class="foo">bar</div>
+
+    <div class="foo">
+      bar
+    </div>
+<
+
+==============================================================================
+CSS                                                             *splitjoin-css*
+
+These also work for SCSS and LESS.
+
+Style definitions ~
+>
+    a { color: #0000FF; text-decoration: underline; }
+
+    a {
+      color: #0000FF;
+      text-decoration: underline;
+    }
+
+Multiline selectors ~
+>
+    h1,
+    h2,
+    h3 {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    h1, h2, h3 {
+      font-size: 18px;
+      font-weight: bold;
+    }
+<
+
+==============================================================================
+YAML                                                           *splitjoin-yaml*
+
+Arrays ~
+>
+    root:
+      one: [1, 2]
+      two: ['three', 'four']
+
+    root:
+      one:
+        - 1
+        - 2
+      two:
+        - 'three'
+        - 'four'
+<
+Maps ~
+>
+    root:
+      one: { foo: bar }
+      two: { three: ['four', 'five'], six: seven }
+
+    root:
+      one:
+        foo: bar
+      two:
+        three: ['four', 'five']
+        six: seven
+<
+
+==============================================================================
+ERUBY                                                        *splitjoin-eruby*
+
+Tags ~
+>
+    <div class="foo">bar</div>
+
+    <div class="foo">
+      bar
+    </div>
+<
+If/unless clauses ~
+>
+    <%= foo if bar? %>
+
+    <% if bar? %>
+      <%= foo %>
+    <% end %>
+<
+Hashes ~
+>
+    <% foo = { :bar => 'baz', :one => :two, :five => 'six' } %>
+
+    <% foo = {
+      :bar => 'baz',
+      :one => :two,
+      :five => 'six'
+    } %>
+<
+Option hashes ~
+>
+    <%= link_to 'Google', 'http://google.com', :class => 'google', :id => 'google-link' %>
+
+    <%= link_to 'Google', 'http://google.com', {
+      :class => 'google',
+      :id => 'google-link'
+    } %>
+<
+
+==============================================================================
+SETTINGS                                                  *splitjoin-settings*
+
+These are the variables that control the behaviour of the plugin.
+
+
+                                                 *b:splitjoin_split_callbacks*
+                                                 *b:splitjoin_join_callbacks*
+>
+    b:splitjoin_split_callbacks
+    b:splitjoin_join_callbacks
+<
+
+Default value: depends on the filetype
+
+These two variables contain lists of functions that are called to execute the
+splitting or joining functionality. If they are set to an empty array in a
+particular file, this will effectively disable the plugin for it.
+
+Example:
+Putting the following in ftplugin/ruby.vim will disable the join functionality
+for ruby files:
+>
+    let b:splitjoin_join_callbacks = []
+<
+
+
+                                                    *g:splitjoin_split_mapping*
+                                                    *g:splitjoin_join_mapping*
+>
+    let g:splitjoin_split_mapping = 'cS'
+    let g:splitjoin_join_mapping  = 'cJ'
+<
+
+Default values: 'gS' and 'gJ'
+
+Changing these values changes the default mappings of the plugin. Note that,
+if no splitting or joining can be performed, these default mappings will fall
+back to performing the key sequence's built-in functionality.
+
+Set to a blank string to disable default mappings completely. You can still
+create your own mapping the old-fashioned way using the |SplitjoinSplit| and
+|SplitjoinJoin| commands, though in the case with no possible
+splitting/joining, nothing will happen.
+
+
+
+                                            *g:splitjoin_normalize_whitespace*
+>
+    g:splitjoin_normalize_whitespace
+<
+
+Default value: 0
+
+This variable controls whether duplicate whitespace should be reduced within a
+joined structure, which makes a lot of sense in some situations, particularly
+when the items are aligned. Set it to 1 to activate.
+
+Currently works for ruby hashes and CSS style definitions.
+
+Example:
+Setting the variable to 1 will reduce the extra whitespace around "=>" symbols
+in ruby hashes:
+>
+    one = {
+      :one   => 'two',
+      :three => 'four',
+      :a     => 'b'
+    }
+
+    one = { :one => 'two', :three => 'four', :a => 'b' }
+<
+
+                                                           *g:splitjoin_align*
+>
+    g:splitjoin_align
+<
+
+Default value: 0
+
+This is a flag that controls whether a few constructs should be aligned by a
+certain character. As a specific example, when you split ruby hashes, this can
+align them by the "=>" signs. In a way, |g:splitjoin_normalize_whitespace| is
+a complement to this setting, since you'd probably want to reduce the extra
+whitespace when joining.
+
+Set the flag to 1 to attempt alignment. In order for it to work, it requires
+that you have either Tabular (https://github.com/godlygeek/tabular) or Align
+(http://www.vim.org/scripts/script.php?script_id=294) installed. If that's not
+the case, the value of this setting will be ignored.
+
+Currently works for ruby hashes and CSS style definitions.
+
+Example:
+>
+    one = { :one => 'two', :three => 'four', :a => 'b' }
+
+    one = {
+      :one   => 'two',
+      :three => 'four',
+      :a     => 'b'
+    }
+<
+
+                                               *g:splitjoin_ruby_curly_braces*
+>
+    g:splitjoin_ruby_curly_braces
+<
+
+Default value: 1
+
+This flag controls the formatting of ruby option hashes when splitting.
+When it's 1, curly braces will be present in option blocks. Example:
+>
+    User.new :one, :first_name => "Andrew", :last_name => "Radev"
+
+    User.new :one, {
+      :first_name => "Andrew",
+      :last_name => "Radev"
+    }
+<
+When the flag is 0, the result will be:
+>
+    User.new :one,
+      :first_name => "Andrew",
+      :last_name  => "Radev"
+<
+This won't always have effect. In some cases, it's not syntactically valid to
+omit the curly braces, which is part of the reason I prefer having them
+around. However, when there's a non-optional argument or the option hashes is
+wrapped in round braces, it should work just fine.
+
+Regardless of the value of this option, the second example will be joined back
+to:
+>
+    User.new :one, :first_name => "Andrew", :last_name => "Radev"
+<
+That's because it's easy to infer that it's an option block. Unfortunately,
+it's more difficult to decide whether we have an option block or a plain hash
+if there are braces, so the first example will always be joined to:
+>
+    User.new :one, { :first_name => "Andrew", :last_name => "Radev" }
+<
+
+                                         *g:splitjoin_coffee_suffix_if_clause*
+>
+    g:splitjoin_coffee_suffix_if_clause
+<
+
+Default value: 1
+
+This flag controls the kind of if-clause to use when joining multiline
+if-clauses in coffeescript. Given the following example:
+>
+    if foo?
+      console.log bar
+<
+Joining this construct with |g:splitjoin_coffee_suffix_if_clause| set to 1
+(the default) would produce:
+>
+    console.log bar if foo?
+<
+Doing that with |g:splitjoin_coffee_suffix_if_clause| set to 0 would result
+in:
+>
+    if foo? then console.log bar
+<
+
+                                         *g:splitjoin_perl_brace_on_same_line*
+>
+    g:splitjoin_perl_brace_on_same_line
+<
+
+Default value: 1
+
+This flag controls the placement of curly braces when joining if-clauses. When
+it's 1 (the default), the opening brace will be placed on the same line:
+>
+    if ($debug) {
+      print "a = $a\n";
+    }
+<
+If it's set to 0, the brace will get its own line:
+>
+    if ($debug)
+    {
+      print "a = $a\n";
+    }
+<
+
+                                               *g:splitjoin_ruby_heredoc_type*
+>
+    g:splitjoin_ruby_heredoc_type
+<
+
+Default value: "<<-"
+
+This setting can be one of "<<-" and "<<" and controls how strings will be
+split into heredocs. If it's "<<-", the following form is used
+>
+    do
+      foo = <<-EOF
+      something
+      EOF
+    end
+<
+If it's set to "<<", the result is this:
+>
+    do
+      foo = <<EOF
+    something
+    EOF
+    end
+<
+
+==============================================================================
+INTERNALS                                                *splitjoin-internals*
+
+The only interface of the plugin is in 'plugin/splitjoin.vim'. It's a fairly
+short file containing two commands, |SplitjoinSplit| and |SplitjoinJoin|.  All
+of the actual splitting and joining logic is in autoloaded files. The only
+things that these two commands do are:
+
+- Check the |b:splitjoin_join_callbacks| and |b:splitjoin_split_callbacks|
+  respectively for a list of function names.
+- Invoke the functions, in order. If any of the functions returns a number
+  different than 0, stop.
+
+The actual functions may do whatever they want, but it makes sense for them to
+return 0 only if they haven't made any modifications to the buffer.
+
+The function names could be buffer-local, global, autoloaded, anything the
+|function()| call can use.
+
+Obviously, extending the plugin is straightforward -- it's enough to define a
+function for splitting and one for joining and add those to the buffer
+variable. Of course, that doesn't imply it's easy -- the functions would need
+to actually perform all the necessary manipulations and simply inform the
+plugin if they've been successful by returning a number other than 0 as a
+result.
+
+The file 'autoload/sj.vim' contains helpers that might be useful for said
+manipulations. There are functions for replacing bodies of text defined by
+normal mode motions or by line ranges, for saving and restoring the cursor
+position and possibly other interesting functions that might assist. They
+should be commented reasonably well.
+
+The other files in 'autoload/sj' might be useful as well, although they're
+mostly filetype-specific.
+
+The files in 'autoload/sj/argparser' contain small parsers for parts of a few
+of the languages that are supported. They're necessary for splitting
+dictionary objects, since those can have a lot of structure and usually can't
+be analyzed properly with just regular expressions.
+
+==============================================================================
+ISSUES                                                      *splitjoin-issues*
+
+    - Currently, splitting ruby hashes breaks when dealing with multibyte
+      characters, like japanese, joining the final line with the one below it.
+    - If |g:splitjoin_align| is truthy and the Align plugin is being used, the
+      "undo" action undoes only the alignment first, then the splitting.
+    - Joining ruby option hashes could result in a pair of unnecessary curly
+      braces.
+
+Any other issues and suggestions are very welcome on the github bugtracker:
+https://github.com/AndrewRadev/splitjoin.vim/issues
+
+
+vim:tw=78:sw=4:ft=help:norl:
