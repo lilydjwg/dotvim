@@ -1,8 +1,8 @@
-*AnsiEsc.txt*	Ansi Escape Sequence Visualization		Dec 13, 2010
+*AnsiEsc.txt*	Ansi Escape Sequence Visualization		Nov 19, 2012
 
 Author:  Charles E. Campbell, Jr.  <NdrOchip@ScampbellPfamily.AbizM>
 	  (remove NOSPAM from Campbell's email first)
-Copyright: (c) 2004-2010 by Charles E. Campbell, Jr.	*AnsiEsc-copyright*
+Copyright: (c) 2004-2012 by Charles E. Campbell, Jr.	*AnsiEsc-copyright*
            The VIM LICENSE applies to AnsiEsc.vim and AnsiEsc.txt
            (see |copyright|) except use "AnsiEsc" instead of "Vim".
 	   No warranty, express or implied.  Use At-Your-Own-Risk.
@@ -16,19 +16,15 @@ Copyright: (c) 2004-2010 by Charles E. Campbell, Jr.	*AnsiEsc-copyright*
 ==============================================================================
 2. Manual						*AnsiEsc-manual*
 
-	CONCEAL -- the best mode.
-		For this, your vim must have +conceal.  A typical way to get the
-		conceal feature:
+                                                        
+	CONCEAL~
+		The best option: for this, your vim must have +conceal. Try either >
+			:version
+			:echo has("conceal")
+<		if you have vim v7.3.  Your vim needs to have been compiled
+		for "big" or "huge" and to support syntax highlighting.
 
-		* cd ..wherever../vim72/
-		* wget http://vince.negri.googlepages.com/conceal-ownsyntax.diff
-		* patch -p0 < conceal-ownsyntax.diff
-		* make distclean
-		* configure --with-features=huge
-		* make
-		* make install
-	
-	Normal: -- ansi escape sequences themselves are Ignore'd~
+	Vim: (v7.2 or earlier) -- ansi escape sequences themselves are Ignore'd~
 		Ansi escape sequences have the expected effect on subsequent
 		text, but the ansi escape sequences themselves still take up
 		screen columns.  The sequences are displayed using "Ignore"
@@ -58,7 +54,6 @@ Copyright: (c) 2004-2010 by Charles E. Campbell, Jr.	*AnsiEsc-copyright*
 	EXAMPLE~
 
 		You'll want to use   :AnsiEsc   to see the following properly!
-		(using Vince Negri's conceal option or vim 7.3)
 
             [34;47mColor Escape Sequences[m
 [37m  -  [m   [37;1m  1  [m   [37;2m  2  [m   [37;3m  3  [m   [37;4m  4  [m   [37;5m  5  [m   [37;7m  7  [m
@@ -101,14 +96,20 @@ White   [37;40mW[m  [37;41mW[m  [37;42mW[m  [37;43mW[m  [37;44mW[m   
 
 ==============================================================================
 3. AnsiEsc History					*AnsiEsc-history* {{{1
+  v13	Apr 12, 2012	* (Peter Brant) a "conceal" was left on a syntax
+			  definition in a no-conceal-support if block.
+			  Fixed.
+	Apr 17, 2012	* (Ingo Karkat) support for the "reverse" attribute
   v12	Jul 23, 2010	* changed conc to |'cole'| to correspond to vim 7.3's
 			  change
+			* for menus, &go =~# used to insure correct case
 	Aug 10, 2010	* (Rainer M Schmid) changed conceallevel setting to
 			  depend on whether the version is before vim 7.3;
 			  for 7.3, also sets concealcursor
 			* Restores conc/cole/cocu settings when AnsiEsc is
 			  toggled off.
 	Dec 13, 2010	* Included some additional sequences involving 0
+	Feb 22, 2011	* for menus, &go =~# used to insure correct case
   v11	Apr 20, 2010	* AnsiEsc now supports enabling/disabling via a menu
 			* <esc>[K and <esc>[00m now supported (as
 			  grep --color=always   issues them)
