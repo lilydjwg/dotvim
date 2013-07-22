@@ -882,6 +882,9 @@ let g:neocomplcache_temporary_dir = expand('~/.neocon') " he's changing it!
 " http://forum.ubuntu.org.cn/viewtopic.php?f=68&t=429131&p=3002378#p3002378
 let g:neocomplcache_same_filetype_lists = {}
 let g:neocomplcache_same_filetype_lists._ = '_'
+let g:neocomplcache_filename_include_exprs = {}
+let g:neocomplcache_filename_include_exprs.python =
+      \ "substitute(substitute(substitute(v:fname, '.*egg-info$', '', ''), '\\v\\.py$|%(\\.[^.]+)?\\.so$', '', ''), '/', '.', 'g')"
 "   cycle[[[2
 "   https://github.com/lilydjwg/vim-cycle
 nnoremap <expr> <silent> <C-X> Lilydjwg_trycycle('x')
