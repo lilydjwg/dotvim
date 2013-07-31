@@ -932,6 +932,7 @@ call CountJump#TextObject#MakeWithCountSearch('', '_', 'ai', 'v', '_', '_')
 call CountJump#TextObject#MakeWithCountSearch('', '<Tab>', 'ai', 'v', '\t', '\t')
 "   colorizer.vim[[[2
 let g:colorizer_nomap = 1
+let g:colorizer_startup = 0
 "   grep.vim[[[2
 let g:Grep_Default_Options = '--binary-files=without-match'
 "   NERDTree[[[2
