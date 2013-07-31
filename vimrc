@@ -947,6 +947,11 @@ let gundo_preview_bottom = 1
 let gundo_prefer_python3 = 1
 "   bufexplorer[[[2
 let g:bufExplorerFindActive = 0
+"   tagbar[[[2
+let g:tagbar_type_dosini = { 
+      \ 'ctagstype': 'ini',
+      \ 'kinds': ['s:sections', 'b:blocks'],
+      \ }
 "   taglist[[[2
 let Tlist_Show_One_File = 1
 let tlist_vimwiki_settings = 'wiki;h:headers'
@@ -959,6 +964,7 @@ let tlist_gitcommit_settings = 'gitcommit;f:file'
 let tlist_privoxy_settings = 'privoxy;s:sections'
 "  来源 http://gist.github.com/476387
 let tlist_html_settings = 'html;h:Headers;o:IDs;c:Classes'
+let tlist_dosini_settings = 'ini;s:sections'
 hi link MyTagListFileName Type
 "   2html.vim, 使用XHTML格式[[[2
 let use_xhtml = 1
