@@ -1,6 +1,5 @@
-"
 " reStructuredText tables plugin
-" Language:     Python (ft=python)
+" Language:     rst
 " Maintainer:   Vincent Driessen <vincent@datafox.nl>
 " Modified By:  lilydjwg <lilydjwg@gmail.com>
 " Version:      Vim 7.4+
@@ -12,7 +11,7 @@
 "   http://www.vim.org/scripts/script.php?script_id=3041
 "
 
-" Only do this when not done yet for this buffer
+" Only do this when not done yet
 if exists("g:loaded_rst_tables_ftplugin")
     finish
 endif
@@ -326,8 +325,13 @@ def reflow_table():
 
 endpython
 
-" Add default mappings, unless the user didn't want this.
-if !exists("no_plugin_maps") && !exists("no_rst_table_maps")
+function s:do_map()
     nnoremap <buffer> <silent> <leader><leader>c :py3 reformat_table()<CR>
     nnoremap <buffer> <silent> <leader><leader>f :py3 reflow_table()<CR>
+endfunction
+
+" Add default mappings, unless the user didn't want this.
+if !exists("no_plugin_maps") && !exists("no_rst_table_maps")
+    autocmd FileType rst call <SID>do_map()
 endif
+
