@@ -16,6 +16,10 @@ if exists("g:loaded_rst_tables_ftplugin")
 endif
 let loaded_rst_tables_ftplugin = 1
 
+if !has('python')
+  finish
+endif
+
 python << endpython
 import vim
 import re
