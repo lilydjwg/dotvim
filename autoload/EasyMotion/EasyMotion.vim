@@ -472,7 +472,7 @@
 
 			" Update cursor position
 			call cursor(orig_pos[0], orig_pos[1])
-			mark '
+			normal! m'
 			call cursor(coords[0], coords[1])
 
 			call s:Message('Jumping to [' . coords[0] . ', ' . coords[1] . ']')
