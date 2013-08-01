@@ -20,7 +20,7 @@ if !has('python')
   finish
 endif
 
-python << endpython
+python3 << endpython
 import vim
 import re
 import textwrap
@@ -67,7 +67,7 @@ def join_rows(rows, sep='\n'):
             field_text = field.strip()
             if field_text:
                 output[i].append(field_text)
-    return map(lambda lines: sep.join(lines), output)
+    return [sep.join(lines) for lines in output]
 
 
 def line_is_separator(line):
@@ -87,7 +87,7 @@ def partition_raw_lines(raw_lines):
 
     """
     if not has_line_seps(raw_lines):
-        return map(lambda x: [x], raw_lines)
+        return [[x] for x in raw_lines]
 
     curr_part = []
     parts = [curr_part]
@@ -108,7 +108,7 @@ def unify_table(table):
     empty (i.e. all rows have that field empty), the column is removed.
 
     """
-    max_fields = max(map(lambda row: len(row), table))
+    max_fields = max(len(row) for row in table)
     empty_cols = [True] * max_fields
     output = []
     for row in table:
@@ -146,8 +146,7 @@ def split_table_row(row_string):
 
 def parse_table(raw_lines):
     row_partition = partition_raw_lines(raw_lines)
-    lines = map(lambda row_string: join_rows(map(split_table_row, row_string)),
-                row_partition)
+    lines = [join_rows(map(split_table_row, row_string)) for row_string in row_partition]
     return unify_table(lines)
 
 
@@ -170,7 +169,7 @@ def get_field_width(field_text):
 
 def get_string_width(string):
     width = 0
-    for char in list(string.decode('utf-8')):
+    for char in string:
         eaw = unicodedata.east_asian_width(char)
         if eaw == 'Na' or eaw == 'H':
             width += 1
@@ -179,8 +178,8 @@ def get_string_width(string):
     return width
 
 def split_row_into_lines(row):
-    row = map(lambda field: field.split('\n'), row)
-    height = max(map(lambda field_lines: len(field_lines), row))
+    row = [field.split('\n') for field in row]
+    height = max(len(field_lines) for field_lines in row)
     turn_table = []
     for i in range(height):
         fields = []
@@ -222,7 +221,7 @@ def get_column_widths_from_border_spec(slice):
         left = 1
     if border[-1] == '+':
         right = -1
-    return map(lambda drawing: max(0, len(drawing) - 2), border[left:right].split('+'))
+    return [max(0, len(drawing) - 2) for drawing in border[left:right].split('+')]
 
 
 def pad_fields(row, widths):
@@ -230,7 +229,7 @@ def pad_fields(row, widths):
     others.
 
     """
-    widths = map(lambda w: ' %-' + str(w) + 's ', widths)
+    widths = [' %-' + str(w) + 's ' for w in widths]
 
     # Pad all fields using the calculated widths
     new_row = []
@@ -259,7 +258,7 @@ def draw_table(indent, table, manual_widths=None):
         col_widths = manual_widths
 
     # Reserve room for the spaces
-    sep_col_widths = map(lambda x: x + 2, col_widths)
+    sep_col_widths = [x + 2 for x in col_widths]
     header_line = table_line(sep_col_widths, header=True)
     normal_line = table_line(sep_col_widths, header=False)
 
@@ -307,6 +306,6 @@ endpython
 
 " Add default mappings, unless the user didn't want this.
 if !exists("no_plugin_maps") && !exists("no_rst_table_maps")
-    nnoremap <buffer> <silent> <leader><leader>c :py reformat_table()<CR>
-    nnoremap <buffer> <silent> <leader><leader>f :py reflow_table()<CR>
+    nnoremap <buffer> <silent> <leader><leader>c :py3 reformat_table()<CR>
+    nnoremap <buffer> <silent> <leader><leader>f :py3 reflow_table()<CR>
 endif
