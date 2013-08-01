@@ -23,7 +23,6 @@ endif
 python3 << endpython
 import vim
 import re
-import textwrap
 import unicodedata
 
 
@@ -225,26 +224,44 @@ def get_column_widths_from_border_spec(slice):
 
 
 def pad_fields(row, widths):
-    """Pads fields of the given row, so each field lines up nicely with the
-    others.
-
     """
-    widths = [' %-' + str(w) + 's ' for w in widths]
-
+    Pads fields of the given row, so each field lines up nicely with the others.
+    """
     # Pad all fields using the calculated widths
     new_row = []
     for i in range(len(row)):
-        col = row[i]
-        col = widths[i] % col.strip()
+        col = row[i].strip()
+        col = ' ' + col + ' ' * (widths[i] - get_string_width(col) + 1)
         new_row.append(col)
     return new_row
+
+
+def vimwrap(lines, width):
+    b = vim.current.buffer
+    last_line = len(b)
+
+    old_fo = b.options['fo']
+    old_tw = b.options['tw']
+    b.options['fo'] = 'croqn2mB1'
+    b.options['tw'] = width
+
+    b.append(lines)
+    vim.command('normal! %dG%dgqq' % (last_line+1, len(lines)))
+    new = b[last_line:]
+
+    del b[last_line:]
+    b.options['fo'] = old_fo
+    b.options['tw'] = old_tw
+    vim.command('normal! ``')
+
+    return new
 
 
 def reflow_row_contents(row, widths):
     new_row = []
     for i, field in enumerate(row):
-        wrapped_lines = textwrap.wrap(field.replace('\n', ' '), widths[i])
-        new_row.append("\n".join(wrapped_lines))
+        wrapped_lines = vimwrap(field.split('\n'), widths[i])
+        new_row.append('\n'.join(wrapped_lines))
     return new_row
 
 
