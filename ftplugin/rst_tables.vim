@@ -25,7 +25,6 @@ import vim
 import re
 import textwrap
 import unicodedata
-from vim_bridge import bridged
 
 
 def get_table_bounds():
@@ -288,7 +287,6 @@ def draw_table(indent, table, manual_widths=None):
     return output
 
 
-@bridged
 def reformat_table():
     upper, lower, indent = get_table_bounds()
     slice = vim.current.buffer[upper - 1:lower]
@@ -297,7 +295,6 @@ def reformat_table():
     vim.current.buffer[upper - 1:lower] = slice
 
 
-@bridged
 def reflow_table():
     upper, lower, indent = get_table_bounds()
     slice = vim.current.buffer[upper - 1:lower]
@@ -308,13 +305,8 @@ def reflow_table():
 
 endpython
 
-" Add mappings, unless the user didn't want this.
-" The default mapping is registered, unless the user remapped it already.
+" Add default mappings, unless the user didn't want this.
 if !exists("no_plugin_maps") && !exists("no_rst_table_maps")
-    if !hasmapto('ReformatTable(')
-        noremap <silent> <leader><leader>c :call ReformatTable()<CR>
-    endif
-    if !hasmapto('ReflowTable(')
-        noremap <silent> <leader><leader>f :call ReflowTable()<CR>
-    endif
+    nnoremap <buffer> <silent> <leader><leader>c :py reformat_table()<CR>
+    nnoremap <buffer> <silent> <leader><leader>f :py reflow_table()<CR>
 endif
