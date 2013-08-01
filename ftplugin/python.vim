@@ -6,7 +6,6 @@ if !exists('b:python_did_once')
   let pyfile = fnameescape(globpath(&runtimepath, 'ftplugin/python.py'))
   if has("python3")
     exe 'py3file ' . pyfile
-    vmap <buffer> <silent> <Space> :py3 EvaluateCurrentRange()<CR>
   endif
   let b:python_did_once = 1
 endif
