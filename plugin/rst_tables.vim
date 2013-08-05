@@ -18,9 +18,11 @@ endif
 let loaded_rst_tables_ftplugin = 1
 
 if !has('python3') || v:version < 704
-    echohl WarningMsg
-    echo "rst_tables: Python 3 and Vim 7.4+ not available."
-    echohl None
+    if !exists('g:rst_tables_no_warning')
+        echohl WarningMsg
+        echo "rst_tables: Python 3 and Vim 7.4+ not available."
+        echohl None
+    endif
     finish
 endif
 
