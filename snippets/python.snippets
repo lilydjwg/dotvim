@@ -8,22 +8,12 @@ snippet s
 	self
 snippet self
 	self.${1:attr} = $1${2}
+snippet .
+	self.
 snippet main
 	if __name__ == '__main__':
 	  ${1}
-snippet ok
-	print('Everything is ok.')
-snippet dbg
-	print('HereItIs.')
-# 使用 code 来 debug
-snippet cdb
-	from cli import repl
-	repl(locals())
-snippet tb
-	import traceback
-	traceback.print_exc()
-snippet err
-	file=sys.stderr
+# path
 snippet op
 	os.path.
 snippet opa
@@ -42,17 +32,30 @@ snippet ops
 	os.path.split(
 snippet opu
 	os.path.expanduser(
-snippet .
-	self.
-# 简短的用法信息
-snippet usage
-	print('用法: %s ${1}' % os.path.split((sys.argv[0]))[1])
-	
 # __magic__
 snippet _
 	__${1:init}__${2}
-snippet logger
-	logger = logging.getLogger(__name__)
 # tornado
 snippet arg
 	${1:arg} = self.get_argument('$1')${2}
+# debug
+snippet logger
+	logger = logging.getLogger(__name__)
+snippet ok
+	print('Everything is ok.')
+snippet dbg
+	print('HereItIs.')
+snippet cdb
+	from cli import repl
+	repl(locals())
+snippet tb
+	import traceback
+	traceback.print_exc()
+# other
+snippet err
+	file=sys.stderr
+snippet usage
+	print('用法: %s ${1}' % os.path.split((sys.argv[0]))[1])
+	
+snippet enc
+	# vim:fileencoding=utf-8
