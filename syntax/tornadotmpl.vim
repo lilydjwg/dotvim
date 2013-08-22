@@ -3,7 +3,7 @@
 " Author:       lilydjwg <lilydjwg@gmail.com>
 
 " Add something like the following in modeline to your templates:
-" {# vim:se syntax=html.tornadotmpl: #}
+" {# vim:se ft=html syntax=html.tornadotmpl: #}
 
 syntax region tmplCode matchgroup=PreProc start="{[%{]!\@!" end="[%}]}" contains=@Python,tmplKeyword containedin=ALL
 syntax region tmplComment matchgroup=PreProc start="{#!\@!" end="#}"
