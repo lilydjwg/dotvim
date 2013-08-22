@@ -3,6 +3,8 @@
 " Maintainer:  Marco Hinz <http://github.com/mhinz>
 " Version:     1.9
 
+scriptencoding utf-8
+
 if exists('g:loaded_signify') || !has('signs') || &cp
   finish
 endif

@@ -1,5 +1,6 @@
 Applicative
 BufferMode
+Concurrent
 Control
 CreateProcess
 Directory
@@ -29,6 +30,7 @@ doesFileExist
 elemIndex
 exitWith
 filterM
+forkIO
 fromInteger
 fromJust
 getArgs
