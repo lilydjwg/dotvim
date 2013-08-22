@@ -1,7 +1,8 @@
 " Vim script file
 " FileType:     python
 " Author:       lilydjwg
-" eval code {{{1
+
+" load python code {{{1
 if !exists('b:python_did_once')
   let pyfile = fnameescape(globpath(&runtimepath, 'ftplugin/python.py'))
   if has("python3")
