@@ -47,27 +47,36 @@ if !exists(":JSLintUpdate")
   command JSLintUpdate :call s:JSLintUpdate()
 endif
 if !exists(":JSLintToggle")
-  command JSLintToggle :let b:jslint_disabled = exists('b:jslint_disabled') ? b:jslint_disabled ? 0 : 1 : 1
+  command JSLintToggle exec ":let b:jslint_disabled = exists('b:jslint_disabled') ? b:jslint_disabled ? 0 : 1 : 1" |
+    \                  echo 'JSLint ' . ['enabled', 'disabled'][b:jslint_disabled] . '.'
 endif
 
-nnoremap <buffer><silent> dd dd:JSLintUpdate<CR>
-nnoremap <buffer><silent> dw dw:JSLintUpdate<CR>
-vnoremap <buffer><silent> d d:JSLintUpdate<CR>
-nnoremap <buffer><silent> u u:JSLintUpdate<CR>
-nnoremap <buffer><silent> <C-R> <C-R>:JSLintUpdate<CR>
+noremap <buffer><silent> dd dd:JSLintUpdate<CR>
+noremap <buffer><silent> dw dw:JSLintUpdate<CR>
+noremap <buffer><silent> u u:JSLintUpdate<CR>
+noremap <buffer><silent> <C-R> <C-R>:JSLintUpdate<CR>
 
 " Set up command and parameters
 if has("win32")
-  let s:cmd = 'cscript /NoLogo '
-  let s:runjslint_ext = 'wsf'
+  let s:runjslint_ext = 'js'
+  if exists("%JS_CMD%")
+    let s:cmd = "$JS_CMD"
+  elseif executable('node')
+    let s:cmd = "node"
+  else
+    let s:cmd = 'cscript /NoLogo '
+    let s:runjslint_ext = 'wsf'
+  endif
 else
   let s:runjslint_ext = 'js'
   if exists("$JS_CMD")
     let s:cmd = "$JS_CMD"
-  elseif executable('/System/Library/Frameworks/JavaScriptCore.framework/Resources/jsc')
-    let s:cmd = '/System/Library/Frameworks/JavaScriptCore.framework/Resources/jsc'
   elseif executable('node')
     let s:cmd = 'node'
+  elseif executable('nodejs')
+    let s:cmd = 'nodejs'
+  elseif executable('/System/Library/Frameworks/JavaScriptCore.framework/Resources/jsc')
+    let s:cmd = '/System/Library/Frameworks/JavaScriptCore.framework/Resources/jsc'
   elseif executable('js')
     let s:cmd = 'js'
   else
@@ -78,7 +87,11 @@ let s:plugin_path = s:install_dir . "/jslint/"
 if has('win32')
   let s:plugin_path = substitute(s:plugin_path, '/', '\', 'g')
 endif
-let s:cmd = "cd " . s:plugin_path . " && " . s:cmd . " " . s:plugin_path . "runjslint." . s:runjslint_ext
+if has('win32')
+  let s:cmd = 'cmd.exe /C "cd /d "' . s:plugin_path . '" && ' . s:cmd . ' "' . s:plugin_path . 'runjslint.' . s:runjslint_ext . '""'
+else
+  let s:cmd = 'cd "' . s:plugin_path . '" && ' . s:cmd . ' "' . s:plugin_path . 'runjslint.' . s:runjslint_ext . '"'
+endif
 
 let s:jslintrc_file = expand('~/.jslintrc')
 if filereadable(s:jslintrc_file)
@@ -87,6 +100,18 @@ else
   let s:jslintrc = []
 end
 
+" load .jslintrc file from the current (pwd) directory if exists
+let s:localrc_file = fnamemodify(".", ":p") . '/.jslintrc'
+if filereadable(s:localrc_file)
+    let s:localrc = readfile(s:localrc_file)
+    let s:jslintrc = s:jslintrc + s:localrc
+endif
+" load .jslintrc file from the directory where the file is if exists
+let s:file_dir_file = expand('%:p:h') . '/.jslintrc'
+if filereadable(s:file_dir_file)
+    let s:filedir_rc = readfile(s:file_dir_file)
+    let s:jslintrc = s:jslintrc + s:filedir_rc
+endif
 
 " WideMsg() prints [long] message up to (&columns-1) length
 " guaranteed without "Press Enter" prompt.
@@ -152,8 +177,16 @@ function! s:JSLint()
   if len(lines) == 0
     return
   endif
-  let b:jslint_output = system(s:cmd, lines . "\n")
+  if has('win32') || has('win64')
+    let b:jslint_output = system(s:cmd, lines . "\n")
+  else
+    let old_shell = &shell
+    let &shell = '/bin/bash'
+    let b:jslint_output = system(s:cmd, lines . "\n")
+    let &shell = old_shell
+  endif
   if v:shell_error
+    echoerr b:jslint_output
     echoerr 'could not invoke JSLint!'
     let b:jslint_disabled = 1
   end
@@ -165,32 +198,36 @@ function! s:JSLint()
       let l:line = b:parts[1] + (b:firstline - 1 - len(s:jslintrc)) " Get line relative to selection
       let l:errorMessage = b:parts[4]
 
-      " Store the error for an error under the cursor
-      let s:matchDict = {}
-      let s:matchDict['lineNum'] = l:line
-      let s:matchDict['message'] = l:errorMessage
-      let b:matchedlines[l:line] = s:matchDict
-      if b:parts[3] == 'ERROR'
-          let l:errorType = 'E'
+      if l:line < 1
+        echoerr 'error in jslintrc, line ' . b:parts[1] . ', character ' . b:parts[2] . ': ' . l:errorMessage
       else
-          let l:errorType = 'W'
-      endif
-      if g:JSLintHighlightErrorLine == 1
-        let s:mID = matchadd('JSLintError', '\v%' . l:line . 'l\S.*(\S|$)')
-      endif
-      " Add line to match list
-      call add(b:matched, s:matchDict)
+        " Store the error for an error under the cursor
+        let s:matchDict = {}
+        let s:matchDict['lineNum'] = l:line
+        let s:matchDict['message'] = l:errorMessage
+        let b:matchedlines[l:line] = s:matchDict
+        if b:parts[3] == 'ERROR'
+            let l:errorType = 'E'
+        else
+            let l:errorType = 'W'
+        endif
+        if g:JSLintHighlightErrorLine == 1
+          let s:mID = matchadd('JSLintError', '\v%' . l:line . 'l\S.*(\S|$)')
+        endif
+        " Add line to match list
+        call add(b:matched, s:matchDict)
 
-      " Store the error for the quickfix window
-      let l:qf_item = {}
-      let l:qf_item.bufnr = bufnr('%')
-      let l:qf_item.filename = expand('%')
-      let l:qf_item.lnum = l:line
-      let l:qf_item.text = l:errorMessage
-      let l:qf_item.type = l:errorType
+        " Store the error for the quickfix window
+        let l:qf_item = {}
+        let l:qf_item.bufnr = bufnr('%')
+        let l:qf_item.filename = expand('%')
+        let l:qf_item.lnum = l:line
+        let l:qf_item.text = l:errorMessage
+        let l:qf_item.type = l:errorType
 
-      " Add line to quickfix list
-      call add(b:qf_list, l:qf_item)
+        " Add line to quickfix list
+        call add(b:qf_list, l:qf_item)
+      endif
     endif
   endfor
 
@@ -255,6 +292,7 @@ if !exists("*s:ActivateJSLintQuickFixWindow")
         try
             silent colder 9 " go to the bottom of quickfix stack
         catch /E380:/
+        catch /E788:/
         endtry
 
         if s:jslint_qf > 0
