@@ -959,7 +959,6 @@ let g:tagbar_type_dosini = {
 let Tlist_Show_One_File = 1
 let tlist_vimwiki_settings = 'wiki;h:headers'
 let tlist_tex_settings = 'latex;h:headers'
-let tlist_wiki_settings = 'wiki;h:headers'
 let tlist_tracwiki_settings = 'wiki;h:headers'
 let tlist_diff_settings = 'diff;f:file'
 let tlist_git_settings = 'diff;f:file'
@@ -968,6 +967,7 @@ let tlist_privoxy_settings = 'privoxy;s:sections'
 "  来源 http://gist.github.com/476387
 let tlist_html_settings = 'html;h:Headers;o:IDs;c:Classes'
 let tlist_dosini_settings = 'ini;s:sections'
+let tlist_go_settings = 'go;f:functions;v:variables;d:types'
 hi link MyTagListFileName Type
 "   2html.vim, 使用XHTML格式[[[2
 let use_xhtml = 1
