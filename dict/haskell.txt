@@ -1,5 +1,6 @@
 Applicative
 BufferMode
+ByteString
 Concurrent
 Control
 CreateProcess
@@ -18,6 +19,7 @@ NoBuffering
 Nothing
 Numeric
 Posix
+Prelude
 Process
 ProcessHandle
 System
@@ -56,6 +58,7 @@ minimum
 module
 negate
 otherwise
+qualified
 rawSystem
 readProcess
 readProcessWithExitCode
