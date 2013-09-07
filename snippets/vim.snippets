@@ -1,0 +1,60 @@
+# 新的文件类型插件
+snippet newft
+	" Vim script file
+	" FileType:     ${1}
+	" Author:       lilydjwg <lilydjwg@gmail.com>
+	
+	" ---------------------------------------------------------------------
+	${2}
+# 新语法高亮插件
+snippet newsyn
+	" Vim syntax file
+	" FileType:     ${1}
+	" Author:       lilydjwg <lilydjwg@gmail.com>
+	
+	" ---------------------------------------------------------------------
+	${2}
+# 新插件
+snippet newpl
+	" `expand('%:t:r')`.vim	${1:description}
+	" Author:       lilydjwg <lilydjwg@gmail.com>
+	" License:	Vim License  (see vim's :help license)
+
+	${2}
+snippet modeline
+	" Vim Modeline:
+	" vim:fdm=expr:fde=getline(v\:lnum-1)=~'\\v"\\s*-{20,}'?'>1'\:1
+	" ---------------------------------------------------------------------
+snippet once
+	" Load Once:
+	if &cp || exists("g:loaded_`expand('%:t:r')`")
+	  finish
+	endif
+	let s:keepcpo = &cpo
+	let g:loaded_`expand('%:t:r')` = ${1:1}
+	set cpo&vim
+
+	${2}
+
+	" Restoration And Modelines:
+	let &cpo = s:keepcpo
+	unlet s:keepcpo
+# 显示警告信息
+snippet warn
+	echohl WarningMsg
+	echo "${1:msg}"
+	echohl None${2}
+snippet err
+	echohl ErrorMsg
+	echo "${1:msg}"
+	echohl None${2}
+# 分隔线
+snippet "-
+	" ---------------------------------------------------------------------
+snippet if
+	if ${1}
+	endif${2}
+snippet fun
+	function ${1:name}(${2:vars})
+	  ${3}
+	endfunction

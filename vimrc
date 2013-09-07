@@ -618,7 +618,9 @@ endif
 unlet colorscheme
 " 不同的 Vim 版本 [[[2
 if has("conceal")
-  set concealcursor=nc
+  " "i' is for neosnippet
+  set concealcursor=nci
+  set conceallevel=2
 endif
 if has("persistent_undo")
   let &undodir=g:undodir
@@ -840,6 +842,25 @@ command -range=% Paste <line1>,<line2>py3 LilyPaste()
 command -range=% Tohtml call Lilydjwg_to_html(<line1>, <line2>)
 command Agg exe 'Ag -Q ' . expand('<cword>')
 " 插件配置[[[1
+"   neosnippet[[[2
+let g:neosnippet#snippets_directory = g:vimfiles . '/snippets'
+imap <expr><TAB> neosnippet#expandable_or_jumpable() ?
+      \ "\<Plug>(neosnippet_expand_or_jump)"
+      \: pumvisible() ? "\<C-n>" : "\<TAB>"
+smap <expr><TAB> neosnippet#expandable_or_jumpable() ?
+      \ "\<Plug>(neosnippet_expand_or_jump)"
+      \: "\<TAB>"
+"   neocomplete[[[2
+let g:neocomplete#enable_at_startup = 1
+let g:neocomplete#enable_smart_case = 1
+let g:neocomplete#enable_prefetch = 0
+" disable text mode completely
+let g:neocomplete#text_mode_filetypes = {}
+let g:neocomplete#same_filetypes = {}
+let g:neocomplete#same_filetypes._ = '_'
+let g:neocomplete#sources#file_include#exprs = {}
+let g:neocomplete#sources#file_include#exprs.python =
+      \ "substitute(substitute(substitute(v:fname, '\\v.*egg%(-info|-link)?$', '', ''), '\\v\\.py$|%(\\.[^.]+)?\\.so$', '', ''), '/', '.', 'g')"
 "   rst_tables[[[2
 let g:rst_tables_no_warning = 1
 "   signify [[[2

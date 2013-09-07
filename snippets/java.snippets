@@ -1,0 +1,31 @@
+snippet print
+	System.out.println(
+snippet printf
+	System.out.printf(
+snippet main
+	class `Filename()`{
+	  public static void main(String[] args){
+	    ${1}
+	  }
+	}
+snippet catch
+	catch(Exception e){
+	  e.printStackTrace();
+	}
+snippet exit
+	System.exit(
+snippet for
+	for(int i=0, len=${1}; i<len; i++){
+	  ${2}
+snippet new
+	${1:class} ${2:var} = new $1(${3});${4}
+snippet getset
+	private ${1:type} ${2:name}${3:init};
+	
+	public $1 get$2(){
+	  return $2;
+	}
+	
+	public void set$2($1 _$2){
+	  $2 = _$2;
+	}

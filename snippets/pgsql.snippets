@@ -1,0 +1,8 @@
+snippet twz
+	timestamp with time zone
+snippet corf
+	CREATE OR REPLACE FUNCTION ${1:func} RETURNS ${2:type} AS $$
+	BEGIN
+	  ${3:body}
+	END;
+	$$ LANGUAGE ${4:plpgsql};

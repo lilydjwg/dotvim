@@ -195,12 +195,12 @@ function! s:get_include_files(complete_str) "{{{
         " Convert filename.
         let dict.word = eval(substitute(reverse_expr,
               \ 'v:fname', string(dict.word), 'g'))
-      endif
-
-      let dict.word = fnamemodify(word, ':t')
-      if &filetype !=# 'c' && &filetype !=# 'cpp'
-        " Remove extension.
-        let dict.word = fnamemodify(word, ':r')
+      else
+        let dict.word = fnamemodify(word, ':t')
+        if &filetype !=# 'c' && &filetype !=# 'cpp'
+          " Remove extension.
+          let dict.word = fnamemodify(word, ':r')
+        endif
       endif
 
       let abbr = dict.word
