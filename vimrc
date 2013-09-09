@@ -858,9 +858,6 @@ let g:neocomplete#enable_prefetch = 0
 let g:neocomplete#text_mode_filetypes = {}
 let g:neocomplete#same_filetypes = {}
 let g:neocomplete#same_filetypes._ = '_'
-let g:neocomplete#sources#file_include#exprs = {}
-let g:neocomplete#sources#file_include#exprs.python =
-      \ "substitute(substitute(substitute(v:fname, '\\v.*egg%(-info|-link)?$', '', ''), '\\v\\.py$|%(\\.[^.]+)?\\.so$', '', ''), '/', '.', 'g')"
 "   rst_tables[[[2
 let g:rst_tables_no_warning = 1
 "   signify [[[2
