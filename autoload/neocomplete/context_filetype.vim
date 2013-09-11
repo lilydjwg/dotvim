@@ -1,7 +1,7 @@
 "=============================================================================
-" FILE: snippets.vim
-" AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 08 Mar 2012.
+" FILE: context_filetype.vim
+" AUTHOR: Shougo Matsushita <Shougo.Matsu@gmail.com>
+" Last Modified: 28 May 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -27,18 +27,40 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-if !exists('b:undo_ftplugin')
-    let b:undo_ftplugin = ''
+" context_filetype.vim installation check.
+if !exists('s:exists_context_filetype')
+  try
+    call context_filetype#version()
+    let s:exists_context_filetype = 1
+  catch
+    let s:exists_context_filetype = 0
+  endtry
 endif
 
-setlocal expandtab
-let &l:shiftwidth=&tabstop
-let &l:softtabstop=&tabstop
-let &l:commentstring="#%s"
+function! neocomplete#context_filetype#set() "{{{
+  let neocomplete = neocomplete#get_current_neocomplete()
+  let context_filetype =
+        \ s:exists_context_filetype ?
+        \ context_filetype#get_filetype() : &filetype
+  if context_filetype == ''
+    let context_filetype = 'nothing'
+  endif
+  let neocomplete.context_filetype = context_filetype
 
-let b:undo_ftplugin .= '
-    \ | setlocal expandtab< shiftwidth< softtabstop< tabstop< commentstring<
-    \'
+  return neocomplete.context_filetype
+endfunction"}}}
+function! neocomplete#context_filetype#get(filetype) "{{{
+  let context_filetype =
+        \ s:exists_context_filetype ?
+        \ context_filetype#get_filetype(a:filetype) : a:filetype
+  if context_filetype == ''
+    let context_filetype = 'nothing'
+  endif
+
+  return context_filetype
+endfunction"}}}
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
+
+" vim: foldmethod=marker

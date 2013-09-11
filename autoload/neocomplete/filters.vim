@@ -1,7 +1,7 @@
 "=============================================================================
-" FILE: snippets.vim
-" AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 08 Mar 2012.
+" FILE: filters.vim
+" AUTHOR: Shougo Matsushita <Shougo.Matsu@gmail.com>
+" Last Modified: 28 May 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -27,18 +27,19 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-if !exists('b:undo_ftplugin')
-    let b:undo_ftplugin = ''
-endif
+function! neocomplete#filters#fuzzy_escape(string) "{{{
+  " Escape string for lua regexp.
+  return substitute(neocomplete#filters#escape(a:string),
+        \ '\w', '\0.*', 'g')
+endfunction"}}}
 
-setlocal expandtab
-let &l:shiftwidth=&tabstop
-let &l:softtabstop=&tabstop
-let &l:commentstring="#%s"
-
-let b:undo_ftplugin .= '
-    \ | setlocal expandtab< shiftwidth< softtabstop< tabstop< commentstring<
-    \'
+function! neocomplete#filters#escape(string) "{{{
+  " Escape string for lua regexp.
+  return substitute(a:string,
+        \ '[%\[\]().*+?^$-]', '%\0', 'g')
+endfunction"}}}
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
+
+" vim: foldmethod=marker

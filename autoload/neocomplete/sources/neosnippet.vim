@@ -1,7 +1,7 @@
 "=============================================================================
-" FILE: snippets.vim
+" FILE: neosnippet.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 08 Mar 2012.
+" Last Modified: 05 Jun 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -27,18 +27,41 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-if !exists('b:undo_ftplugin')
-    let b:undo_ftplugin = ''
-endif
+let s:source = {
+      \ 'name' : 'neosnippet',
+      \ 'kind' : 'keyword',
+      \ 'rank' : 8,
+      \ 'hooks' : {},
+      \}
 
-setlocal expandtab
-let &l:shiftwidth=&tabstop
-let &l:softtabstop=&tabstop
-let &l:commentstring="#%s"
+function! s:source.hooks.on_init(context) "{{{
+  " Initialize.
+  call neosnippet#util#set_default(
+        \ 'g:neosnippet#enable_preview', 0)
+endfunction"}}}
 
-let b:undo_ftplugin .= '
-    \ | setlocal expandtab< shiftwidth< softtabstop< tabstop< commentstring<
-    \'
+function! s:source.gather_candidates(context) "{{{
+  return values(neosnippet#get_snippets())
+endfunction"}}}
+
+function! s:source.hooks.on_post_filter(context) "{{{
+  for snippet in a:context.candidates
+    let snippet.dup = 1
+    let snippet.menu = neosnippet#util#strwidthpart(
+          \ snippet.menu_template, winwidth(0)/3)
+    if g:neosnippet#enable_preview
+      let snippet.info = snippet.snip
+    endif
+  endfor
+
+  return a:context.candidates
+endfunction"}}}
+
+function! neocomplete#sources#neosnippet#define() "{{{
+  return s:source
+endfunction"}}}
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
+
+" vim: foldmethod=marker

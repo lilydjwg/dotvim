@@ -1,8 +1,8 @@
 "=============================================================================
-" FILE: neocomplcache.vim
+" FILE: neocomplete.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
 "          manga_osyo (Original)
-" Last Modified: 19 Dec 2011.
+" Last Modified: 14 Jun 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -38,16 +38,16 @@ let s:source = {
       \ 'hooks' : {},
       \}
 function! s:source.hooks.on_init(args, context) "{{{
-  " From neocomplcache include files.
+  " From neocomplete include files.
   let a:context.source__include_files =
-        \ neocomplcache#sources#include_complete#get_include_files(bufnr('%'))
+        \ neocomplete#sources#include#get_include_files(bufnr('%'))
   let a:context.source__path = &path
 endfunction"}}}
 
 function! s:source.gather_candidates(args, context) "{{{
   let files = map(copy(a:context.source__include_files), '{
-        \ "word" : neocomplcache#util#substitute_path_separator(v:val),
-        \ "abbr" : neocomplcache#util#substitute_path_separator(v:val),
+        \ "word" : neocomplete#util#substitute_path_separator(v:val),
+        \ "abbr" : neocomplete#util#substitute_path_separator(v:val),
         \ "source" : "file_include",
         \ "kind" : "file",
         \ "action__path" : v:val
@@ -56,8 +56,8 @@ function! s:source.gather_candidates(args, context) "{{{
   for word in files
     " Path search.
     for path in map(split(a:context.source__path, ','),
-          \ 'neocomplcache#util#substitute_path_separator(v:val)')
-      if path != '' && neocomplcache#head_match(word.word, path . '/')
+          \ 'neocomplete#util#substitute_path_separator(v:val)')
+      if path != '' && neocomplete#head_match(word.word, path . '/')
         let word.abbr = word.abbr[len(path)+1 : ]
         break
       endif

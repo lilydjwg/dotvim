@@ -1,7 +1,7 @@
 "=============================================================================
-" FILE: snippets.vim
-" AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 08 Mar 2012.
+" FILE: variables.vim
+" AUTHOR: Shougo Matsushita <Shougo.Matsu@gmail.com>
+" Last Modified: 04 Jun 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -27,18 +27,35 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-if !exists('b:undo_ftplugin')
-    let b:undo_ftplugin = ''
-endif
+function! neocomplete#variables#get_frequencies() "{{{
+  if !exists('s:filetype_frequencies')
+    let s:filetype_frequencies = {}
+  endif
+  let filetype = neocomplete#get_context_filetype()
+  if !has_key(s:filetype_frequencies, filetype)
+    let s:filetype_frequencies[filetype] = {}
+  endif
 
-setlocal expandtab
-let &l:shiftwidth=&tabstop
-let &l:softtabstop=&tabstop
-let &l:commentstring="#%s"
+  let frequencies = s:filetype_frequencies[filetype]
 
-let b:undo_ftplugin .= '
-    \ | setlocal expandtab< shiftwidth< softtabstop< tabstop< commentstring<
-    \'
+  return frequencies
+endfunction"}}}
+
+function! neocomplete#variables#get_sources() "{{{
+  if !exists('s:sources')
+    let s:sources = {}
+  endif
+  return s:sources
+endfunction"}}}
+
+function! neocomplete#variables#get_filters() "{{{
+  if !exists('s:filters')
+    let s:filters = {}
+  endif
+  return s:filters
+endfunction"}}}
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
+
+" vim: foldmethod=marker

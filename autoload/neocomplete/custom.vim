@@ -1,7 +1,7 @@
 "=============================================================================
-" FILE: snippets.vim
-" AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 08 Mar 2012.
+" FILE: custom.vim
+" AUTHOR: Shougo Matsushita <Shougo.Matsu@gmail.com>
+" Last Modified: 04 Jun 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -27,18 +27,29 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-if !exists('b:undo_ftplugin')
-    let b:undo_ftplugin = ''
-endif
+function! neocomplete#custom#get() "{{{
+  if !exists('s:custom')
+    let s:custom = {}
+    let s:custom.sources = {}
+    let s:custom.sources._ = {}
+  endif
 
-setlocal expandtab
-let &l:shiftwidth=&tabstop
-let &l:softtabstop=&tabstop
-let &l:commentstring="#%s"
+  return s:custom
+endfunction"}}}
 
-let b:undo_ftplugin .= '
-    \ | setlocal expandtab< shiftwidth< softtabstop< tabstop< commentstring<
-    \'
+function! neocomplete#custom#source(source_name, option_name, value) "{{{
+  let custom_sources = neocomplete#custom#get().sources
+
+  for key in split(a:source_name, '\s*,\s*')
+    if !has_key(custom_sources, key)
+      let custom_sources[key] = {}
+    endif
+
+    let custom_sources[key][a:option_name] = a:value
+  endfor
+endfunction"}}}
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
+
+" vim: foldmethod=marker

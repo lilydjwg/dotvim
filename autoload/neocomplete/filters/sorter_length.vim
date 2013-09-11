@@ -1,7 +1,7 @@
 "=============================================================================
-" FILE: snippets.vim
+" FILE: sorter_length.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 08 Mar 2012.
+" Last Modified: 28 May 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -27,18 +27,28 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-if !exists('b:undo_ftplugin')
-    let b:undo_ftplugin = ''
-endif
+function! neocomplete#filters#sorter_length#define() "{{{
+  return s:sorter
+endfunction"}}}
 
-setlocal expandtab
-let &l:shiftwidth=&tabstop
-let &l:softtabstop=&tabstop
-let &l:commentstring="#%s"
+let s:sorter = {
+      \ 'name' : 'sorter_length',
+      \ 'description' : 'sort by length order',
+      \}
 
-let b:undo_ftplugin .= '
-    \ | setlocal expandtab< shiftwidth< softtabstop< tabstop< commentstring<
-    \'
+function! s:sorter.filter(context) "{{{
+  return sort(a:context.candidates, 's:compare')
+endfunction"}}}
+
+function! s:compare(i1, i2)
+  let diff = len(a:i1.word) - len(a:i2.word)
+  if !diff
+    let diff = (a:i1.word ># a:i2.word) ? 1 : -1
+  endif
+  return diff
+endfunction
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
+
+" vim: foldmethod=marker

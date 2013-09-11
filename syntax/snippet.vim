@@ -1,7 +1,7 @@
 "=============================================================================
-" FILE: syntax/snippet.vim
+" FILE: syntaxtax/snippet.vim
 " AUTHOR: Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 15 Sep 2010
+" Last Modified: 12 Apr 2013
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -33,43 +33,77 @@ elseif exists("b:current_syntax")
   finish
 endif
 
-syn region  SnippetPrevWord             start=+'+ end=+'+ contained
-syn region  SnippetPrevWord             start=+"+ end=+"+ contained
-syn region  SnippetEval                 start=+\\\@<!`+ end=+\\\@<!`+ contained
-syn match   SnippetWord                 '^\s\+.*$' contains=SnippetEval,SnippetExpand,SnippetEscape
-syn match   SnippetExpand               '\${\d\+\%(:.\{-}\)\?\\\@<!}' contained
-syn match   SnippetVariable             '\$\d\+' contained
-syn match   SnippetComment              '^#.*$'
-syn match   SnippetEscape               '\\[`]' contained
+syntax region  neosnippetString
+      \ start=+'+ end=+'+ contained
+syntax region  neosnippetString
+      \ start=+"+ end=+"+ contained
+syntax region  neosnippetEval
+      \ start=+\\\@<!`+ end=+\\\@<!`+ contained
+syntax match   neosnippetWord
+      \ '^\s\+.*$' contains=
+      \neosnippetEval,neosnippetPlaceHolder,neosnippetEscape,neosnippetVariable
+syntax match   neosnippetPlaceHolder
+      \ '\\\@<!\${\d\+\%(:.\{-}\)\?\\\@<!}'
+      \ contained contains=neosnippetPlaceHolderComment
+syntax match   neosnippetVariable
+      \ '\\\@<!\$\d\+' contained
+syntax match   neosnippetComment
+      \ '^#.*$'
+syntax match   neosnippetEscape
+      \ '\\[`]' contained
 
-syn match   SnippetKeyword              '^\%(include\|snippet\|abbr\|prev_word\|delete\|alias\)' contained
-syn match   SnippetPrevWords            '^prev_word\s\+.*$' contains=SnippetPrevWord,SnippetKeyword
-syn match   SnippetStatementName        '^snippet\s.*$' contains=SnippetName,SnippetKeyword
-syn match   SnippetName                 '\s\+.*$' contained
-syn match   SnippetStatementAbbr        '^abbr\s.*$' contains=SnippetAbbr,SnippetKeyword
-syn match   SnippetAbbr                 '\s\+.*$' contained
-syn match   SnippetStatementRank        '^rank\s.*$' contains=SnippetRank,SnippetKeyword
-syn match   SnippetRank                 '\s\+\d\+$' contained
-syn match   SnippetStatementInclude     '^include\s.*$' contains=SnippetInclude,SnippetKeyword
-syn match   SnippetInclude              '\s\+.*$' contained
-syn match   SnippetStatementDelete      '^delete\s.*$' contains=SnippetDelete,SnippetKeyword
-syn match   SnippetDelete               '\s\+.*$' contained
-syn match   SnippetStatementAlias       '^alias\s.*$' contains=SnippetAlias,SnippetKeyword
-syn match   SnippetAlias                '\s\+.*$' contained
+syntax match   neosnippetKeyword
+      \ '^\%(include\|snippet\|abbr\|prev_word\|delete\|alias\|options\|regexp\|TARGET\)' contained
+syntax keyword   neosnippetOption
+      \ head word indent contained
+syntax match   neosnippetPrevWords
+      \ '^prev_word\s\+.*$' contains=neosnippetString,neosnippetKeyword
+syntax match   neosnippetRegexpr
+      \ '^regexp\s\+.*$' contains=neosnippetString,neosnippetKeyword
+syntax match   neosnippetStatementName
+      \ '^snippet\s.*$' contains=neosnippetName,neosnippetKeyword
+syntax match   neosnippetName
+      \ '\s\+.*$' contained
+syntax match   neosnippetStatementAbbr
+      \ '^abbr\s.*$' contains=neosnippetAbbr,neosnippetKeyword
+syntax match   neosnippetAbbr
+      \ '\s\+.*$' contained
+syntax match   neosnippetStatementRank
+      \ '^rank\s.*$' contains=neosnippetRank,neosnippetKeyword
+syntax match   neosnippetRank
+      \ '\s\+\d\+$' contained
+syntax match   neosnippetStatementInclude
+      \ '^include\s.*$' contains=neosnippetInclude,neosnippetKeyword
+syntax match   neosnippetInclude
+      \ '\s\+.*$' contained
+syntax match   neosnippetStatementDelete
+      \ '^delete\s.*$' contains=neosnippetDelete,neosnippetKeyword
+syntax match   neosnippetDelete
+      \ '\s\+.*$' contained
+syntax match   neosnippetStatementAlias
+      \ '^alias\s.*$' contains=neosnippetAlias,neosnippetKeyword
+syntax match   neosnippetAlias
+      \ '\s\+.*$' contained
+syntax match   neosnippetStatementOptions
+      \ '^options\s.*$' contains=neosnippetOption,neosnippetKeyword
+syntax match   neosnippetPlaceHolderComment
+      \ '{\d\+:\zs#:.\{-}\ze\\\@<!}' contained
 
-hi def link SnippetKeyword Statement
-hi def link SnippetPrevWord String
-hi def link SnippetName Identifier
-hi def link SnippetAbbr Normal
-hi def link SnippetEval Type
-hi def link SnippetWord String
-hi def link SnippetExpand Special
-hi def link SnippetVariable Special
-hi def link SnippetComment Comment
-hi def link SnippetInclude PreProc
-hi def link SnippetDelete PreProc
-hi def link SnippetAlias Identifier
-hi def link SnippetEscape Special
+highlight def link neosnippetKeyword Statement
+highlight def link neosnippetString String
+highlight def link neosnippetName Identifier
+highlight def link neosnippetAbbr Normal
+highlight def link neosnippetEval Type
+highlight def link neosnippetWord String
+highlight def link neosnippetPlaceHolder Special
+highlight def link neosnippetPlaceHolderComment Comment
+highlight def link neosnippetVariable Special
+highlight def link neosnippetComment Comment
+highlight def link neosnippetInclude PreProc
+highlight def link neosnippetDelete PreProc
+highlight def link neosnippetOption PreProc
+highlight def link neosnippetAlias Identifier
+highlight def link neosnippetEscape Special
 
 let b:current_syntax = "snippet"
 

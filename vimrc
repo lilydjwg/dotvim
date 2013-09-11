@@ -618,7 +618,9 @@ endif
 unlet colorscheme
 " 不同的 Vim 版本 [[[2
 if has("conceal")
-  set concealcursor=nc
+  " "i' is for neosnippet
+  set concealcursor=nci
+  set conceallevel=2
 endif
 if has("persistent_undo")
   let &undodir=g:undodir
@@ -840,6 +842,22 @@ command -range=% Paste <line1>,<line2>py3 LilyPaste()
 command -range=% Tohtml call Lilydjwg_to_html(<line1>, <line2>)
 command Agg exe 'Ag -Q ' . expand('<cword>')
 " 插件配置[[[1
+"   neosnippet[[[2
+let g:neosnippet#snippets_directory = g:vimfiles . '/snippets'
+imap <expr><TAB> neosnippet#expandable_or_jumpable() ?
+      \ "\<Plug>(neosnippet_expand_or_jump)"
+      \: pumvisible() ? "\<C-n>" : "\<TAB>"
+smap <expr><TAB> neosnippet#expandable_or_jumpable() ?
+      \ "\<Plug>(neosnippet_expand_or_jump)"
+      \: "\<TAB>"
+"   neocomplete[[[2
+let g:neocomplete#enable_at_startup = 1
+let g:neocomplete#enable_smart_case = 1
+let g:neocomplete#enable_prefetch = 0
+" disable text mode completely
+let g:neocomplete#text_mode_filetypes = {}
+let g:neocomplete#same_filetypes = {}
+let g:neocomplete#same_filetypes._ = '_'
 "   rst_tables[[[2
 let g:rst_tables_no_warning = 1
 "   signify [[[2
@@ -874,19 +892,6 @@ let g:nrrw_rgn_hl = 'Folded'
 "   easymotion[[[2
 let EasyMotion_leader_key = '<M-q>'
 let EasyMotion_keys = 'abcdefghijklmnopqrstuvwxyz'
-"   neocomplcache[[[2
-let g:neocomplcache_enable_at_startup = 1
-let g:neocomplcache_enable_camel_case_completion = 1
-let g:neocomplcache_enable_underbar_completion = 1
-let g:neocomplcache_force_overwrite_completefunc = 1
-let g:neocomplcache_temporary_dir = expand('~/.neocon') " he's changing it!
-" 补全所有 buffer 里的内容
-" http://forum.ubuntu.org.cn/viewtopic.php?f=68&t=429131&p=3002378#p3002378
-let g:neocomplcache_same_filetype_lists = {}
-let g:neocomplcache_same_filetype_lists._ = '_'
-let g:neocomplcache_filename_include_exprs = {}
-let g:neocomplcache_filename_include_exprs.python =
-      \ "substitute(substitute(substitute(v:fname, '.*egg-info$', '', ''), '\\v\\.py$|%(\\.[^.]+)?\\.so$', '', ''), '/', '.', 'g')"
 "   cycle[[[2
 "   https://github.com/lilydjwg/vim-cycle
 nnoremap <expr> <silent> <C-X> Lilydjwg_trycycle('x')

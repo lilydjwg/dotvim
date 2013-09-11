@@ -1,7 +1,7 @@
 "=============================================================================
-" FILE: snippets.vim
+" FILE: sorter_rank.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 08 Mar 2012.
+" Last Modified: 28 May 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -27,18 +27,49 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-if !exists('b:undo_ftplugin')
-    let b:undo_ftplugin = ''
-endif
+function! neocomplete#filters#sorter_rank#define() "{{{
+  return s:sorter
+endfunction"}}}
 
-setlocal expandtab
-let &l:shiftwidth=&tabstop
-let &l:softtabstop=&tabstop
-let &l:commentstring="#%s"
+let s:sorter = {
+      \ 'name' : 'sorter_rank',
+      \ 'description' : 'sort by matched rank order',
+      \}
 
-let b:undo_ftplugin .= '
-    \ | setlocal expandtab< shiftwidth< softtabstop< tabstop< commentstring<
-    \'
+function! s:sorter.filter(context) "{{{
+  lua << EOF
+do
+  local candidates = vim.eval('a:context.candidates')
+  local t = {}
+  local input = string.lower(vim.eval('a:context.input'))
+  for i = 1, #candidates do
+    t[i] = candidates[i-1]
+    local ti = t[i]
+
+    -- Match position.
+    ti.neocomplete__match = select(1, string.find(
+        string.lower(ti.word), input, 1, true))
+    if ti.neocomplete__match == nil then
+      ti.neocomplete__match = string.len(ti.word)
+    end
+
+    if ti.rank == nil then
+      ti.rank = 0
+    end
+  end
+  table.sort(t, function(a, b)
+        return (a.rank == b.rank) and (a.neocomplete__match
+            < b.neocomplete__match) or (a.rank > b.rank)
+      end)
+  for i = 0, #candidates-1 do
+    candidates[i] = t[i+1]
+  end
+end
+EOF
+  return a:context.candidates
+endfunction"}}}
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
+
+" vim: foldmethod=marker

@@ -1,7 +1,7 @@
 "=============================================================================
-" FILE: snippets.vim
+" FILE: neocomplete.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 08 Mar 2012.
+" Last Modified: 21 Jun 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -24,21 +24,48 @@
 " }}}
 "=============================================================================
 
+if exists('g:loaded_neocomplete')
+  finish
+endif
+let g:loaded_neocomplete = 1
+
 let s:save_cpo = &cpo
 set cpo&vim
 
-if !exists('b:undo_ftplugin')
-    let b:undo_ftplugin = ''
+if !( has('lua') && (v:version > 703 || v:version == 703 && has('patch885')) )
+  echomsg 'neocomplete does not work this version of Vim.'
+  echomsg 'It requires Vim 7.3.885 or above and "if_lua" enabled Vim.'
 endif
 
-setlocal expandtab
-let &l:shiftwidth=&tabstop
-let &l:softtabstop=&tabstop
-let &l:commentstring="#%s"
+command! -nargs=0 -bar NeoCompleteEnable
+      \ call neocomplete#init#enable()
+command! -nargs=0 -bar NeoCompleteDisable
+      \ call neocomplete#init#disable()
+command! -nargs=0 -bar NeoCompleteLock
+      \ call neocomplete#commands#_lock()
+command! -nargs=0 -bar NeoCompleteUnlock
+      \ call neocomplete#commands#_unlock()
+command! -nargs=0 -bar NeoCompleteToggle
+      \ call neocomplete#commands#_toggle_lock()
+command! -nargs=1 -bar -complete=filetype NeoCompleteSetFileType
+      \ call neocomplete#commands#_set_file_type(<q-args>)
+command! -nargs=0 -bar NeoCompleteClean
+      \ call neocomplete#commands#_clean()
 
-let b:undo_ftplugin .= '
-    \ | setlocal expandtab< shiftwidth< softtabstop< tabstop< commentstring<
-    \'
+" Global options definition. "{{{
+let g:neocomplete#data_directory =
+      \ get(g:, 'neocomplete#data_directory', expand('~/.neocomplete'))
+let g:neocomplete#enable_debug =
+      \ get(g:, 'neocomplete#enable_debug', 0)
+if get(g:, 'neocomplete#enable_at_startup', 0)
+  augroup neocomplete
+    " Enable startup.
+    autocmd CursorHold,CursorMovedI
+          \ * call neocomplete#init#lazy()
+  augroup END
+endif"}}}
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
+
+" vim: foldmethod=marker

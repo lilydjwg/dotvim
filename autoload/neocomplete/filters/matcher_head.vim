@@ -1,7 +1,7 @@
 "=============================================================================
-" FILE: snippets.vim
+" FILE: matcher_head.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 08 Mar 2012.
+" Last Modified: 10 Jun 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -27,18 +27,50 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-if !exists('b:undo_ftplugin')
-    let b:undo_ftplugin = ''
-endif
+function! neocomplete#filters#matcher_head#define() "{{{
+  return s:matcher
+endfunction"}}}
 
-setlocal expandtab
-let &l:shiftwidth=&tabstop
-let &l:softtabstop=&tabstop
-let &l:commentstring="#%s"
+let s:matcher = {
+      \ 'name' : 'matcher_head',
+      \ 'description' : 'head matcher',
+      \}
 
-let b:undo_ftplugin .= '
-    \ | setlocal expandtab< shiftwidth< softtabstop< tabstop< commentstring<
-    \'
+function! s:matcher.filter(context) "{{{
+  let pattern = '^' . neocomplete#filters#escape(
+        \ a:context.complete_str)
+
+  lua << EOF
+do
+  local pattern = vim.eval('pattern')
+  local input = vim.eval('a:context.complete_str')
+  local candidates = vim.eval('a:context.candidates')
+  local len = string.len(input)
+  if vim.eval('&ignorecase') ~= 0 then
+    pattern = string.lower(pattern)
+    for i = #candidates-1, 0, -1 do
+      local word = vim.type(candidates[i]) == 'dict' and
+      string.lower(candidates[i].word) or string.lower(candidates[i])
+      if string.len(word) <= len or string.find(word, pattern, 1) == nil then
+        candidates[i] = nil
+      end
+    end
+  else
+    for i = #candidates-1, 0, -1 do
+      local word = vim.type(candidates[i]) == 'dict' and
+      candidates[i].word or candidates[i]
+      if string.len(word) <= len or string.find(word, pattern, 1) == nil then
+        candidates[i] = nil
+      end
+    end
+  end
+end
+EOF
+
+  return a:context.candidates
+endfunction"}}}
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
+
+" vim: foldmethod=marker

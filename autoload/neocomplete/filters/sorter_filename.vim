@@ -1,7 +1,7 @@
 "=============================================================================
-" FILE: snippets.vim
+" FILE: sorter_filename.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 08 Mar 2012.
+" Last Modified: 28 May 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -27,18 +27,25 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-if !exists('b:undo_ftplugin')
-    let b:undo_ftplugin = ''
-endif
+function! neocomplete#filters#sorter_filename#define() "{{{
+  return s:sorter
+endfunction"}}}
 
-setlocal expandtab
-let &l:shiftwidth=&tabstop
-let &l:softtabstop=&tabstop
-let &l:commentstring="#%s"
+let s:sorter = {
+      \ 'name' : 'sorter_filename',
+      \ 'description' : 'sort by filename order',
+      \}
 
-let b:undo_ftplugin .= '
-    \ | setlocal expandtab< shiftwidth< softtabstop< tabstop< commentstring<
-    \'
+function! s:sorter.filter(context) "{{{
+  let dir_list = filter(copy(a:context.candidates),
+        \ 'v:val.action__is_directory')
+  let file_list = filter(copy(a:context.candidates),
+        \ '!v:val.action__is_directory')
+  return neocomplete#helper#sort_human(dir_list)
+        \ + neocomplete#helper#sort_human(file_list)
+endfunction"}}}
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
+
+" vim: foldmethod=marker
