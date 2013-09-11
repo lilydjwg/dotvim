@@ -435,7 +435,7 @@ function! s:is_beginning_of_line(cur_text) "{{{
   return prev_word_end <= 0
 endfunction"}}}
 function! s:get_cursor_snippet(snippets, cur_text) "{{{
-  let cur_word = matchstr(a:cur_text, '\S\+$')
+  let cur_word = matchstr(a:cur_text, '\v%(\S<@!)+$')
   if cur_word != '' && has_key(a:snippets, cur_word)
       return cur_word
   endif
