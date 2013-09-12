@@ -7,3 +7,7 @@ Tips
 ```bash
 curl https://raw.github.com/lilydjwg/dotvim/master/vimrc | vim -R -c 'setf vim' -
 ```
+
+Note
+====
+There are notes in `refs/notes/*`.
