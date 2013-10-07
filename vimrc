@@ -342,7 +342,7 @@ function Lilydjwg_hexchar()
 endfunction
 "  用火狐打开链接[[[2
 function Lilydjwg_open_url()
-  let s:url = Lilydjwg_get_pattern_at_cursor('\v%(https?://|ftp://|file:/{3}|www\.)%(\w|[.-])+%(:\d+)?%(/%(\w|[~@#$%^&+=/.?:-])*[^,.?:-])?')
+  let s:url = Lilydjwg_get_pattern_at_cursor('\v%(https?://|ftp://|file:/{3}|www\.)%(\w|[.-])+%(:\d+)?%(/%(\w|[~@#$%^&+=/.?:-])*[^,.?:''"-])?')
   if s:url == ""
     echohl WarningMsg
     echomsg '在光标处未发现URL！'
