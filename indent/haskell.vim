@@ -116,6 +116,7 @@ function s:HaskellDedent(isbs)
       let line -= 1
     else
       echomsg curind ind
+      execute "normal " . (curind - ind) . "h"
       call setline('.', repeat(' ', ind) .
 	    \ substitute(getline('.'), '^\s\+', '', ''))
       return ''
