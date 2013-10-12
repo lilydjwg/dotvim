@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: neosnippet.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 12 Jul 2013.
+" Last Modified: 26 Sep 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -172,6 +172,12 @@ function! s:initialize_snippet_options() "{{{
 endfunction"}}}
 
 function! neosnippet#edit_snippets(args) "{{{
+  if neosnippet#util#is_sudo()
+    call neosnippet#util#print_error(
+          \ '"sudo vim" is detected. This feature is disabled.')
+    return
+  endif
+
   call s:check_initialize()
 
   let [args, options] = neosnippet#util#parse_options(
@@ -429,7 +435,7 @@ function! s:is_beginning_of_line(cur_text) "{{{
   return prev_word_end <= 0
 endfunction"}}}
 function! s:get_cursor_snippet(snippets, cur_text) "{{{
-  let cur_word = matchstr(a:cur_text, '\v%(\S<@!)+$')
+  let cur_word = matchstr(a:cur_text, '\S\+$')
   if cur_word != '' && has_key(a:snippets, cur_word)
       return cur_word
   endif
@@ -821,7 +827,8 @@ function! s:expand_placeholder(start, end, holder_cnt, line, ...) "{{{
         \ s:get_mirror_placeholder_marker_substitute_pattern(),
         \ '<|\1|>', 'g')
 
-  let default_len = len(default)
+  " len() cannot use for multibyte.
+  let default_len = len(substitute(default, '.', 'x', 'g'))
 
   let pos = getpos('.')
   let pos[1] = a:line
@@ -1245,8 +1252,6 @@ function! neosnippet#clear_select_mode_mappings() "{{{
   snoremap <BS>     a<BS>
   snoremap <Del>    a<BS>
   snoremap <C-h>    a<BS>
-  snoremap <right> <ESC>a
-  snoremap <left>  <ESC>bi
 endfunction"}}}
 
 function! s:skip_next_auto_completion() "{{{
@@ -1351,7 +1356,7 @@ function! s:initialize_script_variables() "{{{
   let s:snippets_dir = []
   for dir in split(g:neosnippet#snippets_directory, '\s*,\s*')
     let dir = neosnippet#util#expand(dir)
-    if !isdirectory(dir)
+    if !isdirectory(dir) && !neosnippet#util#is_sudo()
       call mkdir(dir, 'p')
     endif
     call add(s:snippets_dir, dir)

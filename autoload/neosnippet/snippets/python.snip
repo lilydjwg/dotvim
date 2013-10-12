@@ -75,6 +75,35 @@ options     head
 	if ${1:#:condition}:
 		${0:TARGET}
 
+snippet     ifmain
+abbr        if __name__ == '__main__': ...
+alias       main
+options     head
+	if __name__ == '__main__':
+		${0:TARGET}
+
+snippet     tryexcept
+abbr        try: ... except ...: ...
+options     head
+	try:
+		${1:TARGET}
+	except ${2:#:ExceptionClass}:
+		${3}
+
+snippet     tryfinally
+abbr        try: ... finally: ...
+options     head
+	try:
+		${1:TARGET}
+	finally:
+		${2}
+
+snippet     while
+abbr        while ...: ...
+options     head
+	while ${1:#:condition}:
+		${0:TARGET}
+
 snippet     with
 abbr        with open({file}) as :
 options     head
