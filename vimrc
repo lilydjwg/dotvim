@@ -441,6 +441,11 @@ set diffopt+=vertical,context:3,foldcolumn:0
 set fileencodings=ucs-bom,utf-8,gb18030,cp936,latin1
 set fileformats=unix,dos,mac
 set formatoptions=croqn2mB1
+try
+  " Vim 7.4
+  set formatoptions+=j
+catch /.*/
+endtry
 set nojoinspaces
 set virtualedit=block
 set nostartofline
