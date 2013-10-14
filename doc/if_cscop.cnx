@@ -1,8 +1,8 @@
-*if_cscop.txt*  For Vim version 7.3.  最近更新：2010年5月
+*if_cscop.txt*  For Vim version 7.4.  最近更新: 2013年1月
 
 
 		  VIM REFERENCE MANUAL    by Andy Kahn
-		译者：lang2，tocer http://vimcdoc.sf.net
+		译者: lang2，tocer http://vimcdoc.sf.net
 
 							*cscope* *Cscope*
 本文档阐述如何使用 Vim 的 cscope 接口。
@@ -67,8 +67,8 @@ ctags 强大很多。 在 Vim 里，通过 cscope 查询结果来跳转就象跳
 查询。然而，一旦找到一个匹配而你进入了一个文本编辑器来查看和编辑包含匹配的源文
 件时，你无法像在 vi 中使用 Ctrl-] 或 :tag 命令那样方便地跳转。
 
-Vim 的 cscope 接口的工作原理是：先调用 cscope 的命令行接口，然后分析其输出结果
-从而找到匹配处。最终结果是：cscope 查询结果就象一般的标签一样。你可以使用一般
+Vim 的 cscope 接口的工作原理是: 先调用 cscope 的命令行接口，然后分析其输出结果
+从而找到匹配处。最终结果是: cscope 查询结果就象一般的标签一样。你可以使用一般
 的标签命令 (Ctrl-］ 或 :tag) 然后再用 Ctrl-T 回跳。 (注意 不过，其实你不能直接
 使用 Ctrl-] 或 :tag 跳转到标签。在那之前你必须重新定义映射或设定一些选项值。下
 面的几节会告诉你 cscope 接口如何工作，以及建议的使用方式。)
@@ -98,8 +98,7 @@ Vim 的 cscope 接口的工作原理是：先调用 cscope 的命令行接口，
 	    :cscope add /projects/vim/cscope.out /usr/local/vim
 	    :cscope add cscope.out /usr/local/vim -C
 <
-				      *cscope-find* *cs-find*
-						*E565* *E567*
+				      *cscope-find* *cs-find* *E567*
     find  : 查询 cscope。除了第 5 个之外的所有 cscope 查询功能都可以使用。
     	    第 5 个是 "Change this grep pattern"。
 
@@ -172,14 +171,14 @@ Vim 的 cscope 接口的工作原理是：先调用 cscope 的命令行接口，
 	    1. 标签号码 (例子中有 15 个)。
 	    2. 标签所在的行号。
 	    3. 标签所在文件的文件名。
-	    4. 标签的上下文 (如：全局或函数名)。
+	    4. 标签的上下文 (如: 全局或函数名)。
 	    5. 标签所在行的文本。
 
     help  : 显示一个简单的帮助。
 
 	    用法    :cs help
 
-						*E260* *E261*
+							*E261*
     kill  : 终止一个 cscope 连接 (或终止所有 cscope 连接)。
 
 	    用法   :cs kill {num|partial_name}
@@ -215,7 +214,7 @@ Vim 的 cscope 接口的工作原理是：先调用 cscope 的命令行接口，
 3. Cscope 选项						*cscope-options*
 
 所有 cscope 有关的选项都可以用 |:set| 命令来设定。比较理想的做法是将这些设定添
-加到你的启动文件中 (如：.vimrc)。某些 cscope 选项仅仅在 |.vimrc| 文件内才有
+加到你的启动文件中 (如: .vimrc)。某些 cscope 选项仅仅在 |.vimrc| 文件内才有
 效。在 vim 启动之后再设定它们的值没有任何效果！
 
 							*cscopeprg* *csprg*
@@ -233,11 +232,19 @@ Vim 的 cscope 接口的工作原理是：先调用 cscope 的命令行接口，
 	:set cscopequickfix=s-,c-,d-,i-,t-,e-
 <
 							*cscopetag* *cst*
-若设定了 'cscopetag' 选项，":tag" 命令，CTRL-] 以及 "vim -t" 都会使用 |:cstag|
+若置位了 'cscopetag' 选项，":tag" 命令，CTRL-] 以及 "vim -t" 都会使用 |:cstag|
 而不是缺省的 :tag。也就是说，设定 'cst' 选项意味着你总同时搜索 cscope 数据库和
 标签文件。缺省值为关。例如: >
 	:set cst
 	:set nocst
+<
+							*cscoperelative* *csre*
+若置位了 'cscoperelative'，而没有给 cscope 提供前缀 (即 cscope 的 -P 选项参
+数)，cscope.out 所在位置的目录名 (通常是项目的根目录) 用作前缀来构造绝对路径。
+缺省关闭此功能。注意: 此选项仅当 cscope (cscopeprg) 启动时没有前缀路径 (-P) 时
+才适用。示例: >
+	:set csre
+	:set nocsre
 <
 							*cscopetagorder* *csto*
 'csto' 的值决定 |:cstag| 命令查找的次序。如果 'csto' 被设为 0，cscope 数据库先
@@ -299,7 +306,7 @@ cscope 数据库之前被搜索。缺省值为 0。
 ==============================================================================
 5. 缺陷							*cscope-limitations*
 
-Vim 对 cscope 的支持仅当所在系统支持以下四个系统调用时才可用：fork()，
+Vim 对 cscope 的支持仅当所在系统支持以下四个系统调用时才可用: fork()，
 pipe()，execl()，waitpid()。这意味着它基本上仅限于 Unix 系统。
 
 另外 cscope 支持在 Win32 也可以使用。更多的信息以及一个 Win32 版本的 cscope 可
@@ -310,7 +317,7 @@ pipe()，execl()，waitpid()。这意味着它基本上仅限于 Unix 系统。
 http://cscope.sourceforge.net 的 DJGPP 编译版本已知不能和 Vim 一起工作。
 
 硬性的限制: 在用 |:cstag| 搜索标签文件时要执行 |:tjump|，这一点是无法配置的 (
-如：你不能选择使用 tselect)。
+如: 你不能选择使用 tselect)。
 
 ==============================================================================
 6. 建议的使用方法					*cscope-suggestions*

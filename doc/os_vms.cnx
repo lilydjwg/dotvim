@@ -1,4 +1,4 @@
-*os_vms.txt*    For Vim version 7.3.  最近更新: 2010年8月
+*os_vms.txt*    For Vim version 7.4.  最近更新: 2013年1月
 
 
 		  VIM 参考手册
@@ -38,9 +38,6 @@ Vim (Vi IMproved) 是一个 vi-兼容的文本编辑器，它能在人类知道�
 或者使用某个镜像站点:
 	ftp://ftp.vim.org/pub/vim/MIRRORS
 
-你需要 Unix 和 Extra 档案来编译 VMS 上的 vim.exe。要发挥 Vim 的完整能力，你还
-需要 runtime (运行时) 文件。
-
 你可以从这里得到编译好的二进制文件:
 	http://www.polarhome.com/vim/
 	ftp://ftp.polarhome.com/pub/vim/
@@ -71,8 +68,8 @@ GTK 可执行文件需要 GTKLIB，后者在 Alpha 和 IA64 平台上可以得�
 ==============================================================================
 4. 问题							*vms-problems*
 
-代码经过 Open VMS 6.2 - 8.2 在 Alpha、VAX 和 IA64 平台以及 DEC C 编译器测试。应
-该不会有更大的问题。如果你的系统缺少一些库，你可以调整 OS_VMS_CONF.H 文件。
+代码经过 Open VMS 6.2 - 8.2 在 Alpha、VAX 和 IA64 平台以及 DEC C 编译器测试。
+应该不会有大问题。如果你的系统缺少一些库，你可以调整 OS_VMS_CONF.H 文件。
 
 如果你决定编译 Vim 时加上 +perl，+python 等选项，首先你需要下载 OpenVMS 的
 Perl 和 Python 的发布版本。编译并布署需要的库，并修改 MAKE_VMS.MMS 文件的若干
@@ -185,7 +182,7 @@ $TMP 的方法是定义逻辑名: >
 	sys$login:.vimrc
 	sys$login:.gvimrc
 
-你可以用 :version 查看是否一切都正常。
+你可以用 :version 查看是否一切文件位置都正确。
 
 LOGIN.COM 示例: >
 
@@ -277,7 +274,8 @@ GTK 运行环境 (LIBGTK 可在  http://www.polarhome.com/vim/ 下载)。
 
 4) 如果你在 MS Windows 或者其它非 X/Window 环境上工作，你需要设置 X 服务器，并
    像第二点那样运行 Vim。MS Windows 上有免费的 X 服务器，例如 MIX，Omni X 等。
-   也有很好的商业软件，如 eXcursion 或者 ReflectionX，它们都有内建的 DEC 支持。
+   也有很好的商业软件，如 eXcursion 或者 ReflectionX，它们都有内建的 DEC 支
+   持。
 
 请 注意，没有 GUI 支持的可执行程序在文本模式下启动时，比带有 GUI 支持的稍快。
 因此，如果你不打算使用 GUI 特性，可以考虑使用非 GUI 版本的可执行程序。
@@ -299,7 +297,7 @@ GTK 运行环境 (LIBGTK 可在  http://www.polarhome.com/vim/ 下载)。
 8.11 diff 和其他 GNU 程序
 8.12 diff-模式
 8.13 允许 C 关键字里出现 '$'
-8.14 为初学者提供的 VIMTUTOR　(VIM 教程)
+8.14 为初学者提供的 VIMTUTOR (VIM 教程)
 8.15 控制台模式启动太慢的问题
 8.16 公用 VIM 目录 - 不同的体系结构
 
@@ -522,7 +520,7 @@ diff，则 Vim 就能正常在 diff 模式下工作了。只要你重定义 diff
 另外一个更复杂的方法参见下面 (8.12 diff-模式)。此外，还有其他的程序，如
 patch、make 等等，都会有相同的问题。www.polarhome.com 提供了 Alpha 和 VAX 机器
 上的 GNU 程序包，可以用来解决 OpenVMS 上的 GNU 问题。
-( Zoltan Arpadffy，Vim 6.1 版本)
+(Zoltan Arpadffy，Vim 6.1 版本)
 
 
 8.12 diff-模式
@@ -580,7 +578,7 @@ http://www.polarhome.com/vim/files/gnu_tools.zip。我建议把它解压到一�
     3. VIM  diff:  $ VIMDIFF  <FILE1> <FILE2>
     4. GVIM diff:  $ GVIMDIFF <FILE1> <FILE2>
 
-( Coen Engelbarts，Vim 6.1 版本)
+(Coen Engelbarts，Vim 6.1 版本)
 
 
 8.13 允许 C 关键字里出现 '$'
@@ -599,9 +597,9 @@ DEC C 使用很多带有 '$' 的标识符。ANSI C 则不允许如此，而 Vim 
 这样，基于单词的命令，如 '*'-搜索命令和 CTRL-] 标签搜索等，都能作用于整个标识
 符上了。(VMS 上的 Ctags 从 5.1 版本开始，也支持带 '$' 的 C 关键字)。
 
-( Coen Engelbarts，Vim 6.1 版本)
+(Coen Engelbarts，Vim 6.1 版本)
 
-8.14 为初学者提供的 VIMTUTOR　(VIM 教程)
+8.14 为初学者提供的 VIMTUTOR (VIM 教程)
 
 VIMTUTOR.COM DCL 脚本可以帮助 Vim 初学者学习/掌握在 OpenVMS 上运行 Vim 的基本
 步骤。在某些二进制版本中，你可以如下方式开始: >
@@ -620,17 +618,17 @@ VIMTUTOR.COM DCL 脚本可以帮助 Vim 初学者学习/掌握在 OpenVMS 上运
 幸运的是，有个简单的方法。管理员只需要同时安装 GUI/GTK 版本和纯控制台版本，如
 下: >
 
-    |- vim72
+    |- vim73
     |----- doc
-    |----- syntax        
+    |----- syntax
        vimrc    (系统 rc 文件)
        gvimrc
-       gvim.exe (换名的 GUI 或 GTK 版本的 vim.exe)      
-       vim.exe  (纯控制台版本) 
+       gvim.exe (换名的 GUI 或 GTK 版本的 vim.exe)
+       vim.exe  (纯控制台版本)
 
 在 LOGIN.COM 或 SYSLOGIN.COM 为 ex 定义系统符号: >
 
-	$ define/nolog VIM RF10:[UTIL.VIM72] ! VIM 所在的目录
+	$ define/nolog VIM RF10:[UTIL.VIM73] ! VIM 所在的目录
 	$ vi*m  :== mcr VIM:VIM.EXE
 	$ gvi*m :== mcr VIM:GVIM.EXE
 	$ ! 或者用以下方式启动
@@ -697,7 +695,7 @@ View of Cluster from system ID 11655  node: TOR                                 
 	$      define/nolog VIM RF10:[UTIL.IA64_EXE] ! IA64 executables
 	$ endif
         $! VIMRUNTIME must be defined in order to find runtime files
-	$ define/nolog VIMRUNTIME RF10:[UTIL.VIM72]
+	$ define/nolog VIMRUNTIME RF10:[UTIL.VIM73]
 
 使用这种方法一个好的示例可见来自 GNU_TOOLS.ZIP 包的 [GNU]gnu_tools.com 脚本。
 可以从这里下载 http://www.polarhome.com/vim/
@@ -711,7 +709,7 @@ View of Cluster from system ID 11655  node: TOR                                 
 Version 7.3
 - CTAGS 5.8 included
 - VMS compile warnings fixed - floating-point overflow warning corrected on VAX
-- filepath completition corrected - too many chars were escaped in filename
+- filepath completion corrected - too many chars were escaped in filename
   and shell commands
 - the following plugins are included into VMS runtime:
 	genutils 2.4, multiselect 2.2, multvals 3.1, selectbuf 4.3,
@@ -726,10 +724,10 @@ Version 7.3
 Version 7.2 (2008 Aug 9)
 - VCF files write corrected
 - CTAGS 5.7 included
-- corrected make_vms.mms (on VAX gave syntax error) 
+- corrected make_vms.mms (on VAX gave syntax error)
 
 Version 7.1 (2007 Jun 15)
-- create TAGS file from menu 
+- create TAGS file from menu
 
 Version 7
 - Improved low level char input (affects just console mode)

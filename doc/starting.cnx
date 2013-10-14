@@ -1,4 +1,4 @@
-*starting.txt*  For Vim version 7.3.  最近更新: 2010年8月
+*starting.txt*  For Vim version 7.4.  最近更新: 2013年8月
 
 
 		  VIM 参考手册    by Bram Moolenaar
@@ -89,14 +89,14 @@ exim	vim -E	    以增强的 Ex 模式启动 (见 |Ex-mode|)。	    *exim*
 			(通常并没有安装)
 view	vim -R	    以只读模式启动 (见 |-R|)。			    *view*
 gvim	vim -g	    以 GUI 启动 (见 |gui|)。			    *gvim*
-gex	vim -eg	    以 Ex 模式启动 GUI。			    *gex*
-gview	vim -Rg	    以只读模式启动 GUI.				    *gview*
+gex	vim -eg	    以 Ex 模式启动 GUI。			  *gex*
+gview	vim -Rg	    以只读模式启动 GUI.				  *gview*
 rvim	vim -Z	    和 "vim" 类似，但以受限模式启动 (见 |-Z|)	    *rvim*
-rview	vim -RZ	    和 "view" 类似，但以受限模式启动。	   	    *rview*
-rgvim	vim -gZ	    和 "gvim" 类似，但以受限模式启动。	  	    *rgvim*
-rgview	vim -RgZ    和 "gview" 类似，但以受限模式启动。	  	    *rgview*
+rview	vim -RZ	    和 "view" 类似，但以受限模式启动。	   	  *rview*
+rgvim	vim -gZ	    和 "gvim" 类似，但以受限模式启动。	  	  *rgvim*
+rgview	vim -RgZ    和 "gview" 类似，但以受限模式启动。	  	  *rgview*
 evim    vim -y      简易 Vim: 置位 'insertmode' (见 |-y|)	    *evim*
-eview   vim -yR     和 "evim" 类似，启用只读模式		    *eview*
+eview   vim -yR     和 "evim" 类似，启用只读模式		  *eview*
 vimdiff vim -d	    以 diff 模式启动 |diff-mode|
 gvimdiff vim -gd    以 diff 模式启动 GUI |diff-mode|
 
@@ -219,11 +219,13 @@ VMS 上，所有的选项参数假定都是小写的，除非前面有一个正�
 
 						*-Z* *restricted-mode* *E145*
 -Z		受限模式。使用外部外壳的任何命令都被禁止。这包括使用 CTRL-Z 暂
-		停、":sh"、过滤程序，system() 函数，反引号扩展，等等。
+		停、":sh"、过滤程序，system() 函数，反引号扩展，
+		delete()、rename()、mkdir()、writefile()、libcall() 等等。
 		{Vi 无此功能}
 
 							*-g*
--g		启动 Vim 并进入 GUI 模式。见 |gui|。{Vi 无此功能}
+-g		启动 Vim 并进入 GUI 模式。见 |gui|。相反的功能可见 |-v|。
+		{Vi 无此功能}
 
 							*-v*
 -v		启动 Ex 进入 Vi 模式。只有在可执行文件名字叫 "ex" 或者 "gvim"
@@ -372,17 +374,20 @@ VMS 上，所有的选项参数假定都是小写的，除非前面有一个正�
 		con:x/y/width/height"，比如 "-d con:30/10/600/150"。但是你可以
 		用之在别的设备上启动编辑，比如，AUX:。{Vi 无此功能}
 							*-f*
--f		Amiga: 不要在新窗口上启动 Vim。该选项应该用于 Vim 被别的程序启
-		动，并且需等待编辑会话完成的场合 (例如，mail 或者 readnews)。
-		见 |amiga-window|。
-
-		GUI: 不要从启动 Vim 的程序那里断开。'f' 代表 "foreground" (前
+-f		GUI: 不要从启动 Vim 的程序那里断开。'f' 代表 "foreground" (前
 		台)。如果不提供，GUI 分叉 (fork) 出一个新进程，并结束当前的进
 		程。 "-f" 应该用于 gvim 被别的程序启动，并且需等待编辑会话完成
 		的场合 (例如，mail 或者 readnews)。如果你希望 gvim 永远不要分
 		叉，在你的 |gvimrc| 里给 'guioptions' 加上 'f'。
 		小心: 你可以使用 "-gf" 在前台启动 GUI，但是 "-fg" 是用来指定前
 		台颜色的。|gui-fork|
+
+		Amiga: 不要在新窗口上启动 Vim。该选项应该用于 Vim 被别的程序启
+		动，并且需等待编辑会话完成的场合 (例如，mail 或者 readnews)。
+		见 |amiga-window|。
+
+		MS-Windows: 不支持此选项。但用已安装的 vim.bat 或 gvim.bat
+		运行 Vim 时就可以如此工作。
 		{Vi 无此功能}
 
 							*--nofork*
@@ -651,15 +656,24 @@ Evim 里，以下选项被改变，不同于缺省值:
 	令执行。有时，它也被叫做 "exrc" 文件。它们是同一种类型文件。但是 Vi 一
 	直用 "exrc"。而 "vimrc" 是 Vim 专用的名字。另见 |vimrc-intro|。
 
-	建议保存你个人初始化的地方是:
-		Unix		    $HOME/.vimrc
-		OS/2		    $HOME/.vimrc 或 $VIM/.vimrc (或 _vimrc)
-		MS-DOS 和 Win32     $HOME/_vimrc 或 $VIM/_vimrc
-		Amiga		    s:.vimrc 或 $VIM/.vimrc
+	保存你个人初始化的地方是:
+		Unix		    $HOME/.vimrc 或 $HOME/.vim/vimrc
+		OS/2		    $HOME/.vimrc、$HOME/vimfiles/vimrc 或
+				    $VIM/.vimrc (或 _vimrc)
+		MS-Windows	    $HOME/_vimrc、$HOME/vimfiles/vimrc 或
+				    $VIM/_vimrc
+		Amiga		    s:.vimrc、home:.vimrc、home:vimfiles:vimrc
+				    或 $VIM/.vimrc
+
+	按上述顺序依次寻找，只读入首个成功找到的文件。
+
+	推 荐: 把所有的 Vim 配置放在 $HOME/.vim 目录底下 (MS-Windows 则是
+	$HOME/vimfiles)。这样方便复制到别的系统上。
 
 	如果 Vim 启动时使用了 "-u filename" 参数，则使用文件 "filename"。直到
-	第四步以前的所有初始化都被跳过。"vim -u NORC" 可以用来跳过这些初始化，
-	而且不读入任何文件。"vim -u NONE" 同时也跳过插件的载入。|-u|
+	第四步以前的所有初始化都被跳过。不设置 $MYVIMRC。
+	"vim -u NORC" 可以用来跳过这些初始化，而且不读入任何文件。
+	"vim -u NONE" 同时也跳过插件的载入。|-u|
 
 	如果 Vim 启动时使用了 "-s" 参数，所有直到第四步以前的所有初始化都被跳
 	过。只有 "-u" 选项会被解释。
@@ -682,12 +696,15 @@ Evim 里，以下选项被改变，不同于缺省值:
 	-  环境变量 VIMINIT (另见 |compatible-default|) (*)
 	   $VIMINIT 的值作为 Ex 命令行来使用。
 	-  用户 vimrc 文件:
-		    "$HOME/.vimrc"	(用于 Unix 和 OS/2) (*)
-		    "s:.vimrc		(用于 Amiga) (*)
-		    "home:.vimrc"	(用于 Amiga) (*)
-		    "$VIM/.vimrc"	(用于 OS/2 和 Amiga) (*)
-		    "$HOME/_vimrc"	(用于 MS-DOS 和 Win32) (*)
-		    "$VIM/_vimrc"	(用于 MS-DOS 和 Win32) (*)
+		    "$HOME/.vimrc"	   (用于 Unix 和 OS/2) (*)
+		    "$HOME/.vim/vimrc"	   (用于 Unix 和 OS/2) (*)
+		    "s:.vimrc		   (用于 Amiga) (*)
+		    "home:.vimrc"	   (用于 Amiga) (*)
+		    "home:vimfiles:vimrc"  (用于 Amiga) (*)
+		    "$VIM/.vimrc"	   (用于 OS/2 和 Amiga) (*)
+		    "$HOME/_vimrc"	   (用于 MS-DOS 和 Win32) (*)
+		    "$HOME/vimfiles/vimrc" (用于 MS-DOS 和 Win32) (*)
+		    "$VIM/_vimrc"	   (用于 MS-DOS 和 Win32) (*)
 		注意: 对 Unix、OS/2 和 Amiga 而言，如果 ".vimrc" 不存在，则尝
 		试 "_vimrc"。因为有可能使用了 MS-DOS 兼容的文件系统。
 		对 MS-DOS 和 Win32 而言，".vimrc" 在 "_vimrc" 之后检查，因为可
@@ -756,6 +773,7 @@ Evim 里，以下选项被改变，不同于缺省值:
 12. 执行启动命令
 	如果给 Vim "-t" 标志，跳转到标签处。
 	|-c| 和 |+cmd| 参数给出的命令现在执行。
+	复位启动标志位，has("vim_starting") 现在返回零。
 	如果置位了 'insertmode' 选项，进入插入模式。
 	执行 |VimEnter| 自动命令。
 
@@ -1142,7 +1160,7 @@ Vim 并直接从你希望的设置开始工作。|session-file|
 
 							*viminfo-read*
 如果 Vim 启动时 'viminfo' 选项非空，viminfo 文件的内容被读入，而其中的信息在适
-当的地方被应用。填入 |v:oldfile| 变量。启动时并不读入位置标记 (但是文件标记被
+当的地方被应用。填入 |v:oldfiles| 变量。启动时并不读入位置标记 (但是文件标记被
 读入)。关于如何在启动时设置 'viminfo' 选项，见 |initialization|。
 
 							*viminfo-write*

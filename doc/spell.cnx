@@ -1,4 +1,4 @@
-*spell.txt*	For Vim version 7.3.  最近更新: 2010年5月
+*spell.txt*	For Vim version 7.4.  最近更新: 2013年8月
 
 
 		  VIM 参考手册	  by Bram Moolenaar
@@ -289,6 +289,8 @@ Vim 会寻找:
 当前的 'encoding' 下不一定有可用的拼写文件。|spell-mkspell| 说明如何建立拼写文
 件。用 "iconv" 转换拼写文件_不能_工作！
 
+备注: VMS 上 ".{enc}.spl" 被换名为 "_{enc}.spl"，否则文件名会有问题。
+
 						    *spell-sug-file* *E781*
 如果存在和 ".spl" 同名但以 ".sug" 结尾的文件，使用该文件来给出更好的建议。直到
 需要建议的时候才载入该文件，以减少内存开销。
@@ -441,6 +443,7 @@ Vim 的拼写文件使用二进制文件格式。这大大加快了单词列表�
 			使用第一个包含 REP 和 SAL 项目的 .aff 文件的这些项目。
 			|spell-REP| |spell-SAL|
 
+								*E845*
 			该命令需要大量内存，用于寻找最优单词树 (波兰语、意大利
 			语和匈牙利语需要几百兆字节)。最终结果因为使用压缩的缘
 			故会小得多。为了避免内存溢出，压缩会时不时进行。使用
@@ -686,7 +689,7 @@ Vim 支持不少附加成分。下面给出描述 |spell-affix-vim|。已经作�
 词。
 
 行 12 (译者注: 应为行 11) 定义单词 "TCP/IP"。因为斜杠有特殊含义，这里使用逗号
-代替。它定义在字缀文件的 SLASH 项目里，见 |spell-SLASH|。注意 没有这个 SLASH 
+代替。它定义在字缀文件的 SLASH 项目里，见 |spell-SLASH|。注意 没有这个 SLASH
 项目，匹配的单词将是 "TCP,IP"。
 
 
@@ -697,7 +700,7 @@ Vim 支持不少附加成分。下面给出描述 |spell-affix-vim|。已经作�
 
 	# 注释行 ~
 
-带有固定数目参数的项目之后可以有注释，但不能有包含空白的参数。注释必须以 "#" 
+带有固定数目参数的项目之后可以有注释，但不能有包含空白的参数。注释必须以 "#"
 字符开始。例如:
 
 	KEEPCASE =  # fix case for words with this flag ~
@@ -773,8 +776,11 @@ Vim 支持不少附加成分。下面给出描述 |spell-affix-vim|。已经作�
 							*E763*
 Vim 允许在相同文件里为多种语言进行拼写检查。它们在 'spelllang' 选项里列出。为
 此，相同编码的所有拼写文件必须使用相同的单词字符，否则不能保证它们合并使用而不
-产生错误。如果你得到警告说单词表格不一致，可能需要重新用 |:mkspell| 生成 .spl
-文件。请检查所用的 .aff 文件里的 FOL、LOW 和 UPP 三行。
+产生错误。
+
+如果你得到 E763 警告说单词表格不一致，可能需要更新 .spl 文件。如果你是下载得到
+的文件，下载所有拼写文件的最新版本。否则重新用 |:mkspell| 生成 .spl 文件。如果
+还有错误，请检查所用的 .aff 文件里的 FOL、LOW 和 UPP 三行。
 
 用 "-ascii" 参数生成的 XX.ascii.spl 拼写文件不包含字符表格，所以它可以和任何编
 码的拼写文件合并使用。.add.spl 文件同样如此。
@@ -1042,6 +1048,7 @@ COMPOUNDRULE 项目可以出现多次。它的参数包含一或多个组。每�
 可选地，后面可跟:
 	*	该组出现零或多次，例如，sm*e
 	+	该组出现一或多次，例如，c+
+	?	该组出现零或一次，例如，x?
 
 这和正规表达式的语法相似 (但不完全相同！)。一些例子如下，这里同时列出它们所要
 求的标志位序列:
@@ -1049,6 +1056,7 @@ COMPOUNDRULE 项目可以出现多次。它的参数包含一或多个组。每�
     COMPOUNDRULE yz	   yz
     COMPOUNDRULE x+z	   xz xxz xxxz 等
     COMPOUNDRULE yx+	   yx yxx yxxx 等
+    COMPOUNDRULE xy?z	   xz xyz
 
     COMPOUNDRULE [abc]z    az bz cz
     COMPOUNDRULE [abc]+z   az aaz abaz bz baz bcbz cz caz cbaz 等
@@ -1079,7 +1087,7 @@ NEEDCOMPOUND 标志位要求单词必须用作复合词的一部分。该单词�
 	NEEDCOMPOUND & ~
 
 							*spell-ONLYINCOMPOUND*
-ONLYINCOMPOUND 等同于 NEEDCOMPOUND。为保持和 Hunspell 兼容性而设.
+ONLYINCOMPOUND 等同于 NEEDCOMPOUND。为保持和 Hunspell 兼容性而设。
 
 							*spell-COMPOUNDMIN*
 用于复合词的最短字符长度用 COMPOUNDMIN 指定。例如:
@@ -1134,8 +1142,8 @@ COMPOUNDROOT 标志位用来指定字典里已经是复合词的单词。检查�
 被计算为两个单词。也可用于字缀，使得该字缀成为一个复合词。
 
 						*spell-CHECKCOMPOUNDPATTERN*
-CHECKCOMPOUNDPATTERN 用于定义这样的模式，在两个词复合的位置匹配时禁止该复合词。
-示例:
+CHECKCOMPOUNDPATTERN 用于定义这样的模式，在两个词复合的位置匹配时禁止该复合
+词。示例:
 	CHECKCOMPOUNDPATTERN o e ~
 
 如果第一个词以 "o" 结尾而第二个词以 "e" 开始，禁止它们的复合。
@@ -1337,7 +1345,7 @@ COMPOUNDSYLLABLE  (Hunspell)			*spell-COMPOUNDSYLLABLE*
 KEY		(Hunspell)				*spell-KEY*
 		定义键盘上互相靠近的字符。
 		用于给出更好的建议。不支持。
-		
+
 LANG		(Hunspell)				*spell-LANG*
 		指定语言特定的行为。实际上把部分有关语言的知识放进了程序里。因
 		而 Vim 不支持。必须分别指定每个语言属性。

@@ -1,4 +1,4 @@
-*helphelp.txt*   For Vim version 7.3.  最近更新: 2010年8月
+*helphelp.txt*   For Vim version 7.4.  最近更新: 2013年8月
 
 
 		  VIM 参考手册    by Bram Moolenaar
@@ -16,7 +16,7 @@
 1. 帮助命令						*online-help*
 
 			*help* *<Help>* *:h* *:help* *<F1>* *i_<F1>* *i_<Help>*
-<Help>		或	
+<Help>		或
 :h[elp]			打开一个窗口并以只读方式显示帮助文件。如果已经打开了一
 			个帮助窗口，就继续使用那个窗口。不然，如果当前窗口占据
 			了屏幕的完整宽度或者至少有 80 个字符宽，帮助窗口会出现
@@ -163,11 +163,11 @@
 					*:helpt* *:helptags*
 				*E154* *E150* *E151* *E152* *E153* *E670*
 :helpt[ags] [++t] {dir}
-			为目录 {dir} 生成帮助标签文件 tags。它扫描该目录中所有
-			的 "*.txt" 和 "*.??x" 文件中帮助标签定义。标签定义出现
-			在星号之间。"*.??x" 文件是经过翻译的文件。它们相应产生
-			"tags-??" 文件，参见 |help-translated|。所生成的标签文
-			件经过排序。
+			为目录 {dir} 生成帮助标签文件 tags。它扫描该目录及其子
+			目录中所有的 "*.txt" 和 "*.??x" 文件中帮助标签定义。标
+			签定义出现在星号之间。"*.??x" 文件是经过翻译的文件。它
+			们相应产生 "tags-??" 文件，参见 |help-translated|。所
+			生成的标签文件经过排序。
 			如果其中有重复项，会给出错误信息。
 			直接覆盖已有的标签文件，不会有提示。
 			可选的 "++t" 参数强制加入 "help-tags" 标签。如果 {dir}
@@ -188,6 +188,7 @@
 	中文     - 多位作者
 	法语     - David Blanchet 翻译
 	意大利语 - Antonio Colombo 翻译
+	日文     - 多位作者
 	波兰语   - Mikolaj Machowski 翻译
 	俄罗斯语 - Vassily Ragosin 翻译
 在 Vim 网页上可以找到这些翻译: http://www.vim.org/translations.php

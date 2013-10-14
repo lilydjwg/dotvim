@@ -1,8 +1,8 @@
-*usr_26.txt*	For Vim version 7.3	最近更新：2005年3月
+*usr_26.txt*	For Vim version 7.4	最近更新: 2005年3月
 
 		     VIM 用户手册 - Bram Moolenaar 著
-		  译者： Chimin Yen http://vimcdoc.sf.net
-				    
+		  译者:  Chimin Yen http://vimcdoc.sf.net
+
 				  重复
 
 
@@ -84,7 +84,7 @@
 	007	foo bar ~
 	010	foo bar ~
 
-7 加 1 等于 10? 这是因为 Vim 根据首位出现的 "0" 而误以为 "007" 是个八进位数
+7 加 1 等于 10？这是因为 Vim 根据首位出现的 "0" 而误以为 "007" 是个八进位数
 字。这种表示法常用于 C 程序。如果你不要首位为 "0" 的数字被处理成八进位数字，请
 用这个命令: >
 
@@ -193,4 +193,4 @@ Vim 能从标准输入读取文本。由于通常从那里读取的是命令，�
 
 下一章: |usr_27.txt|  搜索命令和模式
 
-版权: 参见 |manual-copy:wright|  vim:tw=78:ts=8:ft=help:norl:
+版权: 参见 |manual-copyright|  vim:tw=78:ts=8:ft=help:norl:

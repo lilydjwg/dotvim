@@ -131,5 +131,4 @@ install -m 644 windows.cnx /home/lilydjwg/.vim/doc/windows.cnx
 install -m 644 workshop.cnx /home/lilydjwg/.vim/doc/workshop.cnx
 install -m 644 tags-cn /home/lilydjwg/.vim/doc/tags-cn
 install -m 644 help_cn.vim /home/lilydjwg/.vim/syntax/help_cn.vim
-install -m 644 vimcdoc.vim /home/lilydjwg/.vim/plugin/vimcdoc.vim
 Done.

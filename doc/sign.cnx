@@ -1,4 +1,4 @@
-*sign.txt*      For Vim version 7.3.  最近更新: 2010年5月
+*sign.txt*      For Vim version 7.4.  最近更新: 2013年8月
 
 
 		  VIM 参考手册	作者: Gordon Prieur
@@ -60,12 +60,13 @@
 
 :sign define {name} {argument}...
 		定义新标号或为已存在的标号设置属性。{name} 可以是完全由数位组
-		成的数值，也可以是由非数位开头的名字。
+		成的数值，也可以是由非数位开头的名字。忽略开头的数位 (译者注:
+		零？)，所以 "0012"、"012" 和 "12" 认为是相同的名字。
 		可以定义大约 120 个不同的标号。
 
 		允许的参数是:
 
-	icon={pixmap}
+	icon={bitmap}
 		位图文件名。必须是完整的路径名。位图应该能够在两个字符的宽度内
 		显示。但是不会实际检查这一点，如果位图太大，刷新时会有问题。只
 		有 GTK 2 可以按比例缩放位图，使之刚好能占据可用的空间。
@@ -73,6 +74,8 @@
 			GTK 1		pixmap (.xpm)
 			GTK 2		许多
 			Motif		pixmap (.xpm)
+			Win32		.bmp, .ico, .cur
+					pixmap (.xpm) |+xpm_w32|
 
 	linehl={group}
 		用以显示整个标号行的高亮组。多用于定义背景色。
@@ -130,8 +133,14 @@
 		从文件 {fname} 里撤销已放置的标号 {id} 的放置。
 		参看关于 {fname} 的说明 |:sign-fname|。
 
+:sign unplace * file={fname}
+		从文件 {fname} 里撤销所有已放置的标号。
+
 :sign unplace {id} buffer={nr}
-		同上，但指定缓冲区 {nr}。
+		从缓冲区 {nr} 里撤销已放置的标号 {id} 的放置。
+
+:sign unplace * buffer={nr}
+		从缓冲区 {nr} 里撤销所有已放置的标号。
 
 :sign unplace {id}
 		撤销所有文件里出现的 {id} 标号的放置。

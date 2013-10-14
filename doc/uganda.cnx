@@ -1,15 +1,15 @@
-*uganda.txt*    For Vim version 7.3.  最近更新：2010年8月
+*uganda.txt*    For Vim version 7.4.  最近更新: 2013年8月
 
 
 		  VIM 参 考 手 册    作者: Bram Moolenaar
-				     译者: Dasn 
+				     译者: Dasn
 				     http://vimcdoc.sf.net
 
 			*uganda* *Uganda* *copying* *copyright* *license*
 简介:
 								*iccf* *ICCF*
 Vim 是慈善软件，您可以任意地使用和复制，但还是希望您能够捐助那些需要帮助的乌干
-达儿童。请看下方的 |KCC|，或者通过下面几个镜像地址访问 ICCF 的主页以获取更多地
+达儿童。请看下方的 |kcc|，或者通过下面几个镜像地址访问 ICCF 的主页以获取更多地
 信息:
 
 	http://iccf-holland.org/
@@ -196,6 +196,7 @@ Vision)，拯救儿童基金会 (Save the Children Fund) 合作捐资建成的�
 荷兰:		请汇款至在 Lisse 的 "Stichting ICCF Holland" 的账户，如果您住
 		在荷兰，可以减税。
 			Postbank, nr. 4548774
+			IBAN: NL95 INGB 0004 5487 74
 
 德国:		可以在捐赠时得到税款返还。查阅 ICCF 网站获取更多的信息:
 			http://iccf-holland.org/germany.html
@@ -218,7 +219,7 @@ Vision)，拯救儿童基金会 (Save the Children Fund) 合作捐资建成的�
 其它:		请汇款至下面几个帐户之一:
 		    Postbank, account 4548774
 				Swift code: INGB NL 2A
-				IBAN: NL47 PSTB 0004 5487 74
+				IBAN: NL95 INGB 0004 5487 74
 			收款人的名字是 "stichting ICCF Holland", Lisse
 		如果不行，可用:
 		    Rabobank Lisse, account 3765.05.117
@@ -228,7 +229,6 @@ Vision)，拯救儿童基金会 (Save the Children Fund) 合作捐资建成的�
 		70 美元 (抱歉，我的银行不接收更小数额的国外支票)。
 
 支票请汇到下述地址:
-			stichting ICCF Holland
 			Bram Moolenaar
 			Finsterruetihof 1
 			8134 Adliswil

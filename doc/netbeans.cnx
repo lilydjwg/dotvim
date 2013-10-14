@@ -1,4 +1,4 @@
-*netbeans.txt*  For Vim version 7.3.  最近更新: 2010年7月
+*netbeans.txt*  For Vim version 7.4.  最近更新: 2013年1月
 
 
 		  VIM 参考手册    by Gordon Prieur et al.
@@ -83,13 +83,13 @@ http://www.sun.com 可以了解更多关于 Sun ONE Studio 产品线的信息。
 
 Vim 的 NetBeans 套接字接口可以从 Vim 那里得到信息或者告诉 Vim 执行特定任务:
 - 得到缓冲区的信息: 缓冲区名、光标位置、缓冲区内容，等等
-- 缓冲区被打开或关闭时被告知  
+- 缓冲区被打开或关闭时被告知
 - 缓冲区内容修改时被告知
 - 读入或保存文件
 - 修改缓冲区内容
 - 安装特别的键绑定
 - 抬起 (raise) 窗口，控制窗口的尺寸
- 
+
 要发送键击到 Vim 以执行 Vim 的功能，必须使用 |clientserver| 接口。
 
 
@@ -109,7 +109,7 @@ Vim 的 NetBeans 套接字接口可以从 Vim 那里得到信息或者告诉 Vim
 的一行的注释。
 
 目前，支持 Netbeans 接口的有控制台运行的 Vim 和运行以下 GUI 的 Gvim: GTK、
-GNOME 和 Motif。
+GNOME、Windows、Athena 和 Motif。
 
 如果需要 Motif 支持，用户应该提供 XPM 库。参见 |workshop-xpm| 了解如何得到最新
 版本的 XPM 的详情。
@@ -127,7 +127,7 @@ http://gnuwin32.sourceforge.net (MinGW 版本)。
 允许调试:
 ---------
 
-要允许调试 Vim 和 NetBeans 协议，需要定义 "NBDEBUG" 宏。在相应平台的 Makefile 
+要允许调试 Vim 和 NetBeans 协议，需要定义 "NBDEBUG" 宏。在相应平台的 Makefile
 里查找 "NBDEBUG" 就可以知道需要去掉哪些行的注释。基本上就是给编译的命令加上
 "-DNBDEBUG"。另见 |netbeans-debugging|
 
@@ -145,7 +145,7 @@ Region is guarded, cannot modify
 The defineAnnoType highlighting color name is too long
 		defineAnnoType 命令的 "fg" 或 "bg" 颜色参数最大长度是 32 个字
 		符。
-		2.5 版本新出现.
+		2.5 版本新出现。
 
 							*E656*
 Writes of unmodified buffers forbidden
@@ -216,8 +216,8 @@ Read-only file
 ==============================================================================
 6. NetBeans 协议					*netbeans-protocol*
 
-Vim 控制器和 Vim 的通信使用简单文本消息。该协议原先是为 NetBeans 的外部编辑器所
-设计的。后来它被扩展，使得 Agide (A-A-P 的 GUI IDE，见 http://www.a-a-p.org)
+Vim 控制器和 Vim 的通信使用简单文本消息。该协议原先是为 NetBeans 的外部编辑器
+所设计的。后来它被扩展，使得 Agide (A-A-P 的 GUI IDE，见 http://www.a-a-p.org)
 也能使用，然后又扩展到其它 IDE。该扩展被标为 "2.1 版本"。
 
 该协议的 2.2 版本有若干小的改动，这些改动应该只影响 NetBeans 用户 (而不是
@@ -231,6 +231,10 @@ netbeans_saved() 已经被改名为 netbeans_save_buffer()。
 
 目前，消息通过套接字传送。因为消息是简单的 UTF-8 文本，该协议也许可以用其它通
 信机制完成。
+
+在 Vim 空闲等待用户输入时处理 Netbeans 消息。Vim 运行在非交互模式时，如执行
+Vim 脚本的自动测试中，调用空闲循环的次数可能过少。此时，可以调用 |:sleep| 命
+令。|:sleep| 命令会启动 Netbeans 消息处理。
 
 6.1 消息类型			|nb-messages|
 6.2 术语			|nb-terms|
@@ -359,7 +363,7 @@ editFile pathname
 		设置缓冲区的名字为字符串参数 pathname，并编辑该参数指定的文
 		件。
 		这是通常 IDE 告诉编辑器编辑一个文件的方法。
-	
+
 		使用该命令，你必须设置 bufId 为非零以把该 bufId 赋给缓冲区。它
 		会触发 bufId 为零的 fileOpened 事件，但缓冲区已经分配好了。
 
@@ -410,7 +414,8 @@ removeAnno serNum
 		的数字。
 
 save		如果缓冲区已修改，就保存之。接口的另一侧应该写入缓冲区，把缓冲
-		区标为已修改 ('setModified')，并复位缓冲区的 "changed" 标志位。
+		区标为已修改 ('setModified')，并复位缓冲区的 "changed" 标志
+		位。
 		如果以下条件有一为真，则跳过写入的步骤:
 		- 'write' 没有置位
 		- 缓冲区只读
@@ -494,7 +499,7 @@ startAtomic	开始一个原子操作。屏幕不更新，直到遇到 "endAtomic
 
 startCaretListen
 		没有实现。
-		
+
 
 startDocumentListen
 		标识缓冲区，使之向 IDE 报告 "insert" 和 "remove" 事件。缺省就
@@ -722,7 +727,7 @@ REJECT		不用。
 ==============================================================================
 7. NetBeans 命令					*netbeans-commands*
 
-							*:nbstart* *E511*
+							*:nbstart* *E511* *E838*
 :nbs[tart] {connection}	使用 {connection} 作为套接字连接参数，启动新的
 			NetBeans 会话。{connection} 的格式见
 			|netbeans-parameters|。在任何时候，用户可以用以下命令
@@ -733,10 +738,13 @@ REJECT		不用。
 :nbc[lose]		关闭当前 NetBeans 会话。删除所有放置的标号。
 
 							*:nbkey*
-:nb[key] {key}		把 {key} 传递给 Vim 控制器进行处理
-
-用 specialKeys 命令安装了热键后，此命令用来生成热键的相应信息发给 Vim 控制器。
-生成的依次是 newDotAndMark、keyCommand 和 keyAtPos 事件。
+:nb[key] {key}		把 {key} 传递给 Vim 控制器进行处理。用 specialKeys 命
+			令安装了热键后，此命令用来生成热键的相应信息发给 Vim
+			控制器。
+			此命令也可用来给 Vim 控制器传送任何文本。例如，Pyclewn
+			用它来生成以 Vim 用户命令形式出现的完整的 gdb 命令集。
+			生成的依次是 newDotAndMark、keyCommand 和 keyAtPos 事
+			件。
 
 
 ==============================================================================
@@ -753,7 +761,7 @@ NetBeans 会话可以在终端运行的 Vim 中启动，然后在运行了 |:gui
 ==============================================================================
 9. 调试 NetBeans 协议					*netbeans-debugging*
 
-要调试 Vim 协议，必须在编译 Vim 时加入调试支持和 NetBeans 调试支持。关于 Vim 
+要调试 Vim 协议，必须在编译 Vim 时加入调试支持和 NetBeans 调试支持。关于 Vim
 编译和如果打开调试支持的操作，请见 |netbeans-configure|。
 
 运行 Vim 时，设置以下环境变量:

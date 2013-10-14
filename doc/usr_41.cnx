@@ -1,7 +1,7 @@
-*usr_41.txt*	For Vim version 7.3.  最近更新：2010年7月
+*usr_41.txt*	For Vim version 7.4.  最近更新: 2013年8月
 
 		     VIM USER MANUAL - by Bram Moolenaar
-		     译者：lang2、Willis http://vimcdoc.sf.net
+		     译者: lang2、Willis http://vimcdoc.sf.net
 
 			      编写 Vim 脚本
 
@@ -71,14 +71,14 @@ Vim 脚本语言在很多地方用到，包括 vimrc 文件，语法文件，等
 	:  {语句}
 	:endwhile
 
-只要条件为真，"while" 和 ":endwhile" 包围的语句总被执行。在例子中使用的条件是
-表达式 "i < 5"。这个条件在变量 i 小于五时总是真的。
+只要条件为真，"while" 和 ":endwhile" 包围的语句就会被执行。在例子中使用的条件
+是表达式 "i < 5"。这个条件在变量 i 小于五时总是真的。
 	备注:
 	如果你碰巧写了一个死循环语句，你可以用 CTRL-C 来终止 (在 MS-Windows
 	上使用 CTRL-Break)。
 
 ":echo" 命令显示它的参数。在这个例子中的参数是字符串 "count is" 和变量 i 的
-值。因为开始时 i 的值是一，所以将会显示:
+值。因为开始时 i 的值是 1，所以将会显示:
 
 	count is 1 ~
 
@@ -99,8 +99,8 @@ Vim 脚本语言在很多地方用到，包括 vimrc 文件，语法文件，等
 
 数值可以是十进制，十六进制，或者八进制的。以 "0x" 或 "0X" 开始的数值是十六进制
 的。例如 "0x1f" 代表十进制 31。以零开始的数值是八进制的。"017" 代表十进制 15。
-当心：不要在十进制数前添上零，那样该数值将会被作为八进制数对待！
-   ":echo" 命令总以十进制格式显示数值。例： >
+当心: 不要在十进制数前添上零，那样该数值将会被作为八进制数对待！
+   ":echo" 命令总以十进制格式显示数值。例: >
 
 	:echo 0x7f 036
 <	127 30 ~
@@ -119,7 +119,7 @@ Vim 脚本语言在很多地方用到，包括 vimrc 文件，语法文件，等
 ==============================================================================
 *41.2*	变量
 
-一个变量名可以由 ASCII 字符，数字和下划线组成。但是变量名不能以数字开始。以下
+一个变量名可以由 ASCII 字符、数字和下划线组成。但是变量名不能以数字开始。以下
 是几个有效的变量名:
 
 	counter
@@ -188,7 +188,7 @@ Vim 脚本语言在很多地方用到，包括 vimrc 文件，语法文件，等
 (如果-不-存在)。
    Vim 把任何非零的值当作真。零代表假。
 	注意:
-	如果期待数值类型，Vim 自动把字符串转换为数值。如果使用不以数位开始的字
+	如果期待数值类型，Vim 自动把字符串转换为数值。如果使用不以数字开始的字
 	符串，返回的数值为零。所以小心这种代码: >
 		:if "true"
 <	这里 "true" 会被解读为零，也就是假值！
@@ -336,7 +336,7 @@ Vim 脚本支持的表达式很丰富，也很容易使用。你可以在这里�
 	:endif
 
 这种形式就像 ":else" 接着 "if" 一样，但是少出现一个 ":endif"。
-   下面是一个有用的例子 (可以用在你的 vimrc 文件里)：它检查 'term' 选项并根据
+   下面是一个有用的例子 (可以用在你的 vimrc 文件里): 它检查 'term' 选项并根据
 不同的值做不同的操作: >
 
 	:if &term == "xterm"
@@ -394,7 +394,7 @@ Vim 脚本支持的表达式很丰富，也很容易使用。你可以在这里�
 	:  echo "字符串包括空格"
 	:endif
 	:if str !~ '\.$'
-	:  echo "字符串以句号结尾"
+	:  echo "字符串不以句号结尾"
 	:endif
 
 注意 在匹配模式中用单引号是很有用的。因为匹配模式中通常有很多反斜杠，而反斜杠
@@ -536,7 +536,7 @@ Vim 提供的函数很多。这里我们以它们的用途分类列出。你可�
 	strridx()		子串在母串中最后一次出现的地方
 	strlen()		字符串长度
 	substitute()		用一个字符串替换一个匹配的模式
-	submatch()		取得 ":substitute" 匹配中指定的某个匹配
+	submatch()		取得 ":s" 和 substitute() 匹配中指定的某个匹配
 	strpart()		取得字符串的一部分
 	expand()		展开特殊的关键字
 	iconv()			转换文本编码格式
@@ -593,14 +593,27 @@ Vim 提供的函数很多。这里我们以它们的用途分类列出。你可�
 	abs()			绝对值 (也适用于数值)
 	round()			四舍五入
 	ceil()			向上取整
-	floor()			乡下取整
+	floor()			向下取整
 	trunc()			删除小数点后的值
 	log10()			以 10 为底的对数
 	pow()			x 的 y 次方
 	sqrt()			平方根
 	sin()			正弦
 	cos()			余弦
+	tan()			正切
+	asin()			反正弦
+	acos()			反余弦
 	atan()			反正切
+	atan2()			反正切
+	sinh()			双曲正弦
+	cosh()			双曲余弦
+	tanh()			双曲正切
+
+其它计算:						*bitwise-function*
+	and()			按位与
+	invert()		按位取反
+	or()			按位或
+	xor()			按位异或
 
 变量:						 	*var-functions*
 	type()			变量的类型
@@ -732,6 +745,8 @@ quickfix 和位置列表:				*quickfix-functions*
 	synID()			取得某位置的语法标示
 	synIDattr()		取得某语法标示的特定属性
 	synIDtrans()		取得翻译后的语法标示
+	synstack()		取得指定位置的语法标示的列表
+	synconcealed()		取得和隐藏 (conceal) 相关的信息
 	diff_hlID()		得到 diff 模式某个位置的高亮标示
 	matchadd()		定义要高亮的模式 (一个 "匹配")
 	matcharg()		得到 |:match| 参数的相关信息
@@ -761,7 +776,7 @@ quickfix 和位置列表:				*quickfix-functions*
 	inputsecret()		从用户那里取得一行输入，不回显
 	inputdialog()		从用户那里取得一行输入，使用对话框
 	inputsave()		保存和清除预输入 (typeahead)
-	inputrestore()		恢复预输入 (译注：参阅 input())
+	inputrestore()		恢复预输入 (译注: 参阅 input())
 
 GUI:						*gui-functions*
 	getfontname()		得到当前使用的字体名
@@ -785,12 +800,15 @@ Vim 服务器:					*server-functions*
 	winsaveview()		得到当前窗口的视图
 	winrestview()		恢复保存的当前窗口的视图
 
-杂项:						*various-functions*
-	mode()			取得当前编辑状态
-	visualmode()		最近一次使用过的可视模式
+映射:						*mapping-functions*
 	hasmapto()		检查映射是否存在
 	mapcheck()		检查匹配的映射是否存在
 	maparg()		取得映射的右部 (rhs)
+	wildmenumode()		检查 wildmode 是否激活
+
+杂项:						*various-functions*
+	mode()			取得当前编辑状态
+	visualmode()		最近一次使用过的可视模式
 	exists()		检查变量，函数等是否存在
 	has()			检查 Vim 是否支持某特性
 	changenr()		返回最近的改变号
@@ -798,7 +816,7 @@ Vim 服务器:					*server-functions*
 	did_filetype()		检查某文件类型自动命令是否已经使用
 	eventhandler()		检查是否在一个事件处理程序内
 	getpid()		得到 Vim 的进程号
-	
+
 	libcall()		调用一个外部库函数
 	libcallnr()		同上，但返回一个数值
 
@@ -939,7 +957,7 @@ Vim 允许你定义参数个数可变的函数。下面的例子给出一个至�
 
 	:function Show(start, ...)
 	:  echohl Title
-	:  echo "Show is " . a:start
+	:  echo "start is " . a:start
 	:  echohl None
 	:  let index = 1
 	:  while index <= a:0
@@ -1359,7 +1377,7 @@ self.words。所以你可以把这叫做抽象类。
 
 	:set tags=my\ nice\ file
 
-如果写成这样  >
+如果写成这样: >
 
 	:set tags=my nice file
 
@@ -1531,7 +1549,7 @@ Unix 上有一个特殊的办法给一行加注释，从而使得 Vim 脚本可�
   2	" Last Change: 2000 Oct 15
   3	" Maintainer: Bram Moolenaar <Bram@vim.org>
 
-关于版权和许可：由于插件很有用，而且几乎不值得限制其发行，请考虑对你的插件使用
+关于版权和许可: 由于插件很有用，而且几乎不值得限制其发行，请考虑对你的插件使用
 公共领域 (public domain) 或 Vim 许可 |license|。在文件顶部放上说明就行了。例
 如: >
 
@@ -1550,6 +1568,7 @@ Unix 上有一个特殊的办法给一行加注释，从而使得 Vim 脚本可�
  12	set cpo&vim
  ..
  42	let &cpo = s:save_cpo
+ 43	unlet s:save_cpo
 
 我们先将 'cpoptions' 的旧值存在 s:save_cpo 变量中。在插件的最后该值将被恢复。
 
@@ -1579,7 +1598,7 @@ Unix 上有一个特殊的办法给一行加注释，从而使得 Vim 脚本可�
 
 映 射
 
-现在让我们把这个插件变得更有趣些：我们将加入一个映射用来校正当前光标下的单词。
+现在让我们把这个插件变得更有趣些: 我们将加入一个映射用来校正当前光标下的单词。
 我们当然可以任意选一个键组合，但是用户可能已经将其定义为其它的什么功能了。为了
 使用户能够自己定义在插件中的键盘映射使用的键，我们可以使用 <Leader> 标识: >
 
@@ -1649,7 +1668,7 @@ Unix 上有一个特殊的办法给一行加注释，从而使得 Vim 脚本可�
 此是从脚本外部调用的。<SID> 被翻译成该脚本的 ID。这样 Vim 就知道在哪个脚本里寻
 找相应的 Add() 函数了。
 
-这的确是有点复杂，但又是使多个插件一起工作所必需的。基本规则是：在映射中使用
+这的确是有点复杂，但又是使多个插件一起工作所必需的。基本规则是: 在映射中使用
 <SID>Add()；在其它地方 (该脚本内部，自动命令，用户命令) 使用 s:Add()。
 
 我们还可以增加菜单项目来完成映射同样的功能: >
@@ -1674,7 +1693,7 @@ Unix 上有一个特殊的办法给一行加注释，从而使得 Vim 脚本可�
 
 <Plug>	在脚本外部是可见的。它被用来定义那些用户可能定义映射的映射。<Plug> 是
 	无法用键盘输入的特殊代码。
-	使用结构：<Plug> 脚本名 映射名，可以使得其它插件使用同样次序的字符来定
+	使用结构: <Plug> 脚本名 映射名，可以使得其它插件使用同样次序的字符来定
 	义映射的几率变得非常小。在我们上面的例子中，脚本名是 "Typecorr"，映射
 	名是 "Add"。结果是 "<Plug>TypecorrAdd"。只有脚本名和映射名的第一个字
 	符是大写的，所以我们可以清楚地看到映射名从什么地方开始。
@@ -1768,6 +1787,7 @@ Unix 上有一个特殊的办法给一行加注释，从而使得 Vim 脚本可�
  40	endif
  41
  42	let &cpo = s:save_cpo
+ 43	unlet s:save_cpo
 
 第 33 行还没有解释过。它将新定义的更正用在当前光标下的单词上。|:normal| 被用来
 使用新的缩写。注意 虽然这个函数是被一个以 ":noremap" 定义的映射调用的，这里的
@@ -2005,7 +2025,7 @@ no_mail_maps		禁止某一特定的文件类型插件的映射
 
 小 结						*ftplugin-special*
 
-以下是有关文件类型插件一些特殊环节：
+以下是有关文件类型插件一些特殊环节:
 
 <LocalLeader>		"maplocalleader" 的值，用户可以通过它来自定义文件类型
 			插件中映射的起始字符。
@@ -2045,7 +2065,7 @@ exists("*s:Func")	查看是否已经定义了某个函数。
 当你写了编译器文件并把它放到你个人的运行时目录 (例如，Unix 上 ~/.vim/compiler)
 时，你需要设置 "current_compiler" 变量，使得缺省文件不进行设置。
 							*:CompilerSet*
-第二个特别之处是：用 ":set" 命令来配合 ":compiler!" 而用 ":setlocal" 来配合
+第二个特别之处是: 用 ":set" 命令来配合 ":compiler!" 而用 ":setlocal" 来配合
 ":compiler"。Vim 为此定义了 ":CompilerSet" 用户命令。然而旧版本的 Vim 没有，因
 此你的插件应该提供该命令。下面是一个例子: >
 
@@ -2199,4 +2219,4 @@ Vim 脚本应该可以用于任何系统。它们不一定有 tar 或 gzip 命�
 
 下一章: |usr_42.txt|  添加新的菜单
 
-版权：参见 |manual-copyright|  vim:tw=78:ts=8:ft=help:norl:
+版权: 参见 |manual-copyright|  vim:tw=78:ts=8:ft=help:norl:

@@ -1,4 +1,4 @@
-*various.txt*   For Vim version 7.3.  最近更新: 2010年8月
+*various.txt*   For Vim version 7.4.  最近更新: 2013年8月
 
 
 		  VIM 参考手册    by Bram Moolenaar
@@ -87,12 +87,13 @@ g8			显示光标下字符 (假定其为 |UTF-8| 编码) 的各字节的十六
 :[range]P[rint] [count] [flags]
 			和 ":print" 相同。Vi 里加入这个功能，很明显地，是给那
 			些按 Shift 键太久的人用的 ...
+			备注: 用户命令可以覆盖此命令。
 			|ex-flags| 说明 [flags]。
 
 							*:l* *:list*
 :[range]l[ist] [count] [flags]
 			和 :print 相同，但是不可显示字符用 '^' 代替，行尾加上
-			$。这可用 'listchars' 选项改变。
+			$。这可进一步用 'listchars' 选项改变。
 			|ex-flags| 说明 [flags]。
 
 							*:nu* *:number*
@@ -102,7 +103,7 @@ g8			显示光标下字符 (假定其为 |UTF-8| 编码) 的各字节的十六
 			|ex-flags| 说明 [flags]。
 
 							*:#*
-:[range]# [count] [flags]	
+:[range]# [count] [flags]
 			和 :number 相同。
 
 							*:#!*
@@ -114,13 +115,15 @@ g8			显示光标下字符 (假定其为 |UTF-8| 编码) 的各字节的十六
 							*:z* *E144*
 :{range}z[+-^.=]{count}	显示包围 {range} 指定行的若干行文本，如果没有 {range},
 			这显示当前行上下的文本。如果有 {count}，它指定你能看到
-			的行数。否则，如果只有一个窗口，使用 'window' 选项。不
-			然，使用当前的窗口大小。
+			的行数。否则，如果只有一个窗口，使用 'scroll' 选项值的
+			两倍。再不然，使用当前的窗口大小减 3。
+
+			如果提供了 {count}，'window' 选项会被设为该值。
 
 			:z 可以单独使用，也可以后跟数个标点符号中的一个。他们
 			有如下的效果:
 
-			标记   首行          末行           新位置      ~
+			标记   首行          末行           新光标行 ~
 			----   ----------    ---------      ------------
 			+      当前行  	     向前 1 屏      向前 1 屏
 			-      向后 1 屏     当前行         当前行
@@ -138,7 +141,7 @@ g8			显示光标下字符 (假定其为 |UTF-8| 编码) 的各字节的十六
 							*:=*
 := [flags]		显示末行的行号。
 			|ex-flags| 说明 [flags]。
-	
+
 :{range}= [flags]	显示 {range} 范围内最后一行的行号。例如，打印当前行
 			号: >
 				:.=
@@ -149,23 +152,33 @@ g8			显示光标下字符 (假定其为 |UTF-8| 编码) 的各字节的十六
 			普通模式命令成为可能。{commands} 的执行就像从键盘输入
 			那样。撤销命令会撤销所有的命令。
 			如果发生错误，结束执行。
+
 			如果给出 [!]，不使用映射。
+			如果没有，如果一个不可重新映射的映射 (|:noremap|) 调用
+			该命令，它的参数就因而还是有可能被重新映射。
+
 			{commands} 必须是完整的命令。如果 {commands} 没有完整
 			给出一个命令，未完成的最后那个命令会被终止，如同键入了
-			<Esc> 或 <C-C> 一样。":normal" 还在工作的时候，显示不
-			会被刷新。这意味着插入命令也必须完整 (要开始插入模式，
+			<Esc> 或 <C-C> 一样。
+			这意味着插入命令也必须完整 (要开始插入模式，
 			见 |:startinsert|)。":" 命令也必须完整。而且你不能用
 			"Q" 或 "gQ" 启动 Ex 模式。
+
+			":normal" 还在工作的时候，显示不会被刷新。
+
 			{commands} 不能以空格开始，如果要，前面加个计数 1
 			(一)。"1 " 就是一个空格。
+
 			{commands} 里忽略 'insertmode' 选项。
+
 			该命令后面不能跟其他命令。因为任何 '|' 都被认为是命令
 			的一部分。
+
 			该命令可以递归使用，但是深度不能超过 'maxmapdepth'。
-			如果一个不可重新映射的映射 |:noremap| 调用该命令，它的
-			参数就因而还是有可能被重新映射。
+
 			一个替代的方法是 |:execute|，它可以用表达式作为参数。
 			这样就可使用可显示字符来代表特殊字符。
+
 			例如: >
 				:exe "normal \<c-w>\<c-w>"
 <			{Vi 当然无此功能}
@@ -174,8 +187,8 @@ g8			显示光标下字符 (假定其为 |UTF-8| 编码) 的各字节的十六
 :{range}norm[al][!] {commands}				*:normal-range*
 			在 {range} 指定的范围中的每行执行若干普通模式命令
 			{commands}。在执行 {commands} 之前，光标先定位在该行的
-			的第一列。除此以外，和没有给出范围的 ":normal" 命令并
-			无差别。
+			第一列。除此以外，和没有给出范围的 ":normal" 命令并无
+			差别。
 			{Vi 无此功能}
 			{仅当编译时加入 |+ex_extra| 特性才可用}
 
@@ -297,7 +310,7 @@ N  *+lispindent*	|'lisp'|
 N  *+listcmds*		Vim 的缓冲区列表相关命令 |buffer-hidden| 和参数列表
 			|:argdelete|
 N  *+localmap*		支持缓冲区的局部映射 |:map-local|
-m  *+lua*		|Lua| 接口 
+m  *+lua*		|Lua| 接口
 m  *+lua/dyn*		|Lua| 接口 |/dyn|
 N  *+menu*		菜单 |:menu|
 N  *+mksession*		创建会话 |:mksession|
@@ -309,20 +322,20 @@ N  *+mouse_gpm*		只对 Unix 有效: Linux 终端鼠标处理 |gpm-mouse|
 B  *+mouse_netterm*	只对 Unix 有效: netterm 终端鼠标处理 |netterm-mouse|
 N  *+mouse_pterm*	只对 QNX 有效: pterm 终端鼠标处理 |qnx-terminal|
 N  *+mouse_sysmouse*	只对 Unix 有效: *BSD 控制台鼠标处理 |sysmouse|
+B  *+mouse_sgr*		只对 Unix 有效: sgr 鼠标处理 |sgr-mouse|
+B  *+mouse_urxvt*	只对 Unix 有效: urxvt 鼠标处理 |urxvt-mouse|
 N  *+mouse_xterm*	只对 Unix 有效: xterm 终端鼠标处理 |xterm-mouse|
-B  *+multi_byte*	16 和 32 位字符 |multibyte|
+N  *+multi_byte*	16 和 32 位字符 |multibyte|
    *+multi_byte_ime*	Win32 多字节字符的输入法 |multibyte-ime|
 N  *+multi_lang*	非英语语言支持 |multi-lang|
 m  *+mzscheme*		Mzscheme 接口 |mzscheme|
 m  *+mzscheme/dyn*	Mzscheme 接口 |mzscheme-dynamic| |/dyn|
 m  *+netbeans_intg*	|netbeans|
 m  *+ole*		只对 Win32 GUI 有效: |ole-interface|
-   *+osfiletype*	支持 'osfiletype' 选项和自动命令的文件类型检查。
-			|autocmd-osfiletypes|
 N  *+path_extra*	'path' 和 'tags' 的向上和向下搜索
 m  *+perl*		Perl 接口 |perl|
 m  *+perl/dyn*		Perl 接口 |perl-dynamic| |/dyn|
-N  *+persistent_undo*	撤销的永久保存 |undo-persistence|
+N  *+persistent_undo*	撤销的持久性 |undo-persistence|
    *+postscript*	|:hardcopy| 可以写 PostScript 文件
 N  *+printer*		|:hardcopy| 命令
 H  *+profile*		|:profile| 命令
@@ -333,7 +346,7 @@ m  *+python3/dyn*	Python 3 接口 |python-dynamic| |/dyn|
 N  *+quickfix*		|:make| 和 |quickfix| 命令
 N  *+reltime*		|reltime()| 函数，'hlsearch'/'incsearch' 超时，
 			'redrawtime' 选项
-B  *+rightleft*		从右到左输入 |'rightleft'|
+B  *+rightleft*			从右到左输入 |'rightleft'|
 m  *+ruby*		Ruby 接口 |ruby|
 m  *+ruby/dyn*		Ruby 接口 |ruby-dynamic| |/dyn|
 N  *+scrollbind*	滚动绑定 |'scrollbind'|
@@ -341,8 +354,8 @@ B  *+signs*		标号 |:sign|
 N  *+smartindent*	|'smartindent'|
 m  *+sniff*		SniFF 接口 |sniff|
 N  *+startuptime*	|--startuptime| 参数
-N  *+statusline*	'statusline'、'rulerformat' 选项和 'titlestring' 和
-			'iconstring' 的特殊格式
+N  *+statusline*	'statusline'、'rulerformat' 选项和
+			'titlestring' 和 'iconstring' 的特殊格式
 m  *+sun_workshop*	|workshop|
 N  *+syntax*		语法高亮 |syntax|
    *+system()*		只对 Unix 有效: |+fork| 的相反特性
@@ -355,11 +368,11 @@ m  *+tcl/dyn*		Tcl 接口 |tcl-dynamic| |/dyn|
 N  *+termresponse*	支持 |t_RV| 和 |v:termresponse|
 N  *+textobjects*	文本对象 |text-objects| 选择
    *+tgetent*		只对非 Unix 有效: 可以使用外部 termcap
-N  *+title*		设置窗口 |'title'|和 'icon'
+N  *+title*		设置窗口 |'title'| 和 'icon'
 N  *+toolbar*		GUI 工具栏 |gui-toolbar|
 N  *+user_commands*	用户定义命令。|user-commands|
 N  *+viminfo*		|'viminfo'|
-N  *+vertsplit*		垂直分割窗口 |:vsplit|
+N  *+vertsplit*			垂直分割窗口 |:vsplit|
 N  *+virtualedit*	|'virtualedit'|
 S  *+visual*		可视模式 |Visual-mode|
 N  *+visualextra*	额外的可视模式命令 |blockwise-operators|
@@ -370,6 +383,7 @@ S  *+windows*		多于一个窗口
 m  *+writebackup*	|'writebackup'| 缺省打开
 m  *+xim*		X 输入法 |xim|
    *+xfontset*		X 字体集支持 |xfontset|
+m  *+xpm_w32*		只对 Win32 GUI 有效: pixmap 支持 |w32-xpm-support|
    *+xsmp*		XSMP (X 会话管理) 支持
    *+xsmp_interact*	交互 XSMP (X 会话管理) 支持
 N  *+xterm_clipboard*	只对 Unix 有效: xterm 剪贴板处理
@@ -406,11 +420,11 @@ N  *+X11*		只对 Unix 有效: 可以恢复窗口标题 |X11|
 			{Vi 无此功能}
 :redi[r] @{a-z}>>	附加消息到寄存器 {a-z}。{Vi 无此功能}
 
-:redi[r] @*>		
+:redi[r] @*>
 :redi[r] @+>		重定向消息到选择区或剪贴板。为了后向兼容，寄存器名后的
 			'>' 可以省略。见 |quotestar| 和 |quoteplus|。
 			{Vi 无此功能}
-:redi[r] @*>>		
+:redi[r] @*>>
 :redi[r] @+>>		附加消息到选择区或剪贴板。{Vi 无此功能}
 
 :redi[r] @">		重定向消息到无名寄存器。为了后向兼容，寄存器名后的 '>'
