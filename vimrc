@@ -962,9 +962,13 @@ let gundo_prefer_python3 = 1
 "   bufexplorer[[[2
 let g:bufExplorerFindActive = 0
 "   tagbar[[[2
-let g:tagbar_type_dosini = { 
+let g:tagbar_type_dosini = {
       \ 'ctagstype': 'ini',
       \ 'kinds': ['s:sections', 'b:blocks'],
+      \ }
+let g:tagbar_type_pgsql = {
+      \ 'ctagstype': 'pgsql',
+      \ 'kinds': ['f:functions', 't:tables'],
       \ }
 "   taglist[[[2
 let Tlist_Show_One_File = 1
@@ -979,6 +983,7 @@ let tlist_privoxy_settings = 'privoxy;s:sections'
 let tlist_html_settings = 'html;h:Headers;o:IDs;c:Classes'
 let tlist_dosini_settings = 'ini;s:sections'
 let tlist_go_settings = 'go;f:functions;v:variables;d:types'
+let tlist_pgsql_settings = 'pgsql;f:functions;t:tables'
 hi link MyTagListFileName Type
 "   2html.vim, 使用XHTML格式[[[2
 let use_xhtml = 1
