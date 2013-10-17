@@ -428,7 +428,8 @@ set visualbell t_vb=
 " when will this cause problems?
 set ttyfast
 autocmd GUIEnter * set t_vb=
-set viminfo='100,:10000,<50,s10,h
+" ! is for histwin to save tags
+set viminfo='100,:10000,<50,s10,h,!
 set history=10000
 set wildmenu
 set delcombine " 组合字符一个个地删除
