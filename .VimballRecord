@@ -14,3 +14,4 @@ ConflictMotions-2.00.vmb: call delete('/home/lilydjwg/.vim/autoload/ConflictMoti
 mail_movement-1.54.vmb: call delete('/home/lilydjwg/.vim/ftplugin/mail_movement.vim')
 diff_movement-1.01.vmb: call delete('/home/lilydjwg/.vim/ftplugin/diff_movement.vim')
 AnsiEsc.vba: call delete('/home/lilydjwg/.vim/plugin/AnsiEscPlugin.vim')|call delete('/home/lilydjwg/.vim/autoload/AnsiEsc.vim')|call delete('/home/lilydjwg/.vim/plugin/cecutil.vim')|call delete('/home/lilydjwg/.vim/doc/AnsiEsc.txt')
+histwin-0.24.vba: call delete('/home/lilydjwg/.vim/plugin/histwinPlugin.vim')|call delete('/home/lilydjwg/.vim/autoload/histwin.vim')|call delete('/home/lilydjwg/.vim/doc/histwin.txt')
