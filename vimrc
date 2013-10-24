@@ -322,10 +322,11 @@ function Lilydjwg_toggle_color()
 endfunction
 " 打开 snippets 文件[[[2
 function Lilydjwg_snippets(ft)
+  let d = g:neosnippet#snippets_directory
   if a:ft == ''
-    exe 'tabe '.g:snippets_dir.&ft.'.snippets'
+    exe 'tabe '.d.'/'.&ft.'.snip'
   else
-    exe 'tabe '.g:snippets_dir.a:ft.'.snippets'
+    exe 'tabe '.d.'/'.a:ft.'.snip'
   endif
 endfunction
 "   %xx -> 对应的字符(到消息)[[[2
