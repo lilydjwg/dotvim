@@ -75,13 +75,6 @@ options     head
 	if ${1:#:condition}:
 		${0:TARGET}
 
-snippet     ifmain
-abbr        if __name__ == '__main__': ...
-alias       main
-options     head
-	if __name__ == '__main__':
-		${0:TARGET}
-
 snippet     tryexcept
 abbr        try: ... except ...: ...
 options     head
