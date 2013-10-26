@@ -870,6 +870,8 @@ let g:rst_tables_no_warning = 1
 "   signify [[[2
 let g:signify_vcs_list = ['git']
 let g:signify_sign_overwrite = 0
+" signify won't update on FocusGained anymore
+let g:signify_disable_by_default = 1
 "   ConflictMotions [[[2
 " 禁用 \x 开头的映射；它们与 EnhancedCommentify 冲突了
 let g:ConflictMotions_TakeMappingPrefix = ''
