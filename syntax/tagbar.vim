@@ -3,7 +3,7 @@
 " Author:      Jan Larres <jan@majutsushi.net>
 " Licence:     Vim licence
 " Website:     http://majutsushi.github.com/tagbar/
-" Version:     2.3
+" Version:     2.5
 
 scriptencoding utf-8
 
@@ -20,21 +20,21 @@ if s:io =~ '[]^\\-]'
     let s:io = '\' . s:io
 endif
 
-let s:pattern = '\([' . s:ic . s:io . '] \)\@<=[^-+: ]\+[^:]\+$'
+let s:pattern = '\([' . s:ic . s:io . '] \?\)\@<=[^-+: ]\+[^:]\+$'
 execute "syntax match TagbarKind '" . s:pattern . "'"
 
-let s:pattern = '\([' . s:ic . s:io . '][-+# ]\)\@<=[^*]\+\(\*\?\(([^)]\+)\)\? :\)\@='
+let s:pattern = '\([' . s:ic . s:io . '][-+# ]\?\)\@<=[^*(]\+\(\*\?\(([^)]\+)\)\? :\)\@='
 execute "syntax match TagbarScope '" . s:pattern . "'"
 
-let s:pattern = '[' . s:ic . s:io . ']\([-+# ]\)\@='
+let s:pattern = '[' . s:ic . s:io . ']\([-+# ]\?\)\@='
 execute "syntax match TagbarFoldIcon '" . s:pattern . "'"
 
 let s:pattern = '\([' . s:ic . s:io . ' ]\)\@<=+\([^-+# ]\)\@='
-execute "syntax match TagbarAccessPublic '" . s:pattern . "'"
+execute "syntax match TagbarVisibilityPublic '" . s:pattern . "'"
 let s:pattern = '\([' . s:ic . s:io . ' ]\)\@<=#\([^-+# ]\)\@='
-execute "syntax match TagbarAccessProtected '" . s:pattern . "'"
+execute "syntax match TagbarVisibilityProtected '" . s:pattern . "'"
 let s:pattern = '\([' . s:ic . s:io . ' ]\)\@<=-\([^-+# ]\)\@='
-execute "syntax match TagbarAccessPrivate '" . s:pattern . "'"
+execute "syntax match TagbarVisibilityPrivate '" . s:pattern . "'"
 
 unlet s:pattern
 
@@ -57,6 +57,9 @@ highlight default link TagbarHighlight  Search
 highlight default TagbarAccessPublic    guifg=Green ctermfg=Green
 highlight default TagbarAccessProtected guifg=Blue  ctermfg=Blue
 highlight default TagbarAccessPrivate   guifg=Red   ctermfg=Red
+highlight default link TagbarVisibilityPublic    TagbarAccessPublic
+highlight default link TagbarVisibilityProtected TagbarAccessProtected
+highlight default link TagbarVisibilityPrivate   TagbarAccessPrivate
 
 let b:current_syntax = "tagbar"
 
