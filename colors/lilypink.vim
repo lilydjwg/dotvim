@@ -3,7 +3,7 @@
 " See http://www.vim.org/scripts/script.php?script_id=2778 for more info
 " Vim colorscheme: a dark one
 " Maintainer:  lilydjwg <lilydjwg@gmail.com>
-" Version:     1.2
+" Version:     1.3
 " License:     Vim license, see :help 'license'
 " http://www.vim.org/scripts/script.php?script_id=3323
 
@@ -29,7 +29,7 @@ if version >= 700
   highlight PmenuSel guifg=#000000 guibg=#cae682 ctermfg=16 ctermbg=149 cterm=NONE
 endif
 if version >= 703
-  highlight ColorColumn guibg=#000000 ctermbg=0 cterm=NONE
+  highlight ColorColumn guibg=#000000 ctermbg=16 cterm=NONE
 endif
 
 " General colors
@@ -75,3 +75,8 @@ highlight Constant guifg=#ffa1cf gui=NONE ctermfg=218 cterm=NONE
 
 highlight Statement guifg=#8ac6f2 gui=NONE ctermfg=117 cterm=NONE
 highlight Keyword guifg=#8ac6f2 gui=NONE ctermfg=117 cterm=NONE
+
+highlight DiffAdd guibg=#003300 ctermbg=22
+highlight DiffDelete guifg=#731b00 guibg=#400f00 ctermfg=88 ctermbg=52
+highlight DiffChange guibg=#1b0042 ctermbg=17
+highlight DiffText guibg=#003c4c ctermbg=24
