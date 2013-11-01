@@ -783,7 +783,8 @@ function s:GetFileTypeSettings(ft)
 		\ 'ruby\|screen\|sed\|sm\|snnsnet\|snnspat\|snnsres\|spec\|'.
 		\ 'squid\|terminfo\|tidy\|tli\|tsscl\|vgrindefs\|vrml\|'.
 		\ 'fstab\|privoxy\|openvpn\|dnsmasq\|nimrod\|' .
-		\ 'wget\|wml\|xf86conf\|xmath\|nginx\|gas\|debsources\)$'
+		\ 'wget\|wml\|xf86conf\|xmath\|nginx\|gas\|debsources\|' .
+                \ 'yaml\)$'
 	let b:ECcommentOpen = '#'
 	let b:ECcommentClose = ''
     elseif fileType == 'webmacro'
