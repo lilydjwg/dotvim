@@ -2,3 +2,8 @@ This is the last commit that uses neocomplcache; new ones have switched to
 neocomplete. And neosnippets replaces snipMate, which integrates with
 neocomplete better (no code changes) and jumps correctly. snipMate has ceased
 its original development and the forks change a lot.
+
+Update in 2013-11-03:
+
+The commit bd58880c22b5804761302fcccca42e09e26ee209 (and its ancestors) revert
+this change, keep a seperate branch for where there is no +lua available.
