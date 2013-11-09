@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: complete.vim
 " AUTHOR: Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 09 Jul 2013.
+" Last Modified: 06 Nov 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -52,6 +52,20 @@ function! neocomplete#complete#manual_complete(findstart, base) "{{{
           \ neocomplete#complete#_get_complete_pos(
           \ neocomplete.complete_sources)
 
+    if complete_pos >= 0
+      " Pre gather candidates for skip completion.
+      let base = cur_text[complete_pos :]
+
+      let neocomplete.candidates = neocomplete#complete#_get_words(
+            \ neocomplete.complete_sources, complete_pos, base)
+      let neocomplete.complete_str = base
+
+      if empty(neocomplete.candidates)
+        " Nothing candidates.
+        let complete_pos = -1
+      endif
+    endif
+
     if complete_pos < 0
       let neocomplete = neocomplete#get_current_neocomplete()
       let complete_pos = (neocomplete#is_prefetch() ||
@@ -66,12 +80,6 @@ function! neocomplete#complete#manual_complete(findstart, base) "{{{
       " Restore completeopt.
       let &completeopt = neocomplete.completeopt
     endif
-
-    let complete_pos = neocomplete#complete#_get_complete_pos(
-          \ neocomplete.complete_sources)
-    let neocomplete.candidates = neocomplete#complete#_get_words(
-          \ neocomplete.complete_sources, complete_pos, a:base)
-    let neocomplete.complete_str = a:base
 
     let dict = { 'words' : neocomplete.candidates }
 
@@ -178,6 +186,10 @@ function! neocomplete#complete#_get_words(sources, complete_pos, complete_str) "
       let prefix = a:complete_str[: context.complete_pos
             \                            - a:complete_pos - 1]
 
+      " Fix complete position.
+      let context.complete_pos = a:complete_pos
+      let context.complete_str = prefix
+
       for candidate in words
         let candidate.word = prefix . candidate.word
       endfor
@@ -258,6 +270,7 @@ function! neocomplete#complete#_set_results_pos(cur_text, ...) "{{{
     let source.loaded = 1
   endfor
 
+  let filetype = neocomplete#get_context_filetype()
   let sources = filter(copy(get(a:000, 0,
         \ neocomplete#helper#get_sources_list())), 'v:val.loaded')
 
@@ -273,7 +286,8 @@ function! neocomplete#complete#_set_results_pos(cur_text, ...) "{{{
       let complete_pos =
             \ has_key(source, 'get_complete_position') ?
             \ source.get_complete_position(context) :
-            \ neocomplete#match_word(context.input)[0]
+            \ neocomplete#match_word(context.input,
+            \    neocomplete#get_keyword_pattern_end(filetype, source.name))[0]
     catch
       call neocomplete#print_error(v:throwpoint)
       call neocomplete#print_error(v:exception)
@@ -338,6 +352,7 @@ function! neocomplete#complete#_set_results_words(sources) "{{{
 
     if !source.is_volatile
           \ && context.prev_complete_pos == context.complete_pos
+          \ && !empty(context.prev_candidates)
       " Use previous candidates.
       let context.candidates = context.prev_candidates
     else
