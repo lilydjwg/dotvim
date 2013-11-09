@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: neosnippet.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 26 Sep 2013.
+" Last Modified: 28 Oct 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -46,6 +46,8 @@ let s:neosnippet_options = [
 "}}}
 
 function! neosnippet#initialize() "{{{
+  let s:is_initialized = 1
+
   call s:initialize_script_variables()
   call s:initialize_others()
   call s:initialize_cache()
@@ -53,8 +55,6 @@ endfunction"}}}
 
 function! s:check_initialize() "{{{
   if !exists('s:is_initialized')
-    let s:is_initialized = 1
-
     call neosnippet#initialize()
   endif
 endfunction"}}}
@@ -435,7 +435,7 @@ function! s:is_beginning_of_line(cur_text) "{{{
   return prev_word_end <= 0
 endfunction"}}}
 function! s:get_cursor_snippet(snippets, cur_text) "{{{
-  let cur_word = matchstr(a:cur_text, '\v%(\S<@!)+$')
+  let cur_word = matchstr(a:cur_text, '\S\+$')
   if cur_word != '' && has_key(a:snippets, cur_word)
       return cur_word
   endif
