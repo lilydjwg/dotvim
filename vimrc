@@ -625,7 +625,7 @@ endif
 unlet colorscheme
 " 不同的 Vim 版本 [[[2
 if has("conceal")
-  " "i' is for neosnippet
+  " 'i' is for neosnippet
   set concealcursor=nci
   set conceallevel=2
 endif

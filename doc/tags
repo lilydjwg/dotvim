@@ -1294,6 +1294,7 @@ neocomplete-source-attribute-hooks-on_final	neocomplete.txt	/*neocomplete-source
 neocomplete-source-attribute-hooks-on_init	neocomplete.txt	/*neocomplete-source-attribute-hooks-on_init*
 neocomplete-source-attribute-hooks-on_post_filter	neocomplete.txt	/*neocomplete-source-attribute-hooks-on_post_filter*
 neocomplete-source-attribute-is_volatile	neocomplete.txt	/*neocomplete-source-attribute-is_volatile*
+neocomplete-source-attribute-keyword_patterns	neocomplete.txt	/*neocomplete-source-attribute-keyword_patterns*
 neocomplete-source-attribute-kind	neocomplete.txt	/*neocomplete-source-attribute-kind*
 neocomplete-source-attribute-max_candidates	neocomplete.txt	/*neocomplete-source-attribute-max_candidates*
 neocomplete-source-attribute-min_pattern_length	neocomplete.txt	/*neocomplete-source-attribute-min_pattern_length*

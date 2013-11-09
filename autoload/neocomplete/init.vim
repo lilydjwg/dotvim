@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: init.vim
 " AUTHOR: Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 04 Sep 2013.
+" Last Modified: 31 Oct 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -31,25 +31,6 @@ if !exists('s:is_enabled')
   let s:is_enabled = 0
 endif
 
-function! neocomplete#init#lazy() "{{{
-  if !exists('s:lazy_progress')
-    let s:lazy_progress = 0
-  endif
-
-  if s:lazy_progress == 0
-    call neocomplete#init#_others()
-    let s:is_enabled = 0
-  elseif s:lazy_progress == 1
-    call neocomplete#init#_sources(get(g:neocomplete#sources,
-          \ neocomplete#get_context_filetype(), ['_']))
-  else
-    call neocomplete#init#_autocmds()
-    let s:is_enabled = 1
-  endif
-
-  let s:lazy_progress += 1
-endfunction"}}}
-
 function! neocomplete#init#enable() "{{{
   if neocomplete#is_enabled()
     return
@@ -60,7 +41,10 @@ function! neocomplete#init#enable() "{{{
 
   call neocomplete#init#_sources(get(g:neocomplete#sources,
         \ neocomplete#get_context_filetype(), ['_']))
+
   let s:is_enabled = 1
+
+  doautocmd neocomplete InsertEnter
 endfunction"}}}
 
 function! neocomplete#init#disable() "{{{
@@ -113,7 +97,7 @@ function! neocomplete#init#_autocmds() "{{{
             \ call neocomplete#handler#_restore_update_time()
     augroup END
   else
-    autocmd neocomplete CursorMovedI *
+    autocmd neocomplete InsertEnter,CursorMovedI *
           \ call neocomplete#handler#_do_auto_complete('CursorMovedI')
   endif
 
@@ -169,7 +153,7 @@ function! neocomplete#init#_variables() "{{{
   call neocomplete#util#set_default_dictionary(
         \'g:neocomplete#keyword_patterns',
         \'ruby,int-irb',
-        \'^=\%(b\%[egin]\|e\%[nd]\)\|\%(@@\|[:$@]\)\h\w*\|\h\w*\%(::\w*\)*[!?]\?')
+        \'^=\%(b\%[egin]\|e\%[nd]\)\|\%(@@\|[$@]\)\h\w*\|\h\w*\%(::\w*\)*[!?]\?')
   call neocomplete#util#set_default_dictionary(
         \'g:neocomplete#keyword_patterns',
         \'php,int-php',
@@ -704,6 +688,7 @@ function! neocomplete#init#_source(source) "{{{
         \      'converter_case',
         \      'converter_abbr',
         \ ],
+        \ 'keyword_patterns' : g:neocomplete#keyword_patterns,
         \ 'neocomplete__context' : neocomplete#init#_context({}),
         \ }
 

@@ -84,6 +84,7 @@ On Windows:
 
 For 32bit http://files.kaoriya.net/goto/vim73w32
 For 32bit (alternative) http://tuxproject.de/projects/vim/
+                        http://wyw.dcweb.cn/#download
 For 64bit http://files.kaoriya.net/goto/vim73w64
 
 On Mac:
@@ -147,7 +148,7 @@ neobundle you can install the neocomplete plugin by following steps:
 						*neocomplete-migration*
 
 In case you are planing to move from neocomplcache to neocomplete there is a
-wiki page that offers a migration guide (incomplete yet).
+wiki page that offers a migration guide.
 https://github.com/Shougo/neocomplete.vim/wiki/neocomplete-migration-guide
 
 						*neocomplete-RECOMMENDATION*
@@ -345,7 +346,9 @@ g:neocomplete#enable_insert_char_pre
 		|InsertCharPre| event when complete candidates.
 		Note: This option must be set before call
 		|:NeoCompleteEnable|.
-		Note: This option is experimental.
+		Note: If the option is enabled, you cannot continue completion
+		by pressing Backspace. It is Vim's feature.
+		https://github.com/Shougo/neocomplete.vim/issues/106
 
 		Default value is 0.
 
@@ -381,7 +384,7 @@ g:neocomplete#enable_refresh_always
 		You can get real fuzzy candidates like |YouCompleteMe|.
 		Note: This feature is heavy.
 
-		Default value is 1.
+		Default value is 0.
 
 				*g:neocomplete#lock_buffer_name_pattern*
 g:neocomplete#lock_buffer_name_pattern
@@ -681,12 +684,8 @@ g:neocomplete#sources#dictionary#dictionaries
 
 			*g:neocomplete#sources#dictionary#keyword_patterns*
 g:neocomplete#sources#dictionary#keyword_patterns
-		It is a dictionary to dictionary keyword patterns.  The
-		dictionary's key is filetype and value is keyword pattern.
-		If this variable is empty, neocomplete uses
-		|g:neocomplete#keyword_patterns| option.
-
-		Default value is {}.
+		This option is deleted. You must use
+		|neocomplete-source-attribute-keyword_patterns|.
 
 				*g:neocomplete#sources#file_include#exprs*
 g:neocomplete#sources#file_include#exprs
@@ -1351,6 +1350,21 @@ max_candidates
 			0 is used as the default value.  This means
 			maximum number is infinity.
 
+			*neocomplete-source-attribute-keyword_patterns*
+keyword_patterns
+			Dictionary	(Optional)
+			This dictionary changes keyword patterns to
+			completion for specific types.
+>
+	let keyword_patterns = {}
+	let keyword_patterns.tex = '\\\?\h\w*'
+	call neocomplete#custom#source('dictionary',
+	\ 'keyword_patterns', keyword_patterns)
+<
+			This attribute is optional; if it is not given,
+			|g:neocomplete#keyword_patterns| is used as the
+			default value.
+
 				*neocomplete-source-attribute-is_volatile*
 is_volatile		Number		(Optional)
 			Whether the source recalculates the candidates
@@ -1631,12 +1645,11 @@ you can check 'path' option or change |g:neocomplete#sources#include#paths|.
 http://github.com/Shougo/vimproc
 
 
-Q: An error occurred in "sudo vim":
+Q: neocomplete cannot create cache files in "sudo vim":
 
-A: neocomplete does not support "sudo vim".  Because neocomplete (and other
-plugins) creates temporary files in super user permission by sudo command.
-You must use sudo.vim or set "Defaults always_set_home" in "/etc/sudoers", or
-must use "sudoedit" command.
+A: Because neocomplete (and other plugins) creates temporary files in super
+user permission by sudo command.  You must use sudo.vim or set "Defaults
+always_set_home" in "/etc/sudoers", or must use "sudoedit" command.
 
 Ubuntu has a command "sudoedit" which can work well with neocomplete.
 I'm not sure if other distros has this command...
@@ -1679,9 +1692,6 @@ A: You can add find some already found omni patterns and functions at here.
 Note: Some patterns are omitted here, (someone should check out those plugin's
 source code's complete function, and find out the omni pattern).
 >
-	" JavaScript (plugin: jscomplete-vim)
-	let g:neocomplete#sources#omni#functions.javascript =
-	\ 'jscomplete#CompleteJS'
 	" Go (plugin: gocode)
 	let g:neocomplete#sources#omni#functions.go =
 	\ 'gocomplete#Complete'
@@ -1776,7 +1786,7 @@ https://github.com/davidhalter/jedi-vim
 
 A: Please set |g:neocomplete#force_omni_input_patterns| as below.
 >
-	autocmd FileType python setlocal omnifunc=jedi#complete
+	autocmd FileType python setlocal omnifunc=jedi#completions
 	let g:jedi#auto_vim_configuration = 0
 	let g:neocomplete#force_omni_input_patterns.python = '[^. \t]\.\w*'
 <
@@ -1865,20 +1875,6 @@ because if_lua has double-free problem.
 	      " \ '\w\+[.:]\|require\s*(\?["'']\w*'
 <
 
-Q: I want to use vim-nodejs-complete in neocomplete.
-A:
-Note: This settings works but may heavy.
->
-	let g:neocomplete#sources#omni#functions.javascript =
-	\ 'nodejscomplete#CompleteJS'
-	" Use jscomplete.vim
-	let g:nodejs_complete_config = {
-	\  'js_compl_fn': 'jscomplete#CompleteJS',
-	\  'max_node_compl_len': 15
-	\}
-	let g:neocomplete#sources#omni#input_patterns.javascript =
-	\ '\h\w*\|[^. \t]\.\w*'
-<
 Q: I want to disable sources in certain filetype.
 
 A:
@@ -1928,7 +1924,7 @@ A: neocomplete does not support eclim.  You should use
 	if !exists('g:neocomplete#force_omni_input_patterns')
 	  let g:neocomplete#force_omni_input_patterns = {}
 	endif
-	g:neocomplete#sources#omni#input_patterns.java =
+	g:neocomplete#force_omni_input_patterns.java =
 	\ \'\%(\h\w*\|)\)\.\w*
 
 Q: I want to get quiet messages in auto completion.
@@ -1947,6 +1943,31 @@ Q: I don't want to complete too long words.
 https://github.com/Shougo/neocomplete.vim/issues/69
 
 A: You can use |g:neocomplete#sources#buffer#max_keyword_width|.
+
+Q: neocomplete will change external completeopt value(longest).
+https://github.com/Shougo/neocomplcache.vim/issues/453
+
+A: It is feature. Because "longest" completeopt conflicts with auto
+completion.  To use "longest" option, you must disable auto completion.
+"longest" is good feature. But it is for manual completion only.
+
+Q: Auto completion does not work in ruby filetype with error messages.
+https://github.com/tpope/vim-rails/issues/283
+
+A: It is vim-rails problem. Not neocomplete.
+
+https://github.com/tpope/vim-rails/blob/master/autoload/rails.vim#L4468
+
+vim-rails overwrites completefunc. So neocomplete disabled.
+You can overwrite completefunc by
+|g:neocomplete#force_overwrite_completefunc|.
+
+Q: autoclose conflicts with neocomplete.
+https://github.com/Shougo/neocomplcache.vim/issues/350
+
+A: It is autoclose mappings problem. I cannot fix it. You should use
+auto-pairs plugin instead of it.
+https://github.com/jiangmiao/auto-pairs
 
 ==============================================================================
 vim:tw=78:ts=8:ft=help:norl:noet:fen:noet:
