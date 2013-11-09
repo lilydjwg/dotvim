@@ -172,12 +172,6 @@ function! s:initialize_snippet_options() "{{{
 endfunction"}}}
 
 function! neosnippet#edit_snippets(args) "{{{
-  if neosnippet#util#is_sudo()
-    call neosnippet#util#print_error(
-          \ '"sudo vim" is detected. This feature is disabled.')
-    return
-  endif
-
   call s:check_initialize()
 
   let [args, options] = neosnippet#util#parse_options(
