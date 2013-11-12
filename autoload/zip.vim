@@ -1,10 +1,10 @@
 " zip.vim: Handles browsing zipfiles
 "            AUTOLOAD PORTION
-" Date:		Apr 12, 2010
-" Version:	23
-" Maintainer:	Charles E Campbell, Jr <NdrOchip@ScampbellPfamily.AbizM-NOSPAM>
+" Date:		Jul 02, 2013
+" Version:	27
+" Maintainer:	Charles E Campbell <NdrOchip@ScampbellPfamily.AbizM-NOSPAM>
 " License:	Vim License  (see vim's :help license)
-" Copyright:    Copyright (C) 2005-2008 Charles E. Campbell, Jr. {{{1
+" Copyright:    Copyright (C) 2005-2013 Charles E. Campbell {{{1
 "               Permission is hereby granted to use and distribute this code,
 "               with or without modifications, provided that this copyright
 "               notice is copied with it. Like anything else that's free,
@@ -13,13 +13,14 @@
 "               this plugin, you agree that in no event will the copyright
 "               holder be liable for any damages resulting from the use
 "               of this software.
+"redraw!|call DechoSep()|call inputsave()|call input("Press <cr> to continue")|call inputrestore()
 
 " ---------------------------------------------------------------------
 " Load Once: {{{1
 if &cp || exists("g:loaded_zip")
  finish
 endif
-let g:loaded_zip= "v23"
+let g:loaded_zip= "v27"
 if v:version < 702
  echohl WarningMsg
  echo "***warning*** this version of zip needs vim 7.2"
@@ -28,6 +29,7 @@ if v:version < 702
 endif
 let s:keepcpo= &cpo
 set cpo&vim
+"DechoTabOn
 
 let s:zipfile_escape = ' ?&;\'
 let s:ERROR          = 2
@@ -60,6 +62,17 @@ endif
 " zip#Browse: {{{2
 fun! zip#Browse(zipfile)
 "  call Dfunc("zip#Browse(zipfile<".a:zipfile.">)")
+  " sanity check: insure that the zipfile has "PK" as its first two letters
+  "               (zipped files have a leading PK as a "magic cookie")
+  " lilydjwg: no, zip can still extract modified zip archives
+  if !filereadable(a:zipfile) " || readfile(a:zipfile, "", 1)[0] !~ '^PK'
+   exe "noautocmd e ".fnameescape(a:zipfile)
+"   call Dret("zip#Browse : not a zipfile<".a:zipfile.">")
+   return
+"  else        " Decho
+"   call Decho("zip#Browse: a:zipfile<".a:zipfile."> passed PK test - its a zip file")
+  endif
+
   let repkeep= &report
   set report=10
 
@@ -103,42 +116,41 @@ fun! zip#Browse(zipfile)
   set ft=tar
 
   " give header
-  let lastline= line("$")
-  call setline(lastline+1,'" zip.vim version '.g:loaded_zip)
-  call setline(lastline+2,'" Browsing zipfile '.a:zipfile)
-  call setline(lastline+3,'" Select a file with cursor and press ENTER')
-  $put =''
-  0d
-  5
+  call append(0, ['" zip.vim version '.g:loaded_zip,
+ \                '" Browsing zipfile '.a:zipfile,
+ \                '" Select a file with cursor and press ENTER'])
 
 "  call Decho("exe silent r! ".g:zip_unzipcmd." -l -- ".s:Escape(a:zipfile,1))
-  exe "silent r! ".g:zip_unzipcmd." -l -- ".s:Escape(a:zipfile,1)
-  if v:shell_error != 0
+  let stderr = tempname()
+  exe "keepj sil! r! ".g:zip_unzipcmd." -Z -1 -- ".s:Escape(a:zipfile,1)
+        \ " 2>" s:Escape(stderr, 1)
+
+  " lilydjwg: let's move to the first file entry
+  keepj 1
+  keepj /^[^"]
+
+  " lilydjwg: and don't lost the warnings
+  if v:shell_error == 1 " 1 means warning
+    keepj normal! k
+    let warnings = map(readfile(stderr), '"\" " . v:val')
+    call add(warnings, '')
+    call append(line('.'), warnings)
+    keepj /^[^"]
+  endif
+  call delete(stderr)
+
+  if v:shell_error != 0 && v:shell_error != 1 " 1 means warning
    redraw!
    echohl WarningMsg | echo "***warning*** (zip#Browse) ".fnameescape(a:zipfile)." is not a zip file" | echohl None
 "   call inputsave()|call input("Press <cr> to continue")|call inputrestore()
-   silent %d
+   keepj sil! %d
    let eikeep= &ei
    set ei=BufReadCmd,FileReadCmd
-   exe "r ".fnameescape(a:zipfile)
+   exe "keepj r ".fnameescape(a:zipfile)
    let &ei= eikeep
-   1d
+   keepj 1d
 "   call Dret("zip#Browse")
    return
-  endif
-"  call Decho("line 6: ".getline(6))
-  let namecol= stridx(getline(6),'Name') + 1
-  " lilydjwg: 第6行可能是 hash 字符串
-  if namecol <= 0
-    6d
-    let namecol= stridx(getline(6),'Name') + 1
-  endif
-"  call Decho("namecol=".namecol)
-  4,$g/^\s*----/d
-  4,$g/^\s*\a/d
-  $d
-  if namecol > 0
-   exe 'silent 4,$s/^.*\%'.namecol.'c//'
   endif
 
   setlocal noma nomod ro
@@ -205,16 +217,28 @@ fun! zip#Read(fname,mode)
   else
    let zipfile = substitute(a:fname,'^.\{-}zipfile:\(.\{-}\)::[^\\].*$','\1','')
    let fname   = substitute(a:fname,'^.\{-}zipfile:.\{-}::\([^\\].*\)$','\1','')
-   let fname = substitute(fname, '[', '[[]', 'g')
+   let fname   = substitute(fname, '[', '[[]', 'g')
   endif
 "  call Decho("zipfile<".zipfile.">")
 "  call Decho("fname  <".fname.">")
 
-"  call Decho("exe r! ".g:zip_unzipcmd." -p -- ".s:Escape(zipfile,1)." ".s:Escape(fname,1))
-  exe "silent r! ".g:zip_unzipcmd." -p -- ".s:Escape(zipfile,1)." ".s:Escape(fname,1)
+  " the following code does much the same thing as
+  "   exe "keepj sil! r! ".g:zip_unzipcmd." -p -- ".s:Escape(zipfile,1)." ".s:Escape(fnameescape(fname),1)
+  " but allows zipfile:... entries in quickfix lists
+  let temp = tempname()
+"  call Decho("using temp file<".temp.">")
+  let fn   = expand('%:p')
+  exe "sil! !".g:zip_unzipcmd." -p -- ".s:Escape(zipfile,1)." ".s:Escape(fnameescape(fname),1).' > '.temp
+"  call Decho("exe sil! !".g:zip_unzipcmd." -p -- ".s:Escape(zipfile,1)." ".s:Escape(fnameescape(fname),1).' > '.temp)
+  sil exe 'keepalt file '.temp
+  sil keepj e!
+  sil exe 'keepalt file '.fnameescape(fn)
+  call delete(temp)
+
+  filetype detect
 
   " cleanup
-  0d
+  "  keepj 0d   " used to be needed for the ...r! ... method
   set nomod
 
   let &report= repkeep
@@ -283,7 +307,7 @@ fun! zip#Write(fname)
 
   if fname =~ '/'
    let dirpath = substitute(fname,'/[^/]\+$','','e')
-   if executable("cygpath")
+   if has("win32unix") && executable("cygpath")
     let dirpath = substitute(system("cygpath ".s:Escape(dirpath,0)),'\n','','e')
    endif
 "   call Decho("mkdir(dirpath<".dirpath.">,p)")
@@ -295,7 +319,7 @@ fun! zip#Write(fname)
 "  call Decho("zipfile<".zipfile."> fname<".fname.">")
 
   exe "w! ".fnameescape(fname)
-  if executable("cygpath")
+  if has("win32unix") && executable("cygpath")
    let zipfile = substitute(system("cygpath ".s:Escape(zipfile,0)),'\n','','e')
   endif
 
