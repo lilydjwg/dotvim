@@ -597,24 +597,26 @@ elseif has("unix")
     let color_insert = 'RoyalBlue1'
     let color_exit = 'green'
     if &term =~ 'xterm\|rxvt'
-      exe 'silent !echo -ne "\e]12;"' . shellescape(color_normal, 1) . '"\007"'
-      let &t_SI="\e]12;" . color_insert . "\007"
-      let &t_EI="\e]12;" . color_normal . "\007"
-      exe 'autocmd VimLeave * :silent !echo -ne "\e]12;"' . shellescape(color_exit, 1) . '"\007"'
+      call writefile(["\e]12;" . color_normal . "\7"], "/dev/tty", "b")
+      let &t_SI="\e]12;" . color_insert . "\7"
+      let &t_EI="\e]12;" . color_normal . "\7"
+      exe 'autocmd VimLeave * :call writefile(["\e]12;' . color_exit . '\7"], "/dev/tty", "b")'
     elseif &term =~ "screen"
       if exists('$TMUX')
 	if &ttymouse == 'xterm'
 	  set ttymouse=xterm2
 	endif
-	exe 'silent !echo -ne "\033Ptmux;\033\e]12;"' . shellescape(color_normal, 1) . '"\007\033\\"'
-	let &t_SI="\033Ptmux;\033\e]12;" . color_insert . "\007\033\\"
-	let &t_EI="\033Ptmux;\033\e]12;" . color_normal . "\007\033\\"
-	exe 'autocmd VimLeave * :silent !echo -ne "\033Ptmux;\033\e]12;"' . shellescape(color_exit, 1) . '"\007\033\\"'
+	call writefile(["\33Ptmux;\33\e]12;" . color_normal . "\7\33\\"], "/dev/tty", "b")
+	let &t_SI="\33Ptmux;\33\e]12;" . color_insert . "\7\33\\"
+	let &t_EI="\33Ptmux;\33\e]12;" . color_normal . "\7\33\\"
+	exe 'autocmd VimLeave * :call writefile(["\33Ptmux;\33\e]12;' .
+              \ color_exit . '\7\33\\"], "/dev/tty", "b")'
       elseif !exists('$SUDO_UID') " or it may still be in tmux
-	exe 'silent !echo -ne "\033P\e]12;"' . shellescape(color_normal, 1) . '"\007\033\\"'
-	let &t_SI="\033P\e]12;" . color_insert . "\007\033\\"
-	let &t_EI="\033P\e]12;" . color_normal . "\007\033\\"
-	exe 'autocmd VimLeave * :silent !echo -ne "\033P\e]12;"' . shellescape(color_exit, 1) . '"\007\033\\"'
+	call writefile(["\33P\e]12;" . color_normal . "\7\33\\"], "/dev/tty", "b")
+	let &t_SI="\33P\e]12;" . color_insert . "\7\33\\"
+	let &t_EI="\33P\e]12;" . color_normal . "\7\33\\"
+	exe 'autocmd VimLeave * :call writefile(["\33P\e]12;' .
+              \ color_exit . '\7\33\\"], "/dev/tty", "b")'
       endif
     endif
     unlet color_normal
