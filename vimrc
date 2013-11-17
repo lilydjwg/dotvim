@@ -642,6 +642,7 @@ if v:version > 702
   set cryptmethod=blowfish
 endif
 unlet g:undodir
+let g:silent_unsupported = 1
 " map 相关[[[1
 "   nmap [[[2
 "     Fx 相关 [[[3

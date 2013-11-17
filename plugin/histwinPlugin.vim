@@ -28,7 +28,9 @@ fun! WarningMsg(msg) "{{{2
 endfun "}}}
 " Check version "{{{2
 if v:version < 703
-	call WarningMsg("This plugin requires Vim 7.3 or higher")
+    if !get(g:, 'silent_unsupported')
+	    call WarningMsg("This plugin requires Vim 7.3 or higher")
+    endif
 	finish
 endif
 

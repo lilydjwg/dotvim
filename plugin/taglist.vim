@@ -98,9 +98,11 @@ if !exists('loaded_taglist')
             let Tlist_Ctags_Cmd = 'ctags.exe'
         elseif executable('tags')
             let Tlist_Ctags_Cmd = 'tags'
-        else
-            echomsg 'Taglist: Exuberant ctags (http://ctags.sf.net) ' .
-                        \ 'not found in PATH. Plugin is not loaded.'
+          else
+            if !get(g:, 'silent_unsupported')
+              echomsg 'Taglist: Exuberant ctags (http://ctags.sf.net) ' .
+                    \ 'not found in PATH. Plugin is not loaded.'
+            endif
             " Skip loading the plugin
             let loaded_taglist = 'no'
             let &cpo = s:cpo_save
