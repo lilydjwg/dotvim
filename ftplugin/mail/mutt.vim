@@ -23,7 +23,10 @@ elseif has('python3')
 endif
 
 0
-/^$
+try
+  /^$
+catch /.*/
+endtry
 " ---------------------------------------------------------------------
 "  Restoration And Modelines:
 let &cpo=s:keepcpo
