@@ -1,7 +1,7 @@
 " Vim syntax file
 " Filetype:	RFC
 " Author:	lilydjwg <lilydjwg@gmail.com>
-" Version:	1.0
+" Version:	1.1
 
 syntax clear
 syntax case match
