@@ -1,7 +1,8 @@
 " Vim script file
 " FileType:     RFC
 " Author:       lilydjwg <lilydjwg@gmail.com>
-" Version:	1.0
+" Version:	1.1
+" Contributor:  Marcelo Montú
 
 function! s:get_pattern_at_cursor(pat)
   " This is a function copied from another script.
@@ -58,7 +59,8 @@ function! s:rfcTag()
     let b:backpos = line('.')
     call cursor(b:refpos[0], 0)
     try
-      exec '/^\s\+\V'. l.'\s\+\a\+/'
+      exec '/^\s\+\V'. l.'\v\s+[A-Za-z"]+/'
+      normal ^
     catch /^Vim\%((\a\+)\)\=:E385/
       " Not found.
       exe "normal \<C-O>"
@@ -85,7 +87,7 @@ function! s:rfcJumpBack()
 endfunction
 
 " References jump will need it
-let b:refpos = searchpos('^\v\d+\.?\s+References\s*$', 'wn')
+let b:refpos = searchpos('^\v(\d+\.?\s)?\s*References\s*$', 'wn')
 
 nnoremap <buffer> <silent> <C-]> :call <SID>rfcTag()<CR>
 nnoremap <buffer> <silent> <C-t> :call <SID>rfcJumpBack()<CR>

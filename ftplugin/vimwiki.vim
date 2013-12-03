@@ -14,7 +14,8 @@ let b:undo_ftplugin = "setlocal ".
       \ "suffixesadd< isfname< comments< ".
       \ "autowriteall< ".
       \ "formatoptions< foldtext< ".
-      \ "foldmethod< foldexpr< commentstring< "
+      \ "foldmethod< foldexpr< commentstring< ".
+      \ "| unmap <buffer> ="
 " UNDO }}}
 
 " MISC STUFF {{{
