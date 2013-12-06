@@ -1,11 +1,8 @@
 " Vim script file
 " FileType:     Python
 " Author:       lilydjwg <lilydjwg@gmail.com>
-" Last Change:  2011年1月29日
 
 " ---------------------------------------------------------------------
-"  wildignore 可是全局选项！
-set wildignore-=*.pyc
 "  自带的配置会在任何时候都设置为 pythoncomplete#Complete
 if has("python3")
   setlocal omnifunc=python3complete#Complete
