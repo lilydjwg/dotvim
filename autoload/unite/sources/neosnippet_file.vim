@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: neosnippet_file.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 17 Feb 2013.
+" Last Modified: 21 Nov 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -42,7 +42,7 @@ function! s:action_table.neosnippet_source.func(candidates) "{{{
   for candidate in a:candidates
     let snippet_name = candidate.action__path
     if snippet_name != ''
-      call neosnippet#source_file(snippet_name)
+      call neosnippet#commands#_source(snippet_name)
     endif
   endfor
 endfunction"}}}
@@ -65,9 +65,9 @@ let s:source_user.action_table.unite__new_candidate = {
       \ }
 function! s:source_user.action_table.unite__new_candidate.func(candidate) "{{{
   let filename = input(
-        \ 'New snippet file name: ', neosnippet#get_filetype())
+        \ 'New snippet file name: ', neosnippet#helpers#get_filetype())
   if filename != ''
-    call neosnippet#edit_snippets(filename)
+    call neosnippet#commands#_edit(filename)
   endif
 endfunction"}}}
 
@@ -90,9 +90,9 @@ let s:source_runtime.action_table.unite__new_candidate = {
       \ }
 function! s:source_runtime.action_table.unite__new_candidate.func(candidate) "{{{
   let filename = input(
-        \ 'New snippet file name: ', neosnippet#get_filetype())
+        \ 'New snippet file name: ', neosnippet#helpers#get_filetype())
   if filename != ''
-    call neosnippet#edit_snippets('-runtime ' . filename)
+    call neosnippet#commands#_edit('-runtime ' . filename)
   endif
 endfunction"}}}
 
