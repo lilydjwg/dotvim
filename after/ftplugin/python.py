@@ -25,6 +25,6 @@ def setsw():
     sw = min(len(x.string) for x in tokenize.tokenize(stream.readline) if x.type == token.INDENT)
   except (ValueError, SyntaxError):
     return
-  vim.command('setlocal sw=%d' % sw)
+  vim.command('setlocal sw={0} sts={0}'.format(sw))
 
 setsw()

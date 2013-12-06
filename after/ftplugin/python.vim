@@ -4,7 +4,7 @@
 " Last Change:  2011年1月29日
 
 " ---------------------------------------------------------------------
-"  这可是全局选项！
+"  wildignore 可是全局选项！
 set wildignore-=*.pyc
 "  自带的配置会在任何时候都设置为 pythoncomplete#Complete
 if has("python3")
@@ -13,6 +13,16 @@ elseif has("python")
   setlocal omnifunc=pythoncomplete#Complete
 else
   setlocal omnifunc=syntaxcomplete#Complete
+endif
+" ---------------------------------------------------------------------
+" load python code, set 'sw' etc {{{1
+" Vim 7.4 from some patch level unconditionally set 'sw' and 'sts' to 4
+if !exists('b:python_did_once')
+  let pyfile = fnameescape(globpath(&runtimepath, 'after/ftplugin/python.py'))
+  if has("python3")
+    exe 'py3file ' . pyfile
+  endif
+  let b:python_did_once = 1
 endif
 " ---------------------------------------------------------------------
 " Vim Modeline:
