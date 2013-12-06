@@ -17,14 +17,16 @@ def getpath():
 vim.command('setlocal path=%s' % '.,'+','.join(getpath()).replace(' ', r'\ '))
 
 def setsw():
+  sw = 2
   try:
     stream = io.BytesIO('\n'.join(vim.current.buffer).encode(vim.eval('&fenc')))
   except LookupError:
-    return
-  try:
-    sw = min(len(x.string) for x in tokenize.tokenize(stream.readline) if x.type == token.INDENT)
-  except (ValueError, SyntaxError):
-    return
+    pass
+  else:
+    try:
+      sw = min(len(x.string) for x in tokenize.tokenize(stream.readline) if x.type == token.INDENT)
+    except (ValueError, SyntaxError):
+      pass
   vim.command('setlocal sw={0} sts={0}'.format(sw))
 
 setsw()
