@@ -28,7 +28,7 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 function! neosnippet#helpers#get_cursor_snippet(snippets, cur_text) "{{{
-  let cur_word = matchstr(a:cur_text, '\v%(%(\S<@!)+|[[({]@<=\S)$')
+  let cur_word = matchstr(a:cur_text, '\v%(%(\S<@!)+|[[({"''<>]@<=\S)$')
   if cur_word != '' && has_key(a:snippets, cur_word)
       return cur_word
   endif
