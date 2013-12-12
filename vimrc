@@ -1070,7 +1070,7 @@ let xml_use_xhtml = 1
 "   netrw，elinks不行，使用curl吧
 if executable("curl")
   let g:netrw_http_cmd  = "curl"
-  let g:netrw_http_xcmd = "-o"
+  let g:netrw_http_xcmd = "--compressed -o"
 endif
 " cscope setting [[[1
 if has("cscope") && executable("cscope")
