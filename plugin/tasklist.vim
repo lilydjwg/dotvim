@@ -244,6 +244,7 @@ function! s:Exit(key)
     if a:key == -1
         nunmap <buffer> e
         nunmap <buffer> q
+        nunmap <buffer> <esc>
         nunmap <buffer> <cr>
         execute bufwinnr(b:original_buffnr)." wincmd w"
     else
@@ -322,6 +323,7 @@ function! s:TaskList()
 
     " Map exit keys
     nnoremap <buffer> <silent> q :call <sid>Exit(0)<cr>
+    nnoremap <buffer> <silent> <esc> :call <sid>Exit(0)<cr>
     nnoremap <buffer> <silent> <cr> :call <sid>Exit(1)<cr>
     nnoremap <buffer> <silent> e :call <sid>Exit(-1)<cr>
 

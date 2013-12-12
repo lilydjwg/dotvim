@@ -35,14 +35,6 @@ options head
     ${0:TARGET}
   }
 
-snippet if-else
-abbr ife
-options head
-  if (${1:#:condition}) {
-    ${0:TARGET}
-  } else {
-  }
-
 snippet for
 options head
   for (var ${1:i}=0; $1 < ${2:#:Things}.length; ++$1) {
@@ -55,20 +47,6 @@ options head
     ${0:TARGET}
   }
 
-snippet key-value
-abbr :,
-options word
-  ${1:#:value_name}: ${0:#:value},
-
 #snippet key
 #options word
 #  ${1:#:key}: "${2:#:value}"}${3:, }
-
-snippet setTimeout-function
-options head
-  setTimeout(function() { ${0} }, ${1:10});
-
-snippet console-log
-alias cl
-options head
-  console.log(${0:TARGET});
