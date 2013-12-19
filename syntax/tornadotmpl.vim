@@ -7,13 +7,16 @@
 " {# vim:se ft=html syntax=html.tornadotmpl: #}
 
 syntax region tmplComment matchgroup=PreProc start="{#!\@!" end="#}"
-syntax region tmplComment matchgroup=PreProc start="{%\s\+comment\s\+" end="%}"
 syntax region tmplExpr    matchgroup=PreProc start="{{!\@!" end="}}"
       \ contains=@Python containedin=ALL
 syntax region tmplCode    matchgroup=PreProc start="{%!\@!" end="%}"
       \ contains=tmplContent containedin=ALL
+syntax region tmplCContent matchgroup=Keyword
+      \ start="\v%(\{\%)@<=%(\s*)@>comment>"
+      \ end="\%(%}\)\@="
+      \ containedin=tmplCode
 syntax region tmplContent matchgroup=Keyword
-      \ start="\v%(\{\%)@<=%(\s*)@>%(%(end|include|apply|autoescape|block|extends|module|raw|set)@>>|)@>"
+      \ start="\v%(\{\%)@<=%(\s*)@>%(apply|end|autoescape|block|extends|for|from|import|if|elif|else|include|module|raw|set|try|except|finally|while)>"
       \ end="\%(%}\)\@="
       \ contains=@Python containedin=tmplCode
 
@@ -26,5 +29,6 @@ unlet b:current_syntax_save
 highlight link tmplCode Normal
 highlight link tmplExpr Normal
 highlight link tmplComment Comment
+highlight link tmplCContent Comment
 
 set iskeyword-=58
