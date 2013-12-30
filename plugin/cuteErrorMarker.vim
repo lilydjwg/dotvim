@@ -78,8 +78,10 @@ endif
 " Verify that signs are available with the vim version.
 " If not avoid loading the extension
 if !has("signs")
-    echom 'Cute Error Marker require signs to be compiled within vim'
-    echom 'Please compile vim with +signs . plugin not loaded.'
+    if get(g:, "silent_unsupported", 0)
+      echom 'Cute Error Marker require signs to be compiled within vim'
+      echom 'Please compile vim with +signs . plugin not loaded.'
+    endif
     finish
 endif
 
