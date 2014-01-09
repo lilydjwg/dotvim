@@ -1,8 +1,10 @@
 " Vim script file
 " FileType:     RFC
 " Author:       lilydjwg <lilydjwg@gmail.com>
-" Version:	1.1
-" Contributor:  Marcelo Montú
+" Version:	1.2
+" Contributor:  Marcelo Montú, Chenxiong Qi
+
+let b:backposes = []
 
 function! s:get_pattern_at_cursor(pat)
   " This is a function copied from another script.
@@ -27,6 +29,7 @@ function! s:get_pattern_at_cursor(pat)
     return ""
   endif
 endfunction
+
 function! s:rfcTag()
   " Jump from Contents or [xx] to body or References
   let syn = synIDattr(synID(line("."), col("."), 1), "name")
@@ -38,7 +41,7 @@ function! s:rfcTag()
       let lm = matchstr(l, '\vFull Copyright Statement')
     end
     let l = '^\c\V' . lm
-    let b:backpos = line('.')
+    call add(b:backposes, getpos('.'))
     call search(l, 'Ws')
   elseif syn == 'rfcReference'
     let l = s:get_pattern_at_cursor('\[\w\+\]')
@@ -56,7 +59,7 @@ function! s:rfcTag()
       return
     endif
     normal m'
-    let b:backpos = line('.')
+    call add(b:backposes, getpos('.'))
     call cursor(b:refpos[0], 0)
     try
       exec '/^\s\+\V'. l.'\v\s+[A-Za-z"]+/'
@@ -76,12 +79,12 @@ function! s:rfcTag()
 endfunction
 
 function! s:rfcJumpBack()
-  if exists('b:backpos')
-    exec b:backpos
-    unlet b:backpos
+  if len(b:backposes) > 0
+    let backpos = remove(b:backposes, len(b:backposes) - 1)
+    call setpos('.', backpos)
   else
     echohl ErrorMsg
-    echo "Can't jump back any more."
+    echom "Can't jump back anymore."
     echohl None
   endif
 endfunction
