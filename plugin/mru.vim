@@ -337,6 +337,17 @@ function! s:MRU_SaveList()
     call add(l, '# Most recently edited files in Vim (version 3.0)')
     call extend(l, s:MRU_files)
     let tmp = g:MRU_File . '.tmp'
+    if exists('$SUDO_UID')
+      if writefile([], tmp) == 0
+        silent exe '!chown --reference=' . shellescape(g:MRU_File) tmp
+        if v:shell_error
+          call delete(tmp)
+          return
+        endif
+      else
+        return
+      endif
+    endif
     if writefile(l, tmp) == 0
       call rename(tmp, g:MRU_File)
     endif
