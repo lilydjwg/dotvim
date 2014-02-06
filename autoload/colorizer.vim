@@ -1,6 +1,9 @@
 " colorizer.vim	Colorize all text in the form #rrggbb or #rgb; autoload functions
-" Author:       lilydjwg <lilydjwg@gmail.com>
+" Maintainer:	lilydjwg <lilydjwg@gmail.com>
+" Version:	1.4.1
 " License:	Vim License  (see vim's :help license)
+"
+" See plugin/colorizer.vim for more info.
 
 let s:keepcpo = &cpo
 set cpo&vim
@@ -367,9 +370,6 @@ elseif g:colorizer_fgcontrast >= len(s:predefined_fgcolors['dark'])
   let g:colorizer_fgcontrast = len(s:predefined_fgcolors['dark']) - 1
 endif
 let s:saved_fgcontrast = g:colorizer_fgcontrast
-if !exists('g:colorizer_startup') || g:colorizer_startup
-  call colorizer#ColorHighlight(0)
-endif
 
 " Restoration and modelines {{{1
 let &cpo = s:keepcpo
