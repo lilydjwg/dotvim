@@ -13,19 +13,19 @@ set cpo&vim
 " ---------------------------------------------------------------------
 " Check:
 "   check for our executable zhist
-if !executable('auplst.py')
+if !executable('auplst')
   finish
 endif
 " ---------------------------------------------------------------------
 " Function:
 function s:read(file)
-  exe 'sil r!cat ''' . a:file . '''|auplst.py'
+  exe 'sil r!cat ''' . a:file . '''|auplst'
   1d
   " for mru.vim
   doautocmd BufReadPost
 endfunction
 function s:write(file)
-  exe 'sil w !auplst.py write > ''' . a:file . ''''
+  exe 'sil w !auplst write > ''' . a:file . ''''
   set nomodified
   " for mru.vim
   doautocmd BufWritePost
