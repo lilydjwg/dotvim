@@ -130,7 +130,7 @@ fun! zip#Browse(zipfile)
   keepj /^[^"]
 
   " lilydjwg: and don't lost the warnings
-  if v:shell_error == 1 " 1 means warning
+  if v:shell_error == 1 || v:shell_error == 2 " 1 means warning
     keepj normal! k
     let warnings = map(readfile(stderr), '"\" " . v:val')
     call add(warnings, '')
@@ -139,7 +139,7 @@ fun! zip#Browse(zipfile)
   endif
   call delete(stderr)
 
-  if v:shell_error != 0 && v:shell_error != 1 " 1 means warning
+  if v:shell_error > 2
    redraw!
    echohl WarningMsg | echo "***warning*** (zip#Browse) ".fnameescape(a:zipfile)." is not a zip file" | echohl None
 "   call inputsave()|call input("Press <cr> to continue")|call inputrestore()
