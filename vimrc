@@ -343,7 +343,7 @@ function Lilydjwg_hexchar()
 endfunction
 "  用火狐打开链接[[[2
 function Lilydjwg_open_url()
-  let s:url = Lilydjwg_get_pattern_at_cursor('\v%(https?|ftp)://[^]\s''"\t\r\n>*。，\`)]*')
+  let s:url = Lilydjwg_get_pattern_at_cursor('\v%(https?|ftp)://[^]''" \t\r\n>*。，\`)]*')
   if s:url == ""
     echohl WarningMsg
     echomsg '在光标处未发现URL！'
