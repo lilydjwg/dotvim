@@ -2,7 +2,7 @@
 " FileType:     Access log of Apache, nginx, etc
 " Author:       lilydjwg <lilydjwg@gmail.com>
 " Contributor:	Audrius Kažukauskas
-" Version:	0.5
+" Version:	0.6
 " ---------------------------------------------------------------------
 
 syntax clear
@@ -16,13 +16,15 @@ syn match httplogError	/\v\s\zs5\d{2}\ze\s%(\d+|-)/
 syn match httplogRef	/\v\s\zs"(http[^"]+|-)"\ze\s/
 syn match httplogUA	/\v\s\zs"[^"]+"$/ contains=httplogBrowser
 syn match httplogBrowser	/\<UCWEB\d\@=/
-syn match httplogBrowser	/\v(".*Chrome.*)@<!<Safari>/
+syn match httplogBrowser	/\v(".*Chrome.*)@<!<Safari>%(.*%(MicroMessenger|weibo).*")@!/
 syn match httplogBrowser	/\v(".*%(Chrom|Google Web Preview).*)@<!<Chrome>(.*Chrome.*")@!/
 syn match httplogBrowser	/\<Feedfetcher-Google\>/
 syn match httplogBrowser	/\<Google Web Preview\>/
 syn match httplogBrowser	"\<bingbot\>/\@="
 syn match httplogBrowser	/\<Sogou web spider\>/
+syn match httplogBrowser	/\v%(__)@<=weibo%(__)@=/
 syn keyword httplogBrowser	Firefox MSIE Konqueror Chromium ChromePlus Opera w3m Wget aria2 Lynx Epiphany Links TheWorld contained
+syn keyword httplogBrowser	MicroMessenger contained
 syn keyword httplogBrowser	gvfs curl pacman PackageKit contained
 syn keyword httplogBrowser	Googlebot Baiduspider Sosospider YandexBot W3C_Validator Jigsaw PhantomJS ia_archiver contained
 syn match httplogLAN	/\v^192\.168\.\d+\.\d+/ contained
