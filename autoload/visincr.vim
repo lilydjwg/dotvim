@@ -1,7 +1,7 @@
 " visincr.vim: Visual-block incremented lists
 "  Author:      Charles E. Campbell, Jr.  Ph.D.
-"  Date:        Dec 19, 2007
-"  Version:     19
+"  Date:        Aug 16, 2011
+"  Version:     20
 "
 "				Visincr assumes that a block of numbers selected by a
 "				ctrl-v (visual block) has been selected for incrementing.
@@ -25,8 +25,14 @@
 if &cp || exists("g:loaded_visincr")
   finish
 endif
-let s:keepcpo        = &cpo
-let g:loaded_visincr = "v19"
+let g:loaded_visincr = "v20"
+if v:version < 700
+ echohl WarningMsg
+ echo "***warning*** this version of visincr needs vim 7.0"
+ echohl Normal
+ finish
+endif
+let s:keepcpo= &cpo
 set cpo&vim
 
 " ---------------------------------------------------------------------
@@ -41,28 +47,32 @@ let s:IM     = 6
 let s:IA     = 7 
 let s:IX     = 8 
 let s:IIX    = 9 
-let s:IO     = 10
-let s:IIO    = 11
-let s:IR     = 12
-let s:IIR    = 13
-let s:IPOW   = 14
-let s:IIPOW  = 15
-let s:RI     = 16
-let s:RII    = 17
-let s:RIMDY  = 18
-let s:RIYMD  = 19
-let s:RIDMY  = 20
-let s:RID    = 21
-let s:RIM    = 22
-let s:RIA    = 23
-let s:RIX    = 24
-let s:RIIX   = 25
-let s:RIO    = 26
-let s:RIIO   = 27
-let s:RIR    = 28
-let s:RIIR   = 29
-let s:RIPOW  = 30
-let s:RIIPOW = 31
+let s:IB     = 10
+let s:IIB    = 11
+let s:IO     = 12
+let s:IIO    = 13
+let s:IR     = 14
+let s:IIR    = 15
+let s:IPOW   = 16
+let s:IIPOW  = 17
+let s:RI     = 18
+let s:RII    = 19
+let s:RIMDY  = 20
+let s:RIYMD  = 21
+let s:RIDMY  = 22
+let s:RID    = 23
+let s:RIM    = 24
+let s:RIA    = 25
+let s:RIX    = 26
+let s:RIIX   = 27
+let s:RIB    = 28
+let s:RIIB   = 29
+let s:RIO    = 30
+let s:RIIO   = 31
+let s:RIR    = 32
+let s:RIIR   = 33
+let s:RIPOW  = 34
+let s:RIIPOW = 35
 
 " ------------------------------------------------------------------------------
 " Options: {{{1
@@ -104,8 +114,11 @@ fun! visincr#VisBlockIncr(method,...)
   " get increment (default=1; except for power increments, that's default=2) {{{3
   if a:0 > 0
    let incr= a:1
+"   call Decho("incr<".incr.">")
    if method == s:IX || method == s:IIX
    	let incr= s:Hex2Dec(incr)
+   elseif method == s:IB || method == s:IIB
+	let incr= s:Bin2Dec(incr)
    elseif method == s:IO || method == s:IIO
    	let incr= s:Oct2Dec(incr)
    endif
@@ -122,6 +135,9 @@ fun! visincr#VisBlockIncr(method,...)
   if leftcol > rghtcol
    let leftcol = virtcol("'>")
    let rghtcol = virtcol("'<")
+  endif
+  if &selection == "exclusive"
+   let rghtcol= rghtcol - 1
   endif
   let width= rghtcol - leftcol + 1
 "  call Decho("width= [rghtcol=".rghtcol."]-[leftcol=".leftcol."]+1=".width)
@@ -167,6 +183,25 @@ fun! visincr#VisBlockIncr(method,...)
     let restrict= '\c\%'.col(".").'c\(jan\|feb\|mar\|apr\|may\|jun\|jul\|aug\|sep\|oct\|nov\|dec\)'
    endif
 "   call Decho(":IM restricted<".restrict.">")
+
+  elseif a:method == s:RIB
+   let restrict= '\%'.col(".").'c[01]'
+"   call Decho(":IB restricted<".restrict.">")
+  elseif a:method == s:RIIB
+   let restrict= '\%'.col(".").'c\s\{,'.width.'}[01]'
+"   call Decho(":IIB restricted<".restrict.">")
+  elseif a:method == s:RIO
+   let restrict= '\%'.col(".").'c\o'
+"   call Decho(":IO restricted<".restrict.">")
+  elseif a:method == s:RIIO
+   let restrict= '\%'.col(".").'c\s\{,'.width.'}\o'
+"   call Decho(":IIB restricted<".restrict.">")
+  elseif a:method == s:RIX
+   let restrict= '\%'.col(".").'c\x'
+"   call Decho(":IX restricted<".restrict.">")
+  elseif a:method == s:RIIX
+   let restrict= '\%'.col(".").'c\s\{,'.width.'}\x'
+"   call Decho(":IIX restricted<".restrict.">")
 
   elseif a:method == s:RIPOW
    let restrict= '\%'.col(".").'c\d'
@@ -448,7 +483,7 @@ fun! visincr#VisBlockIncr(method,...)
    let l = y1
    while l <= y2
 	 if exists("restrict") && getline(".") !~ restrict
-	  norm! j
+	  silent! norm! j
 	  let l= l + 1
 	  continue
 	 endif
@@ -491,7 +526,7 @@ fun! visincr#VisBlockIncr(method,...)
    return
   endif " IMDY  IYMD  IDMY  ID  IM
 
-  " I II IX IIX IO IIO IR IIR IPOW IIPOW: {{{3
+  " I II IX IIX IB IIB IO IIO IR IIR IPOW IIPOW: {{{3
   " construct a line from the first line that only has the number in it
   let rml   = rghtcol - leftcol
   let rmlp1 = rml  + 1
@@ -523,6 +558,8 @@ fun! visincr#VisBlockIncr(method,...)
 "   call Decho("handle visblock not at far left")
    if method == s:IX || method == s:IIX
     let pat = '^\(.\{-}\)\%'.leftcol.'v\([0-9a-fA-F \t]\{1,'.rmlp1.'}\).*$'
+   elseif method == s:IB || method == s:IIB
+    let pat = '^\(.\{-}\)\%'.leftcol.'v\([01 \t]\{1,'.rmlp1.'}\).*$'
    elseif method == s:IO || method == s:IIO
     let pat = '^\(.\{-}\)\%'.leftcol.'v\([0-7 \t]\{1,'.rmlp1.'}\).*$'
    elseif method == s:IR || method == s:IIR
@@ -543,11 +580,13 @@ fun! visincr#VisBlockIncr(method,...)
   let cntlen = strlen(cnt)
   let cnt    = substitute(cnt,'\s','',"ge")
   let ocnt   = cnt
-"  call Decho("cntlen=".cntlen." cnt=".cnt." ocnt=".ocnt." (before I*[XOR] subs)")
+"  call Decho("cntlen=".cntlen." cnt=".cnt." ocnt=".ocnt." (before I*[BXOR] subs)")
 
   " elide leading zeros
   if method == s:IX || method == s:IIX
    let cnt= substitute(cnt,'^0*\([1-9a-fA-F]\|0$\)','\1',"ge")
+  elseif method == s:IB || method == s:IIB
+   let cnt= substitute(cnt,'^0*\(1\|0$\)','\1',"ge")
   elseif method == s:IO || method == s:IIO
    let cnt= substitute(cnt,'^0*\([1-7]\|0$\)','\1',"ge")
   elseif method == s:IR || method == s:IIR
@@ -569,6 +608,8 @@ fun! visincr#VisBlockIncr(method,...)
   " determine how much incrementing is needed {{{3
   if method == s:IX || method == s:IIX
    let maxcnt= s:Dec2Hex(s:Hex2Dec(cnt) + incr*(y2 - y1))
+  elseif method == s:IB || method == s:IIB
+   let maxcnt= s:Dec2Bin(s:Bin2Dec(cnt) + incr*(y2 - y1))
   elseif method == s:IO || method == s:IIO
    let maxcnt= s:Dec2Oct(s:Oct2Dec(cnt) + incr*(y2 - y1))
   elseif method == s:IR || method == s:IIR
@@ -616,7 +657,7 @@ fun! visincr#VisBlockIncr(method,...)
 "   call Decho("----- while [l=".l."] <= [y2=".y2."]: cnt=".cnt)
 	if exists("restrict") && getline(".") !~ restrict
 "	 call Decho("skipping <".getline(".")."> (restrict)")
-	 norm! j
+	 silent! norm! j
 	 let l= l + 1
 	 continue
 	endif
@@ -650,7 +691,7 @@ fun! visincr#VisBlockIncr(method,...)
 
 	" back up to left-of-block (plus optional left-hand-side modeling) (left-justification support) {{{3
 	norm! 0
-	if method == s:I || method == s:IO || method == s:IX || method == s:IR || method == s:IPOW
+	if method == s:I || method == s:IB || method == s:IO || method == s:IX || method == s:IR || method == s:IPOW
 	 let bkup= leftcol
 "	 call Decho("bkup= [leftcol=".leftcol."]  (due to method)")
 	elseif maxcntlen > 0
@@ -685,6 +726,8 @@ fun! visincr#VisBlockIncr(method,...)
 	endif
     if method == s:IX || method == s:IIX
      let cnt= s:Dec2Hex(s:Hex2Dec(cnt) + incr)
+	elseif method == s:IB || method == s:IIB
+     let cnt= s:Dec2Bin(s:Bin2Dec(cnt) + incr)
 	elseif method == s:IO || method == s:IIO
      let cnt= s:Dec2Oct(s:Oct2Dec(cnt) + incr)
 	elseif method == s:IR || method == s:IIR
@@ -832,6 +875,63 @@ fun! s:Dec2Oct(b10)
   endif
 "  call Dret("Dec2Oct ".oct)
   return oct
+endfun
+
+" ------------------------------------------------------------------------------
+" Bin2Dec: convert binary to decimal {{{2
+fun! s:Bin2Dec(bin)
+"  call Dfunc("Bin2Dec(bin=".a:bin.")")
+  if a:bin >= 0
+   let n  = a:bin
+   let neg= 0
+  else
+   let n   = strpart(a:bin,1)
+   let neg = 1
+  endif
+
+  let b10 = 0
+  while n != ""
+   let bindigit= strpart(n,0,1)
+   if bindigit =~ '[01]'
+   	let bindigit= char2nr(bindigit) - char2nr('0')
+"	call Decho("bindigit=".bindigit)
+   else
+   	break
+   endif
+   let b10= 2*b10 + bindigit
+   let n  = strpart(n,1)
+  endwhile
+
+  if neg
+   let b10= -b10
+  endif
+"  call Dret("Bin2Dec ".b10)
+  return b10
+endfun
+
+" ---------------------------------------------------------------------
+" Dec2Bin: convert decimal to binary {{{2
+fun! s:Dec2Bin(b10)
+"  call Dfunc("Dec2Bin(b10=".a:b10.")")
+  if a:b10 >= 0
+   let b10 = a:b10
+   let neg = 0
+  else
+   let b10 = -a:b10
+   let neg = 1
+  endif
+
+  let bin = ""
+  while b10
+   let bin = '01'[b10 % 2] . bin
+   let b10 = b10 / 2
+  endwhile
+
+  if neg
+   let bin= "-".bin
+  endif
+"  call Dret("Dec2Bin ".bin)
+  return bin
 endfun
 
 " ------------------------------------------------------------------------------
