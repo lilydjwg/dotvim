@@ -54,4 +54,5 @@ augroup filetypedetect
   au BufNewFile,BufRead *.io				setf io
   au BufNewFile,BufRead supervisor*.conf                setf dosini
   au BufRead		*procmaillog			setf mail
+  au BufNewFile,BufRead *.i				setf swig
 augroup END
