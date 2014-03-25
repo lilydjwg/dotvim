@@ -853,6 +853,8 @@ command -range=% Paste <line1>,<line2>py3 LilyPaste()
 command -range=% Tohtml call Lilydjwg_to_html(<line1>, <line2>)
 command Agg exe 'Ag -Q ' . expand('<cword>')
 " 插件配置[[[1
+"   linediff[[[2
+let g:linediff_buffer_type = 'scratch'
 "   neosnippet[[[2
 let g:neosnippet#snippets_directory = g:vimfiles . '/snippets'
 imap <expr><TAB> neosnippet#expandable_or_jumpable() ?
