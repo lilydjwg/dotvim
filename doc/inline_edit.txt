@@ -1,0 +1,281 @@
+*inline_edit.txt*	Edit code, embedded in other code, through a temporary buffer
+
+==============================================================================
+CONTENTS                                      *inline-edit* *inline-edit-contents*
+
+    Installation...........................: |inline-edit-installation|
+    Usage..................................: |inline-edit-usage|
+    Settings...............................: |inline-edit-settings|
+    Extending..............................: |inline-edit-extending|
+    Issues.................................: |inline-edit-issues|
+
+
+==============================================================================
+INSTALLATION                                          *inline-edit-installation*
+
+There are several ways to install the plugin. The recommended one is by using
+Tim Pope's pathogen (http://www.vim.org/scripts/script.php?script_id=2332). In
+that case, you can clone the plugin's git repository like so:
+>
+    git clone git://github.com/AndrewRadev/inline_edit.vim.git ~/.vim/bundle/inline_edit
+<
+If your vim configuration is under git version control, you could also set up
+the repository as a submodule, which would allow you to update more easily.
+The command is (provided you're in ~/.vim):
+>
+    git submodule add git://github.com/AndrewRadev/inline_edit.vim.git bundle/inline_edit
+<
+Another way is to simply copy all the essential directories inside the ~/.vim
+directory: plugin, autoload, doc.
+
+After the plugin is installed, the command |:InlineEdit| will attempt to
+locate the area to edit and then open up a temporary buffer to edit only that
+area. To make this more comfortable to do often, it's recommended to create a
+mapping that calls it. For example:
+>
+    " normal mode:
+    nnoremap <leader>e :InlineEdit<cr>
+
+    " visual mode:
+    xnoremap <leader>e :InlineEdit<cr>
+
+    " insert mode:
+    inoremap <c-e> <esc>:InlineEdit<cr>a
+
+Note that these examples use the current |mapleader|.
+
+
+==============================================================================
+USAGE                                                        *inline-edit-usage*
+
+The idea of this plugin is to enable isolated editing of a specific area of a
+buffer. This could be used for editing javascript within HTML, for example:
+
+>
+    <head>
+      <script type="text/javascript">
+        alert("OK");
+      </script>
+    </head>
+<
+Now, executing the command |:InlineEdit| when the cursor is within the
+<script> tag would open a split with a temporary buffer with the contents of
+the script tag. Editing and saving this proxy buffer would update the original
+one. If |g:inline_edit_autowrite| is set to 1, the original buffer will be
+saved as well.
+
+The plugin works for various different constructs. If you're interested in
+extending its functionality to fit your own needs, see |inline-edit-extending|
+below. If you think of a nice one that might be useful to other people, feel
+free to suggest adding it to the plugin in the github issue tracker:
+https://github.com/AndrewRadev/inline_edit.vim/issues
+
+Here's what the plugin currently works for out of the box:
+
+Javascript and CSS within HTML ~
+>
+  <head>
+    <script type="text/javascript">
+      $(document).ready(function() {
+        alert('OK');
+      })
+    </script>
+
+    <style>
+      body {
+        color: blue;
+        background-color: red;
+      }
+    </style>
+  </head>
+<
+
+SQL within ruby (matches "<<-SQL") ~
+>
+    def some_heavy_query
+      execute <<-SQL
+        SELECT * FROM users WHERE something = 'other';
+      SQL
+    end
+<
+
+Ruby code within markdown blocks ~
+>
+    Some text.
+
+    ``` ruby
+    def foo
+      puts "OK"
+    end
+    ```
+
+    Some other text.
+<
+
+Blocks in django templates ~
+>
+    <body>
+      {% block content %}
+      <h1>{{ section.title }}</h1>
+      {% endblock %}
+    </body>
+<
+
+Visual Mode ~
+
+If you'd like to work on an area that's not very well definable, |:InlineEdit|
+also works in visual mode. Selecting an area of the code and executing
+":InlineEdit some_filetype" will open up a proxy buffer with that area and set
+the filetype to "some_filetype".
+
+
+==============================================================================
+SETTINGS                                                  *inline-edit-settings*
+
+These are the variables that control the behaviour of the plugin.
+
+                                                       *g:inline_edit_autowrite*
+>
+    let g:inline_edit_autowrite = 0
+<
+
+Default value: 0
+
+If this variable is set to 1, writing the temporary proxy buffer would also
+write the original buffer to its file. If it's 0, the original buffer will be
+modified, but not saved.
+
+                                             *g:inline_edit_html_like_filetypes*
+>
+    let g:inline_edit_html_like_filetypes = ['coldfusion', 'mako']
+<
+
+Default value: []
+
+This variable should contain additional filetypes to use for the special
+"*html" filetype pattern (:help |inline-edit-extending|). Setting a list of
+filetypes here will make the plugin detect "<script>" and "<style>" tags in
+those as well.
+
+The reason for this is to be able to extend the plugin easier in this specific
+case (editing an html-like filetype).
+
+                                                      *g:inline_edit_proxy_type*
+>
+    let g:inline_edit_proxy_type = 'tempfile'
+<
+
+Default value: "scratch"
+
+This variable can have one of two values, "scratch" or "tempfile".
+
+If it is set to "scratch" (the default), the created proxy buffer is not
+connected to any file. The benefit is that the filename can then be set to be
+an informative string instead of a weird temporary filename. The drawback is
+that you can't run some external commands on this buffer, since there is no
+real backing file.
+
+If it is set to "tempfile", the proxy buffer is actually a temporary file. The
+benefit is that you run external commands that expect an actual file (like
+executing |:make|). The drawback is that the only way to display information
+on the proxy is by hacking the statusline, which may cause issues and can't
+work reliably on all statuslines.
+
+
+==============================================================================
+EXTENDING                                                *inline-edit-extending*
+                                                        *g:inline_edit_patterns*
+
+The variable |g:inline_edit_patterns| is a list of dictionaries. Extending the
+plugin to work for new patterns is a simple matter of adding entries to it.
+You can safely assign patterns to the variable in your .vimrc, the plugin
+won't override them.
+
+Each entry in the list can have one of two formats.
+
+Simple ~
+>
+    let g:inline_edit_patterns = [
+            \   {
+            \     'main_filetype':     'vim',
+            \     'sub_filetype':      'vim',
+            \     'indent_adjustment': 1,
+            \     'start':             '\<function\>',    " required
+            \     'end':               '\<endfunction\>', " required
+            \   },
+            \
+            \   " ...
+            \ ]
+<
+The dictionary can contain several items, but the only two required ones are
+"start" and "end". They should be regular expressions that are used to find
+the margins of the area to edit. The other entries are as follows:
+
+    - main_filetype:
+
+      This pattern will only be attempted in the given filetype. This makes
+      sense to set for most patterns. You probably don't want to open up
+      javascript <script> tags in vimscript, for example.
+
+      This is parsed as a regular expression, so you could set it to, for
+      example, "html\|eruby\|php" and have the related patterns work across
+      those three filetypes.
+
+      Setting main_filetype to the string "*html" is a special case, since a
+      lot of filetypes are "html-like". This will match any such filetype that
+      I've managed to think of. To extend this pattern to any ones that I've
+      missed, you can set the variable |g:inline_edit_html_like_filetypes| to
+      a list of those additional filetypes. See |inline-edit-settings| for
+      details.
+
+    - sub_filetype:
+
+      This is the new filetype to set to the proxy buffer. If it's omitted,
+      the original buffer's filetype is used.
+
+    - indent_adjustment:
+
+      Setting it to "1" will indent the proxy buffer's contents 1 indentation
+      level more than the surrounding patterns. If it's "2", it will be two
+      levels, and so on. The default is 0, which means that the contents of
+      the proxy buffer will be indented with the level of the delimiting
+      patterns (the end pattern, to be precise).
+
+
+Callback ~
+>
+    let g:inline_edit_patterns = [
+            \   {
+            \     'main_filetype': 'textile',
+            \     'callback':      'InlineEditTextileBuffer',
+            \   },
+            \
+            \   " ...
+            \ ]
+<
+If the dictionary contains a "callback" key, its value will be assumed to be a
+function and will be called as a function with no parameters. The result needs
+to be a list of four values in this order:
+    - start line
+    - end line
+    - filetype to set
+    - indent level to set
+
+This is much more complicated, since the function needs to search for the area
+of interest itself and simply return its start and end. It's also more
+flexible, since it allows for dynamically changing targets. Take a look at the
+function inline_edit#MarkdownFencedCode() in "autoload/inline_edit.vim" for
+inspiration.
+
+If the callback function fails to find the area, it should return an empty
+dictionary.
+
+
+==============================================================================
+ISSUES                                                      *inline-edit-issues*
+
+Any issues and suggestions are very welcome on the github bugtracker:
+https://github.com/AndrewRadev/inline_edit.vim/issues
+
+
+vim:tw=78:sw=4:ft=help:norl:
