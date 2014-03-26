@@ -10,9 +10,7 @@
 "     b:transpose_region_last_region
 "     used to save the region when g<A-t> is pressed.
 
-if has('python3')
-    command! -nargs=1 PythonUsedInTransposeRegion python3 <args>
-else
+if !has('python3')
     finish
 end
 
@@ -35,10 +33,10 @@ function! s:transpose_region()
                 \ 'mode': visualmode(),
                 \ 'selection': &selection
                 \ }
-    PythonUsedInTransposeRegion transpose_region(vim.eval('snd_region'))
+    python3 transpose_region(vim.eval('snd_region'))
 endfunction
 
-PythonUsedInTransposeRegion << PYTHONEND
+python3 << PYTHONEND
 import vim
 from itertools import accumulate
 
@@ -93,7 +91,7 @@ def transpose_region(snd_region):
     snd_region['b'] = pos2idx(snd_region['b'])
     fst_region['e'] = pos2idx(fst_region['e'])
     snd_region['e'] = pos2idx(snd_region['e'])
-    print(rel_lines, rel_lens_acc, fst_region, snd_region)
+    # print(rel_lines, rel_lens_acc, fst_region, snd_region)
 
     t = ''.join(rel_lines).encode(enc)
     t = (t[0:fst_region['b']] + t[snd_region['b']:snd_region['e']] +
