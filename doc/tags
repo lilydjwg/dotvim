@@ -902,7 +902,14 @@ g:fuf_taggedfile_prompt	fuf.txt	/*g:fuf_taggedfile_prompt*
 g:fuf_taggedfile_switchOrder	fuf.txt	/*g:fuf_taggedfile_switchOrder*
 g:fuf_timeFormat	fuf.txt	/*g:fuf_timeFormat*
 g:fuf_useMigemo	fuf.txt	/*g:fuf_useMigemo*
+g:inline_edit_autowrite	inline_edit.txt	/*g:inline_edit_autowrite*
+g:inline_edit_html_like_filetypes	inline_edit.txt	/*g:inline_edit_html_like_filetypes*
+g:inline_edit_patterns	inline_edit.txt	/*g:inline_edit_patterns*
+g:inline_edit_proxy_type	inline_edit.txt	/*g:inline_edit_proxy_type*
+g:linediff_buffer_type	linediff.txt	/*g:linediff_buffer_type*
+g:linediff_first_buffer_command	linediff.txt	/*g:linediff_first_buffer_command*
 g:linediff_indent	linediff.txt	/*g:linediff_indent*
+g:linediff_second_buffer_command	linediff.txt	/*g:linediff_second_buffer_command*
 g:loaded_cycle	cycle.txt	/*g:loaded_cycle*
 g:manpageview_K_EXT	manpageview.txt	/*g:manpageview_K_EXT*
 g:manpageview_iconv	manpageview.txt	/*g:manpageview_iconv*
@@ -1102,6 +1109,14 @@ ingo-library-limitations	ingo-library.txt	/*ingo-library-limitations*
 ingo-library-todo	ingo-library.txt	/*ingo-library-todo*
 ingo-library.txt	ingo-library.txt	/*ingo-library.txt*
 ingo-library.vim	ingo-library.txt	/*ingo-library.vim*
+inline-edit	inline_edit.txt	/*inline-edit*
+inline-edit-contents	inline_edit.txt	/*inline-edit-contents*
+inline-edit-extending	inline_edit.txt	/*inline-edit-extending*
+inline-edit-installation	inline_edit.txt	/*inline-edit-installation*
+inline-edit-issues	inline_edit.txt	/*inline-edit-issues*
+inline-edit-settings	inline_edit.txt	/*inline-edit-settings*
+inline-edit-usage	inline_edit.txt	/*inline-edit-usage*
+inline_edit.txt	inline_edit.txt	/*inline_edit.txt*
 java-parser-history	javacomplete.txt	/*java-parser-history*
 javacomplete-ast	javacomplete.txt	/*javacomplete-ast*
 javacomplete-commands	javacomplete.txt	/*javacomplete-commands*
@@ -1143,6 +1158,7 @@ linediff-internals	linediff.txt	/*linediff-internals*
 linediff-issues	linediff.txt	/*linediff-issues*
 linediff-settings	linediff.txt	/*linediff-settings*
 linediff-usage	linediff.txt	/*linediff-usage*
+linediff.txt	linediff.txt	/*linediff.txt*
 manpageview	manpageview.txt	/*manpageview*
 manpageview-K	manpageview.txt	/*manpageview-K*
 manpageview-contents	manpageview.txt	/*manpageview-contents*
@@ -1410,6 +1426,7 @@ splitjoin-coffee	splitjoin.txt	/*splitjoin-coffee*
 splitjoin-contents	splitjoin.txt	/*splitjoin-contents*
 splitjoin-css	splitjoin.txt	/*splitjoin-css*
 splitjoin-eruby	splitjoin.txt	/*splitjoin-eruby*
+splitjoin-go	splitjoin.txt	/*splitjoin-go*
 splitjoin-html	splitjoin.txt	/*splitjoin-html*
 splitjoin-installation	splitjoin.txt	/*splitjoin-installation*
 splitjoin-internals	splitjoin.txt	/*splitjoin-internals*
@@ -1424,6 +1441,7 @@ splitjoin-settings	splitjoin.txt	/*splitjoin-settings*
 splitjoin-usage	splitjoin.txt	/*splitjoin-usage*
 splitjoin-vimscript	splitjoin.txt	/*splitjoin-vimscript*
 splitjoin-yaml	splitjoin.txt	/*splitjoin-yaml*
+splitjoin.txt	splitjoin.txt	/*splitjoin.txt*
 surround	surround.txt	/*surround*
 surround-customizing	surround.txt	/*surround-customizing*
 surround-issues	surround.txt	/*surround-issues*
