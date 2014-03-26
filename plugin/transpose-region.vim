@@ -1,9 +1,9 @@
 " transpose-region.vim: swap regions. Firstly visual select a region, press
 "         g<A-t>; then visual select another regison, and press <A-t> to swap.
 " Last Change:  2014-03-26
-" Maintainer:   Fermat <Fermat618@gmail.com>
+" Author:       Fermat <Fermat618@gmail.com>
 " Maintainer:   lilydjwg <lilydjwg@gmail.com>
-" Licence: This script is released under the Vim License.
+" Licence:      This script is released under the Vim License.
 " Install:
 "     Put this file in ~/.vim/plugin
 " Variable:
