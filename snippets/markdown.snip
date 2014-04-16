@@ -1,4 +1,4 @@
 snippet	link
-	[`system('getTitle '''.@*.'''')`](`@*`)${1}
+	[`substitute(system('getTitle '''.@*.''''),'^\_s*\|\_s*$','','g')`](`@*`)${1}
 snippet ce
 	style="text-align: center;"
