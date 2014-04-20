@@ -57,5 +57,5 @@ augroup filetypedetect
   au BufNewFile,BufRead	*postmore/wiki/*.wiki		setf googlecodewiki
   au BufRead		lilydjwg.is-programmer.com_edit*		setf html
   au BufNewFile,BufRead	*.mw,*wpTextbox*.txt,*wiki__text*.txt		setf wiki
-  au BufRead		/tmp/segmentfault.com_edittextwmd-input*	setf markdown
+  au BufRead		/tmp/segmentfault.com_*-input*	setf markdown
 augroup END
