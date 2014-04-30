@@ -1,82 +1,92 @@
-" CountJump/Region/TextObject.vim: Create custom text objects via jumps over matching lines. 
+" CountJump/Region/TextObject.vim: Create custom text objects via jumps over matching lines.
 "
 " DEPENDENCIES:
 "   - CountJump/Mappings.vim, CountJump/Region.vim, CountJump/TextObjects.vim autoload scripts
 "
-" Copyright: (C) 2010-2012 Ingo Karkat
-"   The VIM LICENSE applies to this script; see ':help copyright'. 
+" Copyright: (C) 2010-2014 Ingo Karkat
+"   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
-" REVISION	DATE		REMARKS 
+" REVISION	DATE		REMARKS
+"   1.84.005	24-Apr-2014	FIX: There are no buffer-local functions with a
+"				b: scope prefix, and Vim 7.4.264 disallows those
+"				invalid function names now. Previously, multiple
+"				buffer-local text objects with the same key
+"				would override each other. Instead, make the
+"				functions created by
+"				CountJump#Region#TextObject#Make() buffer-scoped
+"				by prefixing "s:B" and the buffer number.
+"   1.83.004	14-Jun-2013	Minor: Make substitute() robust against
+"				'ignorecase'.
 "   1.60.003	27-Mar-2012	ENH: When keys start with <Plug>, insert Inner /
 "				Outer instead of prepending i / a.
 "   1.50.002	30-Aug-2011	Also support a match()-like Funcref instead of a
-"				pattern to define the range. 
+"				pattern to define the range.
 "   1.40.001	20-Dec-2010	file creation
 
 function! s:EscapeForFunctionName( text )
     " Convert all non-alphabetical characters to their hex value to create a
-    " valid function name. 
+    " valid function name.
     return substitute(a:text, '\A', '\=char2nr(submatch(0))', 'g')
 endfunction
 function! s:function(name)
-    return function(substitute(a:name, '^s:', matchstr(expand('<sfile>'), '<SNR>\d\+_\zefunction$'),''))
-endfunction 
+    return function(substitute(a:name, '^\Cs:', matchstr(expand('<sfile>'), '<SNR>\d\+_\zefunction$'),''))
+endfunction
 function! CountJump#Region#TextObject#Make( mapArgs, textObjectKey, types, selectionMode, Expr, isMatch )
 "*******************************************************************************
-"* PURPOSE: 
+"* PURPOSE:
 "   Define a complete set of mappings for inner and/or outer text objects that
 "   support an optional [count] and select regions of lines which are defined by
-"   contiguous lines that (don't) match a:pattern. 
+"   contiguous lines that (don't) match a:pattern.
 "   The inner text object comprises all lines of the region itself, while the
 "   outer text object also includes all adjacent lines above and below which do
-"   not themselves belong to a region. 
+"   not themselves belong to a region.
 "
 "* ASSUMPTIONS / PRECONDITIONS:
-"   None. 
+"   None.
 "
 "* EFFECTS / POSTCONDITIONS:
 "   Creates mappings for operator-pending and visual mode which act upon /
-"   select the text delimited by the begin and end patterns. 
-"   If there are no <count> regions, a beep is emitted. 
+"   select the text delimited by the begin and end patterns.
+"   If there are no <count> regions, a beep is emitted.
 "
 "* INPUTS:
 "   a:mapArgs	Arguments to the :map command, like '<buffer>' for a
-"		buffer-local mapping. 
+"		buffer-local mapping.
 "   a:textObjectKey	Mapping key [sequence] after the mandatory i/a which
-"			start the mapping for the text object. 
+"			start the mapping for the text object.
 "			When this starts with <Plug>, the key sequence is taken
 "			as a template and a %s is replaced with "Inner" /
 "			"Outer" instead of prepending i / a. Through this,
 "			plugins can define configurable text objects that not
 "			necessarily start with i / a.
 "   a:types		String containing 'i' for inner and 'a' for outer text
-"			objects. 
+"			objects.
 "   a:selectionMode	Type of selection used between the patterns:
 "			'v' for characterwise, 'V' for linewise, '<CTRL-V>' for
 "			blockwise. Since regions are defined over full lines,
-"			this should typically be 'V'. 
+"			this should typically be 'V'.
 "   a:Expr	Regular expression that defines the region, i.e. must (not)
-"		match in all lines belonging to it. 
+"		match in all lines belonging to it.
 "		Or Funcref to a function that takes a line number and returns
-"		the matching byte offset (or -1), just like |match()|. 
-"   a:isMatch	Flag whether to search matching (vs. non-matching) lines. 
+"		the matching byte offset (or -1), just like |match()|.
+"   a:isMatch	Flag whether to search matching (vs. non-matching) lines.
 "
-"* RETURN VALUES: 
-"   None. 
+"* RETURN VALUES:
+"   None.
 "*******************************************************************************
-    let l:scope = (a:mapArgs =~# '<buffer>' ? 'b:' : 's:')
-
     if a:types !~# '^[ai]\+$'
-	throw "ASSERT: Type must consist of 'a' and/or 'i', but is: '" . a:types . "'" 
+	throw "ASSERT: Type must consist of 'a' and/or 'i', but is: '" . a:types . "'"
     endif
+
+    let l:scope = (a:mapArgs =~# '<buffer>' ? 's:B' . bufnr('') : 's:')
 
     " If only either an inner or outer text object is defined, the generated
     " function must include the type, so that it is possible to separately
     " define a text object of the other type (via a second invocation of this
     " function). If the same region definition is used for both inner and outer
-    " text objects, no such distinction need to be made. 
+    " text objects, no such distinction need to be made.
     let l:typePrefix = (strlen(a:types) == 1 ? a:types : '')
     let l:functionName = CountJump#Mappings#EscapeForFunctionName(CountJump#Mappings#MakeTextObjectKey(l:typePrefix, a:textObjectKey))
 
@@ -106,7 +116,7 @@ function! CountJump#Region#TextObject#Make( mapArgs, textObjectKey, types, selec
     " function-to-begin is executed first, and set the original cursor line
     " there, then start the function-to-end at that position. Since this may
     " also slightly speed up the search for the inner text object, we use it
-    " unconditionally. 
+    " unconditionally.
     execute printf(l:regionFunction,
     \	l:functionToBeginName,
     \	'let s:originalLineNum = line(".")',
@@ -125,8 +135,8 @@ function! CountJump#Region#TextObject#Make( mapArgs, textObjectKey, types, selec
     \)
 
     " For regions, the inner text object must include the text object's
-    " boundaries = lines. 
-    let l:types = substitute(a:types, 'i', 'I', 'g')
+    " boundaries = lines.
+    let l:types = substitute(a:types, '\Ci', 'I', 'g')
     return CountJump#TextObject#MakeWithJumpFunctions(a:mapArgs, a:textObjectKey, l:types, a:selectionMode, s:function(l:functionToBeginName), s:function(l:functionToEndName))
 endfunction
 

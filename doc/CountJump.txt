@@ -43,8 +43,10 @@ diff_movement	  (vimscript #3180): Movement over diff hunks with ]] etc.
 fortunes_movement (vimscript #3181): Movement over email fortunes with ]] etc.
 help_movement     (vimscript #3179): Movement over Vim help sections with ]] etc.
 mail_movement     (vimscript #3182): Movement over email quotes with ]] etc.
-JumpToTrailingWhitespace (vimscript #3968): Motions to locate unwanted
-					    whitespace at the end of lines.
+diffwindow_movement:		     Movement over changes in a diff window.
+                  (vimscript #3719)
+JumpToTrailingWhitespace:	     Motions to locate unwanted whitespace at the end of lines.
+		  (vimscript #3968)
 TaskMotion        (vimscript #3990): Motions to task and TODO markers.
 ConflictMotions   (vimscript #3991): Motions to and inside SCM conflict markers.
 vim_movement	  (vimscript #4002): Movement over Vim functions with ]m etc.
@@ -52,13 +54,20 @@ vbs_movement      (vimscript #4003): Movement over VBScript classes /
 				     functions / properties / subs with ]m etc.
 dosbatch_movement (vimscript #4004): Movement over MSDOS batch file functions
 				     / labels with ]m etc.
+SameSyntaxMotion  (vimscript #4338): Motions to the borders of the same syntax highlighting.
+JumpToVerticalOccurrence:	     Like f{char}, but searching the same
+		  (vimscript #4841)  screen column, not line.
+ErrorMotion	  (vimscript #0000): Motions to text highlighted as error.
 
 RELATED WORKS								     *
 
 - motpat.vim (vimscript #3030) offers similar functions to setup motion
   mappings, but no text objects (yet).
 - textobj-user (vimscript #2100) has support for user-defined text objects via
-  regular expressions.
+  regular expressions, but they don't support selecting multiple via [count].
+- movealong.vim (vimscript #4691) provides a :Movealong command (and optional
+  mappings) that repeatedly executes a motion until a condition of a syntax,
+  pattern match, or arbitrary expression is met.
 
 ==============================================================================
 USAGE							      *CountJump-usage*
@@ -185,6 +194,8 @@ To uninstall, use the |:RmVimball| command.
 DEPENDENCIES					       *CountJump-dependencies*
 
 - Requires Vim 7.0 or higher.
+- |ingo-library.vim| plugin (vimscript #4433), version 1.016 or higher
+  (optional).
 
 ==============================================================================
 INTEGRATION						*CountJump-integration*
@@ -242,6 +253,34 @@ IDEAS							      *CountJump-ideas*
 
 ==============================================================================
 HISTORY							    *CountJump-history*
+
+1.84	25-Apr-2014
+- Pin down the 'virtualedit' setting (to "onemore") during
+  CountJump#TextObject#TextObjectWithJumpFunctions() to avoid that a
+  characterwise outer text object that ends at the end of a line includes the
+  line's newline character when 'selection' is "exclusive".
+- FIX: There are no buffer-local functions with a b: scope prefix, and Vim
+  7.4.264 disallows those invalid function names now. Previously, multiple
+  buffer-local text objects with the same key would override each other.
+  Instead, make the functions created by
+  CountJump#TextObject#MakeWithCountSearch() and
+  CountJump#Region#TextObject#Make() buffer-scoped by prefixing "s:B" and the
+  buffer number.
+
+1.83	23-Jan-2014
+- Use more canonical way of invoking the Funcrefs in
+  CountJump#Motion#MakeBracketMotionWithJumpFunctions(); this will then also
+  work with passed String function names.
+- FIX: Need to save v:count1 before issuing the normal mode "gv" command.
+- Minor: Make substitute() robust against 'ignorecase'.
+- Add optional dependency to ingo-library (vimscript #4433).
+
+1.82	30-Oct-2012 (unreleased)
+- FIX: In text objects, when the end position is before the begin position,
+  that's not a valid selection. Test for this and abort in that case.
+- For linewise selections, always position the cursor at the start of the end
+  line to be consistent with the built-in text objects, and to avoid
+  complicating the search patterns when attempting to do this through them.
 
 1.81	16-Oct-2012
 - ENH: Add optional a:searchName argument to
@@ -371,8 +410,8 @@ First published version.
 Started development.
 
 ==============================================================================
-Copyright: (C) 2009-2012 Ingo Karkat
-The VIM LICENSE applies to this script; see |copyright|.
+Copyright: (C) 2009-2014 Ingo Karkat
+The VIM LICENSE applies to this plugin; see |copyright|.
 
 Maintainer:	Ingo Karkat <ingo@karkat.de>
 ==============================================================================

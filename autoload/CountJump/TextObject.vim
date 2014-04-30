@@ -3,12 +3,38 @@
 " DEPENDENCIES:
 "   - CountJump.vim, CountJump/Mappings.vim autoload scripts
 "
-" Copyright: (C) 2009-2012 Ingo Karkat
+" Copyright: (C) 2009-2014 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.84.017	24-Apr-2014	FIX: There are no buffer-local functions with a
+"				b: scope prefix, and Vim 7.4.264 disallows those
+"				invalid function names now. Previously, multiple
+"				buffer-local text objects with the same key
+"				would override each other. Instead, make the
+"				functions created by
+"				CountJump#TextObject#MakeWithCountSearch()
+"				buffer-scoped by prefixing "s:B" and the buffer
+"				number.
+"   1.84.016	22-Apr-2014	Pin down the 'virtualedit' setting (to
+"				"onemore") during
+"				CountJump#TextObject#TextObjectWithJumpFunctions()
+"				to avoid that a characterwise outer text object
+"				that ends at the end of a line includes the
+"				line's newline character when 'selection' is
+"				"exclusive".
+"   1.83.015	14-Jun-2013	Minor: Make substitute() robust against
+"				'ignorecase'.
+"   1.82.014	30-Oct-2012	FIX: In text objects, when the end position is
+"				before the begin position, that's not a valid
+"				selection. Test for this and abort in that case.
+"				For linewise selections, always position the
+"				cursor at the start of the end line to be
+"				consistent with the built-in text objects, and
+"				to avoid complicating the search patterns when
+"				attempting to do this through them.
 "   1.71.013	14-Sep-2012	FIX: In
 "				CountJump#TextObject#TextObjectWithJumpFunctions(),
 "				do not beep when there's no end position. In
@@ -145,6 +171,8 @@ function! CountJump#TextObject#TextObjectWithJumpFunctions( mode, isInner, isExc
     let g:CountJump_Context = {}
 
     let l:save_whichwrap = &whichwrap
+    let l:save_virtualedit = &virtualedit
+    set virtualedit=onemore " Need to move beyond the current line for proper selection of an end position at the end of the line when 'selection' is "exclusive"; otherwise, the "l" motion would select the newline, too.
     set whichwrap+=h,l
     try
 	let l:beginPosition = call(a:JumpToBegin, [1, a:isInner])
@@ -152,7 +180,7 @@ function! CountJump#TextObject#TextObjectWithJumpFunctions( mode, isInner, isExc
 	if l:beginPosition != [0, 0]
 	    if a:isExcludeBoundaries
 		if l:isLinewise
-		    silent! normal! j
+		    silent! normal! j0
 		else
 		    silent! normal! l
 		endif
@@ -189,11 +217,9 @@ function! CountJump#TextObject#TextObjectWithJumpFunctions( mode, isInner, isExc
 
 		call winrestview(l:save_view)
 	    else
-		let l:isSelected = 1
-
 		if l:isLinewise
 		    if a:isExcludeBoundaries
-			silent! normal! k
+			silent! normal! k0
 		    endif
 		else
 		    if ! l:isExclusive && a:isExcludeBoundaries
@@ -204,13 +230,32 @@ function! CountJump#TextObject#TextObjectWithJumpFunctions( mode, isInner, isExc
 		endif
 
 		let l:endPosition = getpos('.')
-
-		" Now that we know that both begin and end positions exist,
-		" create the visual selection using the corrected positions.
-		call setpos('.', l:beginPosition)
-		execute 'normal!' a:selectionMode
-		call setpos('.', l:endPosition)
 "****D echomsg '**** text object from' string(l:beginPosition) 'to' string(l:endPosition)
+		" When the end position is before the begin position, that's not
+		" a valid selection.
+		if l:endPosition[1] < l:beginPosition[1] ||
+		\   l:endPosition[1] == l:beginPosition[1] && l:endPosition[2] < l:beginPosition[2]
+		    execute "normal! \<C-\>\<C-n>\<Esc>"
+
+		    call winrestview(l:save_view)
+		else
+		    " Now that we know that both begin and end positions exist,
+		    " create the visual selection using the corrected positions.
+		    let l:isSelected = 1
+
+		    if l:isLinewise
+			" For linewise selections, always position the cursor at
+			" the start of the end line. This is consistent with the
+			" built-in text objects (e.g. |ap|), and avoids that the
+			" window is horizontally scrolled to the right.
+			let l:beginPosition[2] = 1
+			let l:endPosition[2] = 1
+		    endif
+
+		    call setpos('.', l:beginPosition)
+		    execute 'normal!' a:selectionMode
+		    call setpos('.', l:endPosition)
+		endif
 	    endif
 	endif
 
@@ -222,6 +267,7 @@ function! CountJump#TextObject#TextObjectWithJumpFunctions( mode, isInner, isExc
 	    normal! gv
 	endif
     finally
+	let &virtualedit = l:save_virtualedit
 	let &whichwrap = l:save_whichwrap
     endtry
 endfunction
@@ -313,7 +359,7 @@ function! CountJump#TextObject#MakeWithJumpFunctions( mapArgs, textObjectKey, ty
 endfunction
 
 function! s:function(name)
-    return function(substitute(a:name, '^s:', matchstr(expand('<sfile>'), '<SNR>\d\+_\zefunction$'),''))
+    return function(substitute(a:name, '^\Cs:', matchstr(expand('<sfile>'), '<SNR>\d\+_\zefunction$'),''))
 endfunction
 function! CountJump#TextObject#MakeWithCountSearch( mapArgs, textObjectKey, types, selectionMode, patternToBegin, patternToEnd )
 "*******************************************************************************
@@ -364,11 +410,11 @@ function! CountJump#TextObject#MakeWithCountSearch( mapArgs, textObjectKey, type
 "* RETURN VALUES:
 "   None.
 "*******************************************************************************
-    let l:scope = (a:mapArgs =~# '<buffer>' ? 'b:' : 's:')
-
     if a:types !~# '^[ai]\+$'
 	throw "ASSERT: Type must consist of 'a' and/or 'i', but is: '" . a:types . "'"
     endif
+
+    let l:scope = (a:mapArgs =~# '<buffer>' ? 's:B' . bufnr('') : 's:')
 
     " If only either an inner or outer text object is defined, the generated
     " function must include the type, so that it is possible to separately

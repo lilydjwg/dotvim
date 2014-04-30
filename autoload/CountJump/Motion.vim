@@ -3,12 +3,17 @@
 " DEPENDENCIES:
 "   - CountJump.vim, CountJump/Mappings.vim autoload scripts.
 "
-" Copyright: (C) 2009-2012 Ingo Karkat
+" Copyright: (C) 2009-2014 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.83.010	02-Jan-2014	Use more canonical way of invoking the Funcrefs
+"				in
+"				CountJump#Motion#MakeBracketMotionWithJumpFunctions();
+"				this will then also work with passed String
+"				function names.
 "   1.81.009	16-Oct-2012	ENH: Add optional a:searchName argument to
 "				CountJump#Motion#MakeBracketMotion() to make
 "				searches wrap around when 'wrapscan' is set.
@@ -241,7 +246,7 @@ function! CountJump#Motion#MakeBracketMotionWithJumpFunctions( mapArgs, keyAfter
 "		Uppercase letters indicate special additional treatment for end
 "		jump to end.
 "   All Funcrefs should position the cursor to the appropriate position in the
-"   current window.
+"   current window. See also CountJump#CountJumpFuncWithWrapMessage().
 "   If no jump function is passed, the corresponding mappings are omitted.
 
 "   a:isEndJumpToEnd	Flag that specifies whether a jump to the end of a block
@@ -283,7 +288,7 @@ function! CountJump#Motion#MakeBracketMotionWithJumpFunctions( mapArgs, keyAfter
     for l:mode in l:mapModes
 	for l:data in l:dataset
 	    execute escape(
-	    \   printf("%snoremap <silent> %s %s :<C-U>call %s(%s)<CR>",
+	    \   printf("%snoremap <silent> %s %s :<C-u>call call(%s, [%s])<CR>",
 	    \	    (l:mode ==# 'v' ? 'x' : l:mode),
 	    \	    a:mapArgs,
 	    \	    l:data[1],

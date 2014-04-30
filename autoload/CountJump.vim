@@ -1,13 +1,23 @@
 " CountJump.vim: Move to a buffer position via repeated jumps (or searches).
 "
 " DEPENDENCIES:
+"   - ingo/motion/helper.vim autoload script (optional)
 "
-" Copyright: (C) 2009-2012 Ingo Karkat
+" Copyright: (C) 2009-2014 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.83.019	11-Jan-2014	Factor out special treatment for visual and
+"				operator-pending motions to
+"				ingo#motion#helper#AdditionalMovement(), but
+"				keep internal fallback to keep the dependency to
+"				ingo-library optional.
+"   1.83.018	14-Jun-2013	Minor: Make substitute() robust against
+"				'ignorecase'.
+"				FIX: Need to save v:count1 before issuing the
+"				normal mode "gv" command.
 "   1.81.017	15-Oct-2012	BUG: Wrong variable scope for copied
 "				a:isBackward in
 "				CountJump#CountSearchWithWrapMessage().
@@ -144,7 +154,7 @@ function! CountJump#CountSearchWithWrapMessage( count, searchName, searchArgumen
 	    " (i.e. search(..., 'c')), the flag must only be active on the very
 	    " first iteration; otherwise, all subsequent iterations will just
 	    " stay put at the current match.
-	    let l:searchArguments[1] = substitute(l:searchArguments[1], 'c', '', 'g')
+	    let l:searchArguments[1] = substitute(l:searchArguments[1], '\Cc', '', 'g')
 	endif
 
 	" Note: No need to check s:searchArguments and 'wrapscan'; the wrapping
@@ -179,6 +189,30 @@ endfunction
 function! CountJump#CountSearch( count, searchArguments )
     return CountJump#CountSearchWithWrapMessage(a:count, '', a:searchArguments)
 endfunction
+silent! call ingo#motion#helper#DoesNotExist()	" Execute a function to force autoload.
+if exists('*ingo#motion#helper#AdditionalMovement')
+function! s:AdditionalMovement( isSpecialLastLineTreatment )
+    return ingo#motion#helper#AdditionalMovement(a:isSpecialLastLineTreatment)
+endfunction
+else
+function! s:AdditionalMovement( isSpecialLastLineTreatment )
+    let l:save_ww = &whichwrap
+    set whichwrap+=l
+    if a:isSpecialLastLineTreatment && line('.') == line('$') && &virtualedit !=# 'onemore' && &virtualedit !=# 'all'
+	" For the last line in the buffer, that still doesn't work in
+	" operator-pending mode, unless we can do virtual editing.
+	let l:save_ve = &virtualedit
+	set virtualedit=onemore
+	normal! l
+	augroup IngoLibraryTempVirtualEdit
+	    execute 'autocmd! CursorMoved * set virtualedit=' . l:save_ve . ' | autocmd! IngoLibraryTempVirtualEdit'
+	augroup END
+    else
+	normal! l
+    endif
+    let &whichwrap = l:save_ww
+endfunction
+endif
 function! CountJump#CountJumpWithWrapMessage( mode, searchName, ... )
 "*******************************************************************************
 "* PURPOSE:
@@ -206,12 +240,13 @@ function! CountJump#CountJumpWithWrapMessage( mode, searchName, ... )
 "   None.
 "*******************************************************************************
     let l:save_view = winsaveview()
+    let l:count = v:count1
 
     if a:mode ==? 'v'
 	normal! gv
     endif
 
-    let l:matchPosition = CountJump#CountSearchWithWrapMessage(v:count1, a:searchName, a:000)
+    let l:matchPosition = CountJump#CountSearchWithWrapMessage(l:count, a:searchName, a:000)
     if l:matchPosition != [0, 0]
 	" Add the original cursor position to the jump list.
 	call winrestview(l:save_view)
@@ -220,37 +255,12 @@ function! CountJump#CountJumpWithWrapMessage( mode, searchName, ... )
 
 	if a:mode ==# 'V' && &selection ==# 'exclusive' || a:mode ==# 'O'
 	    " Special additional treatment for end patterns to end.
-	    " The difference between normal mode, operator-pending and visual
-	    " mode with 'selection' set to "exclusive" is that in the latter
-	    " two, the motion must go _past_ the final "word" character, so that
-	    " all characters of the "word" are selected. This is done by
-	    " appending a 'l' motion after the search for the next "word".
-	    "
-	    " The 'l' motion only works properly at the end of the line (i.e.
-	    " when the moved-over "word" is at the end of the line) when the 'l'
-	    " motion is allowed to move over to the next line. Thus, the 'l'
-	    " motion is added temporarily to the global 'whichwrap' setting.
-	    " Without this, the motion would leave out the last character in the
-	    " line.
-	    let l:save_ww = &whichwrap
-	    set whichwrap+=l
-	    if a:mode ==# 'O' && line('.') == line('$') && &virtualedit !=# 'onemore' && &virtualedit !=# 'all'
-		" For the last line in the buffer, that still doesn't work in
-		" operator-pending mode, unless we can do virtual editing.
-		let l:save_ve = &virtualedit
-		set virtualedit=onemore
-		normal! l
-		augroup TempVirtualEdit
-		    execute 'autocmd! CursorMoved * set virtualedit=' . l:save_ve . ' | autocmd! TempVirtualEdit'
-		augroup END
-	    else
-		normal! l
-	    endif
-	    let &whichwrap = l:save_ww
+	    call s:AdditionalMovement(a:mode ==# 'O')
 	endif
     endif
 endfunction
 function! CountJump#CountJump( mode, ... )
+    " See CountJump#CountJumpWithWrapMessage().
     return call('CountJump#CountJumpWithWrapMessage', [a:mode, ''] + a:000)
 endfunction
 function! CountJump#JumpFunc( mode, JumpFunc, ... )
@@ -286,12 +296,13 @@ function! CountJump#JumpFunc( mode, JumpFunc, ... )
 "*******************************************************************************
     let l:save_view = winsaveview()
     let l:originalPosition = getpos('.')
+    let l:count = v:count1
 
     if a:mode ==? 'v'
 	normal! gv
     endif
 
-    call call(a:JumpFunc, [v:count1] + a:000)
+    call call(a:JumpFunc, [l:count] + a:000)
     let l:matchPosition = getpos('.')
     if l:matchPosition != l:originalPosition
 	" Add the original cursor position to the jump list.
@@ -411,6 +422,7 @@ function! CountJump#CountJumpFuncWithWrapMessage( count, searchName, isBackward,
     return l:matchPosition
 endfunction
 function! CountJump#CountJumpFunc( count, SingleJumpFunc, ... )
+    " See CountJump#CountJumpFuncWithWrapMessage().
     return call('CountJump#CountJumpFuncWithWrapMessage', [a:count, '', 0, a:SingleJumpFunc] + a:000)
 endfunction
 
