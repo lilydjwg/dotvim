@@ -15,3 +15,4 @@ histwin-0.24.vba: call delete('/home/lilydjwg/.vim/plugin/histwinPlugin.vim')|ca
 tagbar.vmb: call delete('/home/lilydjwg/.vim/README.md')|call delete('/home/lilydjwg/.vim/autoload/tagbar.vim')|call delete('/home/lilydjwg/.vim/doc/tagbar.txt')|call delete('/home/lilydjwg/.vim/plugin/tagbar.vim')|call delete('/home/lilydjwg/.vim/syntax/tagbar.vim')
 vis.vba: call delete('/home/lilydjwg/.vim/plugin/visPlugin.vim')|call delete('/home/lilydjwg/.vim/autoload/vis.vim')|call delete('/home/lilydjwg/.vim/plugin/cecutil.vim')|call delete('/home/lilydjwg/.vim/doc/vis.txt')
 visincr.vba: call delete('/home/lilydjwg/.vim/plugin/visincrPlugin.vim')|call delete('/home/lilydjwg/.vim/autoload/visincr.vim')|call delete('/home/lilydjwg/.vim/doc/visincr.txt')
+SameSyntaxMotion-1.00.vmb: call delete('/home/lilydjwg/.vim/autoload/SameSyntaxMotion.vim')|call delete('/home/lilydjwg/.vim/plugin/SameSyntaxMotion.vim')|call delete('/home/lilydjwg/.vim/doc/SameSyntaxMotion.txt')
