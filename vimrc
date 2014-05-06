@@ -625,6 +625,14 @@ elseif has("unix")
     unlet color_insert
     unlet color_exit
   endif
+elseif has('win32') && exists('$CONEMUBUILD')
+  " enable 256 colors in ConEmu on Win
+  set term=xterm
+  set t_Co=256
+  let &t_AB="\e[48;5;%dm"
+  let &t_AF="\e[38;5;%dm"
+  set cursorline
+  exe 'colorscheme' colorscheme
 endif
 unlet colorscheme
 " 不同的 Vim 版本 [[[2
