@@ -83,11 +83,12 @@ syn keyword dalvikInstruction invoke-static/range invoke-interface/range filled-
 syn keyword dalvikInstruction invoke-virtual-quick/range invoke-super-quick/range const-wide 
 
 " class names (between L and ;)
-syn region dalvikName matchgroup=dalvikNameWrapper start="L" end=";" oneline 
+syn region dalvikName matchgroup=dalvikNameWrapper start="\<I\?L" end=";" oneline 
 syn region dalvikString start=+"+ end=+"+ skip=+\\"+
 
 " branch labels
 syn match dalvikLabel "\<[A-Za-z0-9_]\+\>:$"
+syn match dalvikLabel "\s:\<[A-Za-z0-9_]\+\>$"
 
 " registers
 syn match dalvikRegister "\<[vp]\d\+\>"
