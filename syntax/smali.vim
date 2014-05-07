@@ -84,7 +84,7 @@ syn keyword dalvikInstruction invoke-virtual-quick/range invoke-super-quick/rang
 
 " class names (between L and ;)
 syn region dalvikName matchgroup=dalvikNameWrapper start="L" end=";" oneline 
-syn region dalvikString start=+"+ end=+"+
+syn region dalvikString start=+"+ end=+"+ skip=+\\"+
 
 " branch labels
 syn match dalvikLabel "\<[A-Za-z0-9_]\+\>:$"
