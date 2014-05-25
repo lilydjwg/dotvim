@@ -126,6 +126,7 @@
 :Mark	mark.txt	/*:Mark*
 :MarkClear	mark.txt	/*:MarkClear*
 :MarkLoad	mark.txt	/*:MarkLoad*
+:MarkPalette	mark.txt	/*:MarkPalette*
 :MarkSave	mark.txt	/*:MarkSave*
 :Marks	mark.txt	/*:Marks*
 :MatchDebug	matchit.txt	/*:MatchDebug*
@@ -227,6 +228,7 @@
 :VimwikiUISelect	vimwiki.txt	/*:VimwikiUISelect*
 :VimwikiVSplitLink	vimwiki.txt	/*:VimwikiVSplitLink*
 :WidenRegion	NarrowRegion.txt	/*:WidenRegion*
+<C-k1>	mark.txt	/*<C-k1>*
 <Leader>#	mark.txt	/*<Leader>#*
 <Leader>/	mark.txt	/*<Leader>\/*
 <Leader>?	mark.txt	/*<Leader>?*
@@ -248,6 +250,7 @@
 <Plug>CycleFallbackPrev	cycle.txt	/*<Plug>CycleFallbackPrev*
 <Plug>CycleNext	cycle.txt	/*<Plug>CycleNext*
 <Plug>CyclePrev	cycle.txt	/*<Plug>CyclePrev*
+<k1>	mark.txt	/*<k1>*
 Align-copyright	Align.txt	/*Align-copyright*
 AnsiEsc	AnsiEsc.txt	/*AnsiEsc*
 AnsiEsc-contents	AnsiEsc.txt	/*AnsiEsc-contents*
@@ -945,7 +948,10 @@ g:manpageview_winopen	manpageview.txt	/*g:manpageview_winopen*
 g:manpgeview_user	manpageview.txt	/*g:manpgeview_user*
 g:mwAutoLoadMarks	mark.txt	/*g:mwAutoLoadMarks*
 g:mwAutoSaveMarks	mark.txt	/*g:mwAutoSaveMarks*
+g:mwDefaultHighlightingPalette	mark.txt	/*g:mwDefaultHighlightingPalette*
+g:mwDirectGroupJumpMappingNum	mark.txt	/*g:mwDirectGroupJumpMappingNum*
 g:mwHistAdd	mark.txt	/*g:mwHistAdd*
+g:mwIgnoreCase	mark.txt	/*g:mwIgnoreCase*
 g:neocomplete#auto_completion_start_length	neocomplete.txt	/*g:neocomplete#auto_completion_start_length*
 g:neocomplete#ctags_arguments	neocomplete.txt	/*g:neocomplete#ctags_arguments*
 g:neocomplete#ctags_command	neocomplete.txt	/*g:neocomplete#ctags_command*
@@ -1198,6 +1204,8 @@ manpageview-suggest	manpageview.txt	/*manpageview-suggest*
 manpageview-usage	manpageview.txt	/*manpageview-usage*
 manpageview.txt	manpageview.txt	/*manpageview.txt*
 manpageview_extend	manpageview.txt	/*manpageview_extend*
+mark-colors	mark.txt	/*mark-colors*
+mark-colors-redefine	mark.txt	/*mark-colors-redefine*
 mark-configuration	mark.txt	/*mark-configuration*
 mark-dependencies	mark.txt	/*mark-dependencies*
 mark-description	mark.txt	/*mark-description*
@@ -1207,9 +1215,13 @@ mark-history	mark.txt	/*mark-history*
 mark-ideas	mark.txt	/*mark-ideas*
 mark-information	mark.txt	/*mark-information*
 mark-installation	mark.txt	/*mark-installation*
+mark-integration	mark.txt	/*mark-integration*
+mark-keypad-searching	mark.txt	/*mark-keypad-searching*
 mark-known-problems	mark.txt	/*mark-known-problems*
 mark-limitations	mark.txt	/*mark-limitations*
 mark-mappings	mark.txt	/*mark-mappings*
+mark-palette	mark.txt	/*mark-palette*
+mark-palette-define	mark.txt	/*mark-palette-define*
 mark-persistence	mark.txt	/*mark-persistence*
 mark-searching	mark.txt	/*mark-searching*
 mark-todo	mark.txt	/*mark-todo*
