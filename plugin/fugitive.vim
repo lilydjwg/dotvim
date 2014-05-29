@@ -1674,6 +1674,9 @@ function! s:Blame(bang,line1,line2,count,args) abort
         endif
         for winnr in range(winnr('$'),1,-1)
           call setwinvar(winnr, '&scrollbind', 0)
+          if has('cursorbind')
+            call setwinvar(winnr, '&cursorbind', 0)
+          endif
           if getbufvar(winbufnr(winnr), 'fugitive_blamed_bufnr')
             execute winbufnr(winnr).'bdelete'
           endif
@@ -1687,6 +1690,10 @@ function! s:Blame(bang,line1,line2,count,args) abort
           let restore .= '|call setwinvar(bufwinnr('.bufnr.'),"&foldenable",1)'
         endif
         setlocal scrollbind nowrap nofoldenable
+        if has('cursorbind')
+          let restore .= '|call setwinvar(bufwinnr('.bufnr.'),"&cursorbind",0)'
+          setlocal cursorbind
+        endif
         let top = line('w0') + &scrolloff
         let current = line('.')
         let s:temp_files[tolower(temp)] = { 'dir': s:repo().dir(), 'args': cmd }
@@ -1703,6 +1710,9 @@ function! s:Blame(bang,line1,line2,count,args) abort
         endif
         if exists('+relativenumber')
           setlocal norelativenumber
+        endif
+        if has('cursorbind')
+          setlocal cursorbind
         endif
         execute "vertical resize ".(s:linechars('.\{-\}\ze\s\+\d\+)')+1)
         nnoremap <buffer> <silent> <F1> :help fugitive-:Gblame<CR>
