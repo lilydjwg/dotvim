@@ -306,7 +306,7 @@ function! colorizer#ColorHighlight(update, ...) "{{{1
     endif
     " rgba handles differently, so need updating
     autocmd GUIEnter * silent call colorizer#ColorHighlight(1)
-    autocmd BufRead * silent call colorizer#ColorHighlight(1)
+    autocmd BufEnter * silent call colorizer#ColorHighlight(1)
     autocmd WinEnter * silent call colorizer#ColorHighlight(1)
     autocmd ColorScheme * let s:force_group_update=1 | silent call colorizer#ColorHighlight(1)
   augroup END
@@ -316,6 +316,7 @@ function! colorizer#ColorClear() "{{{1
   augroup Colorizer
     au!
   augroup END
+  augroup! Colorizer
   let save_tab = tabpagenr()
   let save_win = winnr()
   tabdo windo call s:ClearMatches()
@@ -328,13 +329,17 @@ function! s:ClearMatches() "{{{1
     return
   endif
   for i in values(w:colormatches)
-    call matchdelete(i)
+    try
+      call matchdelete(i)
+    catch /.*/
+      " matches have been cleared in other ways, e.g. user has called clearmatches()
+    endtry
   endfor
   unlet w:colormatches
 endfunction
 
 function! colorizer#ColorToggle() "{{{1
-  if exists('#Colorizer#BufRead')
+  if exists('#Colorizer')
     call colorizer#ColorClear()
     echomsg 'Disabled color code highlighting.'
   else
