@@ -1,3 +1,6 @@
+import tracemalloc
+tracemalloc.start()
+
 import vim
 import sys
 import subprocess
@@ -21,7 +24,11 @@ def LilyPaste():
   ft = vim.eval('&ft')
   if ft:
     url = '%s/%s' % (url, ft)
-  vim.eval('setreg("*", %r)' % url)
+  try:
+    vim.eval('setreg("*", %r)' % url)
+  except vim.error:
+    # clipboard not supported
+    pass
   echon(msg + url)
   curl.wait()
 
