@@ -700,9 +700,10 @@ nnoremap wh :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> tra
 nmap <M-m> :MRU 
 " 打开草稿
 nmap <unique> <silent> <M-s> <Plug>ShowScratchBuffer
-for i in range(1, 9)
+for i in range(1, 8)
   exec 'nnoremap <silent> <M-' . i . '> '. i .'gt'
 endfor
+nnoremap <silent> <M-9> :exec "normal!" min([tabpagenr('$'),9])."gt"<CR>
 "     lusty-explorer [[[4
 nmap <M-b> :LustyBufferExplorer<CR>
 nmap <M-g> :LustyBufferGrep<CR>
