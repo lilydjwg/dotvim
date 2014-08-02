@@ -23,7 +23,8 @@ syn match httplogBrowser	/\<Google Web Preview\>/
 syn match httplogBrowser	"\<bingbot\>/\@="
 syn match httplogBrowser	/\<Sogou web spider\>/
 syn match httplogBrowser	/\v%(__)@<=weibo%(__)@=/
-syn keyword httplogBrowser	Firefox MSIE Konqueror Chromium ChromePlus Opera w3m Wget aria2 Lynx Epiphany Links TheWorld contained
+syn match httplogBrowser	/\v<MSIE>%(.*%(MAXTHON))@!/
+syn keyword httplogBrowser	Firefox Konqueror Chromium ChromePlus Opera w3m Wget aria2 Lynx Epiphany Links TheWorld MAXTHON contained
 syn keyword httplogBrowser	MicroMessenger contained
 syn keyword httplogBrowser	gvfs curl pacman PackageKit contained
 syn keyword httplogBrowser	Googlebot Baiduspider Sosospider YandexBot W3C_Validator Jigsaw PhantomJS ia_archiver contained
