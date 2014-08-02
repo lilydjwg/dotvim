@@ -1,6 +1,3 @@
-import tracemalloc
-tracemalloc.start()
-
 import vim
 import sys
 import subprocess
