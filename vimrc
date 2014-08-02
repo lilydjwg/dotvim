@@ -16,6 +16,13 @@ runtime vimrc_example.vim
 "]]]
 " 我的设置
 " 函数[[[1
+"   删除所有未显示且无修改的缓冲区以减少内存占用[[[2
+function Lilydjwg_cleanbufs()
+  for bufNr in filter(range(1, bufnr('$')),
+        \ 'buflisted(v:val) && !bufloaded(v:val)')
+    execute bufNr . 'bdelete'
+  endfor
+endfunction
 "   转成 HTML，只要 pre 标签部分[[[2
 "   http://bootleq.blogspot.com/2012/12/tohtml-html-document-function-tohtmldoc.html
 function Lilydjwg_to_html(line1, line2)
@@ -861,6 +868,7 @@ command -nargs=1 -range=% Column <line1>,<line2>Align! w<args>0P1p \S\@<=\s\@=
 command -range=% Paste <line1>,<line2>py3 LilyPaste()
 command -range=% Tohtml call Lilydjwg_to_html(<line1>, <line2>)
 command Agg exe 'Ag -Q ' . expand('<cword>')
+command BufClean call Lilydjwg_cleanbufs()
 " 插件配置[[[1
 "   linediff[[[2
 let g:linediff_buffer_type = 'scratch'
