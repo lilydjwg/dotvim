@@ -515,6 +515,9 @@ if has("win32") || has("win64")
   " Win 配置 [[[3
   command FScreen simalt ~x
   command Fscreen simalt ~r
+  if has('directx')
+    set rop=type:directx
+  endif
 else
   " Linux 路径 [[[3
   let g:vimfiles = split(&runtimepath, ',')[0]
@@ -655,9 +658,17 @@ if has("persistent_undo")
   endif
   set undofile
 endif
-if v:version > 702
-  set cryptmethod=blowfish
-endif
+try
+  " Vim 7.4.399+
+  set cryptmethod=blowfish2
+catch /.*/
+  " Vim 7.3+
+  try
+    set cryptmethod=blowfish
+  catch /.*/
+    " Vim 7.2-, neovim
+  endtry
+endtry
 unlet g:undodir
 let g:silent_unsupported = 1
 " map 相关[[[1
