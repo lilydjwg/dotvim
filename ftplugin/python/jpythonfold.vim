@@ -54,9 +54,28 @@ setlocal foldmethod=expr
 setlocal foldexpr=GetPythonFold(v:lnum)
 setlocal foldtext=PythonFoldText()
 
+function! Py_nextnonblank(n)
+  let n = a:n
+  while n <= line('$') && getline(n) =~ '\v^\s*%(#.*)?$'
+    let n += 1
+  endwhile
+  if n > line('$')
+    return 0
+  endif
+  return n
+endfunction
+
+function! Py_prevnonblank(n)
+  let n = a:n
+  while n >= 1 && getline(n) =~ '\v^\s*%(#.*)?$'
+    let n -= 1
+  endwhile
+  return n
+endfunction
+
 function! PythonFoldText()
   let fs = v:foldstart
-  while getline(fs) =~ '^\s*@' | let fs = nextnonblank(fs + 1)
+  while getline(fs) =~ '^\s*@' | let fs = Py_nextnonblank(fs + 1)
   endwhile
   let line = getline(fs)
   let nnum = nextnonblank(fs + 1)
@@ -120,10 +139,10 @@ function! GetPythonFold(lnum)
     let ind = indent(a:lnum)
     " Case D***: class and def start a fold
     " If previous line is @, it is not the first
-    if line =~ s:defpat && getline(prevnonblank(a:lnum-1)) !~ '^\s*@'
+    if line =~ s:defpat && getline(Py_prevnonblank(a:lnum-1)) !~ '^\s*@'
         " let's see if this range of 0 or more @'s end in a class/def
         let n = a:lnum
-        while getline(n) =~ '^\s*@' | let n = nextnonblank(n + 1)
+        while getline(n) =~ '^\s*@' | let n = Py_nextnonblank(n + 1)
         endwhile
         " yes, we have a match: this is the first of a real def/class with decorators
         if getline(n) =~ s:defpat
@@ -147,7 +166,7 @@ function! GetPythonFold(lnum)
     endwhile
     let pind = indent(p)
     " If previous was definition: count as one level deeper
-    if getline(p) =~ s:defpat && getline(prevnonblank(a:lnum - 1)) !~ '^\s*@'
+    if getline(p) =~ s:defpat && getline(Py_prevnonblank(a:lnum - 1)) !~ '^\s*@'
         let pind = pind + &shiftwidth
     " if begin of file: take zero
     elseif p==0 | let pind = 0
@@ -158,14 +177,21 @@ function! GetPythonFold(lnum)
     elseif ind>pind | return '='
     " All cases with 0 indent
     elseif ind==0
+        " comments between decorators and case D
+        if pind==0 && line =~ '^#' && getline(Py_prevnonblank(a:lnum - 1)) =~ '^\s*@'
+            return '='
         " Case C*=0*: separate global code blocks
-        if pind==0 && line =~ '^#' | return 0
+        elseif pind==0 && line =~ '^#'
+            return 0
         " Case S*<0* and S*=0*: global code
         elseif line !~'^#'
             " Case S*<0*: new global statement if/while/for/try/with
             if 0<pind && line!~'^else\s*:\|^except.*:\|^elif.*:\|^finally\s*:' | return '>1'
             " Case S*=0*, after level 0 comment
-            elseif 0==pind && getline(prevnonblank(a:lnum-1)) =~ '^\s*#' | return '>1'
+            " But not after comments between decorators and case D
+            elseif 0==pind && getline(prevnonblank(a:lnum-1)) =~ '^\s*#'
+                        \ && getline(Py_prevnonblank(a:lnum-1)) !~ '^\s*@'
+                return '>1'
             " Case S*=0*, other, stay 1
             else | return '='
             endif
