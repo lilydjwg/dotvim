@@ -101,24 +101,24 @@ function! GetBlockIndent(lnum)
     let ind = 100
     let p = a:lnum
     while indent(p) >= 0
-      let p = p - 1
-      let line = getline(p)
-      let lineind = indent(p)
-      " skip empty and comment lines
-      if line =~ '^$\|^\s*#'
-	continue
-      " zero-level regular line
-      elseif lineind == 0
-	return 0
-      " skip deeper or equal lines
-      elseif lineind >= ind
-	continue
-      " indent is strictly less at this point: check for def/class
-      elseif line =~ s:defpat && line !~ '^\s*@'
-	return lineind + &shiftwidth
-      endif
-      " shallower line that is neither class nor def: continue search at new level
-      let ind = lineind
+        let p = p - 1
+        let line = getline(p)
+        let lineind = indent(p)
+        " skip empty and comment lines
+        if line =~ '^$\|^\s*#'
+            continue
+        " zero-level regular line
+        elseif lineind == 0
+            return 0
+        " skip deeper or equal lines
+        elseif lineind >= ind
+            continue
+        " indent is strictly less at this point: check for def/class
+        elseif line =~ s:defpat && line !~ '^\s*@'
+            return lineind + &shiftwidth
+        endif
+        " shallower line that is neither class nor def: continue search at new level
+        let ind = lineind
     endwhile
     "beginning of file
     return 0
