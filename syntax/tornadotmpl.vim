@@ -8,9 +8,9 @@
 
 syntax region tmplComment matchgroup=PreProc start="{#!\@!" end="#}"
 syntax region tmplExpr    matchgroup=PreProc start="{{!\@!" end="}}"
-      \ contains=@Python containedin=ALL
+      \ contains=@Python containedin=ALLBUT,tmpl.*
 syntax region tmplCode    matchgroup=PreProc start="{%!\@!" end="%}"
-      \ contains=tmplContent containedin=ALL
+      \ contains=tmplContent containedin=ALLBUT,tmpl.*
 syntax region tmplCContent matchgroup=Keyword
       \ start="\v%(\{\%)@<=%(\s*)@>comment>"
       \ end="\%(%}\)\@="
