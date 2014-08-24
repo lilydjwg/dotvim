@@ -516,7 +516,7 @@ if has("win32") || has("win64")
   command FScreen simalt ~x
   command Fscreen simalt ~r
   if has('directx')
-    set rop=type:directx
+    set renderoptions=type:directx
   endif
 else
   " Linux 路径 [[[3
