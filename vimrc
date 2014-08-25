@@ -1066,6 +1066,11 @@ let MRU_Max_Entries = 2000
 let MRU_Exclude_Files = '\v^.*\~$|/COMMIT_EDITMSG$|/itsalltext/|^/tmp/'
 "  加载菜单太耗时
 let MRU_Add_Menu = 0
+let MRU_Filename_Format = {
+    \   'formatter': 'v:val',
+    \   'parser': '.*',
+    \   'syntax': '[^/]\+$'
+    \ }
 "   syntax/haskell.vim[[[2
 let hs_highlight_boolean = 1
 let hs_highlight_types = 1
