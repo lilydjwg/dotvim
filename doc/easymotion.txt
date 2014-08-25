@@ -163,6 +163,8 @@ EasyMotion <Plug> table                                *easymotion-plug-table*
     <Plug>(easymotion-iskeyword-e)    | See |<Plug>(easymotion-iskeyword-e)|
     <Plug>(easymotion-iskeyword-ge)   | See |<Plug>(easymotion-iskeyword-ge)|
     <Plug>(easymotion-iskeyword-bd-e) | See |<Plug>(easymotion-iskeyword-bd-e)|
+    <Plug>(easymotion-vim-n)          | See |<Plug>(easymotion-vim-n)|
+    <Plug>(easymotion-vim-N)          | See |<Plug>(easymotion-vim-N)|
                                       |
     Within Line Motion                | See |easymotion-within-line|
     ----------------------------------|---------------------------------
@@ -391,6 +393,15 @@ iskeyword compatible word motions           *<Plug>(easymotion-iskeyword-w)*
 <
         NOTE: Within line motions are compatible with |iskeyword| by default.
 
+Search motion respect previous direction
+
+    <Plug>(easymotion-vim-n)                         *<Plug>(easymotion-vim-n)*
+    <Plug>(easymotion-vim-N)                         *<Plug>(easymotion-vim-N)*
+
+    This is vim compatible |n| & |N| easymotion. Unlike |<Plug>(easymotion-n)|
+    and |<Plug>(easymotion-N)| 's direction is always forward or backward,
+    these motions consider previous search direction. 
+
 Within line motion ~
                                                        *easymotion-within-line*
 
@@ -515,9 +526,9 @@ keymapping,
     Note: the 'n' key motion provides incremental highlighting. If you don't
           want to highlight incrementally, set |g:EasyMotion_inc_highlight|
           to 0.
-
+>
     let g:EasyMotion_inc_highlight = 0
-
+<
 All Find motions (s,f,F,t,T,sl,fl,Fl,tl,Tl, see below) support this feature!
 (|l| means within line motion)
 
@@ -628,7 +639,7 @@ Default: 0
     {operator}<Leader>p  | Select, yank, paste, delete, or other operation of
                          | phrase. See |<Plug>(easymotion-special-p)|.
 
-or you can map them yourself
+Or you can map them yourself
 
     <Plug> Mapping Table         | Details
     -----------------------------|--------------------------------------
@@ -948,7 +959,7 @@ EasyMotion_off_screen_search                   *g:EasyMotion_off_screen_search*
 
 EasyMotion_disable_two_key_combo           *g:EasyMotion_disable_two_key_combo*
 
-    If you set this option to 1, you can disable two key combo feature.
+    If you set this option to 1, you can disable the two key combo feature.
 >
     let g:EasyMotion_disable_two_key_combo = 1
 <

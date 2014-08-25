@@ -311,6 +311,8 @@
 <Plug>(easymotion-tl2)	easymotion.txt	/*<Plug>(easymotion-tl2)*
 <Plug>(easymotion-tln)	easymotion.txt	/*<Plug>(easymotion-tln)*
 <Plug>(easymotion-tn)	easymotion.txt	/*<Plug>(easymotion-tn)*
+<Plug>(easymotion-vim-N)	easymotion.txt	/*<Plug>(easymotion-vim-N)*
+<Plug>(easymotion-vim-n)	easymotion.txt	/*<Plug>(easymotion-vim-n)*
 <Plug>(easymotion-wl)	easymotion.txt	/*<Plug>(easymotion-wl)*
 <Plug>(easymotion-{find}2)	easymotion.txt	/*<Plug>(easymotion-{find}2)*
 <Plug>(easymotion-{find}n)	easymotion.txt	/*<Plug>(easymotion-{find}n)*
