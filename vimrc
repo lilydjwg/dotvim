@@ -1092,8 +1092,8 @@ let g:VEConf_fileHotkey.help = '<F1>'
 let g:VEConf_treeHotkey = {}
 let g:VEConf_treeHotkey.help = '<F1>'
 let g:VEConf_treeHotkey.toggleNode = '<Space>'
-"   VimIm，不要更改弹出菜单的颜色[[[2
-let g:vimim_menu_color = 1
+"   Vimim[[[2
+let g:vimim_map = 'c-bslash,c-space'
 "   vimwiki[[[2
 let g:vimwiki_list = [{'path': '~/.vimwiki/'}]
 let g:vimwiki_camel_case = 0
