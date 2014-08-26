@@ -598,7 +598,7 @@ elseif has("unix")
       colorscheme default
       " 在终端下，如果码表存在，则自动加载vimim输入法
       if len(split(globpath(&rtp, 'so/vimim.wubi.txt'), '\n')) > 0
-	runtime so/vimim.vim
+	autocmd VimEnter * runtime so/vimim.vim
       endif
     endif
   endif

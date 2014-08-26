@@ -3189,13 +3189,8 @@ function! s:vimim_plug_and_play()
         nmap <C-Bslash> <C-_>
     endif
     if g:vimim_map =~ 'c-space'   " use Ctrl-Space
-        if has("win32unix")
-            nmap <C-@> <C-_>
-            imap <C-@> <C-_>
-        else
-            imap <C-Space> <C-_>
-            nmap <C-Space> <C-_>
-        endif
+        nmap <C-@> <C-_>
+        imap <C-@> <C-_>
     endif
     if g:vimim_map =~ 'm-space'   " use Alt-Space
         imap <M-Space> <C-_>
