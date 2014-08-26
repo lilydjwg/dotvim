@@ -7,3 +7,8 @@ Update in 2013-11-03:
 
 The commit bd58880c22b5804761302fcccca42e09e26ee209 (and its ancestors) revert
 this change, keep a seperate branch for where there is no +lua available.
+
+Update in 2014-08-26:
+
+The commit bd58880c22b5804761302fcccca42e09e26ee209 has gone. Not know what
+happened.
