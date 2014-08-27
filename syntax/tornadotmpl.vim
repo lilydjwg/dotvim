@@ -31,4 +31,4 @@ highlight link tmplExpr Normal
 highlight link tmplComment Comment
 highlight link tmplCContent Comment
 
-set iskeyword-=58
+setlocal iskeyword-=58

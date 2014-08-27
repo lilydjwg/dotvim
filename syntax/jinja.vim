@@ -11,5 +11,3 @@ syntax region jinjaContent matchgroup=Keyword
       \ contains=@Python containedin=tmplCode
 
 highlight link jinjiaContent tmplContent
-
-set iskeyword-=58
