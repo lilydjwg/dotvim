@@ -4,6 +4,7 @@
 							    *ingo-library.vim*
 description			|ingo-library-description|
 installation			|ingo-library-installation|
+usage				|ingo-library-usage|
 limitations			|ingo-library-limitations|
 known problems			|ingo-library-known-problems|
 todo				|ingo-library-todo|
@@ -29,9 +30,29 @@ Other authors have published separate support libraries, too:
 - TOVL (vimscript #1963) by Marc Weber
 - l9 (vimscript #3252) by Takeshi Nishida
 - anwolib (vimscript #3800) by Andy Wokula
+- vim-misc (vimscript #4597) by Peter Odding
+- maktaba (https://github.com/google/maktaba) by Google
+- vital (https://github.com/vim-jp/vital.vim) by the Japanese Vim user group
 
 There have been initiatives to gather and consolidate useful functions into a
 "standard Vim library", but these efforts have mostly fizzled out.
+
+==============================================================================
+USAGE							  *ingo-library-usage*
+
+This library is mainly intended to be used by my own plugins. However, I try
+to maintain backwards compatibility as much as possible. Feel free to use the
+library for your own plugins and customizations, too. I'd also like to hear
+from you if you have additions or comments.
+
+EXCEPTION HANDLING							     *
+
+For exceptional conditions (e.g. cannot locate window that should be there)
+and programming errors (e.g. passing a wrong variable type to a library
+function), error strings are |:throw|n. These are prefixed with (something
+resembling) the short function name, so that it's possible to |:catch| these
+and e.g. convert them into a proper error (e.g. via
+|ingo#err#SetCustomException()|).
 
 ==============================================================================
 INSTALLATION					   *ingo-library-installation*
@@ -60,8 +81,320 @@ IDEAS							  *ingo-library-ideas*
 ==============================================================================
 HISTORY							*ingo-library-history*
 
+1.021	10-Jul-2014
+- Add ingo#compat#uniq().
+- Add ingo#option#Contains() and ingo#option#ContainsOneOf().
+- BUG: Wrong position type causes ingo#selection#position#get() to be one-off
+  with :set selection=exclusive and when the cursor is after the selection.
+- Use built-in changenr() in ingo#undo#GetChangeNumber(); actually, the entire
+  function could be replaced by the built-in, if it would not just return one
+  less than the number of the undone change after undo. We want the result to
+  represent the current change, regardless of what undo / redo was done
+  earlier. Change the implementation to test for whether the current change is
+  the last in the buffer, and if not, make a no-op change to get to an
+  explicit change state.
+- Simplify ingo#buffer#temprange#Execute() by using changenr(). Keep using
+  ingo#undo#GetChangeNumber() because we need to create a new no-op change
+  when there was a previous :undo.
+- Add ingo/smartcase.vim module.
+- FIX: ingo#cmdargs#substitute#Parse() branch for special case of {flags}
+  without /pat/string/ must only be entered when a:arguments is not empty.
+- ENH: Allow to pass path separator to ingo#regexp#fromwildcard#Convert() and
+  ingo#regexp#fromwildcard#IsWildcardPathPattern().
+- Add ingo/collections/permute.vim module.
+- Add ingo#window#preview#OpenFilespec(), a wrapper around :pedit that
+  performs the fnameescape() and obeys the custom g:previewwindowsplitmode.
+
+1.020	11-Jun-2014
+- Add ingo/dict/find.vim module.
+- Use ingo#escape#Unescape() in ingo#cmdargs#pattern#Unescape(). Add
+  ingo#cmdargs#pattern#ParseUnescaped() to avoid the double and inefficient
+  ingo#cmdargs#pattern#Unescape(ingo#cmdargs#pattern#Parse()) so far used by
+  many clients.
+- Add ingo#cmdargs#pattern#ParseUnescapedWithLiteralWholeWord() for the common
+  [/]{pattern}[/ behavior as built-in commands like |:djump|]. When the
+  pattern isn't delimited by /.../, the returned pattern is modified so that
+  only literal whole words are matched. so far used by many clients.
+- CHG: At ingo#regexp#FromLiteralText(), add the a:isWholeWordSearch also on
+  either side, or when there are non-keyword characters in the middle of the
+  text. The * command behavior where this is modeled after only handles a
+  smaller subset, and this extension looks sensible and DWIM.
+- Add ingo#compat#abs().
+- Factor out and expose ingo#text#Replace#Area().
+- CHG: When replacing at the cursor position, also jump to the beginning of
+  the replacement. This is more consistent with Vim's default behavior.
+- Add ingo/record.vim module.
+- ENH: Allow passing optional a:tabnr to
+  ingo#window#preview#IsPreviewWindowVisible().
+- Factor out ingo#window#preview#OpenBuffer().
+- CHG: Change optional a:cursor argument of
+  ingo#window#preview#SplitToPreview() from 4-tuple getpos()-style to [lnum,
+  col]-style.
+- Add ingo/query/fromlist.vim module.
+- Add ingo/option.vim module.
+- Add ingo/join.vim module.
+- Expose ingo#actions#GetValExpr().
+- Add ingo/range/lines.vim module.
+- ENH: Add a:options.commandExpr to ingo#cmdargs#range#Parse().
+
+1.019	24-May-2014
+- Add ingo#plugin#setting#BooleanToStringValue().
+- Add ingo#strdisplaywidth#GetMinMax().
+- Add ingo/undo.vim module.
+- Add ingo/query.vim module.
+- Add ingo/pos.vim module.
+- Add optional a:isBeep argument to ingo#msg#ErrorMsg().
+- ingo#fs#path#Normalize(): Don't normalize to Cygwin /cygdrive/x/... when the
+  chosen path separator is "\". This would result in a mixed separator style
+  that is not actually handled.
+- ingo#fs#path#Normalize(): Add special normalization to "C:/" on Cygwin via
+  ":/" path separator argument.
+- In ingo#actions#EvaluateWithValOrFunc(), remove any occurrence of "v:val"
+  instead of passing an empty list or empty string. This is useful for
+  invoking functions (an expression, not Funcref) with optional arguments.
+- ENH: Make ingo#lines#Replace() handle replacement with nothing (empty List)
+  and replacing the entire buffer (without leaving an additional empty line).
+- Correct ingo#query#confirm#AutoAccelerators() default choice when not given
+  (1 instead of 0). Avoid using the default choice's first character as
+  accelerator unless in GUI dialog, as the plain text confirm() assigns a
+  default accelerator.
+- Move subs/URL.vim into ingo-library as ingo/codec/URL.vim module.
+- Allow optional a:ignorecase argument for ingo#str#StartsWith() and
+  ingo#str#EndsWith().
+- Add ingo#fs#path#IsCaseInsensitive().
+- Add ingo#str#Equals() for when it's convenient to pass in the a:ignorecase
+  flag. This avoids coding the conditional between ==# and ==? yourself.
+- Add ingo/fs/path/split.vim module.
+- Add ingo#fs#path#Exists().
+- FIX: Correct ingo#escape#file#wildcardescape() of * and ? on Windows.
+
+1.018	14-Apr-2014
+- FIX: Off-by-one: Allow column 1 in ingo#text#Insert(). Add special cases for
+  insertion at front and end of line (in the hope that this is more
+  efficient).
+- Add ingo#escape#file#wildcardescape().
+- I18N: Correctly capture last multi-byte character in ingo#text#Get(); don't
+  just add one to the end column, but instead match at the column itself, too.
+- Add optional a:isExclusive flag to ingo#text#Get(), as clients may end up
+  with that position, and doing a correct I18N-safe decrease before getting
+  the text is a hen-and-egg problem.
+- Add ingo/buffer/temprange.vim module.
+- Add ingo#cursor#IsAtEndOfLine().
+- FIX: Off-by-one in emulated ingo#compat#strdisplaywidth() reported one too
+  few.
+
+1.017	13-Mar-2014
+- CHG: Make ingo#cmdargs#file#FilterFileOptionsAndCommands() return the
+  options and commands in a List, not as a joined String. This allows clients
+  to easily re-escape them and handle multiple ones, e.g. ++ff=dos +setf\ foo.
+- Add workarounds for fnameescape() bugs on Windows for ! and [] characters.
+- Add ingo#escape#UnescapeExpr().
+- Add ingo/str/restricted.vim module.
+- Make ingo#query#get#Char() only abort on <Esc> when that character is not in
+  the validExpr (to allow to explicitly query it).
+- Add ingo/query/substitute.vim module.
+- Add ingo/subst/expr/emulation.vim module.
+- Add ingo/cmdargs/register.vim module.
+
+1.016	22-Jan-2014
+- Add ingo#window#quickfix#GetList() and ingo#window#quickfix#SetList().
+- Add ingo/cursor.vim module.
+- Add ingo#text#Insert() and ingo#text#Remove().
+- Add ingo#str#StartsWith() and ingo#str#EndsWith().
+- Add ingo#dict#Mirror() and ingo#dict#AddMirrored().
+- BUG: Wrap :autocmd! undo_ftplugin_N in :execute to that superordinated
+  ftplugins can append additional undo commands without causing "E216: No such
+  group or event: undo_ftplugin_N|setlocal".
+- Add ingo/motion/helper.vim module.
+- Add ingo/motion/omap.vim module.
+- Add ingo/subst/pairs.vim module.
+- Add ingo/plugin/compiler.vim module.
+- Move ingo#escape#shellcommand#shellcmdescape() to
+  ingo#compat#shellcommand#escape(), as it is only required for older Vim
+  versions.
+
+1.015	28-Nov-2013
+- Add ingo/format.vim module.
+- FIX: Actually return the result of a Funcref passed to
+  ingo#register#KeepRegisterExecuteOrFunc().
+- Make buffer argument of ingo#buffer#IsBlank() optional, defaulting to the
+  current buffer.
+- Allow use of ingo#buffer#IsEmpty() with other buffers.
+- CHG: Pass _all_ additional arguments of ingo#actions#ValueOrFunc(),
+  ingo#actions#NormalOrFunc(), ingo#actions#ExecuteOrFunc(),
+  ingo#actions#EvaluateOrFunc() instead of only the first (interpreted as a
+  List of arguments) when passed a Funcref as a:Action.
+- Add ingo#compat#setpos().
+- Add ingo/print.vim module.
+
+1.014	14-Nov-2013
+- Add ingo/date/format.vim module.
+- Add ingo#os#PathSeparator().
+- Add ingo/foldtext.vim module.
+- Add ingo#os#IsCygwin().
+- ingo#fs#path#Normalize(): Also convert between the different D:\ and
+  /cygdrive/d/ notations on Windows and Cygwin.
+- Add ingo#text#frompattern#GetHere().
+- Add ingo/date/epoch.vim module.
+- Add ingo#buffer#IsPersisted().
+- Add ingo/list.vim module.
+- Add ingo/query/confirm.vim module.
+- Add ingo#text#GetChar().
+- Add ingo/regexp/fromwildcard.vim module (contributed by the EditSimilar.vim
+  plugin). In constrast to the simpler ingo#regexp#FromWildcard(), this
+  handles the full range of wildcards and considers the path separators on
+  different platforms.
+- Add ingo#register#KeepRegisterExecuteOrFunc().
+- Add ingo#actions#ValueOrFunc().
+- Add ingo/funcref.vim module.
+- Add month and year granularity to ingo#date#HumanReltime().
+- Add ingo/units.vim module.
+
+1.013	13-Sep-2013
+- Also avoid clobbering the last change ('.') in ingo#selection#Get() when
+  'cpo' contains "y".
+- Name the temp buffer for ingo#buffer#temp#Execute() and re-use previous
+  instances to avoid increasing the buffer numbers and output of :ls!.
+- CHG: Make a:isIgnoreIndent flag to ingo#comments#CheckComment() optional and
+  add a:isStripNonEssentialWhiteSpaceFromCommentString, which is also on by
+  default for DWIM.
+- CHG: Don't strip whitespace in ingo#comments#RemoveCommentPrefix(); with the
+  changed ingo#comments#CheckComment() default behavior, this isn't necessary,
+  and is unexpected.
+- ingo#comments#RenderComment: When the text starts with indent identical to
+  what 'commentstring' would render, avoid having duplicate indent.
+- Minor: Return last search pattern instead of empty string on
+  ingo#search#pattern#GetLastForwardSearch(0).
+- Avoid using \ze in ingo#regexp#comments#CommentToExpression(). It may be
+  used in a larger expression that still wants to match after the prefix.
+- FIX: Correct case of ingo#os#IsWin*() function names.
+- ingo#regexp#FromWildcard(): Limit * glob matching to individual path
+  components and add ** for cross-directory matching.
+- Consistently use operating system detection functions from ingo/os.vim
+  within the ingo-library.
+
+1.012	05-Sep-2013
+- CHG: Change return value format of ingo#selection#frompattern#GetPositions()
+  to better match the arguments of functions like ingo#text#Get().
+- Add ingo/os.vim module.
+- Add ingo#compat#fnameescape() and ingo#compat#shellescape() from
+  escapings.vim.
+- Add remaining former escapings.vim functions as ingo/escape/shellcommand.vim
+  and ingo/escape/file.vim modules.
+- Add ingo/motion/boundary.vim module.
+- Add ingo#compat#maparg().
+- Add ingo/escape/command.vim module.
+- Add ingo/text/frompattern.vim module.
+
+1.011	02-Aug-2013
+- Add ingo/range.vim module.
+- Add ingo/register.vim module.
+- Make ingo#collections#ToDict() handle empty list items via an optional
+  a:emptyValue argument. This also distinguishes it from ingo#dict#FromKeys().
+- ENH: Handle empty list items in ingo#collections#Unique() and
+  ingo#collections#UniqueStable().
+- Add ingo/gui/position.vim module.
+- Add ingo/filetype.vim module.
+- Add ingo/ftplugin/onbufwinenter.vim module.
+- Add ingo/selection/frompattern.vim module.
+- Add ingo/text.vim module.
+- Add ingo/ftplugin/windowsettings.vim module.
+- Add ingo/text/replace.vim module.
+- FIX: Use the rules for the /pattern/ separator as stated in :help E146 for
+  ingo#cmdargs#pattern#Parse() and ingo#cmdargs#substitute#Parse().
+- FIX: Off-by-one in ingo#strdisplaywidth#HasMoreThan() and
+  ingo#strdisplaywidth#strleft().
+- Add ingo#str#Reverse().
+- ingo#fs#traversal#FindLastContainedInUpDir now defaults to the current
+  buffer's directory; omit the argument.
+- Add ingo#actions#EvaluateWithValOrFunc().
+- Extract ingo#fs#path#IsUncPathRoot().
+- Add ingo#fs#traversal#FindDirUpwards().
+
+1.010	09-Jul-2013
+- Add ingo/actions.vim module.
+- Add ingo/cursor/move.vim module.
+- Add ingo#collections#unique#AddNew() and
+  ingo#collections#unique#InsertNew().
+- Add ingo/selection/position.vim module.
+- Add ingo/plugin/marks.vim module.
+- Add ingo/date.vim module.
+- Add ingo#buffer#IsEmpty().
+- Add ingo/buffer/scratch.vim module.
+- Add ingo/cmdargs/command.vim module.
+- Add ingo/cmdargs/commandcommands.vim module.
+- Add ingo/cmdargs/range.vim module.
+
+1.009	03-Jul-2013
+- Minor: Make substitute() robust against 'ignorecase' in various functions.
+- Add ingo/subst.vim module.
+- Add ingo/escape.vim module.
+- Add ingo/regexp/comments.vim module.
+- Add ingo/cmdline/showmode.vim module.
+- Add ingo/str.vim module.
+- Add ingo/strdisplaywidth/pad.vim module.
+- Add ingo/dict.vim module.
+- Add ingo#msg#HighlightMsg(), and allow to pass an optional highlight group
+  to ingo#msg#StatusMsg().
+- Add ingo#collections#Flatten() and ingo#collections#Flatten1().
+- Move ingo#collections#MakeUnique() to ingo/collections/unique.vim.
+- Add ingo#collections#unique#ExtendWithNew().
+- Add ingo#fs#path#Equals().
+- Add ingo#tabstops#RenderMultiLine(), as ingo#tabstops#Render() does not
+  properly render multi-line text.
+- Add ingo/str/split.vim module.
+- FIX: Avoid E108: No such variable: "b:browsefilter" in
+  ingo#query#file#Browse().
+
+1.008	13-Jun-2013
+- Fix missing argument error for ingo#query#file#BrowseDirForOpenFile() and
+  ingo#query#file#BrowseDirForAction().
+- Implement ingo#compat#strdisplaywidth() emulation inside the library;
+  EchoWithoutScrolling.vim isn't used for that any more.
+- Add ingo/avoidprompt.vim, ingo/strdisplaywidth.vim, and ingo/tabstops
+  modules, containing the former EchoWithoutScrolling.vim functions.
+- Add ingo/buffer/temp.vim and ingo/buffer/visible.vim modules.
+- Add ingo/regexp/previoussubstitution.vim module.
+
+1.007	06-Jun-2013
+- Add ingo/query/get.vim module.
+- Add ingo/query/file.vim module.
+- Add ingo/fs/path.vim module.
+- Add ingo/fs/tempfile.vim module.
+- Add ingo/cmdargs/file.vim module.
+- Add ingo/cmdargs/glob.vim module.
+- CHG: Move most functions from ingo/cmdargs.vim to new modules
+  ingo/cmdargs/pattern.vim and ingo/cmdargs/substitute.vim.
+- Add ingo/compat/complete.vim module.
+
+1.006	29-May-2013
+- Add ingo/cmdrangeconverter.vim module.
+- Add ingo#mapmaker.vim module.
+- Add optional isReturnError flag on
+  ingo#window#switches#GotoPreviousWindow().
+- Add ingo#msg#StatusMsg().
+- Add ingo/selection/patternmatch.vim module.
+- Add ingo/selection.vim module.
+- Add ingo/search/pattern.vim module.
+- Add ingo/regexp.vim module.
+- Add ingo/regexp/magic.vim module.
+- Add ingo/collections/rotate.vim module.
+- Redesign ingo#cmdargs#ParseSubstituteArgument() to the existing use cases.
+- Add ingo/buffer.vim module.
+
+1.005	02-May-2013
+- Add ingo/plugin/setting.vim module.
+- Add ingo/plugin/cmdcomplete.vim module.
+- Add ingo/search/buffer.vim module.
+- Add ingo/number.vim module.
+- Add ingo#err#IsSet() for those cases when wrapping the command in :if does
+  not work (e.g. :call'ing a range function).
+- Add ingo#syntaxitem.vim module.
+- Add ingo#comments.vim module.
+
 1.004	10-Apr-2013
 - Add ingo/compat.vim module.
+- Add ingo/folds.vim module.
 - Add ingo/lines module.
 - Add ingo/matches module.
 - Add ingo/mbyte/virtcol module.
@@ -89,7 +422,8 @@ First published version as separate shared library.
 Started development of shared autoload functionality.
 
 ==============================================================================
-Copyright: (C) 2009-2013 Ingo Karkat
+Copyright: (C) 2009-2014 Ingo Karkat
+Contains URL encoding / decoding algorithms written by Tim Pope.
 The VIM LICENSE applies to this plugin; see |copyright|.
 
 Maintainer:	Ingo Karkat <ingo@karkat.de>

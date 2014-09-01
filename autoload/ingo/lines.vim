@@ -2,12 +2,16 @@
 "
 " DEPENDENCIES:
 "
-" Copyright: (C) 2012-2013 Ingo Karkat
+" Copyright: (C) 2012-2014 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.019.004	19-May-2014	ENH: Make ingo#lines#Replace() handle
+"				replacement with nothing (empty List) and
+"				replacing the entire buffer (without leaving an
+"				additional empty line).
 "   1.004.003	04-Apr-2013	Drop the :silent in ingolines#PutWrapper().
 "				Move into ingo-library.
 "	002	02-Sep-2012	ENH: Avoid clobbering the expression register.
@@ -25,7 +29,10 @@ function! ingo#lines#PutWrapper( lnum, putCommand, lines )
 "   To suppress a potential message based on 'report', invoke this function with
 "   :silent.
 "* INPUTS:
-"	? Explanation of each argument that isn't obvious.
+"   a:lnum  Address for a:putCommand.
+"   a:putCommand    The :put[!] command that is used.
+"   a:lines         List of lines or string (where lines are separated by \n
+"		    characters).
 "* RETURN VALUES:
 "   None.
 "******************************************************************************
@@ -52,8 +59,14 @@ function! ingo#lines#PutBefore( lnum, lines )
     endif
 endfunction
 function! ingo#lines#Replace( startLnum, endLnum, lines, ... )
+    let l:isEntireBuffer = (a:startLnum <= 1 && a:endLnum == line('$'))
     silent execute printf('%s,%sdelete %s', a:startLnum, a:endLnum, (a:0 ? a:1 : '_'))
-    silent call ingo#lines#PutBefore(a:startLnum, a:lines)
+    if ! empty(a:lines)
+	silent call ingo#lines#PutBefore(a:startLnum, a:lines)
+	if l:isEntireBuffer
+	    silent $delete _
+	endif
+    endif
 endfunction
 
 " vim: set ts=8 sts=4 sw=4 noexpandtab ff=unix fdm=syntax :

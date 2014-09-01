@@ -9,9 +9,11 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
-"	001	08-Apr-2013	file creation from autoload/ingowindow.vim
+"   1.006.002	03-May-2013	Add optional isReturnError flag on
+"				ingo#window#switches#GotoPreviousWindow().
+"   1.004.001	08-Apr-2013	file creation from autoload/ingowindow.vim
 
-function! ingo#window#switches#GotoPreviousWindow()
+function! ingo#window#switches#GotoPreviousWindow( ... )
 "*******************************************************************************
 "* PURPOSE:
 "   Goto the previous window (CTRL-W_p). If there is no previous window, but
@@ -21,12 +23,15 @@ function! ingo#window#switches#GotoPreviousWindow()
 "   None.
 "* EFFECTS / POSTCONDITIONS:
 "   Changes the current window, or:
-"   Prints error message.
+"   Prints warning message (unless a:isReturnError).
 "* INPUTS:
-"   None.
+"   a:isReturnError When flag is set, returns the warning message instead of
+"		    printing it.
 "* RETURN VALUES:
-"   1 on success, 0 if there is no previous window.
+"   If ! a:isReturnError: 1 on success, 0 if there is no previous window.
+"   If   a:isReturnError: '' on success, message if there is no previous window.
 "*******************************************************************************
+    let l:isReturnError = (a:0 && a:1)
     let l:problem = ''
     let l:window = 'p'
 
@@ -41,12 +46,16 @@ function! ingo#window#switches#GotoPreviousWindow()
 	endif
     endif
     if ! empty(l:problem)
-	call ingo#msg#WarningMsg(l:problem)
-	return 0
+	if l:isReturnError
+	    return l:problem
+	else
+	    call ingo#msg#WarningMsg(l:problem)
+	    return 0
+	endif
     endif
 
     execute 'noautocmd wincmd' l:window
-    return 1
+    return (l:isReturnError ? '' : 1)
 endfunction
 
 " Record the current buffer's window and try to later return exactly to the same

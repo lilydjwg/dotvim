@@ -8,7 +8,7 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
-"	001	08-Apr-2013	file creation from autoload/ingowindow.vim
+"   1.004.001	08-Apr-2013	file creation from autoload/ingowindow.vim
 
 " Special windows are preview, quickfix (and location lists, which is also of
 " type 'quickfix').

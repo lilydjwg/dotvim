@@ -1292,6 +1292,7 @@ ingo-library-installation	ingo-library.txt	/*ingo-library-installation*
 ingo-library-known-problems	ingo-library.txt	/*ingo-library-known-problems*
 ingo-library-limitations	ingo-library.txt	/*ingo-library-limitations*
 ingo-library-todo	ingo-library.txt	/*ingo-library-todo*
+ingo-library-usage	ingo-library.txt	/*ingo-library-usage*
 ingo-library.txt	ingo-library.txt	/*ingo-library.txt*
 ingo-library.vim	ingo-library.txt	/*ingo-library.vim*
 inline-edit	inline_edit.txt	/*inline-edit*

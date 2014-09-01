@@ -8,7 +8,9 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
-"	001	08-Apr-2013	file creation from autoload/ingowindow.vim
+"   1.016.002	10-Dec-2013	Add ingo#window#quickfix#GetList() and
+"				ingo#window#quickfix#SetList().
+"   1.004.001	08-Apr-2013	file creation from autoload/ingowindow.vim
 
 function! ingo#window#quickfix#IsQuickfixList( ... )
 "******************************************************************************
@@ -39,6 +41,59 @@ function! ingo#window#quickfix#IsQuickfixList( ... )
 endfunction
 function! ingo#window#quickfix#ParseFileFromQuickfixList()
     return (ingo#window#quickfix#IsQuickfixList() ? matchstr(getline('.'), '^.\{-}\ze|') : '')
+endfunction
+
+function! ingo#window#quickfix#GetList()
+"******************************************************************************
+"* PURPOSE:
+"   Return a list with all the quickfix / location list errors of the current
+"   window.
+"* ASSUMPTIONS / PRECONDITIONS:
+"   None.
+"* EFFECTS / POSTCONDITIONS:
+"   None.
+"* INPUTS:
+"   None.
+"* RETURN VALUES:
+"   List.
+"   Throws exception if the current window is no quickfix / location list.
+"******************************************************************************
+    let l:quickfixType = ingo#window#quickfix#IsQuickfixList(1)
+    if l:quickfixType == 0
+	throw 'GetList: Not in quickfix window'
+    elseif l:quickfixType == 1
+	return getqflist()
+    elseif l:quickfixType == 2
+	return getloclist(0)
+    else
+	throw 'ASSERT: Invalid quickfix type: ' . l:quickfixType
+    endif
+endfunction
+function! ingo#window#quickfix#SetList( ... )
+"******************************************************************************
+"* PURPOSE:
+"   Change or replace the quickfix / location list errors of the current window.
+"* ASSUMPTIONS / PRECONDITIONS:
+"   None.
+"* EFFECTS / POSTCONDITIONS:
+"   None.
+"* INPUTS:
+"   a:list      Error list, like |setqflist()|.
+"   a:action    Optional action, like |setqflist()|.
+"* RETURN VALUES:
+"   Returns zero for success, -1 for failure.
+"   Throws exception if the current window is no quickfix / location list.
+"******************************************************************************
+    let l:quickfixType = ingo#window#quickfix#IsQuickfixList(1)
+    if l:quickfixType == 0
+	throw 'SetList: Not in quickfix window'
+    elseif l:quickfixType == 1
+	return call('setqflist', a:000)
+    elseif l:quickfixType == 2
+	return call('setloclist', [0] + a:000)
+    else
+	throw 'ASSERT: Invalid quickfix type: ' . l:quickfixType
+    endif
 endfunction
 
 " vim: set ts=8 sts=4 sw=4 noexpandtab ff=unix fdm=syntax :

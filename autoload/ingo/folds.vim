@@ -8,7 +8,7 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
-"	001	08-Apr-2013	file creation from autoload/ingowindow.vim
+"   1.004.001	08-Apr-2013	file creation from autoload/ingowindow.vim
 
 function! s:FoldBorder( lnum, direction )
     let l:foldBorder = (a:direction < 0 ? foldclosed(a:lnum) : foldclosedend(a:lnum))

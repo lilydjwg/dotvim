@@ -1,6 +1,8 @@
 " ingo/collections.vim: Functions to operate on collections.
 "
 " DEPENDENCIES:
+"   - ingo/dict.vim autoload script
+"   - ingo/list.vim autoload script
 "
 " Copyright: (C) 2011-2013 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
@@ -8,6 +10,20 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.014.011	15-Oct-2013	Use the extracted ingo#list#AddOrExtend().
+"   1.011.010	12-Jul-2013	Make ingo#collections#ToDict() handle empty list
+"				items via an optional a:emptyValue argument.
+"				This also distinguishes it from
+"				ingo#dict#FromKeys().
+"				ENH: Handle empty list items in
+"				ingo#collections#Unique() and
+"				ingo#collections#UniqueStable().
+"   1.009.009	25-Jun-2013	Add ingo#collections#Flatten() and
+"				ingo#collections#Flatten1().
+"				Delegate ingo#collections#ToDict()
+"				implementation to ingo#dict#FromKeys().
+"				Move ingo#collections#MakeUnique() to
+"				ingo/collections/unique.vim.
 "   1.001.008	21-Feb-2013	Move to ingo-library. Change case of *#unique*
 "				functions.
 "	007	09-Nov-2012	Add ingocollections#MakeUnique().
@@ -22,14 +38,41 @@
 "	002	11-Jun-2011	Add ingocollections#SplitKeepSeparators().
 "	001	08-Oct-2010	file creation
 
-function! ingo#collections#ToDict( list )
-    let l:itemDict = {}
+function! ingo#collections#ToDict( list, ... )
+"******************************************************************************
+"* PURPOSE:
+"   Convert a:list to a Dictionary, with each list element becoming a key (and
+"   the unimportant value is 1).
+"* ASSUMPTIONS / PRECONDITIONS:
+"   None.
+"* EFFECTS / POSTCONDITIONS:
+"   None.
+"* INPUTS:
+"   a:list  List of keys.
+"   a:emptyValue    Optional value for items in a:list that yield an empty
+"		    string, which cannot be uses as a Dictionary key.
+"		    If omitted, empty values are not included in the Dictionary.
+"* RETURN VALUES:
+"   A new Dictionary with keys taken from a:list.
+"* SEE ALSO:
+"   ingo#dict#FromKeys() allows to specify a default value (here hard-coded to
+"   1), but doesn't handle empty keys.
+"******************************************************************************
+    let l:dict = {}
     for l:item in a:list
-	let l:itemDict[l:item] = 1
+	let l:key = '' . l:item
+	if l:key ==# ''
+	    if a:0
+		let l:dict[a:1] = 1
+	    endif
+	else
+	    let l:dict[l:key] = 1
+	endif
     endfor
-    return l:itemDict
+    return l:dict
 endfunction
-function! ingo#collections#Unique( list )
+
+function! ingo#collections#Unique( list, ... )
 "******************************************************************************
 "* PURPOSE:
 "   Return a list where each element from a:list is contained only once.
@@ -40,13 +83,16 @@ function! ingo#collections#Unique( list )
 "   None.
 "* INPUTS:
 "   a:list  List of elements; does not need to be sorted.
+"   a:emptyValue    Optional value for items in a:list that yield an empty
+"		    string. Default is <Nul>.
 "* RETURN VALUES:
 "   Return the string representation of the unique elements of a:list. The order
 "   of returned elements is undetermined. To maintain the original order, use
 "   ingo#collections#UniqueStable(). To keep the original elements, use
 "   ingo#collections#UniqueSorted(). But this is the fastest function.
 "******************************************************************************
-    return keys(ingo#collections#ToDict(a:list))
+    let l:emptyValue = (a:0 ? a:1 : "\<Nul>")
+    return map(keys(ingo#collections#ToDict(a:list, l:emptyValue)), 'v:val == l:emptyValue ? "" : v:val')
 endfunction
 function! ingo#collections#UniqueSorted( list )
 "******************************************************************************
@@ -76,7 +122,7 @@ function! ingo#collections#UniqueSorted( list )
     endfor
     return l:result
 endfunction
-function! ingo#collections#UniqueStable( list )
+function! ingo#collections#UniqueStable( list, ... )
 "******************************************************************************
 "* PURPOSE:
 "   Filter a:list so that each element is contained only once (in its first
@@ -88,14 +134,18 @@ function! ingo#collections#UniqueStable( list )
 "   None.
 "* INPUTS:
 "   a:list  List of elements; does not need to be sorted.
+"   a:emptyValue    Optional value for items in a:list that yield an empty
+"		    string. Default is <Nul>.
 "* RETURN VALUES:
 "   The order of returned elements is kept.
 "******************************************************************************
+    let l:emptyValue = (a:0 ? a:1 : "\<Nul>")
     let l:itemDict = {}
     let l:result = []
     for l:item in a:list
-	if ! has_key(l:itemDict, l:item)
-	    let l:itemDict[l:item] = 1
+	let l:key = ('' . l:item ==# '' ? l:emptyValue : l:item)
+	if ! has_key(l:itemDict, l:key)
+	    let l:itemDict[l:key] = 1
 	    call add(l:result, l:item)
 	endif
     endfor
@@ -210,31 +260,24 @@ function! ingo#collections#numsort( i1, i2, ... )
     return l:i1 == l:i2 ? 0 : l:i1 > l:i2 ? 1 : -1
 endfunction
 
-function! ingo#collections#MakeUnique( memory, expr )
-"******************************************************************************
-"* PURPOSE:
-"   Based on the a:memory lookup, create a unique String from a:expr by
-"   appending a running counter to it.
-"* ASSUMPTIONS / PRECONDITIONS:
-"   None.
-"* EFFECTS / POSTCONDITIONS:
-"   Adds the unique returned result to a:memory.
-"* INPUTS:
-"   a:memory    Dictionary holding the existing values as keys.
-"   a:expr      String that is made unique with regards to a:memory and
-"		returned.
-"* RETURN VALUES:
-"   a:expr (when it's not yet contained in the a:memory), or a unique version of
-"   it.
-"******************************************************************************
-    let l:result = a:expr
-    let l:counter = 0
-    while has_key(a:memory, l:result)
-	let l:counter += 1
-	let l:result = printf('%s%s(%d)', a:expr, (empty(a:expr) ? '' : ' '), l:counter)
-    endwhile
-
-    let a:memory[l:result] = 1
+function! ingo#collections#Flatten1( list )
+    let l:result = []
+    for l:item in a:list
+	call ingo#list#AddOrExtend(l:result, l:item)
+	unlet l:item
+    endfor
+    return l:result
+endfunction
+function! ingo#collections#Flatten( list )
+    let l:result = []
+    for l:item in a:list
+	if type(l:item) == type([])
+	    call extend(l:result, ingo#collections#Flatten(l:item))
+	else
+	    call add(l:result, l:item)
+	endif
+	unlet l:item
+    endfor
     return l:result
 endfunction
 

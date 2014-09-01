@@ -9,7 +9,7 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
-"	001	08-Apr-2013	file creation from autoload/ingowindow.vim
+"   1.004.001	08-Apr-2013	file creation from autoload/ingowindow.vim
 
 " Determine the number of lines in the passed range that aren't folded away;
 " folded ranges count only as one line. Visible doesn't mean "currently
