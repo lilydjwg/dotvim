@@ -66,6 +66,7 @@ i=			"inner conflict section" text object, select current
 			    both    = ours theirs		(+ = <>)
 			    all     = ours [base] theirs	(* = <|>)
 			    query   = ask which sections to take
+			Note: | must be escaped as \|.
 :[range]ConflictTake [none this ours base theirs both all range query] [...]
 :[range]ConflictTake [-.<|>+*:?][...]
 			When the cursor is inside a conflict, and the [range]
@@ -73,8 +74,8 @@ i=			"inner conflict section" text object, select current
 			From the conflict the cursor is in, remove the markers
 			and keep the passed range (without contained markers)
 			(and any passed sections in addition; include the
-			"range" argument to put the range somewhere other than
-			the end).
+			"range" / ":" argument to put the range somewhere
+			other than the end).
 			Otherwise, when a large range (like %) is passed:
 			For each conflict that starts in [range], remove the
 			markers and keep the passed section(s) / ask which
@@ -83,12 +84,19 @@ i=			"inner conflict section" text object, select current
 			letter. An uppercase letter will apply the choice to
 			all following conflicts.
 
-	      *<Leader>xd* *<Leader>x.* *<Leader>x<* *<Leader>x|* *<Leader>x>*
-<Leader>xd		Delete the entire current conflict.
-<Leader>x.		Keep the current conflict section, delete the rest.
+			   *<Leader>xd* *<Leader>x<* *<Leader>x|* *<Leader>x>*
+		   *v_<Leader>xd* *v_<Leader>x<* *v_<Leader>x|* *v_<Leader>x>*
+<Leader>xd		Delete the entire current conflict / all conflicts in
+			the selection.
 <Leader>x<		Keep our changes, delete the rest.
 <Leader>x|		Keep the change base, delete the rest.
 <Leader>x>		Keep their changes, delete the rest.
+						   *<Leader>x.* *v_<Leader>x.*
+<Leader>x.		Keep the current conflict section, delete the rest.
+{Visual}<Leader>x.	From the conflict the cursor is in, remove the markers
+			and keep the selected lines (without contained markers).
+			For each conflict that starts in the selection, remove
+			the markers and ask which section(s) should be kept.
 
 ==============================================================================
 INSTALLATION					*ConflictMotions-installation*
@@ -105,8 +113,10 @@ DEPENDENCIES					*ConflictMotions-dependencies*
 
 - Requires Vim 7.0 or higher.
 - Requires the CountJump plugin (vimscript #3130).
-- Requires the |ingo-library.vim| plugin (vimscript #4433), version 1.004 or
+- Requires the |ingo-library.vim| plugin (vimscript #4433), version 1.019 or
   higher.
+- repeat.vim (vimscript #2136) plugin (optional)
+- visualrepeat.vim (vimscript #3848) plugin (optional)
 
 ==============================================================================
 CONFIGURATION				       *ConflictMotions-configuration*
@@ -147,6 +157,42 @@ IDEAS						       *ConflictMotions-ideas*
 ==============================================================================
 HISTORY						     *ConflictMotions-history*
 
+2.10	21-Jul-2014
+- ENH: Define both normal and visual mode mappings for all mappings, not the
+  exclusive either-or. The new visual mode mappings will select the
+  corresponding section in all conflicts found in the selected range.
+  (Application on a partially selected conflict is denied by an error since
+  version 2.02.)
+- ENH: Enable repeat of all mappings, also (with visualrepeat.vim) across
+  modes. Thanks to Maxim Gonchar for the suggestion.
+- Handle folded ranges overlapping the conflicts. Thanks to Maxim Gonchar for
+  reporting this. When querying which conflict sections to keep, open folds so
+  that if possible the entire conflict is visible, but at least the section
+  markers.
+- Re-allow combining range inside conflict with section argument, but only for
+  the :ConflictTake command, not the mappings.
+
+2.02	19-Jul-2014
+- Regression: Version 2.01 introduced a bad offset calculation, potentially
+  resulting in left-over conflicts, e.g. on :%ConflictTake.
+- Do not allow combination of a range inside a conflict with a section
+  argument, as the two contradict each other. Print an error instead.
+
+2.01	31-May-2014
+- BUG: "E16: Invalid range" error when taking a conflict section of a hunk at
+  the end of the file. Use ingo#lines#PutBefore(). Thanks to Kballard for
+  reporting this on the Vim Tips Wiki and suggesting the fix.
+- BUG: Taking conflicts where a single hunk spans the entire buffer adds a
+  blank line. Use ingo#lines#Replace(), which now handles this. Thanks to
+  Kballard for reporting this on the Vim Tips Wiki.
+- The CountJump operator-pending mapping will beep when the inner conflict
+  section is empty, but for taking such a section, the beep is unexpected.
+  Detect this special case and skip the CountJump text object then. Thanks to
+  Kballard for reporting this on the Vim Tips Wiki.
+- Abort on error of :ConflictTake.
+- Use ingo#register#KeepRegisterExecuteOrFunc(). *** You need to update to
+  ingo-library (vimscript #4433) version 1.019! ***
+
 2.00	23-Apr-2013
 - FIX: Don't create the default mapping for
   <Plug>(ConflictMotionsTakeSelection) in select mode; it should insert a
@@ -166,7 +212,7 @@ First published version.
 Started development.
 
 ==============================================================================
-Copyright: (C) 2012-2013 Ingo Karkat
+Copyright: (C) 2012-2014 Ingo Karkat
 The VIM LICENSE applies to this plugin; see |copyright|.
 
 Maintainer:	Ingo Karkat <ingo@karkat.de>

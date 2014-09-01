@@ -1688,6 +1688,10 @@ vS	surround.txt	/*vS*
 v_:B	vis.txt	/*v_:B*
 v_<Leader>m	mark.txt	/*v_<Leader>m*
 v_<Leader>r	mark.txt	/*v_<Leader>r*
+v_<Leader>x.	ConflictMotions.txt	/*v_<Leader>x.*
+v_<Leader>x<	ConflictMotions.txt	/*v_<Leader>x<*
+v_<Leader>x>	ConflictMotions.txt	/*v_<Leader>x>*
+v_<Leader>xd	ConflictMotions.txt	/*v_<Leader>xd*
 v_X	exchange.txt	/*v_X*
 v_[%	matchit.txt	/*v_[%*
 v_[=	ConflictMotions.txt	/*v_[=*
