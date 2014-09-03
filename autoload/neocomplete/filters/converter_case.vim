@@ -37,6 +37,8 @@ let s:converter = {
       \}
 
 function! s:converter.filter(context) "{{{
+  " disable this; it's annoying
+  return a:context.candidates
   if !neocomplete#is_text_mode() && !neocomplete#within_comment()
     return a:context.candidates
   endif
