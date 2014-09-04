@@ -825,6 +825,8 @@ let s:cmdwin = 0
 autocmd CmdwinEnter	* let s:cmdwin = 1
 autocmd CmdwinLeave	* let s:cmdwin = 0
 autocmd InsertLeave	* if s:cmdwin == 0 && pumvisible() == 0|pclose|endif
+"   插入模式下长时间不动则打断撒消序列
+autocmd CursorHoldI * call feedkeys("\<C-g>u", 'nt')
 autocmd BufReadCmd *.maff,*.xmind,*.crx,*.apk  call zip#Browse(expand("<amatch>"))
 autocmd BufRead */WualaDrive/* setl noswapfile
 "   见 ft-syntax-omni
