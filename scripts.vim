@@ -5,10 +5,6 @@ if expand('%:t') =~? '^rfc\d\+'
   setfiletype rfc
   finish
 endif
-if expand('%:p') =~ '\vnginx.*(conf|sites).*'
-  setfiletype nginx
-  finish
-endif
 if expand('%:t') =~ '^\v\.?magic$'
   setfiletype magic
   finish
