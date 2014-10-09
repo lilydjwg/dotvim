@@ -35,7 +35,7 @@ augroup filetypedetect
   au BufRead		*.grf,*.url			setf dosini
   au BufRead		accels				setf lisp
   au BufNewFile,BufRead	PKGBUILD			setf sh
-  au BufNewFile,BufRead	*.install,install		setf sh
+  au BufNewFile,BufRead	*.install,install,.INSTALL	setf sh
   au BufNewFile,BufRead	ejabberd.cfg*			setf erlang
   au BufNewFile,BufRead	*/xorg.conf.d/*			setf xf86conf
   au BufNewFile,BufRead	*fluxbox/keys			setf fluxkeys
