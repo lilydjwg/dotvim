@@ -1,7 +1,7 @@
 " Vim syntax file
 " FileType:     Tornado template
 " Author:       lilydjwg <lilydjwg@gmail.com>
-" Version:	1.1
+" Version:	1.2
 
 " Add something like the following in modeline to your templates:
 " {# vim:se ft=html syntax=html.tornadotmpl: #}
@@ -20,11 +20,18 @@ syntax region tmplContent matchgroup=Keyword
       \ end="\%(%}\)\@="
       \ contains=@Python containedin=tmplCode
 
-let b:current_syntax_save = b:current_syntax
-unlet b:current_syntax
+try
+  let b:current_syntax_save = b:current_syntax
+  unlet b:current_syntax
+catch /.*/
+endtry
 syntax include @Python syntax/python.vim
-let b:current_syntax = b:current_syntax_save
-unlet b:current_syntax_save
+try
+  let b:current_syntax = b:current_syntax_save
+  unlet b:current_syntax_save
+catch /.*/
+  unlet b:current_syntax
+endtry
 
 highlight link tmplCode Normal
 highlight link tmplExpr Normal
