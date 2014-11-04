@@ -974,6 +974,7 @@ let g:cycle_default_groups = [
       \ 'Friday', 'Saturday'], 'hard_case', {'name': 'Days'}],
       \ [["enable", "disable"]],
       \ [["add", "remove"]],
+      \ [['up', 'down']],
       \ ]
 "   Erlang[[[2
 let g:erlangHighlightBif = 1
