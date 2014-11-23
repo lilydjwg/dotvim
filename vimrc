@@ -1115,44 +1115,65 @@ if executable("curl")
   let g:netrw_http_xcmd = "-L --compressed -o"
 endif
 " cscope setting [[[1
-if has("cscope") && executable("cscope")
-  " 设置 [[[2
-  set csto=1
-  set cst
-  set cscopequickfix=s-,c-,d-,i-,t-,e-
+if has("cscope")
+  " support GNU Global [[[2
+  let s:tags_files = []
+  if executable("gtags-cscope")
+    call add(s:tags_files, ['GTAGS', 'gtags-cscope'])
+  endif
+  if executable("cscope")
+    call add(s:tags_files, ['cscope.out', 'cscope'])
+  endif
 
-  " add any database in current directory
-  function Lilydjwg_csadd()
-    set nocsverb
-    if filereadable("cscope.out")
-      cs add cscope.out
-    endif
-    set csverb
-  endfunction
+  if !empty(s:tags_files)
+    " settings and autocmd [[[2
+    set csto=1
+    set cst
+    set cscopequickfix=s-,c-,d-,i-,t-,e-
 
-  autocmd BufRead *.c,*.cpp,*.h call Lilydjwg_csadd()
+    " add any database in current directory
+    function Lilydjwg_csadd()
+      cd %:h
+      try
+        for [filename, prgname] in s:tags_files
+          let db = findfile(filename, '.;')
+          if !empty(db)
+            let &cscopeprg = prgname
+            set nocscopeverbose
+            exec "cs add" db expand('%:p:h')
+            set cscopeverbose
+            break
+          endif
+        endfor
+      finally
+        silent cd -
+      endtry
+    endfunction
 
-  " 映射 [[[2
-  " 查找C语言符号，即查找函数名、宏、枚举值等出现的地方
-  nmap css :cs find s <C-R>=expand("<cword>")<CR><CR>
-  " 查找函数、宏、枚举等定义的位置，类似ctags所提供的功能
-  nmap csg :cs find g <C-R>=expand("<cword>")<CR><CR>
-  " 查找本函数调用的函数
-  nmap csd :cs find d <C-R>=expand("<cword>")<CR><CR>
-  " 查找调用本函数的函数
-  nmap csc :cs find c <C-R>=expand("<cword>")<CR><CR>
-  " 查找指定的字符串
-  nmap cst :cs find t <C-R>=expand("<cword>")<CR><CR>
-  " 查找egrep模式，相当于egrep功能，但查找速度快多了
-  nmap cse :cs find e <C-R>=expand("<cword>")<CR><CR>
-  " 查找并打开文件，类似vim的find功能
-  nmap csf :cs find f <C-R>=expand("<cfile>")<CR><CR>
-  " 查找包含本文件的文件
-  nmap csi :cs find i ^<C-R>=expand("<cfile>")<CR>$<CR>
-  " 生成新的数据库
-  nmap csn :lcd %:p:h<CR>:!my_cscope<CR>
-  " 自己来输入命令
-  nmap cs<Space> :cs find 
+    autocmd BufRead *.c,*.cpp,*.h call Lilydjwg_csadd()
+
+    " 映射 [[[2
+    " 查找C语言符号，即查找函数名、宏、枚举值等出现的地方
+    nmap css :cs find s <C-R>=expand("<cword>")<CR><CR>
+    " 查找函数、宏、枚举等定义的位置，类似ctags所提供的功能
+    nmap csg :cs find g <C-R>=expand("<cword>")<CR><CR>
+    " 查找本函数调用的函数
+    nmap csd :cs find d <C-R>=expand("<cword>")<CR><CR>
+    " 查找调用本函数的函数
+    nmap csc :cs find c <C-R>=expand("<cword>")<CR><CR>
+    " 查找指定的字符串
+    nmap cst :cs find t <C-R>=expand("<cword>")<CR><CR>
+    " 查找egrep模式，相当于egrep功能，但查找速度快多了
+    nmap cse :cs find e <C-R>=expand("<cword>")<CR><CR>
+    " 查找并打开文件，类似vim的find功能
+    nmap csf :cs find f <C-R>=expand("<cfile>")<CR><CR>
+    " 查找包含本文件的文件
+    nmap csi :cs find i ^<C-R>=expand("<cfile>")<CR>$<CR>
+    " 生成新的数据库
+    nmap csn :lcd %:p:h<CR>:!my_cscope<CR>
+    " 自己来输入命令
+    nmap cs<Space> :cs find 
+  endif
 endif
 " 最后 [[[1
 runtime local.vim
