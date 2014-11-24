@@ -1169,8 +1169,6 @@ if has("cscope")
     nmap csf :cs find f <C-R>=expand("<cfile>")<CR><CR>
     " 查找包含本文件的文件
     nmap csi :cs find i ^<C-R>=expand("<cfile>")<CR>$<CR>
-    " 生成新的数据库
-    nmap csn :lcd %:p:h<CR>:!my_cscope<CR>
     " 自己来输入命令
     nmap cs<Space> :cs find 
   endif
