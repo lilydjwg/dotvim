@@ -531,7 +531,7 @@ else
   cmap <C-T> ~/tmpfs/
   " cron 的目录不要备份
   set backupskip+=/etc/cron.*/*
-  set backupdir=.,~/temp,/var/tmp,/tmp
+  set backupdir=.,/var/tmp,/tmp
   " Linux 程序 [[[3
   "   用默认的程序打开文件
   nmap <C-S-F5> :!gnome-open "%"<CR>
