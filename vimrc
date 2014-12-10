@@ -975,6 +975,7 @@ let g:cycle_default_groups = [
       \ [["enable", "disable"]],
       \ [["add", "remove"]],
       \ [['up', 'down']],
+      \ [['after', 'before']],
       \ ]
 "   Erlang[[[2
 let g:erlangHighlightBif = 1
