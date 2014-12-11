@@ -168,7 +168,7 @@ function! vimproc#parser#parse_statements(script) "{{{
 
       let statement .= '\' . script[i]
       let i += 1
-    elseif script[i] == '#'
+    elseif script[i] == '#' && statement == ''
       " Comment.
       break
     else
@@ -231,7 +231,7 @@ function! vimproc#parser#split_args(script) "{{{
 
       let arg .= script[i]
       let i += 1
-    elseif script[i] == '#'
+    elseif script[i] == '#' && arg == ''
       " Comment.
       break
     elseif script[i] != ' '
@@ -874,20 +874,22 @@ function! s:skip_single_quote(script, i) "{{{
   let string .= a:script[i]
   let i += 1
 
+  let ss = []
   while i < max
     if a:script[i] == ''''
       if i+1 < max && a:script[i+1] == ''''
         " Escape quote.
-        let string .= a:script[i]
+        let ss += [a:script[i]]
         let i += 1
       else
         break
       endif
     endif
 
-    let string .= a:script[i]
+    let ss += [a:script[i]]
     let i += 1
   endwhile
+  let string .= join(ss, '')
 
   if i < max
     " must end with "'"
@@ -912,20 +914,22 @@ function! s:skip_double_quote(script, i) "{{{
   let string .= a:script[i]
   let i += 1
 
+  let ss = []
   while i < max
     if a:script[i] == '\'
           \ && i+1 < max && a:script[i+1] == '"'
       " Escape quote.
-      let string .= a:script[i]
+      let ss += [a:script[i]]
       let i += 1
 
     elseif a:script[i] == '"'
       break
     endif
 
-    let string .= a:script[i]
+    let ss += [a:script[i]]
     let i += 1
   endwhile
+  let string .= join(ss, '')
 
   if i < max
     " must end with '"'

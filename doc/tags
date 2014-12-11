@@ -1745,10 +1745,14 @@ vimproc-commands	vimproc.txt	/*vimproc-commands*
 vimproc-contents	vimproc.txt	/*vimproc-contents*
 vimproc-examples	vimproc.txt	/*vimproc-examples*
 vimproc-faq	vimproc.txt	/*vimproc-faq*
+vimproc-file-object	vimproc.txt	/*vimproc-file-object*
 vimproc-functions	vimproc.txt	/*vimproc-functions*
 vimproc-install	vimproc.txt	/*vimproc-install*
 vimproc-interface	vimproc.txt	/*vimproc-interface*
 vimproc-introduction	vimproc.txt	/*vimproc-introduction*
+vimproc-objects	vimproc.txt	/*vimproc-objects*
+vimproc-process-object	vimproc.txt	/*vimproc-process-object*
+vimproc-socket-object	vimproc.txt	/*vimproc-socket-object*
 vimproc-tips	vimproc.txt	/*vimproc-tips*
 vimproc-tips-pseudo-devices	vimproc.txt	/*vimproc-tips-pseudo-devices*
 vimproc-variables	vimproc.txt	/*vimproc-variables*
