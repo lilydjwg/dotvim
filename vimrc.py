@@ -1,6 +1,7 @@
 import vim
 import sys
 import subprocess
+import shlex
 
 def echon(text):
   vim.command('echon %r' % text)
@@ -17,7 +18,7 @@ def LilyPaste():
   curl.stdin.close()
   url = curl.stdout.read().decode('utf-8').strip()
   if not url:
-    vimprint('Error', 'Failed to paste code.')
+    vimprint('ErrorMsg', 'Failed to paste code.')
   ft = vim.eval('&ft')
   if ft:
     url = '%s/%s' % (url, ft)
@@ -29,5 +30,21 @@ def LilyPaste():
   echon(msg + url)
   curl.wait()
 
-def vimprint(style, text):
-  vim.command("echohl %s | echo '%s' | echohl None" % (style, text.replace("'", "''")))
+def vimprint(style, text, ismsg=False):
+  echo = 'echomsg' if ismsg else 'echo'
+  vim.command("echohl {style} | {echo} '{text}' | echohl None".format(
+    style = style,
+    text = text.replace("'", "''"),
+    echo = echo,
+  ))
+
+def LilyQw(s):
+  print(s)
+  if s[-1] == ')':
+    s = s[:-1]
+  try:
+    return repr(shlex.split(s))[1:-1]
+  except ValueError as e:
+    vimprint('ErrorMsg', str(e))
+    vim.command('call getchar()')
+  return ''

@@ -67,8 +67,8 @@ function Lilydjwg_NERDTreeOpen()
 endfunction
 "   Perl-style quoted lists[[[2
 function Lilydjwg_qw()
-  let in = input('', 'qw(')
-  return system('qw', in)
+  let in = input('qw(')
+  return py3eval('LilyQw("'.escape(in, '"\').'")')
 endfunction
 "   使用分隔符连接多行 [[[2
 function Lilydjwg_join(sep, bang) range
