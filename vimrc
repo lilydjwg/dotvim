@@ -248,18 +248,6 @@ function Lilydjwg_dictcomplete()
     return "\<C-X>\<C-K>"
   endif
 endfunction
-"   自动加执行权限[[[2
-function Lilydjwg_chmodx()
-  if strpart(getline(1), 0, 2) == '#!'
-    let f = expand("%:p")
-    if stridx(getfperm(f), 'x') != 2
-      call system("chmod +x ".shellescape(f))
-      e!
-      filetype detect
-      nmap <buffer> <S-F5> :!%:p<CR>
-    endif
-  endif
-endfunction
 "   返回当前日期的中文表示[[[2
 function Lilydjwg_zh_date()
   let d = strftime("%Y年%m月%d日")
@@ -539,7 +527,6 @@ else
   command Hex silent !setsid ghex2 '%'
   command SHELL silent cd %:p:h|silent exe '!setsid xfce4-terminal'|silent cd -
   command Nautilus silent !nautilus %:p:h
-  autocmd BufWritePost    * call Lilydjwg_chmodx()
   " Linux 配置 [[[3
   command FScreen winpos 0 0|set lines=40|set columns=172
   command Fscreen set lines=40|set columns=88
