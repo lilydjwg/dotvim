@@ -519,6 +519,7 @@ else
   cmap <C-T> ~/tmpfs/
   " cron 的目录不要备份
   set backupskip+=/etc/cron.*/*
+  set backupskip+=*/HTTPSEverywhereUserRules/*
   set backupdir=.,/var/tmp,/tmp
   " Linux 程序 [[[3
   "   用默认的程序打开文件
