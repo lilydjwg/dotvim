@@ -1,1 +1,1 @@
-autocmd BufNewFile,BufRead *.toml set filetype=toml
+autocmd BufNewFile,BufRead *.toml,Cargo.lock set filetype=toml
