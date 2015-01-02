@@ -1,4 +1,6 @@
-set nocompatible " openSUSE needs this because its /etc/vimrc calls syntax on too early
+if &cp
+  set nocompatible " openSUSE needs this because its /etc/vimrc calls syntax on too early
+endif
 " More ignored extensions (modified from the standard one)
 if exists("*fnameescape")
   au BufNewFile,BufRead ?\+.pacsave,?\+.pacnew
