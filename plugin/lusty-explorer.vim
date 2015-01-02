@@ -233,18 +233,6 @@ if !has("ruby") || version < 700
   finish
 endif
 
-if ! &hidden
-  echohl WarningMsg
-  echo "You are running with 'hidden' mode off.  LustyExplorer may"
-  echo "sometimes emit error messages in this mode -- you should turn"
-  echo "it on, like so:\n"
-
-  echo "   :set hidden\n"
-
-  echo "Even better, put this in your .vimrc file."
-  echohl none
-endif
-
 let g:loaded_lustyexplorer = "yep"
 
 " Commands.
