@@ -871,6 +871,8 @@ command -range=% Tohtml call Lilydjwg_to_html(<line1>, <line2>)
 command Agg exe 'Ag -Q ' . expand('<cword>')
 command BufClean call Lilydjwg_cleanbufs()
 " 插件配置[[[1
+"   syntastic [[[2
+let g:syntastic_python_checkers = ['python']
 "   extradite.vim[[[2
 let g:extradite_showhash = 1
 "   linediff[[[2
