@@ -1004,6 +1004,18 @@ let g:tagbar_type_pgsql = {
       \ 'ctagstype': 'pgsql',
       \ 'kinds': ['f:functions', 't:tables'],
       \ }
+let g:tagbar_type_rust = {
+      \ 'ctagstype' : 'rust',
+      \ 'kinds' : [
+      \   'T:types',
+      \   'f:functions',
+      \   'g:enums',
+      \   's:structures',
+      \   'm:modules',
+      \   'c:consts',
+      \   't:traits',
+      \   'i:impls',
+      \ ]}
 "   taglist[[[2
 let Tlist_Show_One_File = 1
 let tlist_vimwiki_settings = 'wiki;h:headers'
