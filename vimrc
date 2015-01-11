@@ -873,6 +873,7 @@ command BufClean call Lilydjwg_cleanbufs()
 " 插件配置[[[1
 "   syntastic [[[2
 let g:syntastic_python_checkers = ['python']
+let g:syntastic_zsh_checkers = ['zsh']
 "   extradite.vim[[[2
 let g:extradite_showhash = 1
 "   linediff[[[2
