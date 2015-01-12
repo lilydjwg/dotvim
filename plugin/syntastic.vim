@@ -662,18 +662,17 @@ endfunction " }}}2
 " XXX: Is this still needed?
 " The script changes &shellredir to stop the screen
 " flicking when shelling out to syntax checkers.
+" hacked for zsh
 function! s:_bash_hack() " {{{2
-    if g:syntastic_bash_hack
-        if !exists('s:shell_is_bash')
-            let s:shell_is_bash =
-                \ !s:_running_windows &&
-                \ (s:_os_name() !~# "FreeBSD") && (s:_os_name() !~# "OpenBSD") &&
-                \ &shell =~# '\m\<bash$'
-        endif
+    if !exists('s:shell_is_bash')
+        let s:shell_is_bash =
+            \ !s:_running_windows &&
+            \ (s:_os_name() !~# "FreeBSD") && (s:_os_name() !~# "OpenBSD") &&
+            \ &shell =~# '\m\<\(ba\|z\)sh$'
+    endif
 
-        if s:shell_is_bash
-            let &shellredir = '&>'
-        endif
+    if s:shell_is_bash
+        let &shellredir = '&>'
     endif
 endfunction " }}}2
 
