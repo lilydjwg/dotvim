@@ -216,6 +216,16 @@ function! SyntasticSetLoclist() " {{{2
     call g:SyntasticLoclist.current().setloclist()
 endfunction " }}}2
 
+function! SyntasticSystemAllOutput(cmd)
+    let old_shellredir = &shellredir
+    try
+        set shellredir&
+        return system(a:cmd)
+    finally
+        let &shellredir = old_shellredir
+    endtry
+endfunction
+
 " }}}1
 
 " Autocommands {{{1
@@ -488,7 +498,7 @@ function! SyntasticMake(options) " {{{2
     let $LC_ALL = ''
     " }}}3
 
-    let err_lines = split(system(a:options['makeprg']), "\n", 1)
+    let err_lines = split(SyntasticSystemAllOutput(a:options['makeprg']), "\n", 1)
 
     " restore environment variables {{{3
     let $LC_ALL = old_lc_all
@@ -662,17 +672,18 @@ endfunction " }}}2
 " XXX: Is this still needed?
 " The script changes &shellredir to stop the screen
 " flicking when shelling out to syntax checkers.
-" hacked for zsh
 function! s:_bash_hack() " {{{2
-    if !exists('s:shell_is_bash')
-        let s:shell_is_bash =
-            \ !s:_running_windows &&
-            \ (s:_os_name() !~# "FreeBSD") && (s:_os_name() !~# "OpenBSD") &&
-            \ &shell =~# '\m\<\(ba\|z\)sh$'
-    endif
+    if g:syntastic_bash_hack
+        if !exists('s:shell_is_bash')
+            let s:shell_is_bash =
+                \ !s:_running_windows &&
+                \ (s:_os_name() !~# "FreeBSD") && (s:_os_name() !~# "OpenBSD") &&
+                \ &shell =~# '\m\<bash$'
+        endif
 
-    if s:shell_is_bash
-        let &shellredir = '&>'
+        if s:shell_is_bash
+            let &shellredir = '&>'
+        endif
     endif
 endfunction " }}}2
 

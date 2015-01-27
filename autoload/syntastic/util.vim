@@ -123,13 +123,7 @@ endfunction " }}}2
 " Run 'command' in a shell and parse output as a version string.
 " Returns an array of version components.
 function! syntastic#util#getVersion(command) " {{{2
-    let old_shellredir = &shellredir
-    try
-        set shellredir=&>
-        return syntastic#util#parseVersion(system(a:command))
-    finally
-        let &shellredir = old_shellredir
-    endtry
+    return syntastic#util#parseVersion(SyntasticSystemAllOutput(a:command))
 endfunction " }}}2
 
 " Verify that the 'installed' version is at least the 'required' version.

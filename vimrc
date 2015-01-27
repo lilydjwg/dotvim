@@ -423,8 +423,8 @@ set expandtab
 set visualbell t_vb=
 " when will this cause problems?
 set ttyfast
-" 不要包含标准错误
-set shellredir=>
+" 不要包含标准错误，但是允许 Vim 初始化其默认值
+autocmd VimEnter * set shellredir=>
 autocmd GUIEnter * set t_vb=
 " ! is for histwin to save tags
 set viminfo='100,:10000,<50,s10,h,!
