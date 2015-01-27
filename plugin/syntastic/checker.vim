@@ -80,7 +80,7 @@ endfunction " }}}2
 function! g:SyntasticChecker.getVersion(...) " {{{2
     if !exists('self._version')
         let command = a:0 ? a:1 : self.getExecEscaped() . ' --version'
-        call self.setVersion(syntastic#util#parseVersion(system(command)))
+        call self.setVersion(syntastic#util#parseVersion(SyntasticSystemAllOutput(command)))
     endif
     return get(self, '_version', [])
 endfunction " }}}2
