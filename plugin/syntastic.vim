@@ -19,7 +19,7 @@ if has('reltime')
     lockvar! g:_SYNTASTIC_START
 endif
 
-let g:_SYNTASTIC_VERSION = '3.5.0-72'
+let g:_SYNTASTIC_VERSION = '3.6.0-4'
 lockvar g:_SYNTASTIC_VERSION
 
 " Sanity checks {{{1
@@ -215,16 +215,6 @@ endfunction " }}}2
 function! SyntasticSetLoclist() " {{{2
     call g:SyntasticLoclist.current().setloclist()
 endfunction " }}}2
-
-function! SyntasticSystemAllOutput(cmd)
-    let old_shellredir = &shellredir
-    try
-        set shellredir&
-        return system(a:cmd)
-    finally
-        let &shellredir = old_shellredir
-    endtry
-endfunction
 
 " }}}1
 
@@ -498,7 +488,7 @@ function! SyntasticMake(options) " {{{2
     let $LC_ALL = ''
     " }}}3
 
-    let err_lines = split(SyntasticSystemAllOutput(a:options['makeprg']), "\n", 1)
+    let err_lines = split(system(a:options['makeprg']), "\n", 1)
 
     " restore environment variables {{{3
     let $LC_ALL = old_lc_all
