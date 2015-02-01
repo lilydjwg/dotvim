@@ -16,7 +16,7 @@ syn match httplogError	/\v\s\zs5\d{2}\ze\s%(\d+|-)/
 syn match httplogRef	/\v\s\zs"(http[^"]+|-)"\ze\s/
 syn match httplogUA	/\v\s\zs"[^"]+"$/ contains=httplogBrowser
 syn match httplogBrowser	/\<UCWEB\d\@=/
-syn match httplogBrowser	/\v(".*Chrome.*)@<!<Safari>%(.*%(MicroMessenger|weibo).*")@!/
+syn match httplogBrowser	'\v(".*Chrome.*)@<!<Safari>%(.*%(MicroMessenger|weibo|XiaoMi/MiuiBrowser).*")@!'
 " OPR is new Opera
 syn match httplogBrowser	/\v(".*%(Chrom|Google Web Preview).*)@<!<Chrome>(.*%(Chrome|OPR).*")@!/
 syn match httplogBrowser	/\<Feedfetcher-Google\>/
@@ -26,6 +26,7 @@ syn match httplogBrowser	/\<Sogou web spider\>/
 syn match httplogBrowser	/\v%(__)@<=weibo%(__)@=/
 syn match httplogBrowser	/\v<MSIE>%(.*%(MAXTHON))@!/
 syn match httplogBrowser	/\<Yahoo! Slurp\>/
+syn match httplogBrowser	"\<XiaoMi/MiuiBrowser\>"
 syn keyword httplogBrowser	Firefox Konqueror Chromium ChromePlus Opera w3m Wget aria2 Lynx Epiphany Links TheWorld MAXTHON contained
 syn keyword httplogBrowser	OPR MicroMessenger contained
 syn keyword httplogBrowser	gvfs curl pacman PackageKit contained
