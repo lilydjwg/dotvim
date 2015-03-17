@@ -41,8 +41,7 @@ function! s:Extradite(bang) abort
   let path = fugitive#buffer().path()
   try
     let git_dir = fugitive#buffer().repo().dir()
-    " insert literal tabs in the format string because git does not seem to provide an escape code for it
-    let template_cmd = ['--no-pager', 'log', '-n100']
+    let template_cmd = ['--no-pager', 'log', '-n100', '--follow']
     let bufnr = bufnr('')
     let base_file_name = tempname()
     call s:ExtraditeLoadCommitData(a:bang, base_file_name, template_cmd, path)
@@ -86,6 +85,7 @@ function! s:ExtraditeLoadCommitData(bang, base_file_name, template_cmd, ...) abo
   endif
 
   let git_cmd = fugitive#buffer().repo().git_command()
+  " insert literal tabs in the format string because git does not seem to provide an escape code for it
   if (g:extradite_showhash)
     let cmd = a:template_cmd + ['--pretty=format:%h	%an	%d	%s', '--', path]
   else
@@ -148,7 +148,7 @@ function! s:ExtraditeLoadCommitData(bang, base_file_name, template_cmd, ...) abo
   setlocal modifiable
   silent! keepjumps %s/\(\s\)\s\+/\1/g
   keepjumps normal! gg
-  setlocal nomodified nomodifiable bufhidden=wipe nonumber nowrap foldcolumn=0 nofoldenable filetype=extradite ts=1 cursorline nobuflisted so=0
+  setlocal nomodified nomodifiable bufhidden=wipe nonumber nowrap foldcolumn=0 nofoldenable filetype=extradite ts=1 cursorline nobuflisted so=0 nolist
 endfunction
 
 " Returns the `commit:path` associated with the current line in the Extradite buffer
@@ -174,13 +174,13 @@ function! s:ExtraditeClose() abort
   let rev = s:ExtraditePath()
   let extradite_logged_bufnr = b:extradite_logged_bufnr
   if exists('b:extradite_simplediff_bufnr') && bufwinnr(b:extradite_simplediff_bufnr) >= 0
-    exe 'keepjumps bd!' . b:extradite_simplediff_bufnr
+    silent exe 'keepjumps bd!' . b:extradite_simplediff_bufnr
   endif
   if t:extradite_switch_back
     exe b:extradite_logged_bufnr.'buffer'
   endif
   if bufexists(t:extradite_bufnr)
-    exe 'keepjumps bd!' . t:extradite_bufnr
+    silent exe 'keepjumps bd!' . t:extradite_bufnr
   endif
   let logged_winnr = bufwinnr(extradite_logged_bufnr)
   if logged_winnr >= 0
