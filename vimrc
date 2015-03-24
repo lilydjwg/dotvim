@@ -116,6 +116,7 @@ function Lilydjwg_reindent(...)
     let &ts = a:2
     set et
     retab!
+    let &l:sw = a:2
   finally
     let &et = save_et
     let &ts = save_ts
