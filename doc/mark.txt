@@ -350,6 +350,9 @@ There are no default mappings for toggling all marks and for the |:MarkClear|
 command, but you can define some yourself: >
     nmap <Leader>M <Plug>MarkToggle
     nmap <Leader>N <Plug>MarkAllClear
+As the latter is irreverible, there's also an alternative with an additional
+confirmation: >
+    nmap <Leader>N <Plug>MarkConfirmAllClear
 <
 To remove the default overriding of * and #, use: >
     nmap <Plug>IgnoreMarkSearchNext <Plug>MarkSearchNext
@@ -419,6 +422,19 @@ IDEAS								  *mark-ideas*
 
 ==============================================================================
 HISTORY								*mark-history*
+
+2.8.5	29-Oct-2014
+- ENH: Add alternative <Plug>MarkConfirmAllClear optional command that works
+  like <Plug>MarkAllClear, but with confirmation. Thanks to Marcelo Montu for
+  suggesting this!
+
+2.8.4	19-Jun-2014
+- To avoid accepting an invalid regular expression (e.g. "\(blah") and then
+  causing ugly errors on every mark update, check the patterns passed by the
+  user for validity.
+- CHG: The :Mark command doesn't query for a mark when the passed mark group
+  doesn't exist (interactivity in Ex commands is unexpected). Instead, it
+  returns an error.
 
 2.8.3	23-May-2014
 - The additional mapping described under :help mark-whitespace-indifferent got
