@@ -83,6 +83,7 @@
 'syntastic_loc_list_height'	syntastic.txt	/*'syntastic_loc_list_height'*
 'syntastic_mode_map'	syntastic.txt	/*'syntastic_mode_map'*
 'syntastic_quiet_messages'	syntastic.txt	/*'syntastic_quiet_messages'*
+'syntastic_shell'	syntastic.txt	/*'syntastic_shell'*
 'syntastic_sort_aggregated_errors'	syntastic.txt	/*'syntastic_sort_aggregated_errors'*
 'syntastic_stl_format'	syntastic.txt	/*'syntastic_stl_format'*
 'syntastic_style_error_symbol'	syntastic.txt	/*'syntastic_style_error_symbol'*
@@ -1696,11 +1697,13 @@ syntastic-about	syntastic.txt	/*syntastic-about*
 syntastic-aggregating-errors	syntastic.txt	/*syntastic-aggregating-errors*
 syntastic-checker-options	syntastic.txt	/*syntastic-checker-options*
 syntastic-commands	syntastic.txt	/*syntastic-commands*
+syntastic-compatibility	syntastic.txt	/*syntastic-compatibility*
 syntastic-composite	syntastic.txt	/*syntastic-composite*
 syntastic-config-exec	syntastic.txt	/*syntastic-config-exec*
 syntastic-config-makeprg	syntastic.txt	/*syntastic-config-makeprg*
 syntastic-config-sort	syntastic.txt	/*syntastic-config-sort*
 syntastic-contents	syntastic.txt	/*syntastic-contents*
+syntastic-csh	syntastic.txt	/*syntastic-csh*
 syntastic-eclim	syntastic.txt	/*syntastic-eclim*
 syntastic-error-signs	syntastic.txt	/*syntastic-error-signs*
 syntastic-error-window	syntastic.txt	/*syntastic-error-window*
@@ -1715,12 +1718,15 @@ syntastic-intro	syntastic.txt	/*syntastic-intro*
 syntastic-license	syntastic.txt	/*syntastic-license*
 syntastic-netrw	syntastic.txt	/*syntastic-netrw*
 syntastic-notes	syntastic.txt	/*syntastic-notes*
+syntastic-powerline	syntastic.txt	/*syntastic-powerline*
 syntastic-powershell	syntastic.txt	/*syntastic-powershell*
 syntastic-pymode	syntastic.txt	/*syntastic-pymode*
 syntastic-quickstart	syntastic.txt	/*syntastic-quickstart*
 syntastic-recommended	syntastic.txt	/*syntastic-recommended*
+syntastic-shellslash	syntastic.txt	/*syntastic-shellslash*
 syntastic-statusline-flag	syntastic.txt	/*syntastic-statusline-flag*
 syntastic-vim-auto-save	syntastic.txt	/*syntastic-vim-auto-save*
+syntastic-vim-go	syntastic.txt	/*syntastic-vim-go*
 syntastic-vim-virtualenv	syntastic.txt	/*syntastic-vim-virtualenv*
 syntastic-ycm	syntastic.txt	/*syntastic-ycm*
 syntastic.txt	syntastic.txt	/*syntastic.txt*
