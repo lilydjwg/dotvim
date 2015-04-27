@@ -20,7 +20,7 @@
 "
 "   let g:syntastic_enable_r_svtools_checker = 1
 
-if exists("g:loaded_syntastic_r_svtools_checker")
+if exists('g:loaded_syntastic_r_svtools_checker')
     finish
 endif
 let g:loaded_syntastic_r_svtools_checker = 1
@@ -34,14 +34,14 @@ set cpo&vim
 
 function! SyntaxCheckers_r_svtools_GetHighlightRegex(item)
     let term = matchstr(a:item['text'], "\\m'\\zs[^']\\+\\ze'")
-    return term != '' ? '\V' . escape(term, '\') : ''
+    return term !=# '' ? '\V' . escape(term, '\') : ''
 endfunction
 
 function! SyntaxCheckers_r_svtools_IsAvailable() dict
     if !executable(self.getExec())
         return 0
     endif
-    call system(self.getExecEscaped() . ' --slave --restore --no-save -e ' . syntastic#util#shescape('library(svTools)'))
+    call syntastic#util#system(self.getExecEscaped() . ' --slave --restore --no-save -e ' . syntastic#util#shescape('library(svTools)'))
     return v:shell_error == 0
 endfunction
 

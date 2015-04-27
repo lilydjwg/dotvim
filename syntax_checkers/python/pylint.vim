@@ -5,7 +5,7 @@
 "
 "============================================================================
 
-if exists("g:loaded_syntastic_python_pylint_checker")
+if exists('g:loaded_syntastic_python_pylint_checker')
     finish
 endif
 let g:loaded_syntastic_python_pylint_checker = 1
@@ -32,7 +32,7 @@ function! SyntaxCheckers_python_pylint_IsAvailable() dict
         " On new-ish Fedora it's "python3-pylint 1.2.0".
         " Have you guys considered switching to creative writing yet? ;)
 
-        let pylint_version = filter( split(system(self.getExecEscaped() . ' --version'), '\m, \=\|\n'),
+        let pylint_version = filter( split(syntastic#util#system(self.getExecEscaped() . ' --version'), '\m, \=\|\n'),
             \ 'v:val =~# ''\m^\(python[-0-9]*-\|\.\)\=pylint[-0-9]*\>''' )[0]
         let ver = syntastic#util#parseVersion(substitute(pylint_version, '\v^\S+\s+', '', ''))
         call self.setVersion(ver)

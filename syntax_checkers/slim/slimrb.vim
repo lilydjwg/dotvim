@@ -10,7 +10,7 @@
 "
 "============================================================================
 
-if exists("g:loaded_syntastic_slim_slimrb_checker")
+if exists('g:loaded_syntastic_slim_slimrb_checker')
     finish
 endif
 let g:loaded_syntastic_slim_slimrb_checker = 1
@@ -28,14 +28,14 @@ function! SyntaxCheckers_slim_slimrb_GetLocList() dict
 
     if s:slimrb_new
         let errorformat =
-            \ '%C\ %#%f\, Line %l\, Column %c,'.
-            \ '%-G\ %.%#,'.
+            \ '%C %#%f\, Line %l\, Column %c,'.
+            \ '%-G %.%#,'.
             \ '%ESlim::Parser::SyntaxError: %m,'.
             \ '%+C%.%#'
     else
         let errorformat =
-            \ '%C\ %#%f\, Line %l,'.
-            \ '%-G\ %.%#,'.
+            \ '%C %#%f\, Line %l,'.
+            \ '%-G %.%#,'.
             \ '%ESlim::Parser::SyntaxError: %m,'.
             \ '%+C%.%#'
     endif

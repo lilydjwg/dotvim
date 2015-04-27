@@ -10,7 +10,7 @@
 "
 "============================================================================
 
-if exists("g:loaded_syntastic_ruby_rubylint_checker")
+if exists('g:loaded_syntastic_ruby_rubylint_checker')
     finish
 endif
 
@@ -23,7 +23,9 @@ function! SyntaxCheckers_ruby_rubylint_GetLocList() dict
     if !exists('s:rubylint_new')
         let s:rubylint_new = syntastic#util#versionIsAtLeast(self.getVersion(), [2])
     endif
-    let makeprg = self.makeprgBuild({ 'args': (s:rubylint_new ? '' : 'analyze ') . '--presenter=syntastic' })
+    let makeprg = self.makeprgBuild({
+        \ 'args': (s:rubylint_new ? '' : 'analyze '),
+        \ 'args_after': '--presenter=syntastic' })
 
     let errorformat = '%f:%t:%l:%c: %m'
 

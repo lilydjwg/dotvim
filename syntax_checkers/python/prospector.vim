@@ -10,7 +10,7 @@
 "
 "============================================================================
 
-if exists("g:loaded_syntastic_python_prospector_checker")
+if exists('g:loaded_syntastic_python_prospector_checker')
     finish
 endif
 let g:loaded_syntastic_python_prospector_checker = 1
@@ -31,7 +31,6 @@ endfunction
 
 function! SyntaxCheckers_python_prospector_GetLocList() dict
     let makeprg = self.makeprgBuild({
-        \ 'args': '--external-config merge',
         \ 'args_after': '--messages-only --absolute-paths --die-on-tool-error --zero-exit --output-format json' })
 
     let errorformat = '%f:%l:%c: %m'

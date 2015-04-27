@@ -10,7 +10,7 @@
 "
 "============================================================================
 
-if exists("g:loaded_syntastic_puppet_puppet_checker")
+if exists('g:loaded_syntastic_puppet_puppet_checker')
     finish
 endif
 let g:loaded_syntastic_puppet_puppet_checker = 1
@@ -20,8 +20,7 @@ set cpo&vim
 
 function! SyntaxCheckers_puppet_puppet_GetLocList() dict
     if !exists('s:puppet_new')
-        let ver = self.getVersion(self.getExecEscaped() . ' --version 2>' . syntastic#util#DevNull())
-        let s:puppet_new = syntastic#util#versionIsAtLeast(ver, [2, 7, 0])
+        let s:puppet_new = syntastic#util#versionIsAtLeast(self.getVersion(), [2, 7, 0])
     endif
 
     let makeprg = self.makeprgBuild({
