@@ -30,9 +30,11 @@ endfunction " }}}2
 
 function! syntastic#util#system(command) abort " {{{2
     let old_shell = &shell
+    let old_shellredir = &shellredir
     let old_lc_messages = $LC_MESSAGES
     let old_lc_all = $LC_ALL
 
+    let &shellredir = '&>'
     let &shell = syntastic#util#var('shell')
     let $LC_MESSAGES = 'C'
     let $LC_ALL = ''
@@ -43,6 +45,7 @@ function! syntastic#util#system(command) abort " {{{2
     let $LC_MESSAGES = old_lc_messages
 
     let &shell = old_shell
+    let &shellredir = old_shellredir
 
     return out
 endfunction " }}}2
