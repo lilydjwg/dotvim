@@ -11,7 +11,7 @@ def getpath():
   path = sys.path[:]
   if '' in path:
     i = path.index('')
-    paths[i] = '.'
+    path[i] = '.'
   return path
 
 vim.command('setlocal path=%s' % '.,'+','.join(getpath()).replace(' ', r'\ '))
