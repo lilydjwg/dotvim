@@ -874,6 +874,12 @@ command BufClean call Lilydjwg_cleanbufs()
 " 插件配置[[[1
 "   Rust racer[[[2
 let g:racer_cmd = 'racer'
+" https://github.com/phildawes/racer/issues/194
+if !exists('g:neocomplete#sources#omni#input_patterns')
+    let g:neocomplete#sources#omni#input_patterns = {}
+endif
+let g:neocomplete#sources#omni#input_patterns.rust =
+    \ '[^.[:digit:] *\t]\%(\.\|\::\)\%(\h\w*\)\?'
 "   syntastic[[[2
 let g:syntastic_python_checkers = ['python']
 let g:syntastic_check_on_wq = 0
