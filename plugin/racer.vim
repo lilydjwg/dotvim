@@ -21,7 +21,7 @@ if !exists('$RUST_SRC_PATH')
     let s:rust_src_default = 1
     let $RUST_SRC_PATH="/usr/local/src/rust/src"
 endif
-if !isdirectory($RUST_SRC_PATH)
+if !g:silent_unsupported && !isdirectory($RUST_SRC_PATH)
     if exists('s:rust_src_default')
       echohl WarningMsg | echomsg "No RUST_SRC_PATH environment variable present, nor could default installation be found at: " . $RUST_SRC_PATH
     else
