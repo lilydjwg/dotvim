@@ -1146,7 +1146,12 @@ if has("cscope")
 
     " add any database in current directory
     function Lilydjwg_csadd()
-      cd %:h
+      try
+        cd %:h
+      catch /.*/
+        return
+      endtry
+
       try
         for [filename, prgname] in s:tags_files
           let db = findfile(filename, '.;')
