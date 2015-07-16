@@ -4,7 +4,7 @@
 " Author:      Jan Larres <jan@majutsushi.net>
 " Licence:     Vim licence
 " Website:     http://majutsushi.github.com/tagbar/
-" Version:     2.5
+" Version:     2.6.1
 " Note:        This plugin was heavily inspired by the 'Taglist' plugin by
 "              Yegappan Lakshmanan and uses a small amount of code from it.
 "
@@ -42,49 +42,45 @@ if v:version == 700 && !has('patch167')
     finish
 endif
 
-if !exists('g:tagbar_left')
-    let g:tagbar_left = 0
-endif
+function! s:init_var(var, value) abort
+    if !exists('g:tagbar_' . a:var)
+        execute 'let g:tagbar_' . a:var . ' = ' . string(a:value)
+    endif
+endfunction
 
-if !exists('g:tagbar_width')
-    let g:tagbar_width = 40
-endif
+function! s:setup_options() abort
+    if !exists('g:tagbar_vertical') || g:tagbar_vertical == 0
+        let previewwin_pos = 'topleft'
+    else
+        let previewwin_pos = 'rightbelow vertical'
+    endif
+    let options = [
+        \ ['autoclose', 0],
+        \ ['autofocus', 0],
+        \ ['autopreview', 0],
+        \ ['autoshowtag', 0],
+        \ ['compact', 0],
+        \ ['expand', 0],
+        \ ['foldlevel', 99],
+        \ ['hide_nonpublic', 0],
+        \ ['indent', 2],
+        \ ['left', 0],
+        \ ['previewwin_pos', previewwin_pos],
+        \ ['show_visibility', 1],
+        \ ['show_linenumbers', 0],
+        \ ['singleclick', 0],
+        \ ['sort', 1],
+        \ ['systemenc', &encoding],
+        \ ['vertical', 0],
+        \ ['width', 40],
+        \ ['zoomwidth', 1],
+    \ ]
 
-if !exists('g:tagbar_autoclose')
-    let g:tagbar_autoclose = 0
-endif
-
-if !exists('g:tagbar_autofocus')
-    let g:tagbar_autofocus = 0
-endif
-
-if !exists('g:tagbar_sort')
-    let g:tagbar_sort = 1
-endif
-
-if !exists('g:tagbar_compact')
-    let g:tagbar_compact = 0
-endif
-
-if !exists('g:tagbar_indent')
-    let g:tagbar_indent = 2
-endif
-
-if !exists('g:tagbar_show_visibility')
-    let g:tagbar_show_visibility = 1
-endif
-
-if !exists('g:tagbar_expand')
-    let g:tagbar_expand = 0
-endif
-
-if !exists('g:tagbar_singleclick')
-    let g:tagbar_singleclick = 0
-endif
-
-if !exists('g:tagbar_foldlevel')
-    let g:tagbar_foldlevel = 99
-endif
+    for [opt, val] in options
+        call s:init_var(opt, val)
+    endfor
+endfunction
+call s:setup_options()
 
 if !exists('g:tagbar_iconchars')
     if has('multi_byte') && has('unix') && &encoding == 'utf-8' &&
@@ -95,13 +91,37 @@ if !exists('g:tagbar_iconchars')
     endif
 endif
 
-if !exists('g:tagbar_autoshowtag')
-    let g:tagbar_autoshowtag = 0
-endif
+function! s:setup_keymaps() abort
+    let keymaps = [
+        \ ['jump',          '<CR>'],
+        \ ['preview',       'p'],
+        \ ['previewwin',    'P'],
+        \ ['nexttag',       '<C-N>'],
+        \ ['prevtag',       '<C-P>'],
+        \ ['showproto',     '<Space>'],
+        \ ['hidenonpublic', 'v'],
+        \
+        \ ['openfold',      ['+', '<kPlus>', 'zo']],
+        \ ['closefold',     ['-', '<kMinus>', 'zc']],
+        \ ['togglefold',    ['o', 'za']],
+        \ ['openallfolds',  ['*', '<kMultiply>', 'zR']],
+        \ ['closeallfolds', ['=', 'zM']],
+        \ ['nextfold',      'zj'],
+        \ ['prevfold',      'zk'],
+        \
+        \ ['togglesort',      's'],
+        \ ['toggleautoclose', 'c'],
+        \ ['zoomwin',         'x'],
+        \ ['close',           'q'],
+        \ ['help',            ['<F1>', '?']],
+    \ ]
 
-if !exists('g:tagbar_systemenc')
-    let g:tagbar_systemenc = &encoding
-endif
+    for [map, key] in keymaps
+        call s:init_var('map_' . map, key)
+        unlet key
+    endfor
+endfunction
+call s:setup_keymaps()
 
 augroup TagbarSession
     autocmd!
@@ -109,6 +129,7 @@ augroup TagbarSession
 augroup END
 
 " Commands {{{1
+command! -nargs=0 Tagbar              call tagbar#ToggleWindow()
 command! -nargs=0 TagbarToggle        call tagbar#ToggleWindow()
 command! -nargs=? TagbarOpen          call tagbar#OpenWindow(<f-args>)
 command! -nargs=0 TagbarOpenAutoClose call tagbar#OpenWindow('fcj')
@@ -119,7 +140,7 @@ command! -nargs=? TagbarCurrentTag    echo tagbar#currenttag('%s', 'No current t
 command! -nargs=1 TagbarGetTypeConfig call tagbar#gettypeconfig(<f-args>)
 command! -nargs=? TagbarDebug         call tagbar#StartDebug(<f-args>)
 command! -nargs=0 TagbarDebugEnd      call tagbar#StopDebug()
-command! -nargs=0 TagbarTogglePause   call tagbar#PauseAutocommands()
+command! -nargs=0 TagbarTogglePause   call tagbar#toggle_pause()
 
 " Modeline {{{1
 " vim: ts=8 sw=4 sts=4 et foldenable foldmethod=marker foldcolumn=1

@@ -3,48 +3,45 @@
 " Author:      Jan Larres <jan@majutsushi.net>
 " Licence:     Vim licence
 " Website:     http://majutsushi.github.com/tagbar/
-" Version:     2.5
+" Version:     2.6.1
 
 scriptencoding utf-8
 
 if exists("b:current_syntax")
-  finish
+    finish
 endif
 
-let s:ic = g:tagbar_iconchars[0]
-if s:ic =~ '[]^\\-]'
-    let s:ic = '\' . s:ic
-endif
-let s:io = g:tagbar_iconchars[1]
-if s:io =~ '[]^\\-]'
-    let s:io = '\' . s:io
-endif
-
-let s:pattern = '\([' . s:ic . s:io . '] \?\)\@<=[^-+: ]\+[^:]\+$'
+let s:ics = escape(join(g:tagbar_iconchars, ''), ']^\-')
+let s:pattern = '\(^[' . s:ics . '] \?\)\@<=[^-+: ]\+[^:]\+$'
 execute "syntax match TagbarKind '" . s:pattern . "'"
 
-let s:pattern = '\([' . s:ic . s:io . '][-+# ]\?\)\@<=[^*(]\+\(\*\?\(([^)]\+)\)\? :\)\@='
+let s:pattern = '\(\S\@<![' . s:ics . '][-+# ]\?\)\@<=[^*(]\+\(\*\?\(([^)]\+)\)\? :\)\@='
 execute "syntax match TagbarScope '" . s:pattern . "'"
 
-let s:pattern = '[' . s:ic . s:io . ']\([-+# ]\?\)\@='
+let s:pattern = '\S\@<![' . s:ics . ']\([-+# ]\?\)\@='
 execute "syntax match TagbarFoldIcon '" . s:pattern . "'"
 
-let s:pattern = '\([' . s:ic . s:io . ' ]\)\@<=+\([^-+# ]\)\@='
+let s:pattern = '\(\S\@<![' . s:ics . ' ]\)\@<=+\([^-+# ]\)\@='
 execute "syntax match TagbarVisibilityPublic '" . s:pattern . "'"
-let s:pattern = '\([' . s:ic . s:io . ' ]\)\@<=#\([^-+# ]\)\@='
+let s:pattern = '\(\S\@<![' . s:ics . ' ]\)\@<=#\([^-+# ]\)\@='
 execute "syntax match TagbarVisibilityProtected '" . s:pattern . "'"
-let s:pattern = '\([' . s:ic . s:io . ' ]\)\@<=-\([^-+# ]\)\@='
+let s:pattern = '\(\S\@<![' . s:ics . ' ]\)\@<=-\([^-+# ]\)\@='
 execute "syntax match TagbarVisibilityPrivate '" . s:pattern . "'"
 
 unlet s:pattern
 
+syntax match TagbarHelp      '^".*' contains=TagbarHelpKey,TagbarHelpTitle
+syntax match TagbarHelpKey   '" \zs.*\ze:' contained
+syntax match TagbarHelpTitle '" \zs-\+ \w\+ -\+' contained
+
 syntax match TagbarNestedKind '^\s\+\[[^]]\+\]$'
-syntax match TagbarComment    '^".*'
 syntax match TagbarType       ' : \zs.*'
 syntax match TagbarSignature  '(.*)'
 syntax match TagbarPseudoID   '\*\ze :'
 
-highlight default link TagbarComment    Comment
+highlight default link TagbarHelp       Comment
+highlight default link TagbarHelpKey    Identifier
+highlight default link TagbarHelpTitle  PreProc
 highlight default link TagbarKind       Identifier
 highlight default link TagbarNestedKind TagbarKind
 highlight default link TagbarScope      Title

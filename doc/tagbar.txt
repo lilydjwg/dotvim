@@ -3,7 +3,7 @@
 Author:         Jan Larres <jan@majutsushi.net>
 Licence:        Vim licence, see |license|
 Homepage:       http://majutsushi.github.com/tagbar/
-Version:        2.5
+Version:        2.6.1
 
 ==============================================================================
 Contents                                            *tagbar* *tagbar-contents*
@@ -21,6 +21,7 @@ Contents                                            *tagbar* *tagbar-contents*
               Highlight colours ............. |tagbar-highlight|
               Automatically opening Tagbar .. |tagbar-autoopen|
               Show current tag in statusline  |tagbar-statusline|
+              Ignoring specific files ....... |tagbar-ignore|
          6. Extending Tagbar ................ |tagbar-extend|
          7. Troubleshooting & Known issues .. |tagbar-issues|
          8. History ......................... |tagbar-history|
@@ -107,14 +108,13 @@ The following features are supported by Tagbar:
 ------------------------------------------------------------------------------
 OTHER CTAGS-COMPATIBLE PROGRAMS                                 *tagbar-other*
 
-Tagbar theoretically also supports filetype-specific programs that can output
-tag information that is compatible with ctags. However due to potential
-incompatibilities this may not always completely work. Tagbar has been tested
-with doctorjs/jsctags and will use that if present, other programs require
-some configuration (see |tagbar-extend|). If a program does not work even with
-correct configuration please contact me.
+Tagbar also supports filetype-specific programs that can produce
+ctags-compatible output, as long as these programs can write to the standard
+output. Tagbar has been tested with doctorjs/jsctags and will use that if
+present, other programs require some configuration (see |tagbar-extend|). If a
+program does not work even with correct configuration please contact me.
 
-Note: Please check |tagbar-issues| for some possible issues with jsctags.
+Note: Please check |tagbar-issues| for some potential issues with jsctags.
 
 ==============================================================================
 2. Requirements                                          *tagbar-requirements*
@@ -132,7 +132,7 @@ The following requirements have to be met in order to be able to use tagbar:
 
     Tagbar will work on any platform that ctags runs on -- this includes
     UNIX derivatives, Mac OS X and Windows. Note that other versions like
-    GNU ctags will not work.
+    BSD ctags will not work.
     Tagbar generates the tag information by itself and doesn't need (or use)
     already existing tag files.
   - File type detection must be turned on in vim. This can be done with the
@@ -195,11 +195,11 @@ and have it close automatically on tag selection regardless of the
 |g:tagbar_autoclose| setting.
 
 Pausing the Tagbar window~
-Use |:TagbarTogglePause| to toggle freezing the Tagbar window on its currently
-displayed file. Freezing the window stops the Tagbar contents from changing
-when switching to a different source file. All Tagbar functionality continues
-to work as expected. Unfreezing the window will cause it to load the current
-source file.
+Use |:TagbarTogglePause| to toggle freezing/locking the Tagbar window on its
+currently displayed file. Freezing the window stops the Tagbar contents from
+changing when switching to a different source file. All Tagbar functionality
+continues to work as expected. Unfreezing the window will cause it to load the
+current source file.
 
 Jumping to tags~
 When you're inside the Tagbar window you can jump to the definition of a tag
@@ -250,7 +250,8 @@ COMMANDS                                                     *tagbar-commands*
     'j'   Jump to Tagbar window if already open
     'c'   Close Tagbar on tag selection (just as if |g:tagbar_autoclose| were
           set to 1, but doesn't imply 'f'), but only if the Tagbar window was
-          opened using this command.
+          opened using this command. If this is used the "c" flag will be
+          shown in the statusline of the Tagbar window.
 
     For example, the following command would always jump to the Tagbar window,
     opening it first if necessary, but keep it open after selecting a tag
@@ -261,14 +262,15 @@ COMMANDS                                                     *tagbar-commands*
     Close the Tagbar window if it is open.
 
 :TagbarToggle                                                  *:TagbarToggle*
-    Open the Tagbar window if it is closed or close it if it is open.
+:Tagbar
+    Open the Tagbar window if it is closed, or close it if it is open.
 
 :TagbarOpenAutoClose                                    *:TagbarOpenAutoClose*
     Open the Tagbar window, jump to it and close it on tag selection. This is
     an alias for ":TagbarOpen fjc".
 
 :TagbarTogglePause                                        *:TagbarTogglePause*
-    Freezes/Unfreezes the Tagbar window.  Stops the contents of the window 
+    Freezes/Unfreezes the Tagbar window.  Stops the contents of the window
     from changing when a different source file is selected.
 
 :TagbarSetFoldlevel[!] {number}                          *:TagbarSetFoldlevel*
@@ -298,6 +300,8 @@ COMMANDS                                                     *tagbar-commands*
     Start debug mode. This will write debug messages to file [logfile] while
     using Tagbar. If no argument is given "tagbardebug.log" in the current
     directory is used. Note: an existing file will be overwritten!
+    Note also that it is usually necessary to call this command before loading
+    a file that creates problems in order to get all of the needed data.
 
 :TagbarDebugEnd                                              *:TagbarDebugEnd*
     End debug mode, debug messages will no longer be written to the logfile.
@@ -307,28 +311,63 @@ KEY MAPPINGS                                                     *tagbar-keys*
 
 The following mappings are valid in the Tagbar window:
 
-<F1>          Display key mapping help.
+<F1>/?        Display key mapping help.
+                Map option: tagbar_map_help
 <CR>/<Enter>  Jump to the tag under the cursor. Doesn't work for pseudo-tags
               or generic headers.
+                Map option: tagbar_map_jump
 p             Jump to the tag under the cursor, but stay in the Tagbar window.
+                Map option: tagbar_map_preview
+P             Open the tag in a |preview-window|.
+                Map option: tagbar_map_previewwin
 <LeftMouse>   When on a fold icon, open or close the fold depending on the
               current state.
 <2-LeftMouse> Same as <CR>. See |g:tagbar_singleclick| if you want to use a
               single- instead of a double-click.
+<C-N>         Go to the next top-level tag.
+                Map option: tagbar_map_nexttag
+<C-P>         Go to the previous top-level tag.
+                Map option: tagbar_map_prevtag
 <Space>       Display the prototype of the current tag (i.e. the line defining
               it) in the command line.
+                Map option: tagbar_map_showproto
+v             Hide tags that are declared non-public. Tags without any
+              visibility information will still be shown.
+                Map option: tagbar_map_hidenonpublic
 +/zo          Open the fold under the cursor.
+                Map option: tagbar_map_openfold
 -/zc          Close the fold under the cursor or the current one if there is
               no fold under the cursor.
+                Map option: tagbar_map_closefold
 o/za          Toggle the fold under the cursor or the current one if there is
               no fold under the cursor.
+                Map option: tagbar_map_togglefold
 */zR          Open all folds by setting foldlevel to 99.
+                Map option: tagbar_map_openallfolds
 =/zM          Close all folds by setting foldlevel to 0.
-<C-N>         Go to the next top-level tag.
-<C-P>         Go to the previous top-level tag.
+                Map option: tagbar_map_closeallfolds
+zj            Go to the start of the next fold, like the standard Vim |zj|.
+                Map option: tagbar_map_nextfold
+zk            Go to the end of the previous fold, like the standard Vim |zk|.
+                Map option: tagbar_map_prevfold
 s             Toggle sort order between name and file order.
+                Map option: tagbar_map_togglesort
+c             Toggle the |g:tagbar_autoclose| option.
+                Map option: tagbar_map_toggleautoclose
 x             Toggle zooming the window.
+                Map option: tagbar_map_zoomwin
 q             Close the Tagbar window.
+                Map option: tagbar_map_close
+
+These mappings can be redefined with the given map options. The argument can
+be either a string or a |List| of strings. In the latter case the
+functionality will be assigned to all of the keys in the list. For example, if
+you want to remap the sort toggling functionality to "r":
+>
+        let g:tagbar_map_togglesort = "r"
+<
+See |key-notation| for how to write special keys like <Space> or the keypad
+keys.
 
 ==============================================================================
 5. Configuration                                        *tagbar-configuration*
@@ -352,9 +391,27 @@ Default: 0
 By default the Tagbar window will be opened on the right-hand side of vim. Set
 this option to open it on the left instead.
 
+If |g:tagbar_vertical| is used then setting this variable will open the Tagbar
+window at the top, otherwise it will open at the bottom.
+
 Example:
 >
         let g:tagbar_left = 1
+<
+
+                                                           *g:tagbar_vertical*
+g:tagbar_vertical~
+Default: 0
+
+If this is set to a positive value then the Tagbar window will be opened at
+the top or bottom of the Vim window instead of at the side. This can be useful
+for monitors that have been rotated into a vertical position. The value of
+this variable will determine the number of lines to use for the Tagbar window.
+See |g:tagbar_left| for configuring the position of the window.
+
+Example:
+>
+        let g:tagbar_vertical = 30
 <
 
                                                               *g:tagbar_width*
@@ -368,12 +425,30 @@ Example:
         let g:tagbar_width = 30
 <
 
+                                                          *g:tagbar_zoomwidth*
+g:tagbar_zoomwidth~
+Default: 1
+
+Width of the Tagbar window when zoomed.
+
+Possible values are:
+  1: Use the maximum width available.
+  0: Use the width of the longest currently visible tag.
+  >1: Use this width in characters.
+
+Example:
+>
+        let g:tagbar_zoomwidth = 0
+<
+
                                                           *g:tagbar_autoclose*
 g:tagbar_autoclose~
 Default: 0
 
 If you set this option the Tagbar window will automatically close when you
-jump to a tag. This implies |g:tagbar_autofocus|.
+jump to a tag. This implies |g:tagbar_autofocus|. If enabled the "C" flag will
+be shown in the statusline of the Tagbar window. This can also be toggled with
+a key, see |tagbar-keys|.
 
 Example:
 >
@@ -443,12 +518,45 @@ Example:
         let g:tagbar_show_visibility = 0
 <
 
+                                                   *g:tagbar_show_linenumbers*
+g:tagbar_show_linenumbers~
+Default: 0
+
+Whether line numbers should be shown in the Tagbar window.
+
+Possible values are:
+  0: Don't show any line numbers.
+  1: Show absolute line numbers.
+  2: Show relative line numbers.
+  -1: Use the global line number settings.
+
+Example:
+>
+        let g:tagbar_show_linenumbers = 2
+<
+
+                                                     *g:tagbar_hide_nonpublic*
+g:tagbar_hide_nonpublic~
+Default: 0
+
+Hide tags that are declared non-public. Tags without any visibility
+information will still be shown. If enabled the "v" flag will be shown in the
+statusline of the Tagbar window. This can also be toggled with a key, see
+|tagbar-keys|.
+
+Example:
+>
+        let g:tagbar_hide_nonpublic = 1
+<
+
                                                              *g:tagbar_expand*
 g:tagbar_expand~
 Default: 0
 
-If this option is set the Vim window will be expanded by the width of the
-Tagbar window if using a GUI version of Vim.
+If this option is set to 1 the Vim window will be expanded by the width of the
+Tagbar window if using a GUI version of Vim. Setting it to 2 will also try
+expanding a terminal, but note that this is not supported by all terminals.
+See also |xterm-resize|.
 
 Example:
 >
@@ -492,7 +600,7 @@ Examples (don't worry if some of the characters aren't displayed correctly,
 just choose other characters in that case):
 >
         let g:tagbar_iconchars = ['▶', '▼']  (default on Linux and Mac OS X)
-        let g:tagbar_iconchars = ['▾', '▸']
+        let g:tagbar_iconchars = ['▸', '▾']
         let g:tagbar_iconchars = ['▷', '◢']
         let g:tagbar_iconchars = ['+', '-']  (default on Windows)
 <
@@ -501,15 +609,48 @@ just choose other characters in that case):
 g:tagbar_autoshowtag~
 Default: 0
 
-If this variable is set and the current tag is inside of a closed fold then
-the folds will be opened as much as needed for the tag to be visible so it can
-be highlighted. If it is not set then the folds won't be opened and the parent
-tag will be highlighted instead. You can use the |:TagbarShowTag| command to
-open the folds manually.
+If this variable is set to 1 and the current tag is inside of a closed fold
+then the folds will be opened as much as needed for the tag to be visible so
+it can be highlighted. If it is set to 0 then the folds will only be opened
+when opening the Tagbar window and the current tag is inside a closed fold,
+otherwise the folds won't be opened and the parent tag will be highlighted
+instead. If it is set to 2 then the folds will never be opened automatically.
+
+You can use the |:TagbarShowTag| command to open the folds manually.
 
 Example:
 >
         let g:tagbar_autoshowtag = 1
+<
+
+                                                     *g:tagbar_previewwin_pos*
+g:tagbar_previewwin_pos~
+Default: "topleft", or "rightbelow vertical" if |g:tagbar_vertical| is set
+
+The position of the preview window. Valid values are the window splitting
+commands that are described starting from |:vertical|. Set it to an empty
+string to use the options 'splitbelow' and 'splitright'.
+
+Example:
+>
+        let g:tagbar_previewwin_pos = "aboveleft"
+<
+If you want to disable line numbers in the preview window put something like
+this into your vimrc:
+>
+        autocmd BufWinEnter * if &previewwindow | setlocal nonumber | endif
+<
+
+                                                        *g:tagbar_autopreview*
+g:tagbar_autopreview~
+Default: 0
+
+If this variable is set to 1 then moving the cursor in the Tagbar window will
+automatically show the current tag in the preview window.
+
+Example:
+>
+        let g:tagbar_autopreview = 1
 <
 
                                               *g:tagbar_updateonsave_maxlines*
@@ -527,12 +668,45 @@ system is different from the one set in Vim, i.e. the 'encoding' option. For
 example, if you use a Simplified Chinese Windows version that has a system
 encoding of "cp936", and you have set 'encoding' to "utf-8", then you would
 have to set this variable to "cp936".
-Note that this requires Vim to be compiled with the |+multi_byte| and (unless
-your encoding is latin1) |+iconv| features to work.
+Note that this requires Vim to be compiled with the |+multi_byte| and |+iconv|
+features to work.
 
 Example:
 >
         let g:tagbar_systemenc = 'cp936'
+<
+
+                                                        *g:tagbar_status_func*
+g:tagbar_status_func~
+Default: undefined
+
+This is the name of a function whose return value will be used to draw the
+statusline of the Tagbar window.
+
+The function has to take four arguments:
+  1. current: Whether Tagbar is the current window; 0 or 1.
+  2. sort: The sort order of the tags; 'Name' if they are sorted by name and
+     'Order' if they are sorted by their order of appearance in the file.
+  3. fname: The name of the file that the tags belong to.
+  4. flags: A list of characters that represent various state in the Tagbar
+     window.
+
+In order to avoid possible future additions to the arguments resulting in an
+error it is recommended to add an additional vararg to the signature (see
+|a:0|).
+
+Here is an example that, when put into your vimrc, will emulate Tagbar's
+default statusline:
+>
+        function! TagbarStatusFunc(current, sort, fname, flags, ...) abort
+            let colour = a:current ? '%#StatusLine#' : '%#StatusLineNC#'
+            let flagstr = join(flags, '')
+            if flagstr != ''
+                let flagstr = '[' . flagstr . '] '
+            endif
+            return colour . '[' . sort . '] ' . flagstr . fname
+        endfunction
+        let g:tagbar_status_func = 'TagbarStatusFunc'
 <
 
 ------------------------------------------------------------------------------
@@ -663,6 +837,18 @@ Note that if there is an error when processing the current file no error
 message will be shown in order to not disrupt the statusline. If the function
 doesn't seem to work right open the Tagbar window to see any error messages.
 
+------------------------------------------------------------------------------
+IGNORING SPECIFIC FILES                                        *tagbar-ignore*
+
+You can ignore specific files by setting the |buffer-variable|
+"b:tagbar_ignore" to 1. This is best done with an |autocommand|:
+>
+    autocmd BufNewFile,BufReadPost foo.cpp let b:tagbar_ignore = 1
+<
+Note that autocommands are order-sensitive, so make sure that this autocommand
+gets defined before the ones that Tagbar defines so the variable will get
+found at the right time.
+
 ==============================================================================
 6. Extending Tagbar                                            *tagbar-extend*
 
@@ -792,6 +978,25 @@ ctagsargs: The arguments to be passed to the filetype-specific ctags program
 {optional} (without the filename). Make sure you set an option that makes the
            program output its data on stdout. Not used for the normal ctags
            program.
+
+           The value of ctagsargs may be a |List| of strings (a string for
+           each argument), or a single string (|expr-string|) of all the
+           arguments.
+
+           When the value of ctagsargs is a list, tagbar.vim takes care of
+           escaping each argument in the list as required for the current
+           'shell' type.
+
+           When the value of ctagsargs is a string, it must be properly
+           escaped (if required by the current shell type). The reason
+           tagbar.vim does not attempt to escape the string in this case is
+           because if there is a space, it is ambiguous as to whether the
+           space is delimiting an argument or included in the argument. To
+           avoid this amiguity, tagbar.vim expects the string to be already
+           escaped as required.
+
+           If special escaping is required for different OS shell types or if
+           in doubt, then it is recommended to define ctagsargs with a List.
 
 
 You then have to assign this dictionary to a variable in your vimrc with the
@@ -961,6 +1166,30 @@ LaTeX parser that works better than the example configuration presented here.
 So if you are using a development build newer than that or a stable version
 newer than 5.8 you should use the built-in support instead of this example.
 
+Project-specific configuration~
+
+In addition to the normal global configuration it is also possible to have
+project-specific settings. This is mostly useful for additional ctags options,
+like for example macros to ignore. Or maybe you want to do things like folding
+certain tag kinds in some projects.
+
+In order to use this feature you need to create User |autocommand|s in an
+augroup called "TagbarProjects" and have it create a buffer-local variable
+called "b:tagbar_type". This variable has to hold a type definition just like
+the normal ones described in this chapter. This definition will then be
+applied only to the files matched by the autocommand.
+
+Note that there can be multiple definitions of the augroup with their own
+autocommands (for example in separate project directories); they will get
+merged automatically by Vim.
+
+Example:
+>
+    augroup TagbarProjects
+        autocmd User ~/myproject/*.c let b:tagbar_type = {'deffile' : '~/myproject/ctags.cnf'}
+    augroup END
+<
+
 Writing your own tag-generating program~
 If you want to write your own program for generating tags then here are some
 imporant tips to get it to integrate well with Tagbar:
@@ -973,10 +1202,11 @@ imporant tips to get it to integrate well with Tagbar:
     (stdout), it doesn't generate files and reads them in after that. So make
     sure that your program has an option to output the tags on stdout.
   - Some fields are supported for providing additional information about a
-    tag. One field is required: the "kind" field as a single letter without
-    a "kind:" fieldname. This field has to be the first one in the list. All
-    other fields need to have a fieldname in order to determine what they are.
-    The following fields are supported for all filetypes:
+    tag. One field is required: the "kind" field as a single letter, either
+    with or without a "kind:" fieldname. If it is used without the fieldname
+    then it has to be the first field in the list. All other fields need to
+    have a fieldname in order to determine what they are. The following fields
+    are supported for all filetypes:
 
         * line:      The line number of the tag.
         * column:    The column number of the tag.
@@ -1008,12 +1238,27 @@ ctags manually execute the following command in a terminal:
 If you set the |g:tagbar_ctags_bin| variable you probably have to use the same
 value here instead of simply "ctags".
 
-If Tagbar doesn't seem to work at all, but you don't get any error messages,
-you can use Tagbar's debug mode to try to find the source of the problem (see
-|tagbar-commands| on how to invoke it). In that case you should especially pay
-attention to the reported file type and the ctags command line in the log
-file.
+If something more fundamental isn't working right then try running the
+|:messages| command to see if Tagbar printed any error messages that might
+have been missed.
 
+If the bug does seem to be in Tagbar then you can use Tagbar's debug mode to
+try to find the source of the problem. Usually you would use it like this:
+
+  1. Open Vim without loading any files.
+  2. Run :TagbarDebug.
+  3. Open the file you are having problems with.
+  4. Open Tagbar. If the problem is with the statusline functionality this
+     step may not be necessary.
+  5. Exit Vim.
+
+This should leave a file called "tagbardebug.log" in the current directory.
+See |tagbar-commands| for more information on the debug commands. When you
+look at the file you should especially pay attention to the reported file type
+and the ctags command line in the log file.
+
+
+Known issues~
 
   - jsctags has to be newer than 2011-01-06 since it needs the "-f" option to
     work. Also, the output of jsctags seems to be a bit unreliable at the
@@ -1066,6 +1311,27 @@ file.
 
 ==============================================================================
 8. History                                                    *tagbar-history*
+
+2.6.1 (2014-01-23)
+    - Automatically close the preview window when jumping to a tag
+    - Don't forget the previous window in certain situations, which was
+      causing problems with for example fugitive
+    - Fixed toggling kind-specific folds
+    - Fixed ctags error that can happen with Cygwin
+
+2.6 (2013-12-06)
+    - Added possibility to show tags in the preview window, either manually or
+      automatically.
+    - Allow customizing the statusline, see :help g:tagbar_status_func.
+    - Type configuration can now be project-specific.
+    - The keybindings in the Tagbar window are now configurable.
+    - Improvements to Ctags execution on Windows, thanks to Darcy Parker.
+    - Added function tagbar#currentfile() that returns the path to the file
+      currently being displayed in Tagbar, thanks to Zhao Cai.
+    - Added a :Tagbar command as an alias for :TagbarToggle.
+    - Added an way to ignore specific files in case they create problems.
+    - Optionally show line numbers in the Tagbar window.
+    - The usual bunch of small improvements and bugfixes.
 
 2.5 (2013-03-25)
     - New command :TagbarTogglePause to freeze Tagbar in its current state so
@@ -1219,11 +1485,18 @@ software.
 The folding technique was inspired by NERDTree by Martin Grenfell.
 
 Thanks to the following people for code contributions, feature suggestions etc:
+Peter Butkovic
+Zhao Cai
 Jan Christoph Ebersbach
 Vadim Fint
 Leandro Freitas
+Ingo Karkat
+Audrius Kažukauskas
+Michael McClimon
 Seth Milliken
 Kien N
+Darcy Parker
+fritzophrenic
 pielgrzym
 Taybin Rutkin
 Kian Ryan
