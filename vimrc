@@ -1028,6 +1028,7 @@ let tlist_dosini_settings = 'ini;s:sections'
 let tlist_go_settings = 'go;f:functions;v:variables;d:types'
 let tlist_pgsql_settings = 'pgsql;f:functions;t:tables'
 let tlist_markdown_settings = 'markdown;h:headers'
+let tlist_rust_settings = 'rust;n:modules;s:structural types;i:trait interfaces;c:implementations;f:functions;g:enums;t:type aliases;v:global variables;M:macro definitions;m:struct fields;e:enum variants;F:methods'
 hi link MyTagListFileName Type
 "   2html.vim, 使用XHTML格式[[[2
 let use_xhtml = 1
