@@ -27,11 +27,12 @@ syn match httplogBrowser	/\v%(__)@<=weibo%(__)@=/
 syn match httplogBrowser	/\v<MSIE>%(.*%(MAXTHON))@!/
 syn match httplogBrowser	/\<Yahoo! Slurp\>/
 syn match httplogBrowser	"\<XiaoMi/MiuiBrowser\>"
+syn match httplogBrowser	"\<inoreader\.com\>"
 syn keyword httplogBrowser	Firefox Konqueror Chromium ChromePlus Opera w3m Wget aria2 Lynx Epiphany Links TheWorld MAXTHON contained
 syn keyword httplogBrowser	OPR MicroMessenger contained
 syn keyword httplogBrowser	gvfs curl pacman PackageKit contained
 syn keyword httplogBrowser	Googlebot Baiduspider Sosospider YandexBot W3C_Validator Jigsaw PhantomJS ia_archiver AhrefsBot Exabot contained
-syn keyword httplogBrowser	TelegramBot contained
+syn keyword httplogBrowser	TelegramBot Feedly contained
 syn match httplogLAN	/\v^192\.168\.\d+\.\d+/ contained
 syn match httplogLAN	/\v^172\.(1[6-9]|2[0-9]|3[01])\.\d+\.\d+/ contained
 syn match httplogLAN	/\v^10\.\d+\.\d+\.\d+/ contained
