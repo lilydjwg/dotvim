@@ -32,7 +32,7 @@ endif
 let b:did_ftplugin = 1
 
 setlocal commentstring=<!--%s-->
-setlocal iskeyword=@,48-57,_,192-255,58
+setlocal iskeyword=@,48-57,_,192-255,58,-
 
 " XML:  thanks to Johannes Zellner and Akbar Ibrahim
 " - case sensitive
@@ -1335,7 +1335,7 @@ function! s:XmlInstallDocumentation(full_name, revision)
             \ '.\{-}\ze\%(\%(ft\)\=plugin\|macros\)') . l:doc_path
     if (!(filewritable(l:vim_doc_path) == 2))
         echomsg "Doc path: " . l:vim_doc_path
-        execute l:mkdir_cmd . l:vim_doc_path
+        execute l:mkdir_cmd . '"' . l:vim_doc_path . '"'
         if (!(filewritable(l:vim_doc_path) == 2))
             " Try a default configuration in user home:
             "let l:vim_doc_path = expand("~") . l:doc_home
@@ -1631,7 +1631,7 @@ for details.
           <LocalLeader>]        Delete <!-- -->      delimiters
           <LocalLeader>}        Delete <!-- -->      section
           [[        Goto to the previous open tag 
-          [[        Goto to the next open tag 
+          ]]        Goto to the next open tag 
           []        Goto to the previous close tag 
           ][        Goto to the next  close tag 
           ["        Goto to the next  comment
