@@ -1226,9 +1226,11 @@ endfunction
 
 " unmapKeys()                         {{{1
 function! s:unmapKeys()
-  for mapped in b:xmlPluginMappedKeys
-    execute "silent! " . mapped[0] . "unmap <buffer> " . mapped[1]
-  endfor
+  if exists("b:xmlPluginMappedKeys")
+    for mapped in b:xmlPluginMappedKeys
+      execute "silent! " . mapped[0] . "unmap <buffer> " . mapped[1]
+    endfor
+  endif
   let b:xmlPluginMappedKeys = []
 endfunction
 
