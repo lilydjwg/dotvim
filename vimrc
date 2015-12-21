@@ -872,6 +872,12 @@ command -range=% Tohtml call Lilydjwg_to_html(<line1>, <line2>)
 command Agg exe 'Ag -Q ' . expand('<cword>')
 command BufClean call Lilydjwg_cleanbufs()
 " 插件配置[[[1
+"   deoplete[[[2
+if has('nvim')
+  let g:deoplete#enable_at_startup = 1
+else
+  let g:loaded_deoplete = 1
+endif
 "   Rust racer[[[2
 let g:racer_cmd = 'racer'
 " https://github.com/phildawes/racer/issues/194
