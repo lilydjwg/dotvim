@@ -872,6 +872,8 @@ command -range=% Tohtml call Lilydjwg_to_html(<line1>, <line2>)
 command Agg exe 'Ag -Q ' . expand('<cword>')
 command BufClean call Lilydjwg_cleanbufs()
 " 插件配置[[[1
+"   mark.vim[[[2
+let g:mwDefaultHighlightingPalette = 'maximum'
 "   deoplete[[[2
 if has('nvim')
   let g:deoplete#enable_at_startup = 1
