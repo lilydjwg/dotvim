@@ -5,7 +5,7 @@
 " 很耗时的工作，所以少支持点儿。。。
 
 " 所有未支持的类型
-syntax region wikiCodePlain matchgroup=htmlTag start="<syntaxhighlight \w\+>" end="</syntaxhighlight>"
+syntax region wikiCodePlain matchgroup=htmlTag start="^<syntaxhighlight [^>]\+>" end="^</syntaxhighlight>"
 hi link wikiCodePlain Normal
 
 let b:current_syntax_save = b:current_syntax
