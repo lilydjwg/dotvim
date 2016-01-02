@@ -836,6 +836,7 @@ command -nargs=+ Reindent call Lilydjwg_reindent(<f-args>)
 " TODO better implement
 command -range=% ClsXML <line1>,<line2>!tidy -utf8 -iq -xml
 command -range=% ClsHTML <line1>,<line2>!tidy -utf8 -iq -omit -w 0
+command -range=% ClsJSON setf json | <line1>,<line2>!jq .
 command MB tabe ~/temp/mb
 command -nargs=1 -complete=customlist,Lilydjwg_complete_So So runtime so/<args>.vim
 "   读取命令内容并将其插入到当前光标下
