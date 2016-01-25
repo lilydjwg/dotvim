@@ -16,6 +16,19 @@ runtime vimrc_example.vim
 "]]]
 " 我的设置
 " 函数[[[1
+"   复制缓冲区到新标签页[[[2
+function Lilydjwg_copy_to_newtab()
+  let temp = tempname()
+  try
+    let nr = bufnr('%')
+    exec "mkview" temp
+    tabnew
+    exec "buffer" nr
+    exec "source" temp
+  finally
+    call delete(temp)
+  endtry
+endfunction
 "   删除所有未显示且无修改的缓冲区以减少内存占用[[[2
 function Lilydjwg_cleanbufs()
   for bufNr in filter(range(1, bufnr('$')),
@@ -676,6 +689,7 @@ nmap <S-F12> :!ctags -R --c++-kinds=+p --fields=+iaS --extra=+q .<CR>
 nmap <F5> :e!<CR>
 "     t 开头 [[[3
 nmap <silent> tt :tabnew<CR>
+nmap <silent> TT :call Lilydjwg_copy_to_newtab()<CR>
 nmap t= mxHmygg=G`yzt`x
 nmap ta ggVG
 nmap <silent> tf :call Lilydjwg_open_url()<CR>
