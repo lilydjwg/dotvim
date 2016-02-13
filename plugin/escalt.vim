@@ -62,7 +62,9 @@ function Escalt_console()
 endfunction
 " ---------------------------------------------------------------------
 " Call Functions:
-call Escalt_console()
+if !has('nvim')
+  call Escalt_console()
+endif
 " ---------------------------------------------------------------------
 " Restoration And Modelines:
 let &cpo= s:keepcpo
