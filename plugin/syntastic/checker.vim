@@ -7,22 +7,36 @@ let g:SyntasticChecker = {}
 
 " Public methods {{{1
 
-function! g:SyntasticChecker.New(args) abort " {{{2
+function! g:SyntasticChecker.New(args, ...) abort " {{{2
     let newObj = copy(self)
 
     let newObj._filetype = a:args['filetype']
     let newObj._name = a:args['name']
-    let newObj._exec = get(a:args, 'exec', newObj._name)
 
-    if has_key(a:args, 'redirect')
-        let [filetype, name] = split(a:args['redirect'], '/')
+    if a:0
+        " redirected checker
+        let newObj._exec = get(a:args, 'exec', a:1['_exec'])
+
+        let filetype = a:1['_filetype']
+        let name = a:1['_name']
         let prefix = 'SyntaxCheckers_' . filetype . '_' . name . '_'
 
         if exists('g:syntastic_' . filetype . '_' . name . '_sort') && !exists('g:syntastic_' . newObj._filetype . '_' . newObj._name . '_sort')
             let g:syntastic_{newObj._filetype}_{newObj._name}_sort = g:syntastic_{filetype}_{name}_sort
         endif
+
+        if has_key(a:args, 'enable')
+            let newObj._enable = a:args['enable']
+        elseif has_key(a:1, '_enable')
+            let newObj._enable = a:1['_enable']
+        endif
     else
+        let newObj._exec = get(a:args, 'exec', newObj._name)
         let prefix = 'SyntaxCheckers_' . newObj._filetype . '_' . newObj._name . '_'
+
+        if has_key(a:args, 'enable')
+            let newObj._enable = a:args['enable']
+        endif
     endif
 
     let newObj._locListFunc = function(prefix . 'GetLocList')
@@ -54,7 +68,7 @@ endfunction " }}}2
 " getExec() or getExecEscaped().  Normally isAvailable() does that for you
 " automatically, but you should keep still this in mind if you change the
 " current checker workflow.
-function! g:SyntasticChecker.syncExec() dict " {{{2
+function! g:SyntasticChecker.syncExec() abort " {{{2
     let user_exec =
         \ expand( exists('b:syntastic_' . self._name . '_exec') ? b:syntastic_{self._name}_exec :
         \ syntastic#util#var(self._filetype . '_' . self._name . '_exec'), 1 )
@@ -78,6 +92,26 @@ endfunction " }}}2
 
 function! g:SyntasticChecker.getLocListRaw() abort " {{{2
     let name = self._filetype . '/' . self._name
+
+    if has_key(self, '_enable')
+        let status = syntastic#util#var(self._enable, -1)
+        if type(status) != type(0)
+            call syntastic#log#error('checker ' . name . ': invalid value ' . strtrans(string(status)) .
+                \ ' for g:syntastic_' . self._enable . '; try 0 or 1 instead')
+            return []
+        endif
+        if status < 0
+            call syntastic#log#error('checker ' . name . ': checks disabled for security reasons; ' .
+                \ 'set g:syntastic_' . self._enable . ' to 1 to override')
+        endif
+        if status <= 0
+            call syntastic#log#debug(g:_SYNTASTIC_DEBUG_TRACE, 'getLocList: checker ' . name . ' enabled but not forced')
+            return []
+        else
+            call syntastic#log#debug(g:_SYNTASTIC_DEBUG_TRACE, 'getLocList: checker ' . name . ' forced')
+        endif
+    endif
+
     try
         let list = self._locListFunc()
         if self._exec !=# ''
@@ -108,7 +142,13 @@ function! g:SyntasticChecker.getVersion(...) abort " {{{2
         call self.log('getVersion: ' . string(command) . ': ' .
             \ string(split(version_output, "\n", 1)) .
             \ (v:shell_error ? ' (exit code ' . v:shell_error . ')' : '') )
-        call self.setVersion(syntastic#util#parseVersion(version_output))
+        let parsed_ver = syntastic#util#parseVersion(version_output)
+        if len(parsed_ver)
+            call self.setVersion(parsed_ver)
+        else
+            call syntastic#log#ndebug(g:_SYNTASTIC_DEBUG_LOCLIST, 'checker output:', split(version_output, "\n", 1))
+            call syntastic#log#error("checker " . self._filetype . "/" . self._name . ": can't parse version string (abnormal termination?)")
+        endif
     endif
     return get(self, '_version', [])
 endfunction " }}}2
@@ -117,8 +157,6 @@ function! g:SyntasticChecker.setVersion(version) abort " {{{2
     if len(a:version)
         let self._version = copy(a:version)
         call self.log(self.getExec() . ' version =', a:version)
-    else
-        call syntastic#log#error("checker " . self._filetype . "/" . self._name . ": can't parse version string (abnormal termination?)")
     endif
 endfunction " }}}2
 
@@ -150,6 +188,10 @@ function! g:SyntasticChecker.isAvailable() abort " {{{2
         let self._available = self._isAvailableFunc()
     endif
     return self._available
+endfunction " }}}2
+
+function! g:SyntasticChecker.isDisabled() abort " {{{2
+    return has_key(self, '_enable') && syntastic#util#var(self._enable, -1) <= 0
 endfunction " }}}2
 
 function! g:SyntasticChecker.wantSort() abort " {{{2
