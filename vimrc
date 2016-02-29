@@ -1040,6 +1040,8 @@ let Tlist_Show_One_File = 1
 let tlist_vimwiki_settings = 'wiki;h:headers'
 let tlist_tex_settings = 'latex;h:headers'
 let tlist_tracwiki_settings = 'wiki;h:headers'
+let tlist_diff_settings = 'diff;m:modified;n:created;d:deleted;h:hunks'
+let tlist_git_settings = 'diff;m:modified;n:created;d:deleted;h:hunks'
 let tlist_gitcommit_settings = 'gitcommit;f:file'
 let tlist_privoxy_settings = 'privoxy;s:sections'
 "  来源 http://gist.github.com/476387
