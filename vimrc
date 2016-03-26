@@ -12,6 +12,11 @@ scriptencoding utf-8
 " 许可：GPLv3
 " ========================================================================
 " 其他文件[[[1
+try
+  packadd matchit
+catch /.*/
+  runtime macros/matchit.vim
+endtry
 runtime vimrc_example.vim
 "]]]
 " 我的设置
