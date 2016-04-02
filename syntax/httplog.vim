@@ -36,7 +36,7 @@ syn keyword httplogBrowser	TelegramBot Feedly contained
 syn match httplogLAN	/\v^192\.168\.\d+\.\d+/ contained
 syn match httplogLAN	/\v^172\.(1[6-9]|2[0-9]|3[01])\.\d+\.\d+/ contained
 syn match httplogLAN	/\v^10\.\d+\.\d+\.\d+/ contained
-syn match httplogLocal	/^::1|^127\.0\.0\.1\>/ contained
+syn match httplogLocal	/^::1\|^127\.0\.0\.1\>/ contained
 
 hi link httplogIP	Identifier
 hi link httplogTime	Constant
