@@ -720,7 +720,7 @@ nmap -ft :exe 'tabe '.g:vimfiles.'/ftplugin/'.&ft.'.vim'<CR>
 nmap -syn :exe 'tabe '.g:vimfiles.'/syntax/'.&ft.'.vim'<CR>
 nmap -int :exe 'tabe '.g:vimfiles.'/indent/'.&ft.'.vim'<CR>
 "     显示高亮组 [[[4
-nnoremap wh :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<' . synIDattr(synID(line("."),col("."),0),"name") . "> lo<" . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
+nnoremap <silent> wh :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<' . synIDattr(synID(line("."),col("."),0),"name") . "> lo<" . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
 "     Alt 组合键 [[[3
 nmap <M-m> :MRU 
 " 打开草稿
