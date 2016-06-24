@@ -1,5 +1,5 @@
 "============================================================================
-"File:        jade_lint.vim
+"File:        gjslint.vim
 "Description: Syntax checking plugin for syntastic
 "Maintainer:  LCD 47 <lcd047 at gmail dot com>
 "License:     This program is free software. It comes without any warranty,
@@ -10,15 +10,14 @@
 "
 "============================================================================
 
-if exists('g:loaded_syntastic_jade_jade_lint_checker')
+if exists('g:loaded_syntastic_html_gjslint_checker')
     finish
 endif
-let g:loaded_syntastic_jade_jade_lint_checker = 1
+let g:loaded_syntastic_html_gjslint_checker = 1
 
 call g:SyntasticRegistry.CreateAndRegisterChecker({
-    \ 'filetype': 'jade',
-    \ 'name': 'jade_lint',
-    \ 'exec': 'jade-lint',
-    \ 'redirect': 'pug/pug_lint'})
+    \ 'filetype': 'html',
+    \ 'name': 'gjslint',
+    \ 'redirect': 'javascript/gjslint'})
 
 " vim: set sw=4 sts=4 et fdm=marker:

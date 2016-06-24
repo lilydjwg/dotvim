@@ -1,7 +1,7 @@
 "============================================================================
-"File:        mdl.vim
-"Description: Syntax checking plugin for syntastic.vim
-"Maintainer:  Charles Beynon <etothepiipower at gmail dot com>
+"File:        rapper.vim
+"Description: Syntax checking plugin for syntastic
+"Maintainer:  Sebastian Tramp <mail@sebastian.tramp.name>
 "License:     This program is free software. It comes without any warranty,
 "             to the extent permitted by applicable law. You can redistribute
 "             it and/or modify it under the terms of the Do What The Fuck You
@@ -10,34 +10,35 @@
 "
 "============================================================================
 
-if exists('g:loaded_syntastic_markdown_mdl_checker')
+if exists('g:loaded_syntastic_turtle_rapper_checker')
     finish
 endif
-let g:loaded_syntastic_markdown_mdl_checker = 1
-
-if !exists('g:syntastic_markdown_mdl_sort')
-    let g:syntastic_markdown_mdl_sort = 1
-endif
+let g:loaded_syntastic_turtle_rapper_checker = 1
 
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! SyntaxCheckers_markdown_mdl_GetLocList() dict
-    let makeprg = self.makeprgBuild({ 'args': '--warnings' })
+function! SyntaxCheckers_turtle_rapper_GetHighlightRegex(item)
+    let term = matchstr(a:item['text'], '\mFailed to convert qname \zs\S\+\ze to URI')
+    return term !=# '' ? '\V\<' . escape(term, '\') . '\>' : ''
+endfunction
+
+function! SyntaxCheckers_turtle_rapper_GetLocList() dict
+    let makeprg = self.makeprgBuild({ 'args': '-i guess -q --count' })
 
     let errorformat =
-        \ '%E%f:%\s%\=%l: %m,'.
-        \ '%W%f: Kramdown Warning: %m found on line %l'
+        \ 'rapper: %trror - URI file://%f:%l - %m,' .
+        \ 'rapper: %tarning - URI file://%f:%l - %m'
 
     return SyntasticMake({
         \ 'makeprg': makeprg,
         \ 'errorformat': errorformat,
-        \ 'subtype': 'Style' })
+        \ 'returns': [0, 1] })
 endfunction
 
 call g:SyntasticRegistry.CreateAndRegisterChecker({
-    \ 'filetype': 'markdown',
-    \ 'name': 'mdl'})
+    \ 'filetype': 'turtle',
+    \ 'name': 'rapper'})
 
 let &cpo = s:save_cpo
 unlet s:save_cpo

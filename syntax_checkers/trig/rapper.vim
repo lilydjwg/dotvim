@@ -1,7 +1,7 @@
 "============================================================================
-"File:        jade_lint.vim
+"File:        rapper.vim
 "Description: Syntax checking plugin for syntastic
-"Maintainer:  LCD 47 <lcd047 at gmail dot com>
+"Maintainer:  Sebastian Tramp <mail@sebastian.tramp.name>
 "License:     This program is free software. It comes without any warranty,
 "             to the extent permitted by applicable law. You can redistribute
 "             it and/or modify it under the terms of the Do What The Fuck You
@@ -10,15 +10,14 @@
 "
 "============================================================================
 
-if exists('g:loaded_syntastic_jade_jade_lint_checker')
+if exists('g:loaded_syntastic_trig_rapper_checker')
     finish
 endif
-let g:loaded_syntastic_jade_jade_lint_checker = 1
+let g:loaded_syntastic_trig_rapper_checker = 1
 
 call g:SyntasticRegistry.CreateAndRegisterChecker({
-    \ 'filetype': 'jade',
-    \ 'name': 'jade_lint',
-    \ 'exec': 'jade-lint',
-    \ 'redirect': 'pug/pug_lint'})
+    \ 'filetype': 'trig',
+    \ 'name': 'rapper',
+    \ 'redirect': 'turtle/rapper'})
 
 " vim: set sw=4 sts=4 et fdm=marker:

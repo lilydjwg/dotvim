@@ -1,7 +1,7 @@
 "============================================================================
-"File:        mdl.vim
+"File:        pyang.vim
 "Description: Syntax checking plugin for syntastic.vim
-"Maintainer:  Charles Beynon <etothepiipower at gmail dot com>
+"Authors:     joshua.downer@gmail.com
 "License:     This program is free software. It comes without any warranty,
 "             to the extent permitted by applicable law. You can redistribute
 "             it and/or modify it under the terms of the Do What The Fuck You
@@ -10,34 +10,35 @@
 "
 "============================================================================
 
-if exists('g:loaded_syntastic_markdown_mdl_checker')
+if exists('g:loaded_syntastic_yang_pyang_checker')
     finish
 endif
-let g:loaded_syntastic_markdown_mdl_checker = 1
-
-if !exists('g:syntastic_markdown_mdl_sort')
-    let g:syntastic_markdown_mdl_sort = 1
-endif
+let g:loaded_syntastic_yang_pyang_checker = 1
 
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! SyntaxCheckers_markdown_mdl_GetLocList() dict
-    let makeprg = self.makeprgBuild({ 'args': '--warnings' })
+function! SyntaxCheckers_yang_pyang_GetHighlightRegex(item)
+    let term = matchstr(a:item['text'], '\m"\zs[^"]\+\ze"')
+    return term != '' ? '\V\<' . escape(term, '\') . '\>' : ''
+endfunction
+
+function! SyntaxCheckers_yang_pyang_GetLocList() dict
+    let makeprg = self.makeprgBuild({})
 
     let errorformat =
-        \ '%E%f:%\s%\=%l: %m,'.
-        \ '%W%f: Kramdown Warning: %m found on line %l'
+        \ '%f:%l: %trror: %m,' .
+        \ '%f:%l: %tarning: %m'
 
     return SyntasticMake({
         \ 'makeprg': makeprg,
         \ 'errorformat': errorformat,
-        \ 'subtype': 'Style' })
+        \ 'postprocess': ['filterForeignErrors'] })
 endfunction
 
 call g:SyntasticRegistry.CreateAndRegisterChecker({
-    \ 'filetype': 'markdown',
-    \ 'name': 'mdl'})
+    \ 'filetype': 'yang',
+    \ 'name': 'pyang'})
 
 let &cpo = s:save_cpo
 unlet s:save_cpo

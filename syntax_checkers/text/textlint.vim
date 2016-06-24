@@ -1,7 +1,7 @@
 "============================================================================
-"File:        mdl.vim
-"Description: Syntax checking plugin for syntastic.vim
-"Maintainer:  Charles Beynon <etothepiipower at gmail dot com>
+"File:        textlint.vim
+"Description: Syntax checking plugin for syntastic
+"Maintainer:  LCD 47 <lcd047 at gmail dot com>
 "License:     This program is free software. It comes without any warranty,
 "             to the extent permitted by applicable law. You can redistribute
 "             it and/or modify it under the terms of the Do What The Fuck You
@@ -10,34 +10,31 @@
 "
 "============================================================================
 
-if exists('g:loaded_syntastic_markdown_mdl_checker')
+if exists('g:loaded_syntastic_text_textlint_checker')
     finish
 endif
-let g:loaded_syntastic_markdown_mdl_checker = 1
-
-if !exists('g:syntastic_markdown_mdl_sort')
-    let g:syntastic_markdown_mdl_sort = 1
-endif
+let g:loaded_syntastic_text_textlint_checker = 1
 
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! SyntaxCheckers_markdown_mdl_GetLocList() dict
-    let makeprg = self.makeprgBuild({ 'args': '--warnings' })
+function! SyntaxCheckers_text_textlint_GetLocList() dict
+    let makeprg = self.makeprgBuild({ 'args_after': '-f compact' })
 
     let errorformat =
-        \ '%E%f:%\s%\=%l: %m,'.
-        \ '%W%f: Kramdown Warning: %m found on line %l'
+        \ '%f: line %l\, col %c\, %tarning - %m,' .
+        \ '%f: line %l\, col %c\, %trror - %m'
 
     return SyntasticMake({
         \ 'makeprg': makeprg,
         \ 'errorformat': errorformat,
-        \ 'subtype': 'Style' })
+        \ 'subtype': 'Style',
+        \ 'returns': [0, 1] })
 endfunction
 
 call g:SyntasticRegistry.CreateAndRegisterChecker({
-    \ 'filetype': 'markdown',
-    \ 'name': 'mdl'})
+    \ 'filetype': 'text',
+    \ 'name': 'textlint'})
 
 let &cpo = s:save_cpo
 unlet s:save_cpo

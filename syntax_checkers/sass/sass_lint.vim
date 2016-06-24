@@ -1,7 +1,7 @@
 "============================================================================
-"File:        mdl.vim
-"Description: Syntax checking plugin for syntastic.vim
-"Maintainer:  Charles Beynon <etothepiipower at gmail dot com>
+"File:        sass_lint.vim
+"Description: Syntax checking plugin for syntastic
+"Maintainer:  LCD 47 <lcd047 at gmail dot com>
 "License:     This program is free software. It comes without any warranty,
 "             to the extent permitted by applicable law. You can redistribute
 "             it and/or modify it under the terms of the Do What The Fuck You
@@ -10,34 +10,40 @@
 "
 "============================================================================
 
-if exists('g:loaded_syntastic_markdown_mdl_checker')
+if exists('g:loaded_syntastic_sass_sass_lint_checker')
     finish
 endif
-let g:loaded_syntastic_markdown_mdl_checker = 1
-
-if !exists('g:syntastic_markdown_mdl_sort')
-    let g:syntastic_markdown_mdl_sort = 1
-endif
+let g:loaded_syntastic_sass_sass_lint_checker = 1
 
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! SyntaxCheckers_markdown_mdl_GetLocList() dict
-    let makeprg = self.makeprgBuild({ 'args': '--warnings' })
+function! SyntaxCheckers_sass_sass_lint_IsAvailable() dict
+    if !executable(self.getExec())
+        return 0
+    endif
+    return syntastic#util#versionIsAtLeast(self.getVersion(), [1, 5])
+endfunction
+
+function! SyntaxCheckers_sass_sass_lint_GetLocList() dict
+    let makeprg = self.makeprgBuild({
+        \ 'args': '-v',
+        \ 'args_after': '-q -f compact' })
 
     let errorformat =
-        \ '%E%f:%\s%\=%l: %m,'.
-        \ '%W%f: Kramdown Warning: %m found on line %l'
+        \ '%f: line %l\, col %c\, %trror - %m,' .
+        \ '%f: line %l\, col %c\, %tarning - %m'
 
     return SyntasticMake({
         \ 'makeprg': makeprg,
         \ 'errorformat': errorformat,
-        \ 'subtype': 'Style' })
+        \ 'returns': [0, 1] })
 endfunction
 
 call g:SyntasticRegistry.CreateAndRegisterChecker({
-    \ 'filetype': 'markdown',
-    \ 'name': 'mdl'})
+    \ 'filetype': 'sass',
+    \ 'name': 'sass_lint',
+    \ 'exec': 'sass-lint' })
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
