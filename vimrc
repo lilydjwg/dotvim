@@ -909,6 +909,7 @@ let g:neocomplete#sources#omni#input_patterns.rust =
     \ '[^.[:digit:] *\t]\%(\.\|\::\)\%(\h\w*\)\?'
 "   syntastic[[[2
 let g:syntastic_python_checkers = ['python']
+let g:syntastic_yaml_checkers = ['yamllint']
 let g:syntastic_check_on_wq = 0
 "   extradite.vim[[[2
 let g:extradite_showhash = 1
