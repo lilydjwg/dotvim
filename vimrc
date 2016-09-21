@@ -891,6 +891,10 @@ command -range=% Tohtml call Lilydjwg_to_html(<line1>, <line2>)
 command Agg exe 'Ag -Q ' . expand('<cword>')
 command BufClean call Lilydjwg_cleanbufs()
 " 插件配置[[[1
+"   choosewin[[[2
+nmap <M-w> <Plug>(choosewin)
+let g:choosewin_overlay_enable = 1
+let g:choosewin_statusline_replace = 0
 "   mark.vim[[[2
 let g:mwDefaultHighlightingPalette = 'maximum'
 "   deoplete[[[2
