@@ -15,6 +15,10 @@ endif
 " load python code, set 'sw' etc {{{1
 " Vim 7.4 from some patch level unconditionally set 'sw' and 'sts' to 4
 function! Python_setsw(chan, out)
+  if a:out == 'DETACH'
+    " 7.4.1689 does this
+    return
+  endif
   let &l:sw = a:out
   let &l:sts = a:out
 endfunction
