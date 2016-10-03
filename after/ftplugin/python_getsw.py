@@ -5,8 +5,10 @@ import sys
 import io
 import token, tokenize
 
+default = 2
+
 def setsw(stream):
-  sw = 2
+  sw = default
   try:
     sw = min(len(x.string) for x in tokenize.tokenize(stream.readline) if x.type == token.INDENT)
   except (ValueError, SyntaxError):
@@ -14,5 +16,8 @@ def setsw(stream):
   print(sw)
 
 if __name__ == '__main__':
-  with open(sys.argv[1], 'rb') as f:
-    setsw(f)
+  try:
+    with open(sys.argv[1], 'rb') as f:
+      setsw(f)
+  except (IOError, OSError):
+    print(default)
