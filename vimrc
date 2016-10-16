@@ -620,7 +620,7 @@ elseif has("unix")
       let &t_SI="\e]12;" . color_insert . "\7"
       let &t_EI="\e]12;" . color_normal . "\7"
       exe 'autocmd VimLeave * :call writefile(["\e]12;' . color_exit . '\7"], "/dev/tty", "b")'
-    elseif &term =~ "screen"
+    elseif &term =~ 'screen\|tmux'
       if exists('$TMUX')
 	if &ttymouse == 'xterm'
 	  set ttymouse=xterm2
