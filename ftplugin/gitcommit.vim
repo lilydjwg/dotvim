@@ -3,6 +3,7 @@
 " Author:       lilydjwg <lilydjwg@gmail.com>
 
 " ---------------------------------------------------------------------
+setlocal iskeyword+=-
 "  排版
 setlocal fo-=c
 setlocal nomodeline
