@@ -40,7 +40,6 @@ def vimprint(style, text, ismsg=False):
   ))
 
 def LilyQw(s):
-  print(s)
   if s[-1] == ')':
     s = s[:-1]
   try:
