@@ -37,7 +37,7 @@ scriptencoding utf-8
 " I you disagree, use instead of the pattern '^\s*\(class\s.*:\|def\s\)'
 " to enforce : for defs:                     '^\s*\(class\|def\)\s.*:'
 " you'll have to do this in two places.
-let s:defpat = '^\s*\(@\|class\s.*:\|def\s\)'
+let s:defpat = '^\s*\(@\|class\s.*:\|\(async \)\?def\s\)'
 if $LANGUAGE =~ '^zh' || ($LANGUAGE == '' && v:lang =~ '^zh')
   let s:lines = '行'
 else
