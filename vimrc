@@ -891,6 +891,8 @@ command -range=% Tohtml call Lilydjwg_to_html(<line1>, <line2>)
 command Agg exe 'Ag -Q ' . expand('<cword>')
 command BufClean call Lilydjwg_cleanbufs()
 " 插件配置[[[1
+"   asyncrun.vim[[[2
+command! -bang -nargs=* -complete=file Make AsyncRun -program=make @ <args>
 "   choosewin[[[2
 nmap <M-w> <Plug>(choosewin)
 let g:choosewin_overlay_enable = 1
