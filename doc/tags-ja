@@ -33,6 +33,7 @@
 :FufTagWithCursorWord	fuf.jax	/*:FufTagWithCursorWord*
 :FufTaggedFile	fuf.jax	/*:FufTaggedFile*
 abc	fuf.jax	/*abc*
+b:highlightedyank_highlight_duration	highlightedyank.jax	/*b:highlightedyank_highlight_duration*
 fuf	fuf.jax	/*fuf*
 fuf#setOneTimeVariables()	fuf.jax	/*fuf#setOneTimeVariables()*
 fuf-abbreviation	fuf.jax	/*fuf-abbreviation*
@@ -172,6 +173,14 @@ g:fuf_taggedfile_prompt	fuf.jax	/*g:fuf_taggedfile_prompt*
 g:fuf_taggedfile_switchOrder	fuf.jax	/*g:fuf_taggedfile_switchOrder*
 g:fuf_timeFormat	fuf.jax	/*g:fuf_timeFormat*
 g:fuf_useMigemo	fuf.jax	/*g:fuf_useMigemo*
+g:highlightedyank_highlight_duration	highlightedyank.jax	/*g:highlightedyank_highlight_duration*
+highlightedyank-highlight-groups	highlightedyank.jax	/*highlightedyank-highlight-groups*
+highlightedyank-index	highlightedyank.jax	/*highlightedyank-index*
+highlightedyank-introduction	highlightedyank.jax	/*highlightedyank-introduction*
+highlightedyank-known-issue	highlightedyank.jax	/*highlightedyank-known-issue*
+highlightedyank.txt	highlightedyank.jax	/*highlightedyank.txt*
+highlightedyank.vim	highlightedyank.jax	/*highlightedyank.vim*
+hl-HighlightedyankRegion	highlightedyank.jax	/*hl-HighlightedyankRegion*
 l9	l9.jax	/*l9*
 l9-about	l9.jax	/*l9-about*
 l9-author	l9.jax	/*l9-author*
