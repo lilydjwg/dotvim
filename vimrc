@@ -891,7 +891,7 @@ command -range=% Tohtml call Lilydjwg_to_html(<line1>, <line2>)
 command Agg exe 'Ag -Q ' . expand('<cword>')
 command BufClean call Lilydjwg_cleanbufs()
 " 插件配置[[[1
-" vim-highlightedyank [[[2
+"   vim-highlightedyank [[[2
 let g:highlightedyank_highlight_duration = 300
 if !has("nvim")
   map y <Plug>(highlightedyank)
