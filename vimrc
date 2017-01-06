@@ -1221,5 +1221,6 @@ if has("cscope")
   endif
 endif
 " 最后 [[[1
+runtime abbreviate.vim
 runtime local.vim
 " vim:fdm=marker:fmr=[[[,]]]
