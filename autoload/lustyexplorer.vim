@@ -75,6 +75,8 @@ module VIM
     case var
     when String
       var == "0"
+    when Integer
+      var == 0
     when Fixnum
       var == 0
     else
