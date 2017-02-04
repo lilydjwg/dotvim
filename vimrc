@@ -652,6 +652,14 @@ elseif has('win32') && exists('$CONEMUBUILD')
   exe 'colorscheme' colorscheme
 endif
 unlet colorscheme
+" bracketed paste mode support for tmux
+if &term =~ '^screen\|^tmux' && exists('&t_BE')
+  let &t_BE = "\033[?2004h"
+  let &t_BD = "\033[?2004l"
+  " t_PS and t_PE are key code options and they are special
+  exec "set t_PS=" . "\033[200~"
+  exec "set t_PE=" . "\033[201~"
+endif
 " 不同的 Vim 版本 [[[2
 if has("conceal")
   " 'i' is for neosnippet
