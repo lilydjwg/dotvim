@@ -1167,6 +1167,7 @@ extradite-t	extradite.txt	/*extradite-t*
 extradite.txt	extradite.txt	/*extradite.txt*
 filter-overrides	syntastic.txt	/*filter-overrides*
 ft-coffee-script-syntax	coffee-script.txt	/*ft-coffee-script-syntax*
+ft-python-syntax	python-syntax.txt	/*ft-python-syntax*
 fuf	fuf.txt	/*fuf*
 fuf#setOneTimeVariables()	fuf.txt	/*fuf#setOneTimeVariables()*
 fuf-abbreviation	fuf.txt	/*fuf-abbreviation*
@@ -1994,6 +1995,13 @@ omnicpp-popup	omnicppcomplete.txt	/*omnicpp-popup*
 omnicpp-thanks	omnicppcomplete.txt	/*omnicpp-thanks*
 omnicppcomplete	omnicppcomplete.txt	/*omnicppcomplete*
 omnicppcomplete.txt	omnicppcomplete.txt	/*omnicppcomplete.txt*
+python-syntax	python-syntax.txt	/*python-syntax*
+python-syntax-configuration	python-syntax.txt	/*python-syntax-configuration*
+python-syntax-options	python-syntax.txt	/*python-syntax-options*
+python-syntax-variables	python-syntax.txt	/*python-syntax-variables*
+python-syntax-version	python-syntax.txt	/*python-syntax-version*
+python-syntax.txt	python-syntax.txt	/*python-syntax.txt*
+python.vim	python-syntax.txt	/*python.vim*
 s_<Plug>(neosnippet_expand)	neosnippet.txt	/*s_<Plug>(neosnippet_expand)*
 s_<Plug>(neosnippet_expand_or_jump)	neosnippet.txt	/*s_<Plug>(neosnippet_expand_or_jump)*
 s_<Plug>(neosnippet_jump)	neosnippet.txt	/*s_<Plug>(neosnippet_jump)*
