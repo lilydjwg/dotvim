@@ -222,6 +222,9 @@ module LustyE
   end
 
   def self.simplify_path(s)
+    if s.start_with?('scp://')
+      return s
+    end
     s = s.gsub(/\/+/, '/')  # Remove redundant '/' characters
     begin
       if s[0] == ?~
@@ -996,6 +999,11 @@ class FilesystemExplorer < Explorer
 
       unless @memoized_dir_contents.has_key?(view)
 
+        view_str = view.to_s
+        if view_str.start_with?("scp://")
+          return all_remote_files(view, view_str)
+        end
+
         if not view.directory?
           return []
         elsif not view.readable?
@@ -1005,7 +1013,6 @@ class FilesystemExplorer < Explorer
 
         # Generate an array of the files
         entries = []
-        view_str = view.to_s
         unless LustyE::ends_with?(view_str, File::SEPARATOR)
           # Don't double-up on '/' -- makes Cygwin sad.
           view_str << File::SEPARATOR
@@ -1041,6 +1048,31 @@ class FilesystemExplorer < Explorer
         # '.'.
         all.select { |x| x.label[0] != ?. }
       end
+    end
+
+    def all_remote_files(view, view_str)
+      host, path = view_str[6..-1].split('/', 2)
+      option = if LustyE::option_set?("AlwaysShowDotFiles") or \
+         current_abbreviation()[0] == ?.
+                'a'
+               else
+                 ''
+               end
+
+      files_s = `ssh #{host} ls -1FL#{option} -- #{path}`
+      files = files_s.split("\n")
+
+      entries = []
+      files.each do |name|
+        next if name == "."   # Skip pwd
+        next if name == ".." and LustyE::option_set?("AlwaysShowDotFiles")
+
+        # Hide masked files.
+        next if FileMasks.masked?(name)
+        entries << FilesystemEntry.new(name)
+      end
+      @memoized_dir_contents[view] = entries
+      return entries
     end
 
     def compute_sorted_matches
