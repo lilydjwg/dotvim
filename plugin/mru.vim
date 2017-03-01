@@ -423,7 +423,7 @@ function! s:MRU_AddFile(acmd_bufnr)
     " readable then ignore it
     let idx = index(s:MRU_files, fname)
     if idx == -1
-        if !filereadable(fname)
+        if !filereadable(fname) && line('$') <= 1
             " File is not readable and is not in the MRU list
             return
         endif
