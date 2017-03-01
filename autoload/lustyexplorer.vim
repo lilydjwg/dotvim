@@ -1103,7 +1103,7 @@ class FilesystemExplorer < Explorer
     def open_entry(entry, open_mode)
       path = view_path() + entry.label
 
-      if File.directory?(path.to_s)
+      if File.directory?(path.to_s) or (path.to_s.start_with?("scp://") and entry.label.end_with?('/'))
         # Recurse into the directory instead of opening it.
         @prompt.set!(path.to_s)
         @selected_index = 0
