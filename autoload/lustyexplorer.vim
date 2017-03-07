@@ -1001,7 +1001,7 @@ class FilesystemExplorer < Explorer
 
         view_str = view.to_s
         if view_str.start_with?("scp://")
-          return all_remote_files(view, view_str)
+          return all_remote_files(view)
         end
 
         if not view.directory?
@@ -1050,8 +1050,9 @@ class FilesystemExplorer < Explorer
       end
     end
 
-    def all_remote_files(view, view_str)
-      host, path = view_str[6..-1].split('/', 2)
+    def all_remote_files(view)
+      view_str = view.to_s
+      host, path = view_str['scp://'.length .. -1].split('/', 2)
       option = if LustyE::option_set?("AlwaysShowDotFiles") or \
          current_abbreviation()[0] == ?.
                 'a'
@@ -1059,8 +1060,7 @@ class FilesystemExplorer < Explorer
                  ''
                end
 
-      files_s = `ssh #{host} ls -1FL#{option} -- #{path}`
-      files = files_s.split("\n")
+      files = `ssh #{host} ls -1pL#{option} -- #{path}`.split("\n")
 
       entries = []
       files.each do |name|
