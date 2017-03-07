@@ -6,10 +6,10 @@
 setlocal noexpandtab tabstop=2
 nmap <buffer> <C-CR> <Plug>(go-build)
 nmap <buffer> <S-F5> <Plug>(go-run)
-if executable("goimports")
+if !exists('#GoImports') && executable("goimports")
   augroup GoImports
     au!
-    autocmd BufWritePre <buffer> silent call s:GoImports()
+    autocmd BufWrite *.go silent call s:GoImports()
   augroup END
 endif
 
