@@ -899,6 +899,9 @@ command -range=% Tohtml call Lilydjwg_to_html(<line1>, <line2>)
 command Agg exe 'Ag -Q ' . expand('<cword>')
 command BufClean call Lilydjwg_cleanbufs()
 " 插件配置[[[1
+"   vim-go[[[2
+" I handled it myself
+let g:go_fmt_autosave = 0
 "   vim-highlightedyank [[[2
 if exists("*win_getid")
   let g:highlightedyank_highlight_duration = 300
