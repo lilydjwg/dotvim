@@ -1,4 +1,0 @@
-BEGIN
-END
-FS
-OFS
