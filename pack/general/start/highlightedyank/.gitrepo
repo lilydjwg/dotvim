@@ -1,0 +1,11 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:machakann/vim-highlightedyank.git
+	branch = master
+	commit = fa6cf8624271963af346873902b0b5847a52a582
+	parent = 492477c6bb81e4bf2989261c8f8b09040f12e57e
+	cmdver = 0.3.0
