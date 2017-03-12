@@ -892,13 +892,6 @@ command BufClean call Lilydjwg_cleanbufs()
 "   vim-go[[[2
 " I handled it myself
 let g:go_fmt_autosave = 0
-"   vim-highlightedyank [[[2
-if exists("*win_getid")
-  let g:highlightedyank_highlight_duration = 300
-  if !has("nvim")
-    map y <Plug>(highlightedyank)
-  endif
-endif
 "   asyncrun.vim[[[2
 command! -bang -nargs=* -complete=file Make AsyncRun -program=make @ <args>
 "   choosewin[[[2
