@@ -920,7 +920,6 @@ b:deoplete_omni_input_patterns	deoplete.txt	/*b:deoplete_omni_input_patterns*
 b:deoplete_omni_patterns	deoplete.txt	/*b:deoplete_omni_patterns*
 b:deoplete_skip_chars	deoplete.txt	/*b:deoplete_skip_chars*
 b:deoplete_sources	deoplete.txt	/*b:deoplete_sources*
-b:highlightedyank_highlight_duration	highlightedyank.txt	/*b:highlightedyank_highlight_duration*
 b:match_col	matchit.txt	/*b:match_col*
 b:match_debug	matchit.txt	/*b:match_debug*
 b:match_ignorecase	matchit.txt	/*b:match_ignorecase*
@@ -1457,7 +1456,6 @@ g:fuf_taggedfile_prompt	fuf.txt	/*g:fuf_taggedfile_prompt*
 g:fuf_taggedfile_switchOrder	fuf.txt	/*g:fuf_taggedfile_switchOrder*
 g:fuf_timeFormat	fuf.txt	/*g:fuf_timeFormat*
 g:fuf_useMigemo	fuf.txt	/*g:fuf_useMigemo*
-g:highlightedyank_highlight_duration	highlightedyank.txt	/*g:highlightedyank_highlight_duration*
 g:inline_edit_autowrite	inline_edit.txt	/*g:inline_edit_autowrite*
 g:inline_edit_html_like_filetypes	inline_edit.txt	/*g:inline_edit_html_like_filetypes*
 g:inline_edit_patterns	inline_edit.txt	/*g:inline_edit_patterns*
@@ -1646,12 +1644,6 @@ gundo_preview_statusline	gundo.txt	/*gundo_preview_statusline*
 gundo_right	gundo.txt	/*gundo_right*
 gundo_tree_statusline	gundo.txt	/*gundo_tree_statusline*
 gundo_width	gundo.txt	/*gundo_width*
-highlightedyank-highlight-groups	highlightedyank.txt	/*highlightedyank-highlight-groups*
-highlightedyank-index	highlightedyank.txt	/*highlightedyank-index*
-highlightedyank-introduction	highlightedyank.txt	/*highlightedyank-introduction*
-highlightedyank-known-issue	highlightedyank.txt	/*highlightedyank-known-issue*
-highlightedyank.txt	highlightedyank.txt	/*highlightedyank.txt*
-highlightedyank.vim	highlightedyank.txt	/*highlightedyank.vim*
 histwin	histwin.txt	/*histwin*
 histwin-browse	histwin.txt	/*histwin-browse*
 histwin-color	histwin.txt	/*histwin-color*
@@ -1668,7 +1660,6 @@ histwin-tags	histwin.txt	/*histwin-tags*
 histwin-ut	histwin.txt	/*histwin-ut*
 histwin-var	histwin.txt	/*histwin-var*
 histwin.txt	histwin.txt	/*histwin.txt*
-hl-HighlightedyankRegion	highlightedyank.txt	/*hl-HighlightedyankRegion*
 i=	ConflictMotions.txt	/*i=*
 i_<Plug>(neosnippet_start_unite_snippet)	neosnippet.txt	/*i_<Plug>(neosnippet_start_unite_snippet)*
 i_CTRL-G_S	surround.txt	/*i_CTRL-G_S*
