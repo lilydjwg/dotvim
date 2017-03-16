@@ -178,16 +178,20 @@ function! s:operator_get_region(motionwise) abort "{{{
 endfunction
 "}}}
 function! s:put_dummy_cursor(curpos) abort "{{{
-  let dummycursor = highlightedyank#highlight#new()
-  if hlexists('Cursor')
-    call dummycursor.order({'head': a:curpos, 'tail': a:curpos, 'wise': 'char'})
-    call dummycursor.show('Cursor')
-    redraw
+  if !hlexists('Cursor')
+    return {}
   endif
+  let pos = {'head': a:curpos, 'tail': a:curpos, 'wise': 'char'}
+  let dummycursor = highlightedyank#highlight#new(pos)
+  call dummycursor.show('Cursor')
+  redraw
   return dummycursor
 endfunction
 "}}}
 function! s:clear_dummy_cursor(dummycursor) abort  "{{{
+  if empty(a:dummycursor)
+    return
+  endif
   call a:dummycursor.quench()
 endfunction
 "}}}
@@ -195,8 +199,7 @@ function! s:highlight_yanked_region(region) abort "{{{
   let keyseq = ''
   let hi_group = 'HighlightedyankRegion'
   let hi_duration = s:get('highlight_duration', 1000)
-  let highlight = highlightedyank#highlight#new()
-  call highlight.order(a:region)
+  let highlight = highlightedyank#highlight#new(a:region)
   if hi_duration < 0
     call s:persist(highlight, hi_group)
   elseif hi_duration > 0

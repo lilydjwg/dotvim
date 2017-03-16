@@ -5,6 +5,8 @@
 let s:null_pos = [0, 0, 0, 0]
 
 " constants
+let s:on = 1
+let s:off = 0
 let s:maxcol = 2147483647
 
 " types
@@ -30,45 +32,38 @@ let s:SID = printf("\<SNR>%s_", s:SID())
 delfunction s:SID
 "}}}
 
-function! highlightedyank#highlight#new() abort  "{{{
-  return deepcopy(s:highlight)
+function! highlightedyank#highlight#new(region) abort  "{{{
+  let highlight = deepcopy(s:highlight)
+  let highlight.region = deepcopy(a:region)
+  if a:region.wise ==# 'char' || a:region.wise ==# 'v'
+    let highlight.order_list = s:highlight_order_charwise(a:region)
+  elseif a:region.wise ==# 'line' || a:region.wise ==# 'V'
+    let highlight.order_list = s:highlight_order_linewise(a:region)
+  elseif a:region.wise ==# 'block' || a:region.wise[0] ==# "\<C-v>"
+    let highlight.order_list = s:highlight_order_blockwise(a:region)
+  endif
+  return highlight
 endfunction
 "}}}
 
 " s:highlight "{{{
 let s:highlight = {
-      \   'status': 0,
-      \   'group' : '',
-      \   'id'    : [],
+      \   'status': s:off,
+      \   'group': '',
+      \   'id': [],
       \   'order_list': [],
       \   'region': {},
-      \   'motionwise': '',
       \   'bufnr': 0,
       \   'winid': 0,
       \ }
 "}}}
-function! s:highlight.order(region) dict abort  "{{{
-  if a:region.wise ==# 'char' || a:region.wise ==# 'v'
-    let order_list = s:highlight_order_charwise(a:region)
-  elseif a:region.wise ==# 'line' || a:region.wise ==# 'V'
-    let order_list = s:highlight_order_linewise(a:region)
-  elseif a:region.wise ==# 'block' || a:region.wise[0] ==# "\<C-v>"
-    let order_list = s:highlight_order_blockwise(a:region)
-  else
-    return
-  endif
-  let self.order_list += order_list
-  let self.region = deepcopy(a:region)
-  let self.motionwise = a:region.wise
-endfunction
-"}}}
 function! s:highlight.show(...) dict abort "{{{
-  if self.order_list == []
+  if empty(self.order_list)
     return 0
   endif
 
   if a:0 < 1
-    if self.group ==# ''
+    if empty(self.group)
       return 0
     else
       let hi_group = self.group
@@ -77,7 +72,7 @@ function! s:highlight.show(...) dict abort "{{{
     let hi_group = a:1
   endif
 
-  if self.status
+  if self.status is s:on
     if hi_group ==# self.group
       return 0
     else
@@ -89,16 +84,16 @@ function! s:highlight.show(...) dict abort "{{{
     let self.id += s:matchaddpos(hi_group, order)
   endfor
   call filter(self.id, 'v:val > 0')
-  let self.status = 1
+  let self.status = s:on
   let self.group = hi_group
   let self.bufnr = bufnr('%')
   let self.winid = win_getid()
-  let self.text  = s:get_buf_text(self.region, self.motionwise)
+  let self.text  = s:get_buf_text(self.region)
   return 1
 endfunction
 "}}}
 function! s:highlight.quench() dict abort "{{{
-  if !self.status
+  if self.status is s:off
     return 0
   endif
 
@@ -110,10 +105,10 @@ function! s:highlight.quench() dict abort "{{{
     let succeeded = 1
   else
     if s:is_in_cmdline_window()
-      let s:quenching_queue += [self]
-      augroup highlightedyank-quech-queue
+      let s:paused += [self]
+      augroup highlightedyank-pause-quenching
         autocmd!
-        autocmd CmdWinLeave * call s:exodus_from_cmdwindow()
+        autocmd CmdWinLeave * call s:got_out_of_cmdwindow()
       augroup END
       let succeeded = 0
     else
@@ -130,7 +125,7 @@ function! s:highlight.quench() dict abort "{{{
   endif
 
   if succeeded
-    let self.status = 0
+    let self.status = s:off
   endif
   return succeeded
 endfunction
@@ -150,13 +145,12 @@ function! s:highlight.persist() dict abort  "{{{
 endfunction
 "}}}
 function! s:highlight.is_text_identical() dict abort "{{{
-  return s:get_buf_text(self.region, self.motionwise) ==# self.text
+  return s:get_buf_text(self.region) ==# self.text
 endfunction
 "}}}
 
 " for scheduled-quench "{{{
 let s:quench_table = {}
-let s:obsolete_augroup = []
 function! s:scheduled_quench(id) abort  "{{{
   let options = s:shift_options()
   try
@@ -169,7 +163,6 @@ function! s:scheduled_quench(id) abort  "{{{
     return 1
   finally
     unlet s:quench_table[a:id]
-    call s:metabolize_augroup(a:id)
     call timer_stop(a:id)
     call s:restore_options(options)
     redraw
@@ -192,44 +185,25 @@ function! highlightedyank#highlight#get(id) abort "{{{
   return get(s:quench_table, a:id, {})
 endfunction
 "}}}
-function! s:metabolize_augroup(id) abort  "{{{
-  " clean up autocommands in the current augroup
-  execute 'augroup highlightedyank-highlight-' . a:id
-    autocmd!
-  augroup END
-
-  " clean up obsolete augroup
-  call filter(s:obsolete_augroup, 'v:val != a:id')
-  for id in s:obsolete_augroup
-    execute 'augroup! highlightedyank-highlight-' . id
-  endfor
-  call filter(s:obsolete_augroup, 0)
-
-  " queue the current augroup
-  call add(s:obsolete_augroup, a:id)
-endfunction
-"}}}
-let s:quenching_queue = []
-function! s:quench_queued(...) abort "{{{
+let s:paused = []
+function! s:quench_paused(...) abort "{{{
   if s:is_in_cmdline_window()
     return
   endif
 
-  augroup highlightedyank-quech-queue
-    autocmd!
-  augroup END
-
-  let list = copy(s:quenching_queue)
-  let s:quenching_queue = []
-  for highlight in list
+  for highlight in s:paused
     call highlight.quench()
   endfor
+  let s:paused = []
+  augroup highlightedyank-pause-quenching
+    autocmd!
+  augroup END
 endfunction
 "}}}
-function! s:exodus_from_cmdwindow() abort "{{{
-  augroup highlightedyank-quech-queue
+function! s:got_out_of_cmdwindow() abort "{{{
+  augroup highlightedyank-pause-quenching
     autocmd!
-    autocmd CursorMoved * call s:quench_queued()
+    autocmd CursorMoved * call s:quench_paused()
   augroup END
 endfunction
 "}}}
@@ -409,7 +383,7 @@ function! s:restore_options(options) abort "{{{
   endif
 endfunction
 "}}}
-function! s:get_buf_text(region, type) abort  "{{{
+function! s:get_buf_text(region) abort  "{{{
   " NOTE: Do *not* use operator+textobject in another textobject!
   "       For example, getting a text with the command is not appropriate.
   "         execute printf('normal! %s:call setpos(".", %s)%s""y', a:type, string(a:region.tail), "\<CR>")
@@ -418,11 +392,11 @@ function! s:get_buf_text(region, type) abort  "{{{
   let text = ''
   let visual = [getpos("'<"), getpos("'>")]
   let modified = [getpos("'["), getpos("']")]
-  let registers = s:saveregisters()
   let view = winsaveview()
+  let registers = s:saveregisters()
   try
     call setpos('.', a:region.head)
-    execute 'normal! ' . s:v(a:type)
+    execute 'normal! ' . s:v(a:region.wise)
     call setpos('.', a:region.tail)
     silent noautocmd normal! ""y
     let text = @@
@@ -430,7 +404,9 @@ function! s:get_buf_text(region, type) abort  "{{{
     " NOTE: This line is required to reset v:register.
     normal! :
   finally
-    call s:restoreregisters(registers)
+    if len(registers) > 0
+        call s:restoreregisters(registers)
+    endif
     call setpos("'<", visual[0])
     call setpos("'>", visual[1])
     call setpos("'[", modified[0])
@@ -491,7 +467,7 @@ function! s:v(v) abort  "{{{
 endfunction
 "}}}
 function! s:set_autocmds(id) abort "{{{
-  execute 'augroup highlightedyank-highlight-' . a:id
+  augroup highlightedyank-highlight
     autocmd!
     execute printf('autocmd TextChanged <buffer> call s:cancel_highlight(%s, "TextChanged")', a:id)
     execute printf('autocmd InsertEnter <buffer> call s:cancel_highlight(%s, "InsertEnter")', a:id)
