@@ -906,14 +906,6 @@ if has('nvim')
 else
   let g:loaded_deoplete = 1
 endif
-"   Rust racer[[[2
-let g:racer_cmd = 'racer'
-" https://github.com/phildawes/racer/issues/194
-if !exists('g:neocomplete#sources#omni#input_patterns')
-    let g:neocomplete#sources#omni#input_patterns = {}
-endif
-let g:neocomplete#sources#omni#input_patterns.rust =
-    \ '[^.[:digit:] *\t]\%(\.\|\::\)\%(\h\w*\)\?'
 "   syntastic[[[2
 let g:syntastic_python_checkers = ['python']
 let g:syntastic_yaml_checkers = ['yamllint']
