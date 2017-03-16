@@ -1,0 +1,11 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:racer-rust/vim-racer.git
+	branch = master
+	commit = 7a015697d470e64551a5e4928d03b82e8a6e60a3
+	parent = 0ea6ef6e7649104a0a6da20b9ce7133258a8e78a
+	cmdver = 0.3.0
