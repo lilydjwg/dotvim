@@ -1100,7 +1100,7 @@ let python_highlight_all = 1
 let g:vimsyn_noerror = 1
 let g:netrw_list_hide = '^\.[^.].*'
 "   tasklist[[[2
-let g:tlTokenList = ["FIXME", "TODO", "XXX", "NotImplemented"]
+let g:tlTokenList = ["FIXME", "TODO", "XXX", "NotImplemented", "unimplemented!()"]
 "   vimExplorer[[[2
 let g:VEConf_showHiddenFiles = 0
 "   另见平台相关部分
