@@ -398,15 +398,6 @@ function Lilydjwg_toggle_ambiwidth()
     let &ambiwidth = 'double'
   endif
 endfunction
-"  打开日记文件 [[[2
-function Lilydjwg_edit_diary()
-  if exists("g:my_diary_file") && filewritable(expand(g:my_diary_file))
-    exe 'e '.g:my_diary_file
-    normal gg
-  else
-    echoerr "Diary not set or not exists!"
-  endif
-endfunction
 "  是否该调用 cycle？[[[2
 function Lilydjwg_trycycle(dir)
   let pat = Lilydjwg_get_pattern_at_cursor('[+-]\?\d\+')
@@ -525,7 +516,6 @@ else
   else
     let g:mytmpdir = expand("~/tmpfs")
   endif
-  let my_diary_file = expand('~/secret/diary/2013.rj')
   let g:MuttVim_configfile = expand('~/scripts/python/pydata/muttvim.json')
   cmap <C-T> ~/tmpfs/
   " cron 的目录不要备份
@@ -855,8 +845,6 @@ command -range=% ClsHTML <line1>,<line2>!tidy -utf8 -iq -omit -w 0
 command -range=% ClsJSON setf json | <line1>,<line2>!jq .
 command MB tabe ~/temp/mb
 command -nargs=1 -complete=customlist,Lilydjwg_complete_So So runtime so/<args>.vim
-"   读取命令内容并将其插入到当前光标下
-command -nargs=1 -complete=command ReadCommand redir @">|exe "<args>"|normal $p:redir END<CR>
 command -nargs=1 Delmark delm <args>|wviminfo!
 "   删除空行
 command -range=% -bar DBlank <line1>,<line2>g/^\s*$/d_|nohls
@@ -875,7 +863,6 @@ command -nargs=? -complete=file RSplit vs <args>|normal <C-W>L<C-W>w
 command -range=% -bar SQuote <line1>,<line2>s/“\|”\|″/"/ge|<line1>,<line2>s/‘\|’\|′/'/ge
 command -range -bar HTMLEscape <line1>,<line2>s/&/\&amp;/ge|<line1>,<line2>s/</\&lt;/ge|<line1>,<line2>s/>/\&gt;/ge
 command -range -bar HTMLUnescape <line1>,<line2>s/&amp;/\&/ge|<line1>,<line2>s/&lt;/</ge|<line1>,<line2>s/&gt;/>/ge
-command RJ silent call Lilydjwg_edit_diary()
 "   载入 snippets
 command -nargs=? Snippets silent call Lilydjwg_snippets("<args>")
 "   用 VimExplorer 插件打开当前文件所在的目录
