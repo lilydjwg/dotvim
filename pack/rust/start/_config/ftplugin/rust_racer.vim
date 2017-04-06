@@ -1,2 +1,2 @@
-nmap gd <Plug>(rust-def)
-nmap K <Plug>(rust-doc)
+nmap <buffer> gd <Plug>(rust-def)
+nmap <buffer> K <Plug>(rust-doc)
