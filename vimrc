@@ -876,6 +876,8 @@ command -range=% Tohtml call Lilydjwg_to_html(<line1>, <line2>)
 command Agg exe 'Ag -Q ' . expand('<cword>')
 command BufClean call Lilydjwg_cleanbufs()
 " 插件配置[[[1
+"   ft-rust[[[2
+let g:rust_fold = 1
 "   vim-go[[[2
 " I handled it myself
 let g:go_fmt_autosave = 0
