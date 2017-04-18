@@ -76,6 +76,28 @@ function! go#cmd#Build(bang, ...) abort
 endfunction
 
 
+" BuildTags sets or shows the current build tags used for tools
+function! go#cmd#BuildTags(bang, ...) abort
+  if a:0
+    if a:0 == 1 && a:1 == '""'
+      unlet g:go_build_tags
+      call go#util#EchoSuccess("build tags are cleared")
+    else
+      let g:go_build_tags = a:1
+      call go#util#EchoSuccess("build tags are changed to: ". a:1)
+    endif
+
+    return
+  endif
+
+  if !exists('g:go_build_tags')
+    call go#util#EchoSuccess("build tags are not set")
+  else
+    call go#util#EchoSuccess("current build tags: ". g:go_build_tags)
+  endif
+endfunction
+
+
 " Run runs the current file (and their dependencies if any) in a new terminal.
 function! go#cmd#RunTerm(bang, mode, files) abort
   if empty(a:files)
@@ -155,9 +177,6 @@ function! go#cmd#Install(bang, ...) abort
     " expand all wildcards(i.e: '%' to the current file name)
     let goargs = map(copy(a:000), "expand(v:val)")
 
-    " escape all shell arguments before we pass it to make
-    let goargs = go#util#Shelllist(goargs, 1)
-
     if get(g:, 'go_echo_command_info', 1)
       call go#util#EchoProgress("installing dispatched ...")
     endif
@@ -199,7 +218,7 @@ function! go#cmd#Install(bang, ...) abort
   if !empty(errors) && !a:bang
     call go#list#JumpToFirst(l:listtype)
   else
-    call go#util#EchoSuccess("installed to ". $GOPATH)
+    call go#util#EchoSuccess("installed to ". go#path#Detect())
   endif
 
   let $GOPATH = old_gopath
@@ -385,7 +404,6 @@ function! go#cmd#Generate(bang, ...) abort
   let $GOPATH = old_gopath
 endfunction
 
-
 " ---------------------
 " | Vim job callbacks |
 " ---------------------
@@ -427,7 +445,7 @@ function s:cmd_job(args) abort
 
   let start_options = {
         \ 'callback': callbacks.callback,
-        \ 'close_cb': callbacks.close_cb,
+        \ 'exit_cb': callbacks.exit_cb,
         \ }
 
   " modify GOPATH if needed
