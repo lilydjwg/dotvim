@@ -4,6 +4,7 @@
 'g:go_auto_type_info'	vim-go.txt	/*'g:go_auto_type_info'*
 'g:go_autodetect_gopath'	vim-go.txt	/*'g:go_autodetect_gopath'*
 'g:go_bin_path'	vim-go.txt	/*'g:go_bin_path'*
+'g:go_build_tags'	vim-go.txt	/*'g:go_build_tags'*
 'g:go_decls_includes'	vim-go.txt	/*'g:go_decls_includes'*
 'g:go_def_mapping_enabled'	vim-go.txt	/*'g:go_def_mapping_enabled'*
 'g:go_def_mode'	vim-go.txt	/*'g:go_def_mode'*
@@ -25,7 +26,6 @@
 'g:go_gocode_unimported_packages'	vim-go.txt	/*'g:go_gocode_unimported_packages'*
 'g:go_gorename_prefill'	vim-go.txt	/*'g:go_gorename_prefill'*
 'g:go_guru_scope'	vim-go.txt	/*'g:go_guru_scope'*
-'g:go_guru_tags'	vim-go.txt	/*'g:go_guru_tags'*
 'g:go_highlight_array_whitespace_error'	vim-go.txt	/*'g:go_highlight_array_whitespace_error'*
 'g:go_highlight_build_constraints'	vim-go.txt	/*'g:go_highlight_build_constraints'*
 'g:go_highlight_chan_whitespace_error'	vim-go.txt	/*'g:go_highlight_chan_whitespace_error'*
@@ -49,6 +49,7 @@
 'g:go_metalinter_command'	vim-go.txt	/*'g:go_metalinter_command'*
 'g:go_metalinter_deadline'	vim-go.txt	/*'g:go_metalinter_deadline'*
 'g:go_metalinter_enabled'	vim-go.txt	/*'g:go_metalinter_enabled'*
+'g:go_metalinter_excludes'	vim-go.txt	/*'g:go_metalinter_excludes'*
 'g:go_play_browser_command'	vim-go.txt	/*'g:go_play_browser_command'*
 'g:go_play_open_browser'	vim-go.txt	/*'g:go_play_open_browser'*
 'g:go_snippet_case_type'	vim-go.txt	/*'g:go_snippet_case_type'*
@@ -116,6 +117,7 @@
 :GoAsmFmtAutoSaveToggle	vim-go.txt	/*:GoAsmFmtAutoSaveToggle*
 :GoAutoTypeInfoToggle	vim-go.txt	/*:GoAutoTypeInfoToggle*
 :GoBuild	vim-go.txt	/*:GoBuild*
+:GoBuildTags	vim-go.txt	/*:GoBuildTags*
 :GoCallees	vim-go.txt	/*:GoCallees*
 :GoCallers	vim-go.txt	/*:GoCallers*
 :GoCallstack	vim-go.txt	/*:GoCallstack*
@@ -142,7 +144,6 @@
 :GoFreevars	vim-go.txt	/*:GoFreevars*
 :GoGenerate	vim-go.txt	/*:GoGenerate*
 :GoGuruScope	vim-go.txt	/*:GoGuruScope*
-:GoGuruTags	vim-go.txt	/*:GoGuruTags*
 :GoImpl	vim-go.txt	/*:GoImpl*
 :GoImplements	vim-go.txt	/*:GoImplements*
 :GoImport	vim-go.txt	/*:GoImport*
@@ -179,6 +180,8 @@ go-af	vim-go.txt	/*go-af*
 go-commands	vim-go.txt	/*go-commands*
 go-contents	vim-go.txt	/*go-contents*
 go-credits	vim-go.txt	/*go-credits*
+go-development	vim-go.txt	/*go-development*
+go-donation	vim-go.txt	/*go-donation*
 go-functions	vim-go.txt	/*go-functions*
 go-if	vim-go.txt	/*go-if*
 go-install	vim-go.txt	/*go-install*
