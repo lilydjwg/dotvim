@@ -3,7 +3,9 @@ hi link deniteMatchedRange IncSearch
 
 function! s:denite_with_path()
   let path = input('path: ', '', 'dir')
-  exec "Denite file_rec -path=" . path
+  if path != ''
+    exec "Denite file_rec -path=" . path
+  endif
 endfunction
 
 nmap <M-d>f :call <SID>denite_with_path()<CR>
