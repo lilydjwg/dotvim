@@ -876,6 +876,7 @@ command -range=% Paste <line1>,<line2>py3 LilyPaste()
 command -range=% Tohtml call Lilydjwg_to_html(<line1>, <line2>)
 command Agg exe 'Ag -Q ' . expand('<cword>')
 command BufClean call Lilydjwg_cleanbufs()
+command Helptags for d in filter(globpath(&rtp, "doc/", 0, 1), 'filewritable(v:val)') | exec "helptags" d | endfor
 " 插件配置[[[1
 "   ft-rust[[[2
 let g:rust_fold = 1
