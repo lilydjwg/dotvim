@@ -670,6 +670,7 @@ let g:silent_unsupported = 1
 " map 相关[[[1
 "   nmap [[[2
 "     Fx 相关 [[[3
+" buffer list
 nmap <F2> <Leader>be
 nmap <F4> :ls<CR>:buffer 
 nmap <F6> :cnext<CR>
@@ -678,18 +679,21 @@ nmap <silent> <F9> :enew<CR>
 nmap <silent> <F8> :GundoToggle<CR>
 nmap <F11> :next<CR>
 nmap <S-F11> :previous<CR>
-nmap <S-F12> :!ctags -R --c++-kinds=+p --fields=+iaS --extra=+q .<CR>
-"     重新载入当前文件
+" 重新载入当前文件
 nmap <F5> :e!<CR>
 "     t 开头 [[[3
 nmap <silent> tt :tabnew<CR>
 nmap <silent> TT :call Lilydjwg_copy_to_newtab()<CR>
+" format all
 nmap t= mxHmygg=G`yzt`x
+" select all
 nmap ta ggVG
 nmap <silent> tf :call Lilydjwg_open_url()<CR>
-"     less style 清除高亮
+" less style 清除高亮
 nmap <silent> <M-u> :nohls<CR>
+" join line without space
 nmap tj Jx
+" select line content
 nnoremap tl ^vg_
 nmap <silent> to :call append('.', '')<CR>j
 nmap <silent> tO :call append(line('.')-1, '')<CR>k
@@ -778,7 +782,7 @@ nmap <M-k> gk
 vmap <M-j> gj
 vmap <M-k> gk
 "     以 % 表示的字符 [[[2
-map <silent> t% :w !ascii2uni -a J -q<CR>
+vmap <silent> t% :w !ascii2uni -a J -q<CR>
 nmap <silent> t% :call Lilydjwg_hexchar()<CR>
 "     HTML 转义 [[[2
 "     I got the idea from unimpaired.vim
@@ -823,7 +827,6 @@ autocmd InsertLeave	* if s:cmdwin == 0 && pumvisible() == 0|pclose|endif
 "   插入模式下长时间不动则打断撒消序列
 autocmd CursorHoldI * call feedkeys("\<C-g>u", 'nt')
 autocmd BufReadCmd *.maff,*.xmind,*.crx,*.apk,*.whl,*.egg  call zip#Browse(expand("<amatch>"))
-autocmd BufRead */WualaDrive/* setl noswapfile
 "   见 ft-syntax-omni
 if has("autocmd") && exists("+omnifunc")
   autocmd Filetype *
@@ -878,9 +881,6 @@ command BufClean call Lilydjwg_cleanbufs()
 " 插件配置[[[1
 "   ft-rust[[[2
 let g:rust_fold = 1
-"   vim-go[[[2
-" I handled it myself
-let g:go_fmt_autosave = 0
 "   asyncrun.vim[[[2
 command! -bang -nargs=* -complete=file Make AsyncRun -program=make @ <args>
 "   choosewin[[[2
