@@ -1,8 +1,14 @@
 hi link deniteMatchedChar IncSearch
 hi link deniteMatchedRange IncSearch
 
-nmap <M-d>f :Denite file_rec -path=
-nmap <M-d>l :DeniteBufferDir file_rec<CR>
+function! s:denite_with_path()
+  let path = input('path: ', '', 'dir')
+  exec "Denite file_rec -path=" . path
+endfunction
+
+nmap <M-d>f :call <SID>denite_with_path()<CR>
+nmap <M-d>L :DeniteBufferDir file_rec<CR>
+nmap <M-d>l :Denite line<CR>
 nmap <M-d>b :Denite buffer<CR>
 nmap <M-d>m :Denite file_mru<CR>
 nmap <M-d>: :Denite command_history<CR>
