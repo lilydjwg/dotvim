@@ -1,0 +1,11 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:Shougo/neomru.vim.git
+	branch = master
+	commit = c7bf447627679a3f06f0f3caf893b0497d0aa90b
+	parent = 412e52625a41d9bd6e49b1182b9922de152fa9bd
+	cmdver = 0.3.0
