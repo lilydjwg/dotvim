@@ -1,0 +1,11 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:Shougo/denite.nvim.git
+	branch = master
+	commit = 99f94a9b010e2225f899bd52ac9f0ae80fe668dd
+	parent = 23bbdad91c4e2a3e00662818dcb8ac87f2b676ba
+	cmdver = 0.3.0

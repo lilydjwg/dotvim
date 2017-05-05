@@ -1,0 +1,1787 @@
+*denite.txt*	Dark powered asynchronous unite all interfaces for NeoVim/Vim.
+
+Version: 0.5
+Author:  Shougo <Shougo.Matsu at gmail.com>
+License: MIT license
+
+CONTENTS						*denite-contents*
+
+Introduction		|denite-introduction|
+Usage			|denite-usage|
+Install			|denite-install|
+Configuration Examples	|denite-examples|
+Interface		|denite-interface|
+  Commands		  |denite-commands|
+  Key mappings		  |denite-key-mappings|
+  Functions		  |denite-functions|
+  Options		  |denite-options|
+Sources			|denite-sources|
+Kinds			|denite-kinds|
+Actions			|denite-actions|
+Filters			|denite-filters|
+Create source		|denite-create-source|
+Create kind		|denite-create-kind|
+Create filter		|denite-create-filter|
+External source		|denite-external-sources|
+FAQ			|denite-faq|
+Compatibility		|denite-compatibility|
+
+==============================================================================
+INTRODUCTION						*denite-introduction*
+
+*denite* or *denite.vim* is a common extensible interface for searching and
+displaying lists of information from within NeoVim/Vim. It can display and
+search through any arbitrary source, from files and directories to buffers.
+
+* Theoretically faster while the main process is executed by python
+
+* Theoretically more stable while no other processes can be performed when
+denite.nvim is executed.
+
+* The implementation is relatively simple than unite.vim
+
+* Denite.nvim has great potential to implement a new feature
+
+* To send the pull request by Python3 is easier than Vim script
+
+* There are a lot of useful tools to keep code simple (linter, tester, etc...)
+in Python3.
+
+* The unite.vim is officially obsolete, minor bugs (or even major bugs) are
+not fixed anymore
+
+==============================================================================
+USAGE							*denite-usage*
+
+	To browse a list of currently open buffers like |:ls| command.
+>
+	:Denite buffer
+<
+	To browse recursive list of all the files under the current working
+	directory.
+>
+	:Denite file_rec
+<
+	Or you can combine sources, to browse files and buffers.
+>
+	:Denite file_rec buffer
+<
+	There are a number of command line flags (see |denite-options|), for
+	example to set an initial search term (foo) to filter files search.
+>
+	:Denite -input=foo file_rec
+<
+==============================================================================
+INSTALL							*denite-install*
+
+Note: denite requires Neovim(the latest is recommended) or Vim8.0+ with
+|:python3| enabled.
+
+For neovim install:
+
+1. Extract the files and put them in your Neovim directory
+   (usually `$XDG_CONFIG_HOME/nvim/`).
+2. Execute the |:UpdateRemotePlugins| and restart Neovim.
+
+If ":echo has('python3')" returns `1`, then you're done; otherwise, see below.
+
+You can enable Python3 interface with pip: >
+
+    sudo pip3 install neovim
+
+If you want to read for Neovim-python/python3 interface install documentation,
+you should read |nvim-python| and the Wiki.
+https://github.com/zchee/deoplete-jedi/wiki/Setting-up-Python-for-Neovim
+
+You can check the Python3 installation by nvim-python-doctor or |:CheckHealth|
+command.
+https://github.com/tweekmonster/nvim-python-doctor
+
+For Vim8.0+:
+
+Use |:python3| enabled Vim.
+
+==============================================================================
+EXAMPLES						*denite-examples*
+>
+	" Change file_rec command.
+	call denite#custom#var('file_rec', 'command',
+	\ ['ag', '--follow', '--nocolor', '--nogroup', '-g', ''])
+	" For ripgrep
+	" Note: It is slower than ag
+	call denite#custom#var('file_rec', 'command',
+	\ ['rg', '--files', '--glob', '!.git', ''])
+	" For Pt(the platinum searcher)
+	" NOTE: It also supports windows.
+	call denite#custom#var('file_rec', 'command',
+	\ ['pt', '--follow', '--nocolor', '--nogroup', '-g:', ''])
+
+	" Change mappings.
+	call denite#custom#map(
+	      \ 'insert',
+	      \ '<C-j>',
+	      \ '<denite:move_to_next_line>',
+	      \ 'noremap'
+	      \)
+	call denite#custom#map(
+	      \ 'insert',
+	      \ '<C-k>',
+	      \ '<denite:move_to_previous_line>',
+	      \ 'noremap'
+	      \)
+
+	" Change matchers.
+	call denite#custom#source(
+	\ 'file_mru', 'matchers', ['matcher_fuzzy', 'matcher_project_files'])
+	call denite#custom#source(
+	\ 'file_rec', 'matchers', ['matcher_cpsm'])
+
+	" Change sorters.
+	call denite#custom#source(
+	\ 'file_rec', 'sorters', ['sorter_sublime'])
+
+	" Add custom menus
+	let s:menus = {}
+
+	let s:menus.zsh = {
+		\ 'description': 'Edit your import zsh configuration'
+		\ }
+	let s:menus.zsh.file_candidates = [
+		\ ['zshrc', '~/.config/zsh/.zshrc'],
+		\ ['zshenv', '~/.zshenv'],
+		\ ]
+
+	let s:menus.my_commands = {
+		\ 'description': 'Example commands'
+		\ }
+	let s:menus.my_commands.command_candidates = [
+		\ ['Split the window', 'vnew'],
+		\ ['Open zsh menu', 'Denite menu:zsh'],
+		\ ]
+
+	call denite#custom#var('menu', 'menus', s:menus)
+
+	" Ag command on grep source
+	call denite#custom#var('grep', 'command', ['ag'])
+	call denite#custom#var('grep', 'default_opts',
+			\ ['-i', '--vimgrep'])
+	call denite#custom#var('grep', 'recursive_opts', [])
+	call denite#custom#var('grep', 'pattern_opt', [])
+	call denite#custom#var('grep', 'separator', ['--'])
+	call denite#custom#var('grep', 'final_opts', [])
+
+	" Ack command on grep source
+	call denite#custom#var('grep', 'command', ['ack'])
+	call denite#custom#var('grep', 'default_opts',
+			\ ['--ackrc', $HOME.'/.ackrc', '-H',
+			\  '--nopager', '--nocolor', '--nogroup', '--column'])
+	call denite#custom#var('grep', 'recursive_opts', [])
+	call denite#custom#var('grep', 'pattern_opt', ['--match'])
+	call denite#custom#var('grep', 'separator', ['--'])
+	call denite#custom#var('grep', 'final_opts', [])
+
+	" Ripgrep command on grep source
+	call denite#custom#var('grep', 'command', ['rg'])
+	call denite#custom#var('grep', 'default_opts',
+			\ ['--vimgrep', '--no-heading'])
+	call denite#custom#var('grep', 'recursive_opts', [])
+	call denite#custom#var('grep', 'pattern_opt', ['--regexp'])
+	call denite#custom#var('grep', 'separator', ['--'])
+	call denite#custom#var('grep', 'final_opts', [])
+
+	" Pt command on grep source
+	call denite#custom#var('grep', 'command', ['pt'])
+	call denite#custom#var('grep', 'default_opts',
+			\ ['--nogroup', '--nocolor', '--smart-case'])
+	call denite#custom#var('grep', 'recursive_opts', [])
+	call denite#custom#var('grep', 'pattern_opt', [])
+	call denite#custom#var('grep', 'separator', ['--'])
+	call denite#custom#var('grep', 'final_opts', [])
+
+	call denite#custom#source('file_mru', 'converters',
+	      \ ['converter_relative_word'])
+
+	" Define alias
+	call denite#custom#alias('source', 'file_rec/git', 'file_rec')
+	call denite#custom#var('file_rec/git', 'command',
+	      \ ['git', 'ls-files', '-co', '--exclude-standard'])
+
+	" Change default prompt
+	call denite#custom#option('default', 'prompt', '>')
+
+	" Change ignore_globs
+	call denite#custom#filter('matcher_ignore_globs', 'ignore_globs',
+	      \ [ '.git/', '.ropeproject/', '__pycache__/',
+	      \   'venv/', 'images/', '*.min.*', 'img/', 'fonts/'])
+<
+
+==============================================================================
+INTERFACE						*denite-interface*
+
+------------------------------------------------------------------------------
+COMMANDS 						*denite-commands*
+
+:Denite [{options}] {sources}				*:Denite*
+		Creates a new Denite buffer.
+		Denite can be invoked with one or more sources. This can be
+		done by specifying the list on the command line, separated by
+		spaces. The list of candidates (the matches found in the
+		source by your filter string) will be ordered in the same
+		order that you specify the {sources}.
+
+		For example:
+
+		:Denite file_rec line
+
+		Will first list the files, then lines of the current buffer.
+
+		See also |denite-sources| the available sources.
+
+		Denite can accept a list of strings, separated with ":", after
+		the name of sources.  You must escape ":" and "\" with "\"
+		in parameters themselves.
+
+		Examples:
+		"file_rec:foo:bar": the parameters of source file are
+		                    ["foo", "bar"].
+		"file_rec:foo\:bar": the parameter of source file is
+		                     ["foo:bar"].
+		"file_rec:foo::bar": the parameters of source file are
+		                     ["foo", "", "bar"].
+
+		You can use evaluation cmdline by ``.
+		Note: In the evaluation, The special characters(spaces,  "\"
+		and ":") are escaped automatically.
+>
+        :Denite -buffer-name=search%`bufnr('%')` line<CR>
+<
+		{options} are options for Denite buffer: |denite-options|
+
+:DeniteBufferDir [{options}] {sources}			*:DeniteBufferDir*
+		Equivalent to |:Denite| except that it targets the buffer
+		directory.
+
+:DeniteCursorWord [{options}] {sources}			*:DeniteCursorWord*
+		Equivalent to |:Denite| except that it targets the word under
+		the cursor for the initial narrowing text.
+
+:DeniteProjectDir [{options}] {sources}			*:DeniteProjectDir*
+		Equivalent to |:Denite| except that it targets the project
+		directory.
+		Note: You can change the rooted directory by
+		|denite-options-path| instead of |getcwd()|.
+
+------------------------------------------------------------------------------
+KEY MAPPINGS 						*denite-key-mappings*
+
+The denite use the lambdalisue/neovim-prompt to provide a rich command-line
+like interface.
+Report issues to https://github.com/lambdalisue/neovim-prompt when the issues
+are on the neovim-prompt's builtin actions/mappings.
+
+				*denite-map-assign_next_matched_text*
+<denite:assign_next_matched_text>
+		Recall next command-line from history that matches pattern in
+		front of the cursor.
+		Like |c_<Down>| in a native Vim's command-line.
+		Note this is a neovim-prompt's builtin action.
+
+				*denite-map-assign_next_text*
+<denite:assign_next_text>
+		Recall next command-line from history.
+		Like |c_<S-Down>| in a native Vim's command-line.
+		Note this is a neovim-prompt's builtin action.
+
+				*denite-map-assign_previous_matched_text*
+<denite:assign_previous_matched_text>
+		Recall previous command-line from history that matches
+		pattern in front of the cursor.
+		Like |c_<Up>| in a native Vim's command-line.
+		Note this is a neovim-prompt's builtin action.
+
+				*denite-map-assign_previous_text*
+<denite:assign_previous_text>
+		Recall previous command-line from history.
+		Like |c_<S-Up>| in a native Vim's command-line.
+		Note this is a neovim-prompt's builtin action.
+
+				*denite-map-change_path*
+<denite:change_path>
+		Change and restart Denite buffer.
+
+				*denite-map-choose_action*
+<denite:choose_action>
+		Choose and fire the action.
+
+				*denite-map-delete_char_before_caret*
+<denite:delete_char_before_caret>
+		Delete a character before the caret.
+		Note this is a neovim-prompt's builtin action.
+
+				*denite-map-delete_word_before_caret*
+<denite:delete_word_before_caret>
+		Delete a word before the caret.
+		Note this is a neovim-prompt's builtin action.
+
+				*denite-map-delete_char_after_caret*
+<denite:delete_char_after_caret>
+		Delete a character after the caret.
+		Note this is a neovim-prompt's builtin action.
+
+				*denite-map-delete_word_after_caret*
+<denite:delete_word_after_caret>
+		Delete a word after the caret.
+		Note this is a neovim-prompt's builtin action.
+
+				*denite-map-delete_char_under_caret*
+<denite:delete_char_under_caret>
+		Delete a character under the caret.
+		Note this is a neovim-prompt's builtin action.
+
+				*denite-map-delete_word_under_caret*
+<denite:delete_word_under_caret>
+		Delete a word under the caret.
+		Note this is a neovim-prompt's builtin action.
+
+				*denite-map-delete_text_before_caret*
+<denite:delete_text_before_caret>
+		Delete a text before the caret.
+		Note this is a neovim-prompt's builtin action.
+
+				*denite-map-delete_text_after_caret*
+<denite:delete_text_after_caret>
+		Delete a text after the caret.
+		Note this is a neovim-prompt's builtin action.
+
+				*denite-map-delete_entire_text*
+<denite:delete_entire_text>
+		Delete an entire text.
+		Note this is a neovim-prompt's builtin action.
+
+				*denite-map-caret_to_next_word*
+<denite:move_caret_to_next_word>
+		Move caret to beginning of next word, like |w| in normal mode in vim buffer.
+
+				*denite-map-caret_to_end_of_word*
+<denite:move_caret_to_end_of_word>
+		Move caret to end of word, like |e| in normal mode in vim buffer.
+
+				*denite-map-change_word*
+<denite:change_word>
+		Change word, like |cw| in normal mode in vim buffer.
+
+				*denite-map-change_line*
+<denite:change_line>
+		Change line, like |cc| in normal mode in vim buffer.
+
+				*denite-map-append*
+<denite:append>
+		Append, like |a| in normal mode in vim buffer.
+
+				*denite-map-append_to_line*
+<denite:append_to_line>
+		Append to line, like |A| in normal mode in vim buffer.
+
+				*denite-map-insert_to_head*
+<denite:insert_to_head>
+		Insert at head of line, like |I| in normal mode in vim buffer.
+
+				*denite-map-do_action*
+<denite:do_action:{action}>
+		Close current Denite buffer and fire {action} action.
+
+				*denite-map-enter_mode*
+<denite:enter_mode:{mode}>
+		Enter to {mode} mode.
+
+				*denite-map-input_command_line*
+<denite:input_command_line>
+		Input or overstrike a text through the Vim's native
+		command-line.
+		See also |denite-map-toggle_insert_mode|.
+
+				*denite-map-insert_digraph*
+<denite:insert_digraph>
+		Insert or overstrike a |digraph| at the caret.
+		Like |c_<C-K>| in a Vim's native command-line.
+		See also |denite-map-toggle_insert_mode|.
+		Note this is a neovim-prompt's builtin action.
+
+				*denite-map-insert_special*
+<denite:insert_special>
+		Insert or overstrike a special character at the caret.
+		Like |c_<C-V>| in a Vim's native command-line.
+		See also |denite-map-toggle_insert_mode|.
+		Note this is a neovim-prompt's builtin action.
+
+				*denite-map-insert_word*
+<denite:insert_word:{word}>
+		Insert {word} characters. Use this mapping action to define
+		a mode independent mapping. If you need a mapping which insert
+		{word} only in insert mode, directly assign {word} like:
+>
+		call denite#custom#map('insert', '<F4>', 'hello!', 'noremap')
+<
+				*denite-map-jump_to_next_source*
+<denite:jump_to_next_source>
+		Jump to the first candidate of the next source.
+
+				*denite-map-jump_to_previous_source*
+<denite:jump_to_previous_source>
+		Jump to the first candidate of the previous source.
+
+				*denite-map-leave_mode*
+<denite:leave_mode>
+		Return to the previous mode or close current Denite buffer.
+
+				*denite-map-move_caret_to_left*
+<denite:move_caret_to_left>
+		Move the caret to a one character left.
+		Note this is a neovim-prompt's builtin action.
+
+				*denite-map-move_caret_to_one_word_left*
+<denite:move_caret_to_one_word_left>
+		Move the caret to a one word left.
+		Note this is a neovim-prompt's builtin action.
+
+				*denite-map-move_caret_to_left_anchor*
+<denite:move_caret_to_left_anchor>
+		Move the caret like |F| in Vim's normal mode.
+		Note this is a neovim-prompt's builtin action.
+
+				*denite-map-move_caret_to_right*
+<denite:move_caret_to_right>
+		Move the caret to a one character right.
+		Note this is a neovim-prompt's builtin action.
+
+				*denite-map-move_caret_to_one_word_right*
+<denite:move_caret_to_one_word_right>
+		Move the caret to a one word right.
+		Note this is a neovim-prompt's builtin action.
+
+				*denite-map-move_caret_to_right_anchor*
+<denite:move_caret_to_right_anchor>
+		Move the caret like |f| in Vim's normal mode.
+		Note this is a neovim-prompt's builtin action.
+
+				*denite-map-move_caret_to_head*
+<denite:move_caret_to_head>
+		Move the caret to the head (a start of the text.)
+		Note this is a neovim-prompt's builtin action.
+
+				*denite-map-move_caret_to_lead*
+<denite:move_caret_to_lead>
+		Move the caret to the lead (a first printable character.)
+		Note this is a neovim-prompt's builtin action.
+
+				*denite-map-move_caret_to_tail*
+<denite:move_caret_to_tail>
+		Move the caret to the tail (a end of the text.)
+		Note this is a neovim-prompt's builtin action.
+
+				*denite-map-move_to_next_line*
+<denite:move_to_next_line>
+		Move to next line.
+
+				*denite-map-move_to_previous_line*
+<denite:move_to_previous_line>
+		Move to previous line.
+
+				*denite-map-move_to_first_line*
+<denite:move_to_first_line>
+		Move to first line.
+
+				*denite-map-move_to_last_line*
+<denite:move_to_last_line>
+		Move to last line.
+
+				*denite-map-paste_from_register*
+<denite:paste_from_register>
+		Paste the text from a specified register.
+		Like |c_<C-R>| in a Vim's native command-line.
+		Note this is a neovim-prompt's builtin action.
+
+				*denite-map-paste_from_default_register*
+<denite:paste_from_default_register>
+		Paste the text from a default register (|v:register|).
+		Note this is a neovim-prompt's builtin action.
+
+				*denite-map-print_messages*
+<denite:print_messages>
+		Output denite messages to |:messages|.
+		Note: You cannot read the messages in Denite window.
+		It is for debug only.
+
+				*denite-map-quit*
+<denite:quit>
+		Close current Denite buffer.
+
+				*denite-map-redraw*
+<denite:redraw>
+		Clear the cache and redraw the candidates.
+
+				*denite-map-restart*
+<denite:restart>
+		Restart Denite buffer.
+
+				*denite-map-suspend*
+<denite:suspend>
+		Suspend current Denite buffer.
+		You can resume the Denite buffer by <CR> mapping.
+
+				*denite-map-scroll_window_downwards*
+<denite:scroll_window_downwards>
+		Scroll the window downwards.
+
+				*denite-map-scroll_window_upwards*
+<denite:scroll_window_upwards>
+		Scroll the window upwards.
+
+				*denite-map-scroll_page_forwards*
+<denite:scroll_page_forwards>
+		Scroll the page forwards.
+
+				*denite-map-scroll_page_backwards*
+<denite:scroll_page_backwards>
+		Scroll the page backwards.
+
+				*denite-map-scroll_down*
+<denite:scroll_down>
+		Scroll down.
+
+				*denite-map-scroll_up*
+<denite:scroll_up>
+		Scroll up.
+
+				*denite-map-toggle_insert_mode*
+<denite:toggle_insert_mode>
+		Toggle insert mode (insert or overstrike).
+		Like |c_<Insert>| in a Vim's native command-line.
+		Note this is a neovim-prompt's builtin action.
+
+				*denite-map-toggle_select*
+<denite:toggle_select>
+		Toggle cursor candidate select.
+
+				*denite-map-toggle_select_all*
+<denite:toggle_select_all>
+		Toggle all candidates.
+
+				*denite-map-toggle_select_down*
+<denite:toggle_select_down>
+		Toggle cursor candidate select and move to next line.
+
+				*denite-map-toggle_select_up*
+<denite:toggle_select_up>
+		Toggle cursor candidate select and move to previous line.
+
+				*denite-map-yank_to_register*
+<denite:yank_to_register>
+		Yank a text into a specified register.
+		Note this is a neovim-prompt's builtin action.
+
+				*denite-map-yank_to_default_register*
+<denite:yank_to_default_register>
+		Yank a text into a default register (|v:register|).
+		Note this is a neovim-prompt's builtin action.
+
+						*denite_default_key_mappings*
+Following keymappings are the default keymappings.
+
+Note when user hit <C-c>, denite stop any operations and close its window.
+
+All mode mappings (override by mode mappings).
+{key}		{mapping}
+--------	-----------------------------
+<Esc>		<denite:leave_mode>
+<CR>		<denite:do_action:default>
+<C-M>		<denite:do_action:default>
+<C-Z>		<denite:suspend>
+<Tab>		<denite:choose_action>
+
+"insert" mode mappings.
+{key}		{mapping}
+--------	-----------------------------
+<C-B>		<denite:move_caret_to_head>
+<C-E>		<denite:move_caret_to_tail>
+<BS>		<denite:delete_char_before_caret>
+<C-H>		<denite:delete_char_before_caret>
+<C-K>		<denite:insert_digraph>
+<C-N>		<denite:assign_next_text>
+<C-P>		<denite:assign_previous_text>
+<C-Q>		<denite:insert_special>
+<C-R>		<denite:paste_from_register>
+<C-U>		<denite:delete_entire_text>
+<C-W>		<denite:delete_word_before_caret>
+<DEL>		<denite:delete_word_under_caret>
+<Left>		<denite:move_caret_to_left>
+<S-Left>	<denite:move_caret_to_one_word_left>
+<C-Left>	<denite:move_caret_to_one_word_left>
+<Right>		<denite:move_caret_to_right>
+<S-Right>	<denite:move_caret_to_one_word_right>
+<C-Right>	<denite:move_caret_to_one_word_right>
+<Up>		<denite:assign_previous_matched_text>
+<S-Up>		<denite:assign_previous_text>
+<Down>		<denite:assign_next_matched_text>
+<S-Down>	<denite:assign_next_text>
+<Home>		<denite:move_caret_to_head>
+<End>		<denite:move_caret_to_tail>
+<PageDown>	<denite:assign_next_text>
+<PageUp>	<denite:assign_previous_text>
+<Insert>	<denite:toggle_insert_mode>
+<C-G>		<denite:move_to_next_line>
+<C-T>		<denite:move_to_previous_line>
+<C-L>		<denite:redraw>
+<C-O>		<denite:enter_mode:normal>
+<C-J>		<denite:input_command_line>
+<C-V>		<denite:do_action:preview>
+
+"normal" mode mappings.
+{key}		{mapping}
+--------	-----------------------------
+i		<denite:enter_mode:insert>
+I		<denite:insert_to_head>
+a		<denite:append>
+A		<denite:append_to_line>
+j		<denite:move_to_next_line>
+h		<denite:move_caret_to_left>
+l		<denite:move_caret_to_right>
+k		<denite:move_to_previous_line>
+b		<denite:move_caret_to_one_word_left>
+w		<denite:move_caret_to_next_word>
+e		<denite:move_caret_to_end_of_word>
+0		<denite:move_caret_to_head>
+$		<denite:move_caret_to_tail>
+c		<denite:change_word>
+cc		<denite:change_line>
+cw		<denite:change_word>
+dd		<denite:delete_entire_text>
+gg		<denite:move_to_first_line>
+G		<denite:move_to_last_line>
+<C-U>		<denite:scroll_window_upwards>
+<C-D>		<denite:scroll_window_downwards>
+<C-F>		<denite:scroll_page_forwards>
+<C-B>		<denite:scroll_page_backwards>
+p		<denite:do_action:preview>
+d		<denite:do_action:delete>
+n		<denite:do_action:new>
+t		<denite:do_action:tabopen>
+q		<denite:quit>
+<C-L>		<denite:redraw>
+<C-R>		<denite:restart>
+<Space>		<denite:toggle_select_down>
+*		<denite:toggle_select_all>
+M		<denite:print_messages>
+P		<denite:change_path>
+
+------------------------------------------------------------------------------
+FUNCTIONS						*denite-functions*
+
+							*denite#custom#alias()*
+denite#custom#alias({type}, {alias-name}, {base-name})
+		Define {alias-name} alias based on {base-name}.
+		{type} must be "source" or "filter".
+
+						*denite#custom#filter()*
+denite#custom#filter({filter-name}, {variable-name}, {value})
+		Set {filter-name} filter specialized variable {variable-name}
+		to {value}.  You may specify multiple filters with the
+		separator "," in {filter-name}.
+
+						*denite#custom#option()*
+denite#custom#option({buffer-name}, {option-name}, {value})
+denite#custom#option({buffer-name}, {dict})
+		Set {option-name} option to {value} in {buffer-name}
+		buffer.
+		If {buffer-name} is "_", the options are used for all buffers.
+		If {dict} is available, the key is {option-name} and the value
+		is {value}.
+		Note: The all options are in |denite-options|.  However, "-" is
+		substituted to "_", and "-" prefix is removed. >
+
+	call denite#custom#option('default', {
+	      \ 'prompt': '>',
+	      \ 'short_source_names': v:true
+	      \ })
+
+							*denite#custom#map()*
+denite#custom#map({mode}, {lhs}, {rhs}[, {params}])
+		Set {lhs} mapping to {rhs} in {mode} mode.
+		If {mode} is "_", the mapping is used in any mode with lower
+		priority than a mode specific mappings.
+		The {params} is a space separated |String| which may contain
+
+		"noremap"
+		Like a Vim's |noremap|. Without this param, {rhs} will
+		recursively solved.
+
+		"expr"
+		Like a Vim's |:map-<expr>|, {rhs} is assumed as an expression.
+		The expression is evaluated to obtain an actual {rhs}.
+
+		"nowait"
+		Like a Vim's |:map-<nowait>|, return {rhs} immediately when
+		the mapping has registered with "nowait" params.
+
+		The followings are example usages:
+>
+		" Use existing map to define a custom map
+		call denite#custom#map('insert', '<C-a>', '<Home>')
+		call denite#custom#map('insert', '<C-e>', '<End>')
+		call denite#custom#map('insert', '<C-f>', '<Right>')
+		call denite#custom#map('insert', '<C-b>', '<Left>')
+
+		" Use mapping action directly
+		call denite#custom#map(
+		      \ 'insert',
+		      \ '<C-d>',
+		      \ '<denite:delete_char_under_caret>',
+		      \ 'noremap'
+		      \)
+
+		" Insert a current date by expr mapping
+		function! Date() abort
+		  return strftime("%Y-%m-%d %a")
+		endfunction
+		call denite#custom#map(
+		      \ 'insert',
+		      \ '<F12>',
+		      \ 'Date()',
+		      \ 'noremap expr'
+		      \)
+
+		" <C-w><C-w> become 'Ctrl-wCtrl-w' instead of 'Fail'
+		" <C-y><C-y> become 'Success' instead of 'Ctrl-yCtrl-y'
+		" Because of 'nowait'
+		call denite#custom#map(
+		      \ 'insert',
+		      \ '<C-w>',
+		      \ 'Ctrl-w',
+		      \ 'noremap nowait'
+		      \)
+		call denite#custom#map(
+		      \ 'insert',
+		      \ '<C-w><C-w>',
+		      \ 'Fail',
+		      \ 'noremap'
+		      \)
+		call denite#custom#map(
+		      \ 'insert',
+		      \ '<C-y>',
+		      \ 'Ctrl-y',
+		      \ 'noremap'
+		      \)
+		call denite#custom#map(
+		      \ 'insert',
+		      \ '<C-y><C-y>',
+		      \ 'Success',
+		      \ 'noremap'
+		      \)
+<
+		Note the posterior mappings have higher priority.
+		Note <Nop> cannot be used while <Nop> is equal to <C-J> in
+		neovim-prompt internally.
+		Note <C-c> cannot be used in custom mapping.
+		See |denite-key-mappings|.
+
+						*denite#custom#source()*
+denite#custom#source({source-name}, {option-name}, {value})
+		Set {source-name} source specialized {option-name} to {value}.
+		You may specify multiple sources with the separator "," in
+		{source-name}.
+		A {source-name} of "_" sets the default for all sources.
+
+		The options below are available:
+
+		matchers			(List)
+		Specify a list of matcher names.  The filters overwrite source
+		default matchers.
+		Default:  ['matcher_fuzzy']
+
+		sorters				(List)
+		Specify a list of sorter names.  The filters overwrite source
+		default sorters.
+		Default:  ['sorter_rank']
+
+		converters			(List)
+		Specify a list of converter names.  The filters overwrite
+		source default converters.
+		Default:  []
+
+		args				(List)
+		Specify the source default arguments.
+		Default:  []
+
+							*denite#custom#var()*
+denite#custom#var({source-name}, {var-name}, {value})
+		Set {source-name} source specialized variable {variable-name}
+		to {value}.  You may specify multiple sources with the
+		separator "," in {source-name}.
+
+denite#get_status_mode()			 *denite#get_status_mode()*
+		Returns the mode part of the status string.  It is useful to
+		customize the statusline.
+
+denite#get_status_sources()			 *denite#get_status_sources()*
+		Returns the sources part of the status string.  It is useful to
+		customize the statusline.
+
+denite#get_status_path()			 *denite#get_status_path()*
+		Returns the path part of the status string.  It is useful to
+		customize the statusline.
+
+denite#get_status_linenr()			 *denite#get_status_linenr()*
+		Returns the line number part of the status string.  It is
+		useful to customize the statusline.
+
+							*denite#initialize()*
+denite#initialize()
+		Initialize denite and sources.
+		Note: You don't have to call it manually.
+
+							*denite#start()*
+denite#start({sources}[, {context}])
+		Creates a new Denite buffer.
+
+		{sources} is a list of elements which are formatted as
+		"{'name': {source-name}, 'args': {source-args}}".
+
+		Refer to |denite-notation-{context}| about {context}.  If you
+		skip a value, it uses the default value.
+>
+		call denite#start([{'name': 'file_rec', 'args': []}])
+<
+
+------------------------------------------------------------------------------
+OPTIONS							*denite-options*
+
+							*denite-options-no-*
+		-no-{option-name}
+		Disable {option-name} flag.
+		Note: If you use both {option-name} and -no-{option-name} in
+		the same denite buffer, it is undefined.
+
+						*denite-options-auto-highlight*
+-auto-highlight
+		When you select a candidate, it runs the "highlight" action
+		automatically.
+		Default: false
+
+						*denite-options-auto-preview*
+-auto-preview
+		When you select a candidate, it runs the "preview" action
+		automatically.
+		Default: false
+
+						*denite-options-auto-resize*
+-auto-resize
+		Auto resize the Denite window height automatically.
+		Default: false
+
+						*denite-options-buffer-name*
+-buffer-name={buffer-name}
+		Specify the name of denite buffer.
+		Default: "default"
+
+						*denite-options-default-action*
+-default-action={action}
+		Specify the default action as {action}.
+		Default: "default"
+
+						*denite-options-cursor-pos*
+-cursor-pos={number}
+		Select {number} candidate.
+		If {number} is "+1" or "-1" when resume, selects the next or
+		previous candidate.
+		Note: 0 is the first candidate.
+		Default: ''
+
+						*denite-options-cursor-wrap*
+-cursor-wrap
+		If you move when the cursor reaches the top or bottom edge,
+		the cursor moves to the opposite side.
+		Default: false
+
+						*denite-options-direction*
+-direction={direction}
+		Specify the Denite window direction as {direction}.
+
+		When it is "dynamictop", if each item's length is less than
+		the current window's width, the direction becomes "aboveleft",
+		otherwise - "topleft".
+		Similarly for "dynamicbottom", the direction becomes
+		"belowright" or "botright".
+		It is useful to always make best effort to show all items
+		without shortening.
+
+		Default: "botright"
+
+						*denite-options-empty*
+-empty
+		Open any denite buffer if the candidate is empty.
+		Default: true
+
+					*denite-options-highlight-matched-char*
+-highlight-matched-char
+		Matched characters highlight.
+		Default: 'Search'
+
+					*denite-options-highlight-matched-range*
+-highlight-matched-range
+		Matched range highlight.
+		Default: 'Underlined'
+
+					*denite-options-highlight-mode-{mode}*
+-highlight-mode-{mode}
+		Change |hl-CursorLine| in {mode}.
+		Default:
+		'CursorLine' in "insert" mode
+		'WildMenu' in "normal" mode
+
+						*denite-options-immediately*
+-immediately
+		If candidates exist, it runs the default action
+		immediately.
+		Default: false
+
+							*denite-options-input*
+-input={input-text}
+		Specify an initial narrowing text.
+		Default: ""
+
+					*denite-options-max-candidate-width*
+-max-candidate-width={mode}
+		Specify the max candidate width.
+		Note: Denite skip the match after the width.
+		Default: 200
+
+							*denite-options-mode*
+-mode={mode}
+		Specify the default mode.
+		Default: "insert"
+
+							*denite-options-path*
+-path={input-text}
+		Specify an initial narrowing path.
+		Default: ""
+
+							*denite-options-quit*
+-quit
+		Quit the denite buffer after the action is executed.
+		Default: true
+
+						*denite-options-refresh*
+-refresh
+		Refresh the candidates when |denite-options-resume| is true.
+		Default: false
+
+							*denite-options-resume*
+-resume
+		Reuse the previous buffer.  If none exist, a new denite
+		buffer gets created.
+		Note: Uses |denite-options-buffer-name| to search for
+		previous buffers.
+		Default: false
+
+						*denite-options-reversed*
+-reversed
+		The candidates are reversed.
+		Default: false
+
+					*denite-options-short-source-names*
+-short-source-names
+		Use short source names if multiple sources.
+		Default: false
+
+						*denite-options-statusline*
+-statusline
+		Enable statusline.
+		Default: true
+
+						*denite-options-updatetime*
+-updatetime={time}
+		Specify the buffer updatetime when narrowing.
+		Default: 100
+
+					*denite-options-use-default-mappings*
+-use-default-mappings
+		Enable default key mappings.
+
+		Note that fundamental mappings including <Esc> or <Enter> are
+		also provided by the default key mappings. So disabling this
+		option without proper custom mappings would make denite
+		useless. Use <C-c> to quit the denite if you accidentally
+		disable this option.
+
+		Default: true
+
+					*denite-options-vertical-preview*
+-vertical-preview
+		Open the preview window vertically.
+		Default: false
+
+						*denite-options-winheight*
+-winheight={window-height}
+		Set the height of the Denite window. If auto-resize is set,
+		|denite-options-winheight| is the maximum size of the window.
+
+		Default: 20
+
+						*denite-options-winminheight*
+-winminheight={window-height}
+		Set the minimum height of an auto-resize window.
+		Note: a value of -1 for |denite-options-winminheight| leaves
+		the minimum height unset.
+		
+		Default: -1
+
+==============================================================================
+SOURCES							*denite-sources*
+
+						*denite-source-buffer*
+buffer		Gather buffers and jump to the buffer.
+
+		Source args:
+			0. '!' : a flag to show unlisted buffers
+
+		Source custom variables:
+		date_format	  the format string to show date
+		exclude_unlisted
+				  a flag to exclude unlisted buffers
+				  (default is '1')
+		exclude_filetypes
+				  the list of excluded filetypes
+				  (default is ['denite'])
+
+						*denite-source-change*
+change		Gather results of |:changes|.
+
+						*denite-source-colorscheme*
+colorscheme	Gather colorschemes and change the colorscheme.
+
+						*denite-source-command*
+command		Gather commands and put on ex-mode.
+
+						*denite-source-command-history*
+command_history	Gather command histories and run it.
+
+		Source custom variables:
+		ignore_command_regexp	 the regexp to exclude from histories.
+					Note: python3's regexp
+
+						*denite-source-directory_rec*
+directory_rec	Gather directories recursive and nominates all directory names
+		under the search directory (argument 0) or the current directory
+		(if argument is omitted) as candidates.
+
+		Source args:
+			0. the search directory
+			Note: The directory is not expanded argument by
+			|expand()|.  The environment variable is only
+			expanded.
+
+		Source custom variables:
+		command		 the default get directories command
+				(default is used "find" command in Unix
+				environment)
+
+						*denite-source-file*
+file
+		Gather files from the user input.
+		Note: If the args 0 is "new", it will create the file.
+
+						*denite-source-file_old*
+file_old
+		Gather files from |v:oldfiles|.
+
+		Source actions:
+		delete		Remove the files from |v:oldfiles|
+
+						*denite-source-file_point*
+file_point
+		Gather current line of "file:line" format as candidates.
+
+						*denite-source-file_rec*
+file_rec	Gather files recursive and nominates all file names under the
+		search directory (argument 0) or the current directory (if
+		argument is omitted) as candidates.
+
+		Source args:
+			0. the search directory
+			Note: The directory is not expanded argument by
+			|expand()|.  The environment variable is only
+			expanded.
+
+		Source custom variables:
+		command		the default get files command.
+				default uses "find" command in Unix
+				environments:
+
+				find -L <directory> \
+					-path "*/.git/*" -prune, -o \
+					-type l -print -o -type f -print
+
+				To customize the find command or any command
+				that does't expects the directory parameter as
+				it's last parameter one can use the positional
+				"directory" argument:
+
+				call denite#custom#var("file_rec", "command",
+					\ [ "find", "-L", ":directory",
+					\ "-path", "*/.svn/*", "-prune", "-o",
+					\ '-type', 'l', '-print', '-o',
+					\ '-type', 'f', '-print'])
+					
+				In windows if no command is specified file_rec
+				uses a python script scantree.py to get the list
+				of files using scandir or os.walk.
+<
+		min_cache_files	the minimum number of files that
+				it saves the caches.
+				(default is 10000)
+
+						*denite-source-filetype*
+filetype	Gather filetypes and change the filetype of the current
+		buffer.
+
+						*denite-source-grep*
+grep		Gather grep results and nominates them.
+		The source executes [command, default_opts, recursive_opts,
+		args[1]..., `pattern_opt, args[2]`..., separator, args[0]...
+		or final_opts] command line.
+		Note: The command result must be "path:linenr:text" pattern.
+
+		Source args:
+			0. path string or list of paths
+			1. string or list of arguments
+			2. pattern string or list of patterns
+
+		Note: If the args 2 is "!", it is the interactive mode.
+		The results are updated when the input is changed.
+		Note: If the args 2 is empty, |denite-options-input| or user
+		input pattern is used.
+
+		Source custom variables:
+		command		the default grep command
+				(default: ["grep"])
+		default_opts	the grep default options
+				(default: ["-inH"])
+		recursive_opts	the recursive search arguments
+				(default: ["-r"])
+		pattern_opt	the pattern option
+				(default: ["-e"]
+		separator	the argument separator
+				(default: ["--"])
+		final_opts	the final arguments
+				(default: ["."] path to search argument)
+
+						*denite-source-help*
+help		Search through doc tags
+
+
+						*denite-source-jump*
+jump		Gather results of |:jumps|.
+
+
+						*denite-source-line*
+line
+
+
+						*denite-source-menu*
+menu		Gather custom menus.
+
+		Source args:
+			0. The desired menu
+
+		Source custom variables:
+		menus		dictionary containing menus in key value
+				pairs (See |denite-examples|). Only supports
+				candidates of type list.
+
+		unite_source_menu_compatibility
+				'boolean' to determine whether or not to
+				include menus previously defined in Unite
+				configurations.
+
+						*denite-source-register*
+register	Gather the registers.
+
+						*denite-source-outline*
+outline		Gather outline and jump to the target.
+
+		Source arguments:
+		1. filename (use current buffer path if omitted)
+
+		Source custom variables:
+		command 	the default command to get outline
+				(default: ['ctags'])
+		options 	the default options for command
+				(default: [])
+		file_opt 	the default option for writing to
+				specified file
+				(default: '-o')
+		ignore_types 	the list of ignore types
+				(default: [])
+		encoding 	the text encoding
+				(default: 'utf-8')
+
+						*denite-source-tag*
+tag		Gather results of |tagfiles()|.
+		Note: If the args 0 is "include", it will gather the results
+		of |neoinclude| plugin.
+		https://github.com/Shougo/neoinclude.vim
+
+
+==============================================================================
+KINDS							*denite-kinds*
+
+All candidates can support below actions.
+
+append		Insert the candidate word or text after the cursor.
+echo		Print the candidates to denite messages.
+replace		Replace the selected text to the candidate word.
+yank		Yank the candidate word.
+
+Kind Specific candidates can support below actions.
+
+						*denite-kind-buffer*
+buffer		An interface to open the buffer.
+		It extends |denite-kind-openable|.
+
+			action__bufnr		(Number)	(Required)
+				The buffer number.
+
+						*denite-kind-buffer-actions*
+			open (default)
+				Open the buffer.
+
+			delete
+				Delete the buffer.
+
+						*denite-kind-command*
+command		An interface to execute the command.
+
+			action__command		(String)	(Required)
+				The command that you'll execute.
+
+						*denite-kind-command-actions*
+			execute (default)
+				Execute the command.
+
+						*denite-kind-directory*
+directory	An interface to change directory.
+
+			action__path		(String)	(Required)
+				The path of the directory that you'll change
+				directory.
+
+					*denite-kind-directory-actions*
+			cd (default)
+				Change the Vim current directory to the
+				directory.
+
+			open
+				Open the directory.
+
+			narrow
+				Narrow by the directory.
+
+						*denite-kind-file*
+file		An interface to jump to the file position.
+		It extends |denite-kind-openable|.
+
+			action__path		(String)	(Required)
+				The path of the file that you'll jump into.
+
+			action__line		(Number)	(Optional)
+				The line number in the file you'll jump into.
+
+			action__col		(Number)	(Optional)
+				The column number in the file you'll jump
+				into.
+
+			action__pattern		(String)	(Optional)
+				The search pattern in the file you'll jump
+				into.
+
+						*denite-kind-file-actions*
+			open (default)
+				Open the file.
+
+			preview
+				Preview the file.
+
+			highlight
+				Preview and highlight the file.
+
+			quickfix
+				Set the quickfix list and open the quickfix
+				window.
+
+						*denite-kind-openable*
+openable	An interface to open the object.
+		Note: It is the abstract kind.
+
+						*denite-kind-openable-actions*
+			open (default)
+				Open the object.
+
+			tabopen
+				Open the object in the next tab.
+
+			split
+				open the object with 'split'.
+
+			vsplit
+				open the object with 'vsplit'.
+
+			switch
+				Switch to the window that is opening the
+				object.
+
+			tabswitch
+				Switch to the window that is opening the
+				object. If it isn't opened, fallback tabopen.
+
+			splitswitch
+				Switch to the window that is opening the
+				object. If it isn't opened, fallback split.
+
+			vsplitswitch
+				Switch to the window that is opening the
+				object. If it isn't opened, fallback vsplit.
+
+						*denite-kind-word*
+word		An interface to paste the text.
+
+			action__text		(String)	(Required)
+				The command that you'll paste.
+
+						*denite-kind-word-actions*
+			append (default)
+
+==============================================================================
+FILTERS							*denite-filters*
+
+						*denite-filter-matcher_cpsm*
+matcher_cpsm
+		A matcher which filters the candidates using cpsm.
+		Note: cpsm plugin build/install is needed in 'runtimepath'.
+		https://github.com/nixprime/cpsm
+		Note: You must use Python3 support enabled cpsm. >
+			$ PY3=ON ./install.sh
+<
+						*denite-filter-matcher_fuzzy*
+matcher_fuzzy
+		A matcher which filters the candidates with user given fuzzy
+		string.
+
+					*denite-filter-matcher_ignore_globs*
+matcher_ignore_globs
+		A matcher which ignores the globs matched files.
+
+		Source custom variables:
+		ignore_globs	the ignore globs pattern.
+		(default is: >
+		[
+                 '*~', '*.o', '*.exe', '*.bak',
+                 '.DS_Store', '*.pyc', '*.sw[po]', '*.class',
+                 '.hg/', '.git/', '.bzr/', '.svn/',
+                 'tags', 'tags-*'
+		]
+<
+		)
+						*denite-filter-matcher_regexp*
+matcher_regexp
+		A matcher which filters the candidates with user given
+		regular expression.
+						denite-filter-matcher_substring
+matcher_substring
+		A matcher which filters the candidates using simple substring
+		matching.
+
+						*denite-filter-sorter_rank*
+sorter_rank
+		Uses the scoring algorithm from selecta:
+		https://github.com/garybernhardt/selecta.  If the matched
+		length is shorter, the rank is higher.  This sorter is useful
+		for file candidate source.
+
+
+						*denite-filter-sorter_sublime*
+sorter_sublime
+		Uses the scoring algorithm from this article and its implementation:
+		https://bit.ly/reverse-engineering-sublime-text-s-fuzzy-match
+
+				*denite-filter-converter_relative_word*
+converter_relative_word
+		Convert candidate's word to the relative path.
+
+==============================================================================
+CREATE SOURCE						*denite-create-source*
+
+To create source, you should read default sources implementation in
+rplugin/python3/denite/source/*.py.
+
+The files are automatically loaded and denite creates new Source class object.
+Source class must extend Base class in ".base".
+
+Note: The sources must be created by Python3 language.
+
+------------------------------------------------------------------------------
+SOURCE ATTRIBUTES				*denite-source-attributes*
+
+					*denite-source-attribute-__init__*
+__init__	(Function)
+		Source constructor.  It is always called in initializing.  It
+		must call super() constructor.  This function takes {self} and
+		{vim} as its parameters.
+
+					*denite-source-attribute-name*
+name		(String)			(Required)
+		The name of a source.
+
+					*denite-source-attribute-kind*
+kind		(String) or (Kind)		(Optional)
+		The candidates kind name or source specific Kind object.
+
+					*denite-source-attribute-syntax_name*
+syntax_name		(String)		(Optional)
+		The source syntax highlight name.
+
+		If you omit it, "deniteSource_{source-name}" is used.
+
+				*denite-source-attribute-max_candidates*
+max_candidates		(Number)		(Optional)
+		If the candidates are more than it, denite will ignore the
+		filtering in asynchronous mode.
+
+		If you omit it, 10000 is used.
+
+					*denite-source-attribute-matchers*
+matchers	(List)				(Optional)
+		Source default matchers list.
+
+		If you omit it, ['matcher_fuzzy'] is used.
+
+					*denite-source-attribute-sorters*
+sorters		(List)				(Optional)
+		Source default sorters list.
+
+		If you omit it, ['sorter_rank'] is
+		used.
+
+					*denite-source-attribute-converters*
+converters	(List)				(Optional)
+		Source default converters list.
+
+		If you omit it, [] is used.
+
+				*denite-source-attribute-gather_candidates*
+gather_candidates
+		(Function)			(Required)
+		It is called to gather candidates.
+		It takes {self} and {context} as its parameter and returns a
+		list of {candidate}.
+		{candidate} must be Dictionary contains
+		|denite-candidate-attributes|.
+		Here, {context} is the context information when the source is
+		called(|denite-notation-{context}|).
+		Note: The source must not filter the candidates by user input.
+		It is |denite-filters| work.  If the source filter the
+		candidates, user cannot filter the candidates by fuzzy match.
+		Note: If the asynchronous gather is done, you must set
+		"context['is_async']" to "False"
+
+				*denite-source-attribute-define-syntax*
+define_syntax
+		(Function)			(Optional)
+		Define the source specific syntax.
+
+				*denite-source-attribute-highlight*
+highlight
+		(Function)			(Optional)
+		Apply the source specific syntax highlight.
+
+					*denite-source-attribute-on_init*
+on_init		(Function)			(Optional)
+		It is called after the source is initialized.
+		It takes {self} and {context} as its parameter.
+
+					*denite-source-attribute-on_close*
+on_close	(Function)			(Optional)
+		It is called before quit.
+		It takes {self} and {context} as its parameter.
+
+						*denite-source-attribute-__*
+__{name}	(Unknown)			(Optional)
+		Additional source information.
+		Note: Recommend sources save variables instead of
+		global variables.
+
+{context}					*denite-notation-{context}*
+		A dictionary to give context information.
+		The followings are the primary information.
+
+		input			(String)
+			The input string of current line.
+
+		args			(List)
+			The current source arguments.
+
+		candidates		(List)
+			The current candidates.
+
+		event			(String)
+			The gather event.
+			"gather": normal gather update
+			"interactive": interactive update
+			"async": asynchronous update
+
+		is_async		(Bool)
+			If the gather is asynchronous, the source must set
+			it "True".
+
+		is_interactive		(Bool)
+			If the gather is updated interactively, the source
+			must set it "True".
+
+------------------------------------------------------------------------------
+CANDIDATE ATTRIBUTES			*denite-candidate-attributes*
+
+					*denite-candidate-attribute-name*
+word		(String)			(Required)
+		The word of a candidate. It is used for matching inputs.
+
+					*denite-candidate-attribute-abbr*
+abbr		(String)			(Optional)
+		The string displayed in Denite buffer.  If it is omitted, word
+		attribute is used instead.  It is not used for matching
+		inputs.
+
+==============================================================================
+CREATE KIND						*denite-create-kind*
+
+Custom Kind can be created to contain extra actions for your custom source.
+Before create your new kind, you should have a look at existing kinds in
+rplugin/python3/denite/kind/*.py
+
+Instead of create new kind from scratch, you can extend one of the existing
+Kind class, let's take "openable" for example: >
+
+    from ..kind.openable import Kind as Openable
+
+    class Kind(Openable):
+        def __init__(self, vim):
+            super().__init__(vim)
+            self.name = 'mykind'
+
+        def action_open(self, context):
+            target = context['targets'][0]
+            path = target['action__path']
+            # assume you have a MyEdit command
+            self.vim.call('MyEdit', path)
+>
+After create new Kind class, alias it to your source by >
+
+    self.kind = Kind(vim)
+<
+in the "__init__" method of your source class.
+
+------------------------------------------------------------------------------
+KIND ATTRIBUTES					*denite-kind-attributes*
+
+					*denite-kind-attribute-__init__*
+__init__	(Function)
+		Kind constructor.  It is always called in initializing.  It
+		must call super() constructor.  This function takes {self} and
+		{vim} as its parameters.
+
+					*denite-kind-attribute-name*
+name 		(String) 			(Required)
+		The name of a Kind.
+
+					*denite-kind-attribute-default_action*
+default_action  (String)
+		Default action name.
+
+					*denite-kind-attribute-persist_actions*
+persist_actions (List) 				(Optional)
+		List of action names which not close Denite buffer after
+		executed.
+
+					*denite-kind-attribute-redraw_actions*
+redraw_actions (List) 				(Optional)
+		List of action names which redraw Denite buffer after
+		executed.
+
+					*denite-kind-attribute-action_*
+action_{name} (Function) 			(Optional)
+		Custom action logic with {name} as action name. The function
+		is passed with {self} and {context}.
+		
+		To get the seleted candidate list, you could use "targets"
+		attribute in {context}: >
+
+                    targets = context['targets']
+<
+
+		To get the source context, you could use "source" attribute in
+		{context}: >
+
+		    source_context = context['source']
+<
+		Note: If the candidates source is not single, the "source"
+		attribute is empty.
+
+==============================================================================
+CREATE FILTER						*denite-create-filter*
+
+To create filter, you should read default filters implementation in
+rplugin/python3/denite/filter/*.py.
+
+The files are automatically loaded and denite creates new Filter class object.
+Filter class must extend Base class in ".base".
+
+Note: The filters must be created by Python3 language.
+
+------------------------------------------------------------------------------
+FILTER ATTRIBUTES				*denite-filter-attributes*
+
+					*denite-filter-attribute-__init__*
+__init__	(Function)
+		Source constructor.  It will be called in initializing.  It
+		must call Base constructor.  This function takes {self} and
+		{vim} as its parameters.
+
+					*denite-filter-attribute-name*
+name		(String)			(Required)
+		The name of a source.
+
+					*denite-filter-attribute-filter*
+filter
+		(Function)			(Required)
+		It is called to filter candidates.
+		It takes {self} and {context} as its parameter and returns a
+		list of {candidate}.
+		{candidate} must be Dictionary contains
+		|denite-candidate-attributes|.
+		Here, {context} is the context information when the source is
+		called(|denite-notation-{context}|).
+
+==============================================================================
+EXTERNAL SOURCES				*denite-external-sources*
+
+vim-denite-ghq: "ghq" source
+https://github.com/Jagua/vim-denite-ghq
+
+==============================================================================
+FAQ							*denite-faq*
+
+Q: denite can support Vim8?
+
+A: Yes.
+
+Q: I want to change the cursor line color in Denite buffer.
+
+A: denite uses 'cursorline' feature.
+So you can change the color by |hl-CursorLine| highlight or
+|denite-options-highlight-mode-{mode}|. >
+	Denite file_rec -highlight-mode-insert=Search
+
+Q: I want to use unite source in denite.
+
+A: You can use |unite-denite-source-unite| for it. >
+	Denite unite:file
+Note: unite installation is needed.
+
+Q: What is the correct way to say "if I'm in a git directory, git ls-files for
+file_rec" ?
+
+A: >
+	call denite#custom#alias('source', 'file_rec/git', 'file_rec')
+	call denite#custom#var('file_rec/git', 'command',
+	\ ['git', 'ls-files', '-co', '--exclude-standard'])
+	nnoremap <silent> <C-p> :<C-u>Denite
+	\ `finddir('.git', ';') != '' ? 'file_rec/git' : 'file_rec'`<CR>
+
+Q: Where is "file_mru" source for denite.nvim?
+
+A: Please install neomru.vim plugin.  It includes file_mru source for
+denite.nvim.
+https://github.com/Shougo/neomru.vim
+
+Q: Vimfiler will support denite?
+
+A: Denite file explorer interface should be implemented by another de-***
+plugin.  It is not vimfiler work.
+
+Q: ":UniteNext"/":UnitePrevious" like commands are available?
+
+A: >
+
+	:Denite -resume -select=+1 -immediately
+	:Denite -resume -select=-1 -immediately
+
+Q: I want to close denite buffer if grep results are empty.
+
+A: >
+	:Denite -no-empty grep
+
+Q: grep source is very slow.
+
+A: Because your machine is very slow.  The modern grep command like ripgrep is
+optimized for modern multi core processors.  It uses 4 processes heavily.
+More than a quad core CPU is recommended.  A dual core CPU is very slow.
+And you can change |denite-options-updatetime| option.
+
+Q: I want to use the cursor keys to move the candidates.
+
+A: >
+	call denite#custom#map(
+	      \ 'insert',
+	      \ '<Down>',
+	      \ '<denite:move_to_next_line>',
+	      \ 'noremap'
+	      \)
+	call denite#custom#map(
+	      \ 'insert',
+	      \ '<Up>',
+	      \ '<denite:move_to_previous_line>',
+	      \ 'noremap'
+	      \)
+
+
+Q: I want to use grep source as interactive mode.  The interactive mode gives
+you a prompt, and searches once the input is complete.
+
+A: You must set the 3rd argument to "!" in grep source(|denite-source-grep|).
+If you want to use the interactive mode by default: >
+
+	call denite#custom#source('grep', 'args', ['', '', '!'])
+
+
+Q: What is "ch x was closed by the client"?
+
+A: Python process was crashed.  I cannot fix the error.
+I think the process was under heavy load.  You should change
+|denite-options-updatetime| option.
+
+==============================================================================
+COMPATIBILITY						*denite-compatibility*
+
+2016.12.17
+	"highlight_syntax" is splitted to "highlight" and "define_syntax".
+	The sources don't have to define source syntax name.
+
+2016.12.02
+	neovim-prompt implementation has been merged.
+	Users need to follow the migration-note below.
+	https://github.com/Shougo/denite.nvim/wiki/From-v0.1.0-to-v0.5.0-dev
+
+2016.12.08
+	-select option is deprecated option.  Please use -cursor-pos option
+	instead.
+
+==============================================================================
+vim:tw=78:ts=8:ft=help:norl:noet:fen:
