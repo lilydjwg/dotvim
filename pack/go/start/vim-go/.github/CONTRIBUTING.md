@@ -1,7 +1,7 @@
 Thanks for improving vim-go! Before you dive in please read the following:
 
 1. Please read our
-   [FAQ](https://github.com/fatih/vim-go/wiki/FAQ-Troubleshooting), it might
+   [Documentation](https://github.com/fatih/vim-go/blob/master/doc/vim-go.txt), it might
    have answers for your problem
 2. If you add a new feature please don't forget to update the documentation:
    [doc/vim-go.txt](https://github.com/fatih/vim-go/blob/master/doc/vim-go.txt)
