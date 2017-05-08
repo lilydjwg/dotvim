@@ -6,6 +6,6 @@
 [subrepo]
 	remote = git@github.com:racer-rust/vim-racer.git
 	branch = master
-	commit = 7a015697d470e64551a5e4928d03b82e8a6e60a3
-	parent = 0ea6ef6e7649104a0a6da20b9ce7133258a8e78a
+	commit = 34b7f2a261f1a7147cd87aff564acb17d0172c02
+	parent = 8393db0c5a53400edbd6d9d3bd06c9356f6b8e9f
 	cmdver = 0.3.0
