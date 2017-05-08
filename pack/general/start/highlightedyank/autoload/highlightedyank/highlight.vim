@@ -131,7 +131,7 @@ function! s:highlight.quench() dict abort "{{{
 endfunction
 "}}}
 function! s:highlight.quench_timer(time) dict abort "{{{
-  let id = timer_start(a:time, s:SID . 'scheduled_quench')
+  let id = timer_start(a:time, s:SID . 'quench')
   let s:quench_table[id] = self
   call s:set_autocmds(id)
   return id
@@ -151,15 +151,18 @@ endfunction
 
 " for scheduled-quench "{{{
 let s:quench_table = {}
-function! s:scheduled_quench(id) abort  "{{{
+function! s:quench(id) abort  "{{{
   let options = s:shift_options()
+  let highlight = s:get(a:id)
   try
-    let highlight = s:quench_table[a:id]
-    call highlight.quench()
+    if highlight != {}
+      call highlight.quench()
+    endif
   catch /^Vim\%((\a\+)\)\=:E523/
     " NOTE: TextYankPost event sets "textlock"
-    let highlight = s:quench_table[a:id]
-    call highlight.quench_timer(50)
+    if highlight != {}
+      call highlight.quench_timer(50)
+    endif
     return 1
   finally
     unlet s:quench_table[a:id]
@@ -167,6 +170,7 @@ function! s:scheduled_quench(id) abort  "{{{
     call s:restore_options(options)
     redraw
   endtry
+  call s:clear_autocmds()
 endfunction
 "}}}
 function! highlightedyank#highlight#cancel(...) abort "{{{
@@ -177,11 +181,11 @@ function! highlightedyank#highlight#cancel(...) abort "{{{
   endif
 
   for id in id_list
-    call s:scheduled_quench(id)
+    call s:quench(id)
   endfor
 endfunction
 "}}}
-function! highlightedyank#highlight#get(id) abort "{{{
+function! s:get(id) abort "{{{
   return get(s:quench_table, a:id, {})
 endfunction
 "}}}
@@ -217,6 +221,53 @@ function! s:get_pid() abort "{{{
     let s:pid = -1
   endif
   return s:pid
+endfunction
+"}}}
+
+function! s:set_autocmds(id) abort "{{{
+  augroup highlightedyank-highlight
+    autocmd!
+    execute printf('autocmd TextChanged <buffer> call s:cancel_highlight(%s, "TextChanged")', a:id)
+    execute printf('autocmd InsertEnter <buffer> call s:cancel_highlight(%s, "InsertEnter")', a:id)
+    execute printf('autocmd BufUnload <buffer> call s:cancel_highlight(%s, "BufUnload")', a:id)
+    execute printf('autocmd BufEnter * call s:switch_highlight(%s)', a:id)
+  augroup END
+endfunction
+"}}}
+function! s:clear_autocmds() abort "{{{
+  augroup highlightedyank-highlight
+    autocmd!
+  augroup END
+endfunction
+"}}}
+function! s:cancel_highlight(id, event) abort  "{{{
+  let highlight = s:get(a:id)
+  if highlight != {} && s:highlight_off_by_{a:event}(highlight)
+    call s:quench(a:id)
+  endif
+endfunction
+"}}}
+function! s:highlight_off_by_InsertEnter(highlight) abort  "{{{
+  return 1
+endfunction
+"}}}
+function! s:highlight_off_by_TextChanged(highlight) abort  "{{{
+  return !a:highlight.is_text_identical()
+endfunction
+"}}}
+function! s:highlight_off_by_BufUnload(highlight) abort  "{{{
+  return 1
+endfunction
+"}}}
+function! s:switch_highlight(id) abort "{{{
+  let highlight = s:get(a:id)
+  if highlight != {} && highlight.winid == win_getid()
+    if highlight.bufnr == bufnr('%')
+      call highlight.show()
+    else
+      call highlight.quench()
+    endif
+  endif
 endfunction
 "}}}
 "}}}
@@ -404,9 +455,7 @@ function! s:get_buf_text(region) abort  "{{{
     " NOTE: This line is required to reset v:register.
     normal! :
   finally
-    if len(registers) > 0
-        call s:restoreregisters(registers)
-    endif
+    call s:restoreregisters(registers)
     call setpos("'<", visual[0])
     call setpos("'>", visual[1])
     call setpos("'[", modified[0])
@@ -464,46 +513,6 @@ function! s:v(v) abort  "{{{
     let v = a:v
   endif
   return v
-endfunction
-"}}}
-function! s:set_autocmds(id) abort "{{{
-  augroup highlightedyank-highlight
-    autocmd!
-    execute printf('autocmd TextChanged <buffer> call s:cancel_highlight(%s, "TextChanged")', a:id)
-    execute printf('autocmd InsertEnter <buffer> call s:cancel_highlight(%s, "InsertEnter")', a:id)
-    execute printf('autocmd BufUnload <buffer> call s:cancel_highlight(%s, "BufUnload")', a:id)
-    execute printf('autocmd BufEnter * call s:switch_highlight(%s)', a:id)
-  augroup END
-endfunction
-"}}}
-function! s:cancel_highlight(id, event) abort  "{{{
-  let highlight = highlightedyank#highlight#get(a:id)
-  if highlight != {} && s:highlight_off_by_{a:event}(highlight)
-    call highlightedyank#highlight#cancel(a:id)
-  endif
-endfunction
-"}}}
-function! s:highlight_off_by_InsertEnter(highlight) abort  "{{{
-  return 1
-endfunction
-"}}}
-function! s:highlight_off_by_TextChanged(highlight) abort  "{{{
-  return !a:highlight.is_text_identical()
-endfunction
-"}}}
-function! s:highlight_off_by_BufUnload(highlight) abort  "{{{
-  return 1
-endfunction
-"}}}
-function! s:switch_highlight(id) abort "{{{
-  let highlight = highlightedyank#highlight#get(a:id)
-  if highlight != {} && highlight.winid == win_getid()
-    if highlight.bufnr == bufnr('%')
-      call highlight.show()
-    else
-      call highlight.quench()
-    endif
-  endif
 endfunction
 "}}}
 
