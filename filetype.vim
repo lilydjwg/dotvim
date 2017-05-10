@@ -17,7 +17,7 @@ augroup filetypedetect
   au BufNewFile,BufRead *.s,*.S				setf gas
   au BufNewFile,BufRead *.asm,*.ASM			setf masm
   au BufNewFile,BufRead *.asy				setf asy
-  au BufRead		*access[._]log*,*/nginx/*[._]log*	setf httplog
+  au BufRead		*access[._]log*,*/nginx/*[._]log[.-]*	setf httplog
   au BufRead		*/.getmail/*rc			setf getmailrc
   au BufRead		.msmtprc			setf msmtp
   au BufNewFile,BufRead .htaccess.*			setf apache
