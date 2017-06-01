@@ -83,8 +83,7 @@ class Source(Base):
                 arg = [arg]
             elif not isinstance(arg, list):
                 raise AttributeError('`args[0]` needs to be a `str` or `list`')
-        # Windows needs to specify the directory.
-        elif context['is_windows']:
+        else:
             arg = [context['path']]
         context['__paths'] = [util.abspath(self.vim, x) for x in arg]
 
@@ -180,6 +179,8 @@ class Source(Base):
 
     def __async_gather_candidates(self, context, timeout):
         outs, errs = context['__proc'].communicate(timeout=timeout)
+        if errs:
+            self.error_message(errs)
         context['is_async'] = not context['__proc'].eof()
         if context['__proc'].eof():
             context['__proc'] = None

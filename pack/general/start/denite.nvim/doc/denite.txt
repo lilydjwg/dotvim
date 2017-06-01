@@ -114,7 +114,8 @@ EXAMPLES						*denite-examples*
 	" For Pt(the platinum searcher)
 	" NOTE: It also supports windows.
 	call denite#custom#var('file_rec', 'command',
-	\ ['pt', '--follow', '--nocolor', '--nogroup', '-g:', ''])
+	\ ['pt', '--follow', '--nocolor', '--nogroup',
+	\  (has('win32') ? '-g:' : '-g='), ''])
 
 	" Change mappings.
 	call denite#custom#map(
@@ -198,8 +199,13 @@ EXAMPLES						*denite-examples*
 	call denite#custom#var('grep', 'separator', ['--'])
 	call denite#custom#var('grep', 'final_opts', [])
 
-	call denite#custom#source('file_mru', 'converters',
-	      \ ['converter_relative_word'])
+	" jvgrep command on grep source
+	call denite#custom#var('grep', 'command', ['jvgrep'])
+	call denite#custom#var('grep', 'default_opts', [])
+	call denite#custom#var('grep', 'recursive_opts', ['-R'])
+	call denite#custom#var('grep', 'pattern_opt', [])
+	call denite#custom#var('grep', 'separator', [])
+	call denite#custom#var('grep', 'final_opts', [])
 
 	" Define alias
 	call denite#custom#alias('source', 'file_rec/git', 'file_rec')
@@ -1088,7 +1094,10 @@ directory_rec	Gather directories recursive and nominates all directory names
 						*denite-source-file*
 file
 		Gather files from the user input.
-		Note: If the args 0 is "new", it will create the file.
+
+		Source args:
+			0. if it is "new", file source create the file.
+			1. the search directory
 
 						*denite-source-file_old*
 file_old
@@ -1766,6 +1775,10 @@ Q: What is "ch x was closed by the client"?
 A: Python process was crashed.  I cannot fix the error.
 I think the process was under heavy load.  You should change
 |denite-options-updatetime| option.
+
+Q: Does hw (highway) work in denite.nvim?
+
+A: No. It is not supported.
 
 ==============================================================================
 COMPATIBILITY						*denite-compatibility*

@@ -101,13 +101,13 @@ def path2project(vim, path):
 
 
 def parse_jump_line(path_head, line):
-    m = re.search(r'^(.*):(\d+)(?::(\d+))?:(.*)$', line)
+    m = re.search(r'^([^:]*):(\d+)(?::(\d+))?:(.*)$', line)
     if not m or not m.group(1) or not m.group(4):
         return []
 
     if re.search(r':\d+$', m.group(1)):
         # Use column pattern
-        m = re.search(r'^(.*):(\d+):(\d+):(.*)$', line)
+        m = re.search(r'^([^:]*):(\d+):(\d+):(.*)$', line)
 
     [path, linenr, col, text] = m.groups()
 
@@ -130,11 +130,11 @@ def abspath(vim, path):
 
 
 def convert2fuzzy_pattern(text):
-    return '\|'.join([escape_fuzzy(x, True) for x in split_input(text)])
+    return '|'.join([escape_fuzzy(x, True) for x in split_input(text)])
 
 
 def convert2regex_pattern(text):
-    return '\|'.join(split_input(text))
+    return '|'.join(split_input(text))
 
 
 def parse_command(array, **kwargs):
@@ -193,6 +193,7 @@ def parse_tagline(line, tagpath):
         info['pattern'] = ''
         info['line'] = re.sub(r';"$', '', elem[2])
     else:
-        info['pattern'] = re.sub(r'^/|/;"$', '', elem[2])
+        info['pattern'] = re.sub(r'([~.*\[\]\\])', r'\\\1',
+                                 re.sub(r'^/|/;"$', '', elem[2]))
         info['line'] = ''
     return info
