@@ -2,7 +2,7 @@ hi link deniteMatchedChar IncSearch
 hi link deniteMatchedRange IncSearch
 
 function! s:denite_with_path()
-  let path = input('path: ', '', 'dir')
+  let path = input('path: ', expand('%:p:h') . '/', 'dir')
   if path != ''
     exec "Denite file_rec -path=" . path
   endif
