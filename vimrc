@@ -894,11 +894,6 @@ if has('nvim')
 else
   let g:loaded_deoplete = 1
 endif
-"   syntastic[[[2
-let g:syntastic_python_checkers = ['python']
-let g:syntastic_yaml_checkers = ['yamllint']
-let g:syntastic_go_checkers = ['go', 'golint']
-let g:syntastic_check_on_wq = 0
 "   extradite.vim[[[2
 let g:extradite_showhash = 1
 "   linediff[[[2
