@@ -46,7 +46,7 @@ function! go#coverage#Buffer(bang, ...) abort
 
   if go#util#has_job()
     call s:coverage_job({
-          \ 'cmd': ['go', 'test', '-coverprofile', l:tmpname],
+          \ 'cmd': ['go', 'test', '-coverprofile', l:tmpname] + a:000,
           \ 'custom_cb': function('s:coverage_callback', [l:tmpname]),
           \ 'bang': a:bang,
           \ })
@@ -64,7 +64,7 @@ function! go#coverage#Buffer(bang, ...) abort
     let g:go_term_enabled = 0
   endif
 
-  let id = call('go#cmd#Test', args)
+  let id = call('go#test#Test', args)
 
   if disabled_term
     let g:go_term_enabled = 1
@@ -113,7 +113,7 @@ function! go#coverage#Browser(bang, ...) abort
     call extend(args, a:000)
   endif
 
-  let id = call('go#cmd#Test', args)
+  let id = call('go#test#Test', args)
   if has('nvim')
     call go#jobcontrol#AddHandler(function('s:coverage_browser_handler'))
     let s:coverage_browser_handler_jobs[id] = l:tmpname

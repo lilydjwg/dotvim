@@ -102,7 +102,7 @@ command.
 
     Plugin 'fatih/vim-go'
 
-*  Vim |packages| 
+*  Vim |packages|
 >
     git clone https://github.com/fatih/vim-go.git \
       ~/.vim/pack/plugins/start/vim-go
@@ -219,14 +219,17 @@ COMMANDS                                                         *go-commands*
     If [!] is not given the first error is jumped to.
 
                                                                       *:GoDef*
-:GoDef 
+:GoDef
 gd
 CTRL-]
+g<C-LeftMouse>
+<C-LeftMouse>
 
-    Goto declaration/definition for the declaration under the cursor. By default
-    the CTRL-] key and the mapping `gd` are enabled to invoke :GoDef for the
-    identifier under the cursor. See |'g:go_def_mapping_enabled'| to disable
-    them.  No explicit arguments are supported.
+    Goto declaration/definition for the declaration under the cursor. By
+    default the CTRL-] shortcut, the mapping `gd` and <C-LeftMouse>,
+    g<LeftMouse> are enabled to invoke :GoDef for the identifier under the
+    cursor. See |'g:go_def_mapping_enabled'| to disable them. No explicit
+    arguments are supported.
 
     vim-go also keeps a per-window location stack, roughly analogous to how
     Vim's internal |tags| functionality works. This is pushed to every time a
@@ -604,8 +607,8 @@ CTRL-t
 
     Changes the build tags for various commands. If you have any file that
     uses a custom build tag, such as `//+build integration` , this command can
-    be used to pass it to all tools that accepts tags, such as guru, gorenate,
-    etc.. 
+    be used to pass it to all tools that accepts tags, such as guru, gorename,
+    etc..
 
     The build tags is cleared (unset) if `""` is given. If no arguments is
     given it prints the current custom build tags.
@@ -742,7 +745,22 @@ CTRL-t
 
     Toggles |'g:go_template_autocreate'|.
 
+                                                               *:GoKeyify*
+:GoKeyify
 
+    Uses `keyify` to turn unkeyed struct literals into keyed ones.
+
+    For example:
+>
+      Person{"John", "Smith"}
+<
+    Becomes:
+>
+      Person{
+        Name: "John",
+        Surname: "Smith",
+      }
+<
 ==============================================================================
 MAPPINGS                                                        *go-mappings*
 
@@ -1141,9 +1159,10 @@ Use this option to define the command to be used for |:GoDef|. By default
 <
                                                   *'g:go_def_mapping_enabled'*
 
-Use this option to enable/disable the default mapping of CTRL-] and (`gd`) for
-GoDef and CTRL-t for :GoDefPop. Disabling it allows you to map something else
-to these keys or mappings. Default is enabled. >
+Use this option to enable/disable the default mapping of CTRL-],
+<C-LeftMouse>, g<C-LeftMouse> and (`gd`) for GoDef and CTRL-t for :GoDefPop.
+Disabling it allows you to map something else to these keys or mappings.
+Default is enabled. >
 
   let g:go_def_mapping_enabled = 1
 <
@@ -1466,9 +1485,9 @@ Specifies whether `gocode` should use a different socket type. By default
                                                   *'g:go_template_autocreate'*
 
 When a new Go file is created, vim-go automatically fills the buffer content
-with a Go code template. By default the template under
-`templates/hello_world.go` is used. This can be changed with the
-|'g:go_template_file'| setting.
+with a Go code template. By default, the templates under the `templates`
+folder are used.  This can be changed with the |'g:go_template_file'| and
+|'g:go_template_test_file'| settings.
 
 If the new file is created in an already prepopulated package (with other Go
 files), in this case a Go code template with only the Go package declaration
@@ -1488,6 +1507,14 @@ is created. Checkout |'g:go_template_autocreate'| for more info. By default
 the `hello_world.go` file is used.
 >
   let g:go_template_file = "hello_world.go"
+<
+                                                        *'g:go_template_test_file'*
+
+Specifies the file under the `templates` folder that is used if a new Go test
+file is created. Checkout |'g:go_template_autocreate'| for more info. By
+default the `hello_world_test.go` file is used.
+>
+  let g:go_template_test_file = "hello_world_test.go"
 <
                                                      *'g:go_template_use_pkg'*
 
@@ -1630,7 +1657,13 @@ How do I use vim-go with syntastic?~
 Sometimes when using both `vim-go` and `syntastic` Vim will start lagging
 while saving and opening files. The following fixes this:
 >
- let g:syntastic_go_checkers = ['golint', 'govet', 'errcheck']
+ let g:syntastic_go_checkers = ['golint', 'govet']
+ let g:syntastic_mode_map = { 'mode': 'active', 'passive_filetypes': ['go'] }
+<
+If you want to add errcheck you can use gometalinter as a wrapper
+>
+ let g:syntastic_go_checkers = ['golint', 'govet', 'gometalinter']
+ let g:syntastic_go_gometalinter_args = ['--disable-all', '--enable=errcheck']
  let g:syntastic_mode_map = { 'mode': 'active', 'passive_filetypes': ['go'] }
 <
 Another issue with `vim-go` and `syntastic` is that the location list window
