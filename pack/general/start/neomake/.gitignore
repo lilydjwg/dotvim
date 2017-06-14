@@ -1,7 +1,6 @@
 .project.vim
 neomake.log
 scratch/
-tags
 *.class
 testmaker/
 
