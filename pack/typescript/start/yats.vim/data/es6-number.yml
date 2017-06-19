@@ -1,0 +1,29 @@
+typescriptGlobal:
+  - Number
+
+typescriptNumberStaticProp:
+  - EPSILON
+  - MAX_SAFE_INTEGER
+  - MAX_VALUE
+  - MIN_SAFE_INTEGER
+  - MIN_VALUE
+  - NEGATIVE_INFINITY
+  - NaN
+  - POSITIVE_INFINITY
+
+typescriptNumberStaticMethod:
+  - isFinite
+  - isInteger
+  - isNaN
+  - isSafeInteger
+  - parseFloat
+  - parseInt
+
+typescriptNumberMethod:
+  - toExponential
+  - toFixed
+  - toLocaleString
+  - toPrecision
+  - toSource
+  - toString
+  - valueOf

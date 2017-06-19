@@ -1,0 +1,16 @@
+typescriptGlobal:
+    - Set
+    - WeakSet
+
+typescriptES6SetProp:
+    - size
+
+typescriptES6SetMethod:
+    - add
+    - clear
+    - delete
+    - entries
+    - forEach
+    - has
+    - values
+

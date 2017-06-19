@@ -1,0 +1,11 @@
+{
+    "name": "yats.vim",
+    "version": "1.0.0",
+    "description": "Yet another TypeScript syntax for Vim",
+    "devDependencies": {
+        "js-yaml": "*",
+        "camel-case": "*",
+        "is-upper-case": "*"
+    },
+    "license": "Same as Vim"
+}

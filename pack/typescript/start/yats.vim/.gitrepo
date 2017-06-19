@@ -1,0 +1,11 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:HerringtonDarkholme/yats.vim.git
+	branch = master
+	commit = 3bb50d3f12620fa6c8ca670d9b5927d9021f9336
+	parent = b12341d1540324545b970d59cbbaff60a3a60a9e
+	cmdver = 0.3.1

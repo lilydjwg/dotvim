@@ -1,0 +1,19 @@
+typescriptServiceWorkerProp:
+    - controller
+    - ready
+
+typescriptServiceWorkerMethod:
+    - register
+    - getRegistration
+
+typescriptGlobal:
+    - Cache
+
+typescriptCacheMethod:
+    - match
+    - matchAll
+    - add
+    - addAll
+    - put
+    - delete
+    - keys

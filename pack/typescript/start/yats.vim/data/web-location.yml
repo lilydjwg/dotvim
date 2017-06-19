@@ -1,0 +1,18 @@
+typescriptBOMLocationProp:
+    - href
+    - protocol
+    - host
+    - hostname
+    - port
+    - pathname
+    - search
+    - hash
+    - username
+    - password
+    - origin
+
+typescriptBOMLocationMethod:
+    - assign
+    - reload
+    - replace
+    - toString

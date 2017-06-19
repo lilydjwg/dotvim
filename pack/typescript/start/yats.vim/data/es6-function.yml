@@ -1,0 +1,7 @@
+typescriptGlobal:
+  - Function
+
+typescriptFunctionMethod:
+  - apply
+  - bind
+  - call

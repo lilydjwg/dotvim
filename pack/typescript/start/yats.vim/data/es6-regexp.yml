@@ -1,0 +1,16 @@
+typescriptGlobal:
+  - RegExp
+
+typescriptRegExpStaticProp:
+  - lastIndex
+
+typescriptRegExpProp:
+  - global
+  - ignoreCase
+  - multiline
+  - source
+  - sticky
+
+typescriptRegExpMethod:
+  - exec
+  - test

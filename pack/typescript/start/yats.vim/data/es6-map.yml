@@ -1,0 +1,18 @@
+typescriptGlobal:
+    - Map
+    - WeakMap
+
+typescriptES6MapProp:
+    - size
+
+typescriptES6MapMethod:
+    - clear
+    - delete
+    - entries
+    - forEach
+    - get
+    - has
+    - keys
+    - set
+    - values
+

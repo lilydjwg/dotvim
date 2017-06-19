@@ -1,0 +1,41 @@
+syntax keyword typescriptBOMWindowProp applicationCache closed Components controllers
+syntax keyword typescriptBOMWindowProp dialogArguments document frameElement frames
+syntax keyword typescriptBOMWindowProp fullScreen history innerHeight innerWidth length
+syntax keyword typescriptBOMWindowProp location locationbar menubar messageManager
+syntax keyword typescriptBOMWindowProp name navigator opener outerHeight outerWidth
+syntax keyword typescriptBOMWindowProp pageXOffset pageYOffset parent performance
+syntax keyword typescriptBOMWindowProp personalbar returnValue screen screenX screenY
+syntax keyword typescriptBOMWindowProp scrollbars scrollMaxX scrollMaxY scrollX scrollY
+syntax keyword typescriptBOMWindowProp self sidebar status statusbar toolbar top window
+syntax cluster props add=typescriptBOMWindowProp
+if exists("did_typescript_hilink") | HiLink typescriptBOMWindowProp Structure
+endif
+syntax keyword typescriptBOMWindowMethod alert atob blur btoa clearImmediate clearInterval nextgroup=typescriptFuncCallArg
+syntax keyword typescriptBOMWindowMethod clearTimeout close confirm dispatchEvent nextgroup=typescriptFuncCallArg
+syntax keyword typescriptBOMWindowMethod find focus getAttention getAttentionWithCycleCount nextgroup=typescriptFuncCallArg
+syntax keyword typescriptBOMWindowMethod getComputedStyle getDefaulComputedStyle getSelection nextgroup=typescriptFuncCallArg
+syntax keyword typescriptBOMWindowMethod matchMedia maximize moveBy moveTo open openDialog nextgroup=typescriptFuncCallArg
+syntax keyword typescriptBOMWindowMethod postMessage print prompt removeEventListener nextgroup=typescriptFuncCallArg
+syntax keyword typescriptBOMWindowMethod resizeBy resizeTo restore scroll scrollBy nextgroup=typescriptFuncCallArg
+syntax keyword typescriptBOMWindowMethod scrollByLines scrollByPages scrollTo setCursor nextgroup=typescriptFuncCallArg
+syntax keyword typescriptBOMWindowMethod setImmediate setInterval setResizable setTimeout nextgroup=typescriptFuncCallArg
+syntax keyword typescriptBOMWindowMethod showModalDialog sizeToContent stop updateCommands nextgroup=typescriptFuncCallArg
+syntax cluster props add=typescriptBOMWindowMethod
+if exists("did_typescript_hilink") | HiLink typescriptBOMWindowMethod Structure
+endif
+syntax keyword typescriptBOMWindowEvent contained onabort onbeforeunload onblur onchange
+syntax keyword typescriptBOMWindowEvent contained onclick onclose oncontextmenu ondevicelight
+syntax keyword typescriptBOMWindowEvent contained ondevicemotion ondeviceorientation
+syntax keyword typescriptBOMWindowEvent contained ondeviceproximity ondragdrop onerror
+syntax keyword typescriptBOMWindowEvent contained onfocus onhashchange onkeydown onkeypress
+syntax keyword typescriptBOMWindowEvent contained onkeyup onload onmousedown onmousemove
+syntax keyword typescriptBOMWindowEvent contained onmouseout onmouseover onmouseup
+syntax keyword typescriptBOMWindowEvent contained onmozbeforepaint onpaint onpopstate
+syntax keyword typescriptBOMWindowEvent contained onreset onresize onscroll onselect
+syntax keyword typescriptBOMWindowEvent contained onsubmit onunload onuserproximity
+syntax keyword typescriptBOMWindowEvent contained onpageshow onpagehide
+if exists("did_typescript_hilink") | HiLink typescriptBOMWindowEvent Keyword
+endif
+syntax keyword typescriptBOMWindowCons DOMParser QueryInterface XMLSerializer
+if exists("did_typescript_hilink") | HiLink typescriptBOMWindowCons Structure
+endif

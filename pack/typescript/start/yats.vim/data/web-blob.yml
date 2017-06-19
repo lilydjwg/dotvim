@@ -1,0 +1,52 @@
+typescriptGlobal:
+    - Blob
+    - BlobBuilder
+    - File
+    - FileReader
+    - FileReaderSync
+    - URL
+    - URLUtils
+
+typescriptFileMethod:
+    - readAsArrayBuffer
+    - readAsBinaryString
+    - readAsDataURL
+    - readAsText
+
+typescriptFileReaderProp:
+    - error
+    - readyState
+    - result
+
+typescriptFileReaderMethod:
+    - abort
+    - readAsArrayBuffer
+    - readAsBinaryString
+    - readAsDataURL
+    - readAsText
+
+typescriptFileListMethod:
+    - item
+
+typescriptBlobMethod:
+    - append
+    - getBlob
+    - getFile
+
+typescriptURLUtilsProp:
+    - hash
+    - host
+    - hostname
+    - href
+    - origin
+    - password
+    - pathname
+    - port
+    - protocol
+    - search
+    - searchParams
+    - username
+
+typescriptURLStaticMethod:
+    - createObjectURL
+    - revokeObjectURL

@@ -1,0 +1,19 @@
+typescriptGlobal:
+    - Intl
+
+typescriptIntlMethod:
+    - Collator
+    - DateTimeFormat
+    - NumberFormat
+    # - CanonicalizeLocaleList
+    # - BestAvailableLocale
+    # - LookupMatcher
+    # - BestFitMatcher
+    # - ResolveLocale
+    # - LookupSupportedLocales
+    # - BestFitSupportedLocales
+    # - SupportedLocales
+    # - GetOption
+    # - GetNumberOption
+
+

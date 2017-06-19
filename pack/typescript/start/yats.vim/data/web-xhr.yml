@@ -1,0 +1,25 @@
+typescriptXHRGlobal:
+  - XMLHttpRequest
+
+typescriptXHRProp:
+  - onreadystatechange
+  - readyState
+  - response
+  - responseText
+  - responseType
+  - responseXML
+  - status
+  - statusText
+  - timeout
+  - ontimeout
+  - upload
+  - withCredentials
+
+typescriptXHRMethod:
+  - abort
+  - getAllResponseHeaders
+  - getResponseHeader
+  - open
+  - overrideMimeType
+  - send
+  - setRequestHeader

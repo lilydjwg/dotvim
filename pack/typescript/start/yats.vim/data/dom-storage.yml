@@ -1,0 +1,15 @@
+typescriptDOMStorage:
+    - sessionStorage
+    - localStorage
+    # - globalStorage
+
+typescriptDOMStorageProp:
+    - length
+
+typescriptDOMStorageMethod:
+    - getItem
+    - key
+    - setItem
+    - removeItem
+    - clear
+

@@ -1,0 +1,15 @@
+syntax keyword typescriptGlobal Object nextgroup=typescriptGlobalObjectDot,typescriptFuncCallArg
+syntax match   typescriptGlobalObjectDot /\./ contained nextgroup=typescriptObjectStaticMethod
+syntax keyword typescriptObjectStaticMethod contained create defineProperties defineProperty nextgroup=typescriptFuncCallArg
+syntax keyword typescriptObjectStaticMethod contained freeze getOwnPropertyDescriptor nextgroup=typescriptFuncCallArg
+syntax keyword typescriptObjectStaticMethod contained getOwnPropertyNames getOwnPropertySymbols nextgroup=typescriptFuncCallArg
+syntax keyword typescriptObjectStaticMethod contained getPrototypeOf is isExtensible nextgroup=typescriptFuncCallArg
+syntax keyword typescriptObjectStaticMethod contained isFrozen isSealed keys preventExtensions nextgroup=typescriptFuncCallArg
+if exists("did_typescript_hilink") | HiLink typescriptObjectStaticMethod Keyword
+endif
+syntax keyword typescriptObjectMethod contained hasOwnProperty isPrototypeOf propertyIsEnumerable nextgroup=typescriptFuncCallArg
+syntax keyword typescriptObjectMethod contained toLocaleString toString valueOf seal nextgroup=typescriptFuncCallArg
+syntax keyword typescriptObjectMethod contained setPrototypeOf nextgroup=typescriptFuncCallArg
+syntax cluster props add=typescriptObjectMethod
+if exists("did_typescript_hilink") | HiLink typescriptObjectMethod Keyword
+endif

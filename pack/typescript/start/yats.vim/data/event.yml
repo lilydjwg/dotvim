@@ -1,0 +1,337 @@
+typescriptAnimationEvent:
+    - animationend
+    - animationiteration
+    - animationstart
+    - beginEvent
+    - endEvent
+    - repeatEvent
+
+# typescriptBatteryEvent:
+    # - chargingchange
+    # - chargingtimechange
+    # - dischargingtimechange
+    # - levelchange
+
+# typescriptCallEvent:
+
+typescriptCSSEvent:
+    - CssRuleViewRefreshed
+    - CssRuleViewChanged
+    - CssRuleViewCSSLinkClicked
+    - transitionend
+
+typescriptDatabaseEvent:
+    # - abort
+    - blocked
+    - complete
+    - error
+    - success
+    - upgradeneeded
+    - versionchange
+
+typescriptDocumentEvent:
+    - DOMLinkAdded
+    - DOMLinkRemoved
+    - DOMMetaAdded
+    - DOMMetaRemoved
+    - DOMWillOpenModalDialog
+    - DOMModalDialogClosed
+    - unload
+
+typescriptDOMMutationEvent:
+    - DOMAttributeNameChanged
+    - DOMAttrModified
+    - DOMCharacterDataModified
+    - DOMContentLoaded
+    - DOMElementNameChanged
+    - DOMNodeInserted
+    - DOMNodeInsertedIntoDocument
+    - DOMNodeRemoved
+    - DOMNodeRemovedFromDocument
+    - DOMSubtreeModified
+
+typescriptDragEvent:
+    - drag
+    - dragdrop
+    - dragend
+    - dragenter
+    - dragexit
+    - draggesture
+    - dragleave
+    - dragover
+    - dragstart
+    - drop
+
+typescriptElementEvent:
+    - invalid
+    - overflow
+    - underflow
+    - DOMAutoComplete
+    - command
+    - commandupdate
+
+typescriptFocusEvent:
+    - blur
+    - change
+    - DOMFocusIn
+    - DOMFocusOut
+    - focus
+    - focusin
+    - focusout
+
+typescriptFormEvent:
+    - reset
+    - submit
+
+typescriptFrameEvent:
+    # - mozbrowserclose
+    # - mozbrowsercontextmenu
+    # - mozbrowsererror
+    # - mozbrowsericonchange
+    # - mozbrowserlocationchange
+    # - mozbrowserloadend
+    # - mozbrowserloadstart
+    # - mozbrowseropenwindow
+    # - mozbrowsersecuritychange
+    # - mozbrowsershowmodalprompt
+    # - mozbrowsertitlechange
+    - DOMFrameContentLoaded
+
+typescriptInputDeviceEvent:
+    - click
+    - contextmenu
+    - DOMMouseScroll
+    - dblclick
+    - gamepadconnected
+    - gamepaddisconnected
+    - keydown
+    - keypress
+    - keyup
+    - MozGamepadButtonDown
+    - MozGamepadButtonUp
+    - mousedown
+    - mouseenter
+    - mouseleave
+    - mousemove
+    - mouseout
+    - mouseover
+    - mouseup
+    - mousewheel
+    - MozMousePixelScroll
+    - pointerlockchange
+    - pointerlockerror
+    - wheel
+
+typescriptMediaEvent:
+    - audioprocess
+    - canplay
+    - canplaythrough
+    - durationchange
+    - emptied
+    - ended
+    - ended
+    - loadeddata
+    - loadedmetadata
+    - MozAudioAvailable
+    - pause
+    - play
+    - playing
+    - ratechange
+    - seeked
+    - seeking
+    - stalled
+    - suspend
+    - timeupdate
+    - volumechange
+    - waiting
+    - complete
+
+typescriptMenuEvent:
+    - DOMMenuItemActive
+    - DOMMenuItemInactive
+
+typescriptNetworkEvent:
+    - datachange
+    - dataerror
+    - disabled
+    - enabled
+    - offline
+    - online
+    - statuschange
+    - connectionInfoUpdate
+
+# typescriptNotificationEvent:
+    # - AlertActive
+    # - AlertClose
+
+# typescriptPopupEvent:
+    # - popuphidden
+    # - popuphiding
+    # - popupshowing
+    # - popupshown
+    # - DOMPopupBlocked
+
+# typescriptPrintingEvent:
+    # - afterprint
+    # - beforeprint
+
+typescriptProgressEvent:
+    - abort
+    - error
+    - load
+    - loadend
+    - loadstart
+    - progress
+    # - progress
+    - timeout
+    - uploadprogress
+
+typescriptResourceEvent:
+    # - abort
+    - cached
+    - error
+    - load
+
+typescriptScriptEvent:
+    - afterscriptexecute
+    - beforescriptexecute
+
+typescriptSensorEvent:
+    - compassneedscalibration
+    - devicelight
+    - devicemotion
+    - deviceorientation
+    - deviceproximity
+    # - MozOrientation
+    - orientationchange
+    - userproximity
+
+typescriptSessionHistoryEvent:
+    - pagehide
+    - pageshow
+    - popstate
+
+# typescriptSmartcardEvent:
+
+# typescriptSMSEvent:
+
+typescriptStorageEvent:
+    - change
+    - storage
+
+typescriptSVGEvent:
+    - SVGAbort
+    - SVGError
+    - SVGLoad
+    - SVGResize
+    - SVGScroll
+    - SVGUnload
+    - SVGZoom
+
+typescriptTabEvent:
+    # - tabviewsearchenabled
+    # - tabviewsearchdisabled
+    # - tabviewframeinitialized
+    # - tabviewshown
+    # - tabviewhidden
+    # - TabOpen
+    # - TabClose
+    # - TabSelect
+    # - TabShow
+    # - TabHide
+    # - TabPinned
+    # - TabUnpinned
+    # - SSTabClosing
+    # - SSTabRestoring
+    # - SSTabRestored
+    - visibilitychange
+
+typescriptTextEvent:
+    - compositionend
+    - compositionstart
+    - compositionupdate
+    - copy
+    - cut
+    - paste
+    - select
+    - text
+
+typescriptTouchEvent:
+    # - MozEdgeUIGesture
+    # - MozMagnifyGesture
+    # - MozMagnifyGestureStart
+    # - MozMagnifyGestureUpdate
+    # - MozPressTapGesture
+    # - MozRotateGesture
+    # - MozRotateGestureStart
+    # - MozRotateGestureUpdate
+    # - MozSwipeGesture
+    # - MozTapGesture
+    # - MozTouchDown
+    # - MozTouchMove
+    # - MozTouchUp
+    - touchcancel
+    - touchend
+    - touchenter
+    - touchleave
+    - touchmove
+    - touchstart
+
+typescriptUpdateEvent:
+    - checking
+    - downloading
+    - error
+    - noupdate
+    - obsolete
+    - updateready
+
+typescriptValueChangeEvent:
+    # - broadcast
+    # - CheckboxStateChange
+    - hashchange
+    - input
+    # - RadioStateChange
+    - readystatechange
+    # - ValueChange
+
+typescriptViewEvent:
+    - fullscreen
+    - fullscreenchange
+    - fullscreenerror
+    # - MozEnteredDomFullscreen
+    # - MozScrolledAreaChanged
+    - resize
+    - scroll
+    # - sizemodechange
+
+typescriptWebsocketEvent:
+    - close
+    - error
+    - message
+    - open
+
+typescriptWindowEvent:
+    - DOMWindowCreated
+    - DOMWindowClose
+    - DOMTitleChanged
+    # - MozBeforeResize
+    # - SSWindowClosing
+    # - SSWindowStateReady
+    # - SSWindowStateBusy
+    # - close
+
+typescriptUncategorizedEvent:
+    - beforeunload
+    # - localized
+    - message
+    # - message
+    # - message
+    # - MozAfterPaint
+    # - moztimechange
+    - open
+    - show
+
+typescriptServiceWorkerEvent:
+    - install
+    - activate
+    - fetch
