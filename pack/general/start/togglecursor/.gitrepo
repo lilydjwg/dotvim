@@ -1,0 +1,11 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:jszakmeister/vim-togglecursor.git
+	branch = master
+	commit = 45fcffabf5377f8a73d4d66288de3ff1872dadce
+	parent = daedbcbd802b091e2608ee32617f1ce4d7d708d0
+	cmdver = 0.3.1

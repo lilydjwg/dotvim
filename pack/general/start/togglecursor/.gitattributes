@@ -1,0 +1,6 @@
+.gitattributes	export-ignore
+.gitignore	export-ignore
+
+*.txt		text trailing-space space-before-tab -indent-with-non-tab
+*.vim		text trailing-space space-before-tab -indent-with-non-tab
+*.rst		text trailing-space space-before-tab -indent-with-non-tab
