@@ -590,39 +590,6 @@ elseif has("unix")
       endif
     endif
   endif
-  " 在不同模式下使用不同颜色的光标
-  " 不要在 ssh 下使用
-  if &term =~ "256color" && !exists('$SSH_TTY')
-    let color_normal = 'HotPink'
-    let color_insert = 'RoyalBlue1'
-    let color_exit = 'green'
-    if &term =~ 'xterm\|rxvt'
-      call writefile(["\e]12;" . color_normal . "\7"], "/dev/tty", "b")
-      let &t_SI="\e]12;" . color_insert . "\7"
-      let &t_EI="\e]12;" . color_normal . "\7"
-      exe 'autocmd VimLeave * :call writefile(["\e]12;' . color_exit . '\7"], "/dev/tty", "b")'
-    elseif &term =~ 'screen\|tmux'
-      if exists('$TMUX')
-	if &ttymouse == 'xterm'
-	  set ttymouse=xterm2
-	endif
-	call writefile(["\33Ptmux;\33\e]12;" . color_normal . "\7\33\\"], "/dev/tty", "b")
-	let &t_SI="\33Ptmux;\33\e]12;" . color_insert . "\7\33\\"
-	let &t_EI="\33Ptmux;\33\e]12;" . color_normal . "\7\33\\"
-	exe 'autocmd VimLeave * :call writefile(["\33Ptmux;\33\e]12;' .
-              \ color_exit . '\7\33\\"], "/dev/tty", "b")'
-      elseif !exists('$SUDO_UID') " or it may still be in tmux
-	call writefile(["\33P\e]12;" . color_normal . "\7\33\\"], "/dev/tty", "b")
-	let &t_SI="\33P\e]12;" . color_insert . "\7\33\\"
-	let &t_EI="\33P\e]12;" . color_normal . "\7\33\\"
-	exe 'autocmd VimLeave * :call writefile(["\33P\e]12;' .
-              \ color_exit . '\7\33\\"], "/dev/tty", "b")'
-      endif
-    endif
-    unlet color_normal
-    unlet color_insert
-    unlet color_exit
-  endif
 elseif has('win32') && exists('$CONEMUBUILD')
   " enable 256 colors in ConEmu on Win
   set term=xterm
