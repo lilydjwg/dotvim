@@ -1158,6 +1158,7 @@ if has("cscope")
   endif
 endif
 " 最后 [[[1
+let &runtimepath = g:vimfiles . '/config,' . &runtimepath
 runtime abbreviate.vim
 runtime local.vim
 " vim:fdm=marker:fmr=[[[,]]]
