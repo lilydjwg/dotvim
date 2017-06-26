@@ -63,10 +63,6 @@
 :ChooseWin	choosewin.txt	/*:ChooseWin*
 :ChooseWinSwap	choosewin.txt	/*:ChooseWinSwap*
 :ChooseWinSwapStay	choosewin.txt	/*:ChooseWinSwapStay*
-:CoffeeCompile	coffee-script.txt	/*:CoffeeCompile*
-:CoffeeLint	coffee-script.txt	/*:CoffeeLint*
-:CoffeeMake	coffee-script.txt	/*:CoffeeMake*
-:CoffeeRun	coffee-script.txt	/*:CoffeeRun*
 :ColorSchemeEditor	ColorSchemeEditor.txt	/*:ColorSchemeEditor*
 :ConflictTake	ConflictMotions.txt	/*:ConflictTake*
 :HistID	histwin.txt	/*:HistID*
@@ -742,15 +738,6 @@ choosewin-mappings	choosewin.txt	/*choosewin-mappings*
 choosewin-todo	choosewin.txt	/*choosewin-todo*
 choosewin-variables	choosewin.txt	/*choosewin-variables*
 choosewin.txt	choosewin.txt	/*choosewin.txt*
-coffee-script	coffee-script.txt	/*coffee-script*
-coffee-script-author	coffee-script.txt	/*coffee-script-author*
-coffee-script-commands	coffee-script.txt	/*coffee-script-commands*
-coffee-script-contents	coffee-script.txt	/*coffee-script-contents*
-coffee-script-introduction	coffee-script.txt	/*coffee-script-introduction*
-coffee-script-license	coffee-script.txt	/*coffee-script-license*
-coffee-script-settings	coffee-script.txt	/*coffee-script-settings*
-coffee-script.txt	coffee-script.txt	/*coffee-script.txt*
-compiler-coffee-script	coffee-script.txt	/*compiler-coffee-script*
 cr	abolish.txt	/*cr*
 cs	surround.txt	/*cs*
 cx	exchange.txt	/*cx*
@@ -910,7 +897,6 @@ exchange-settings	exchange.txt	/*exchange-settings*
 exchange-todo	exchange.txt	/*exchange-todo*
 exchange-visual	exchange.txt	/*exchange-visual*
 exchange.txt	exchange.txt	/*exchange.txt*
-ft-coffee-script-syntax	coffee-script.txt	/*ft-coffee-script-syntax*
 ft-python-syntax	python-syntax.txt	/*ft-python-syntax*
 fugitive	fugitive.txt	/*fugitive*
 fugitive#head(...)	fugitive.txt	/*fugitive#head(...)*
@@ -1038,11 +1024,6 @@ g:choosewin_overlay_shade_priority	choosewin.txt	/*g:choosewin_overlay_shade_pri
 g:choosewin_return_on_single_win	choosewin.txt	/*g:choosewin_return_on_single_win*
 g:choosewin_statusline_replace	choosewin.txt	/*g:choosewin_statusline_replace*
 g:choosewin_tablabel	choosewin.txt	/*g:choosewin_tablabel*
-g:coffee_compile_vert	coffee-script.txt	/*g:coffee_compile_vert*
-g:coffee_compiler	coffee-script.txt	/*g:coffee_compiler*
-g:coffee_lint_options	coffee-script.txt	/*g:coffee_lint_options*
-g:coffee_linter	coffee-script.txt	/*g:coffee_linter*
-g:coffee_make_options	coffee-script.txt	/*g:coffee_make_options*
 g:cycle_auto_visual	cycle.txt	/*g:cycle_auto_visual*
 g:cycle_default_groups	cycle.txt	/*g:cycle_default_groups*
 g:cycle_default_groups_for_{filetype}	cycle.txt	/*g:cycle_default_groups_for_{filetype}*
