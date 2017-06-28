@@ -1158,7 +1158,9 @@ if has("cscope")
   endif
 endif
 " 最后 [[[1
-let &runtimepath = g:vimfiles . '/config,' . &runtimepath
+if exists(':packadd')
+  let &runtimepath = g:vimfiles . '/config,' . &runtimepath
+endif
 runtime abbreviate.vim
 runtime local.vim
 " vim:fdm=marker:fmr=[[[,]]]
