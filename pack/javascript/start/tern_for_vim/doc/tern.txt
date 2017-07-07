@@ -1,0 +1,174 @@
+*tern.txt*   a plugin for the javascript code analysis engine tern.
+
+==============================================================================
+CONTENTS                                                         *tern-contents*
+
+    1. Intro........................................|tern-intro|
+    2. Installation.................................|tern-install|
+    3. Usage........................................|tern-usage|
+    4. Commands.....................................|tern-commands|
+    5. Options......................................|tern-options|
+
+==============================================================================
+INTRO                                                               *tern-intro*
+
+This plugin integrates features of the tern (http://ternjs.net) code analysis
+engine into vim. It provides features such as semantic code completion and
+intelligent renaming.
+
+==============================================================================
+INSTALLATION                                                      *tern-install*
+
+Install the plugin using your preferred plugin manager or copy the files
+to your ~/.vim directory manually. Make sure you have npm and node installed
+and run the following from the root path of the plugin (the same directory
+in which the file package.json is located): >
+
+    $ npm install
+>
+This will install the tern server and all required dependencies.
+Note : This plugin requires vim 7.3+ and builtin python support to work.
+
+==============================================================================
+USAGE                                                               *tern-usage*
+
+After installation vim will use the tern supplied omnifunc to handle
+omnicomplete calls for javascript files. In order to set up tern for
+use with your project you should create a ".tern-project" file in the root
+directory of your project. The following is just an example:
+>
+    {
+      "libs": [
+        "browser",
+        "jquery"
+      ],
+      "loadEagerly": [
+        "importantfile.js"
+      ],
+      "plugins": {
+        "requirejs": {
+          "baseURL": "./",
+          "paths": {}
+        }
+      }
+    }
+>
+
+This will tell the tern server to load definitions for jquery and the
+browser environment. Furthermore it will parse "importantfile.js" on start up
+and register the requirejs plugin.
+
+For more detailed description of this configuration please refer to the online
+documentation of tern which can be found at http://ternjs.net/doc/manual.html
+
+==============================================================================
+COMMANDS                                                         *tern-commands*
+
+The following commands are available:
+
+    |:TernDoc|...................... Look up Documentation
+    |:TernDocBrowse|................ Browse the Documentation
+    |:TernType|..................... Perform a type look up
+    |:TernDef|...................... Look up definition
+    |:TernDefPreview|............... Look up definition in preview
+    |:TernDefSplit|................. Look up definition in new split
+    |:TernDefTab|................... Look up definition in new tab
+    |:TernRefs|..................... Look up references
+    |:TernRename|................... Rename identifier
+
+------------------------------------------------------------------------------
+                                                                      *:TernDoc*
+Look up the documentation of something.
+
+------------------------------------------------------------------------------
+                                                                *:TernDocBrowse*
+Open the documentation in an external browser.
+
+------------------------------------------------------------------------------
+                                                                     *:TernType*
+Find the type of the identifier under the cursor.
+
+------------------------------------------------------------------------------
+                                                                      *:TernDef*
+Jump to the definition of the identifier under the cursor.
+
+------------------------------------------------------------------------------
+                                                               *:TernDefPreview*
+Jump to the definition of the identifier under the cursor inside
+the preview window.
+
+------------------------------------------------------------------------------
+                                                                 *:TernDefSplit*
+Jump to the definition of the identifier under the cursor in a new split.
+
+------------------------------------------------------------------------------
+                                                                   *:TernDefTab*
+Jump to the definition of the identifier under the cursor in a new tab.
+
+------------------------------------------------------------------------------
+                                                                     *:TernRefs*
+List all references of the identifier under the cursor.
+
+------------------------------------------------------------------------------
+                                                                   *:TernRename*
+Rename the variable under the cursor.
+
+==============================================================================
+OPTIONS                                                           *tern-options*
+
+The following options are available:
+
+    |tern_map_keys|.................. Enable or disable default key mappings.
+    |tern_map_prefix|................ Configure mapping prefix.
+    |tern_show_argument_hints|....... Configure argument hints display.
+    |tern_show_signature_in_pum|..... Configure completion menu display.
+
+-------------------------------------------------------------------------------
+                                                                 *tern_map_keys*
+
+Defaults to 0. Can be set to 1 to enable the following key mappings. By default
+these mappings are prefixed with |<LocalLeader>|. You can change this prefix
+with |tern_map_prefix| option.
+
+    *<LocalLeader>tD*   |:TernDoc|
+    *<LocalLeader>tb*   |:TernDocBrowse|
+    *<LocalLeader>tt*   |:TernType|
+    *<LocalLeader>td*   |:TernDef|
+    *<LocalLeader>tpd*  |:TernDefPreview|
+    *<LocalLeader>tsd*  |:TernDefSplit|
+    *<LocalLeader>ttd*  |:TernDefTab|
+    *<LocalLeader>tr*   |:TernRefs|
+    *<LocalLeader>tR*   |:TernRename|
+
+-------------------------------------------------------------------------------
+                                                               *tern_map_prefix*
+
+Defaults to |<LocalLeader>|. Specifies prefix which is used to define default
+key mappings.
+
+-------------------------------------------------------------------------------
+                                                      *tern_show_argument_hints*
+
+Defaults to "no". Can be set to "on_move" to update the argument
+hints whenever the cursor moves, or "on_hold" to do it whenever the
+cursor is held still for a period that depends on the 'updatetime'
+setting. "on_move" can reduce responsiveness on slow systems or big
+codebases. "on_hold" probably requires you to set 'updatetime' to
+something smaller than the default of 4 seconds.
+
+If you do not see argument hints while in insert mode you might
+have to disable the mode indication (:set noshowmode). For more
+information see 'noshowmode'.
+
+-------------------------------------------------------------------------------
+                                                    *tern_show_signature_in_pum*
+
+Defaults to 0. Can be set to 1 to display function signatures in the completion
+menu. Function signatures include parameter names, their type, and whether the
+parameter is optional.
+
+-------------------------------------------------------------------------------
+                                                    *tern_show_loc_after_rename*
+
+Defaults to 1. Can be set to 0 to avoid showing the location list after
+renaming an identifier.
