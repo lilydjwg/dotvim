@@ -330,7 +330,10 @@ def tern_echoWrap(data, name=""):
   col = int(vim.eval("&columns"))-23
   if len(text) > col:
     text = text[0:col]+"..."
-  print(text.encode('utf-8'))
+  if PY2:
+    print(text.encode('utf-8'))
+  else:
+    print(text)
 
 def tern_lookupType():
   data = tern_runCommand("type")
