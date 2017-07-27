@@ -1,0 +1,11 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:ternjs/tern_for_vim.git
+	branch = master
+	commit = ae42c69ada7243fe4801fce3b916bbc2f40ac4ac
+	parent = 976edeeb84385ea13ad2bce601227321bde0c9f3
+	cmdver = 0.3.1
