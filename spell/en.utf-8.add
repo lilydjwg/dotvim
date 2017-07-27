@@ -79,3 +79,4 @@ VPS
 zsh
 filesystems
 fsync
+logrotate
