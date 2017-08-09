@@ -5,6 +5,9 @@
 " ---------------------------------------------------------------------
 "  Settings:
 "  TODO: match while/for and break/continue
+if !exists('b:match_words')
+  let b:match_words = ''
+endif
 let b:match_words .= ',\%(#\s*\)\@<!\<if\>:\%(#\s*\)\@<!\<else\>'
       \ . ',\<switch\>:\<case\>:\<default\>'
       \ . ',^\s*#\s*if\%(n\?def\)\?\>:^\s*#\s*else\>:^\s*#\s*endif\>'
