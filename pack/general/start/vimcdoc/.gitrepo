@@ -1,0 +1,11 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:yianwillis/vimcdoc.git
+	branch = master
+	commit = 564e8709bc742689e95a4d4a878fea43b27c2256
+	parent = d9454d7c34fec0ef26bc3532e06527c69a6d105a
+	cmdver = 0.3.1

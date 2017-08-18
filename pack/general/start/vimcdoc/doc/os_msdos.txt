@@ -1,0 +1,15 @@
+*os_msdos.txt*  For Vim version 8.0.  最近更新: 2017年8月
+
+
+		  VIM 参考手册    by Bram Moolenaar
+		                     译者: Dasn, tocer
+		                     http://vimcdoc.sf.net
+
+
+					*msdos* *ms-dos* *MSDOS* *MS-DOS*
+本文过去描述 MS-DOS 版本 Vim 的特点。在 7.4.1399 补丁中删除了 MS-DOS 支持。如
+果你还想要用，需要在此之前的版本。注意 MS-DOS 版本不能工作，内存不够。DOS32 版
+本 (用 DJGPP) 在较旧的系统上可能还能用。
+
+
+ vim:tw=78:ts=8:ft=help:norl:

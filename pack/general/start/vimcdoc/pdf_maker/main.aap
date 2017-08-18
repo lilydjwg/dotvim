@@ -1,0 +1,27 @@
+TOPLEVELDIR=..
+:include {once} $TOPLEVELDIR/common.aap
+:child $TOPLEVELDIR/tools/main.aap
+
+all:
+	:print Use 'aap clean' to clean up.
+	:print Use 'aap publish' to publish pdf manual to SF.
+	:print Use 'aap release' to generate pdf mauals to release.
+
+help.html:
+	:execute $DOC_DIR/main.aap allhtml
+	:sys ./uncss.sh
+
+:rule %.tex: help.html ../tools/html2lex %.inp
+	:sys ../tools/html2lex ${match}.inp -o $target
+
+:rule %.pdf: %.tex
+	:sys {f} latexmk $match
+
+release: reference.pdf user_manual.pdf
+        :copy reference.pdf $(RELEASE_DIR)/reference-$(VERSION).pdf
+        :copy user_manual.pdf $(RELEASE_DIR)/user_manual-$(VERSION).pdf
+
+clean:
+	:del {r}{force} *.html *.pdf *.tex *.aux *.log *.out *.fdb_latexmk *.fls
+	:execute $DOC_DIR/main.aap clean
+	:execute $TOOLS_DIR/main.aap clean

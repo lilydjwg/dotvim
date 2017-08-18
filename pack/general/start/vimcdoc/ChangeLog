@@ -1,0 +1,1462 @@
+2013-08-25 20:05  yianwillis
+
+	* trunk/doc/arabic.txt, trunk/doc/autocmd.txt,
+	  trunk/doc/change.txt, trunk/doc/cmdline.txt, trunk/doc/diff.txt,
+	  trunk/doc/eval.txt, trunk/doc/ft_sql.txt, trunk/doc/gui.txt,
+	  trunk/doc/if_lua.txt, trunk/doc/if_pyth.txt,
+	  trunk/doc/indent.txt, trunk/doc/insert.txt, trunk/doc/map.txt,
+	  trunk/doc/mbyte.txt, trunk/doc/motion.txt,
+	  trunk/doc/netbeans.txt, trunk/doc/options.txt,
+	  trunk/doc/os_os2.txt, trunk/doc/os_vms.txt,
+	  trunk/doc/pattern.txt, trunk/doc/pi_netrw.txt,
+	  trunk/doc/pi_paren.txt, trunk/doc/print.txt,
+	  trunk/doc/repeat.txt, trunk/doc/russian.txt, trunk/doc/spell.txt,
+	  trunk/doc/syntax.txt, trunk/doc/tags, trunk/doc/tagsrch.txt,
+	  trunk/doc/usr_41.txt, trunk/doc/various.txt,
+	  trunk/doc/version5.txt, trunk/doc/version7.txt,
+	  trunk/doc/vi_diff.txt, trunk/doc/visual.txt: 7.4 cleanup
+
+2013-08-25 07:50  yianwillis
+
+	* trunk/doc/autocmd.txt, trunk/doc/quickfix.txt,
+	  trunk/doc/quickref.txt, trunk/doc/quotes.txt,
+	  trunk/doc/recover.txt, trunk/doc/remote.txt,
+	  trunk/doc/repeat.txt, trunk/doc/rileft.txt,
+	  trunk/doc/russian.txt, trunk/doc/scroll.txt, trunk/doc/sign.txt,
+	  trunk/doc/spell.txt, trunk/doc/sponsor.txt,
+	  trunk/doc/starting.txt, trunk/doc/syntax.txt,
+	  trunk/doc/tabpage.txt, trunk/doc/tagsrch.txt, trunk/doc/term.txt,
+	  trunk/doc/tips.txt, trunk/doc/todo.txt, trunk/doc/uganda.txt,
+	  trunk/doc/undo.txt, trunk/doc/usr_01.txt, trunk/doc/usr_02.txt,
+	  trunk/doc/usr_03.txt, trunk/doc/usr_04.txt, trunk/doc/usr_05.txt,
+	  trunk/doc/usr_06.txt, trunk/doc/usr_07.txt, trunk/doc/usr_08.txt,
+	  trunk/doc/usr_09.txt, trunk/doc/usr_10.txt, trunk/doc/usr_11.txt,
+	  trunk/doc/usr_12.txt, trunk/doc/usr_20.txt, trunk/doc/usr_21.txt,
+	  trunk/doc/usr_22.txt, trunk/doc/usr_23.txt, trunk/doc/usr_24.txt,
+	  trunk/doc/usr_25.txt, trunk/doc/usr_26.txt, trunk/doc/usr_27.txt,
+	  trunk/doc/usr_28.txt, trunk/doc/usr_29.txt, trunk/doc/usr_30.txt,
+	  trunk/doc/usr_31.txt, trunk/doc/usr_32.txt, trunk/doc/usr_40.txt,
+	  trunk/doc/usr_41.txt, trunk/doc/usr_42.txt, trunk/doc/usr_43.txt,
+	  trunk/doc/usr_44.txt, trunk/doc/usr_45.txt, trunk/doc/usr_90.txt,
+	  trunk/doc/usr_toc.txt, trunk/doc/various.txt,
+	  trunk/doc/version4.txt, trunk/doc/version5.txt,
+	  trunk/doc/version6.txt, trunk/doc/version7.txt,
+	  trunk/doc/vi_diff.txt, trunk/doc/visual.txt,
+	  trunk/doc/windows.txt, trunk/doc/workshop.txt: 7.4 upgrade part 3
+
+2013-08-24 07:38  yianwillis
+
+	* trunk/doc/if_mzsch.txt, trunk/doc/if_ole.txt,
+	  trunk/doc/if_perl.txt, trunk/doc/if_pyth.txt,
+	  trunk/doc/if_ruby.txt, trunk/doc/if_sniff.txt,
+	  trunk/doc/if_tcl.txt, trunk/doc/indent.txt, trunk/doc/index.txt,
+	  trunk/doc/insert.txt, trunk/doc/intro.txt, trunk/doc/map.txt,
+	  trunk/doc/mbyte.txt, trunk/doc/message.txt, trunk/doc/mlang.txt,
+	  trunk/doc/motion.txt, trunk/doc/netbeans.txt,
+	  trunk/doc/options.txt, trunk/doc/os_390.txt,
+	  trunk/doc/os_amiga.txt, trunk/doc/os_beos.txt,
+	  trunk/doc/os_dos.txt, trunk/doc/os_mac.txt,
+	  trunk/doc/os_mint.txt, trunk/doc/os_msdos.txt,
+	  trunk/doc/os_os2.txt, trunk/doc/os_qnx.txt,
+	  trunk/doc/os_risc.txt, trunk/doc/os_unix.txt,
+	  trunk/doc/os_vms.txt, trunk/doc/os_win32.txt,
+	  trunk/doc/pattern.txt, trunk/doc/pi_getscript.txt,
+	  trunk/doc/pi_gzip.txt, trunk/doc/pi_netrw.txt,
+	  trunk/doc/pi_paren.txt, trunk/doc/pi_spec.txt,
+	  trunk/doc/pi_tar.txt, trunk/doc/pi_vimball.txt,
+	  trunk/doc/pi_zip.txt, trunk/doc/print.txt: 7.4 upgrade part 2
+
+2013-08-20 17:50  yianwillis
+
+	* trunk/doc/arabic.txt, trunk/doc/autocmd.txt,
+	  trunk/doc/change.txt, trunk/doc/cmdline.txt, trunk/doc/debug.txt,
+	  trunk/doc/debugger.txt, trunk/doc/develop.txt,
+	  trunk/doc/diff.txt, trunk/doc/digraph.txt, trunk/doc/editing.txt,
+	  trunk/doc/eval.txt, trunk/doc/farsi.txt, trunk/doc/filetype.txt,
+	  trunk/doc/fold.txt, trunk/doc/ft_ada.txt, trunk/doc/ft_sql.txt,
+	  trunk/doc/gui.txt, trunk/doc/gui_w16.txt, trunk/doc/gui_w32.txt,
+	  trunk/doc/gui_x11.txt, trunk/doc/hangulin.txt,
+	  trunk/doc/hebrew.txt, trunk/doc/help.txt, trunk/doc/helphelp.txt,
+	  trunk/doc/howto.txt, trunk/doc/if_cscop.txt,
+	  trunk/doc/if_lua.txt: 7.4 upgrade part 1
+
+2013-03-23 00:45  yianwillis
+
+	* trunk/doc/options.txt: fix from lane.east@gmail.com
+
+2013-01-30 05:15  yianwillis
+
+	* trunk/doc/autocmd.txt, trunk/doc/change.txt,
+	  trunk/doc/cmdline.txt, trunk/doc/debug.txt,
+	  trunk/doc/develop.txt, trunk/doc/diff.txt, trunk/doc/editing.txt,
+	  trunk/doc/eval.txt, trunk/doc/filetype.txt, trunk/doc/gui.txt,
+	  trunk/doc/gui_w32.txt, trunk/doc/gui_x11.txt,
+	  trunk/doc/helphelp.txt, trunk/doc/if_cscop.txt,
+	  trunk/doc/if_lua.txt, trunk/doc/if_pyth.txt,
+	  trunk/doc/indent.txt, trunk/doc/index.txt, trunk/doc/insert.txt,
+	  trunk/doc/map.txt, trunk/doc/mbyte.txt, trunk/doc/motion.txt,
+	  trunk/doc/netbeans.txt, trunk/doc/options.txt,
+	  trunk/doc/os_vms.txt, trunk/doc/os_win32.txt,
+	  trunk/doc/pattern.txt, trunk/doc/pi_getscript.txt,
+	  trunk/doc/pi_netrw.txt, trunk/doc/pi_tar.txt,
+	  trunk/doc/pi_vimball.txt, trunk/doc/pi_zip.txt,
+	  trunk/doc/quickref.txt, trunk/doc/repeat.txt, trunk/doc/sign.txt,
+	  trunk/doc/spell.txt, trunk/doc/starting.txt,
+	  trunk/doc/syntax.txt, trunk/doc/tagsrch.txt, trunk/doc/todo.txt,
+	  trunk/doc/uganda.txt, trunk/doc/undo.txt, trunk/doc/usr_41.txt,
+	  trunk/doc/various.txt, trunk/doc/version6.txt,
+	  trunk/doc/version7.txt, trunk/doc/vi_diff.txt,
+	  trunk/doc/visual.txt, trunk/doc/windows.txt: 7.3 785-20130126
+	  update
+
+2013-01-27 02:10  yianwillis
+
+	* trunk/doc/scroll.txt: fix
+
+2011-10-19 18:03  lang2
+
+	* trunk/doc/options.txt: minor fix
+
+2011-10-14 21:18  lang2
+
+	* trunk/doc/usr_41.txt: minor fixes
+
+2011-08-11 19:14  yianwillis
+
+	* trunk/doc/options.txt, trunk/doc/usr_41.txt: fix from
+	  liangxiufei@gmail.com
+
+2011-05-29 04:48  yianwillis
+
+	* trunk/doc/autocmd.txt, trunk/doc/change.txt,
+	  trunk/doc/cmdline.txt, trunk/doc/debug.txt, trunk/doc/diff.txt,
+	  trunk/doc/digraph.txt, trunk/doc/editing.txt, trunk/doc/eval.txt,
+	  trunk/doc/ft_ada.txt, trunk/doc/gui.txt, trunk/doc/gui_w32.txt,
+	  trunk/doc/if_cscop.txt, trunk/doc/if_pyth.txt,
+	  trunk/doc/if_ruby.txt, trunk/doc/indent.txt, trunk/doc/index.txt,
+	  trunk/doc/insert.txt, trunk/doc/intro.txt, trunk/doc/map.txt,
+	  trunk/doc/mbyte.txt, trunk/doc/message.txt, trunk/doc/mlang.txt,
+	  trunk/doc/motion.txt, trunk/doc/netbeans.txt,
+	  trunk/doc/options.txt, trunk/doc/os_risc.txt,
+	  trunk/doc/os_vms.txt, trunk/doc/os_win32.txt,
+	  trunk/doc/pattern.txt, trunk/doc/pi_netrw.txt,
+	  trunk/doc/pi_tar.txt, trunk/doc/quickfix.txt,
+	  trunk/doc/quickref.txt, trunk/doc/quotes.txt,
+	  trunk/doc/repeat.txt, trunk/doc/sign.txt, trunk/doc/spell.txt,
+	  trunk/doc/starting.txt, trunk/doc/syntax.txt, trunk/doc/tags,
+	  trunk/doc/tagsrch.txt, trunk/doc/term.txt, trunk/doc/todo.txt,
+	  trunk/doc/undo.txt, trunk/doc/usr_01.txt, trunk/doc/usr_41.txt,
+	  trunk/doc/various.txt, trunk/doc/version7.txt,
+	  trunk/doc/vi_diff.txt: 7.3.206 update
+
+2011-05-08 00:45  yianwillis
+
+	* trunk/NEWS, trunk/www/htdocs/main.aap,
+	  trunk/www/htdocs/vimcdoc-sf.py: homepage update
+
+2011-05-07 07:10  yianwillis
+
+	* trunk/doc/autocmd.txt, trunk/doc/change.txt,
+	  trunk/doc/cmdline.txt, trunk/doc/editing.txt, trunk/doc/eval.txt,
+	  trunk/doc/ft_ada.txt, trunk/doc/ft_sql.txt,
+	  trunk/doc/gui_w16.txt, trunk/doc/if_tcl.txt, trunk/doc/index.txt,
+	  trunk/doc/insert.txt, trunk/doc/intro.txt, trunk/doc/main.aap,
+	  trunk/doc/mbyte.txt, trunk/doc/message.txt, trunk/doc/motion.txt,
+	  trunk/doc/options.txt, trunk/doc/os_unix.txt,
+	  trunk/doc/pi_netrw.txt, trunk/doc/quickfix.txt,
+	  trunk/doc/repeat.txt, trunk/doc/starting.txt,
+	  trunk/doc/syntax.txt, trunk/doc/uganda.txt, trunk/doc/usr_02.txt,
+	  trunk/doc/usr_05.txt, trunk/doc/usr_24.txt, trunk/doc/usr_26.txt,
+	  trunk/doc/various.txt, trunk/doc/version5.txt,
+	  trunk/doc/version7.txt, trunk/doc/vim-stylesheet.css,
+	  trunk/doc/vim2html.pl, trunk/doc/windows.txt, trunk/main.aap,
+	  trunk/pdf_maker, trunk/pdf_maker/main.aap,
+	  trunk/pdf_maker/reference.inp, trunk/pdf_maker/uncss.sh,
+	  trunk/pdf_maker/user_manual.inp, trunk/tools/html2lex.c,
+	  trunk/tools/html2lex.patch, trunk/tools/main.aap: PDF Maker
+
+2010-12-02 02:33  yianwillis
+
+	* trunk/doc/pattern.txt: add some alternative translations for a
+	  few regexp terms, thanks to hotoo.cn@gmail.com
+
+2010-12-02 02:17  yianwillis
+
+	* trunk/doc/autocmd.txt, trunk/doc/change.txt,
+	  trunk/doc/cmdline.txt, trunk/doc/debugger.txt,
+	  trunk/doc/develop.txt, trunk/doc/diff.txt, trunk/doc/digraph.txt,
+	  trunk/doc/eval.txt, trunk/doc/farsi.txt, trunk/doc/fold.txt,
+	  trunk/doc/ft_ada.txt, trunk/doc/ft_sql.txt, trunk/doc/gui.txt,
+	  trunk/doc/gui_w16.txt, trunk/doc/gui_w32.txt,
+	  trunk/doc/gui_x11.txt, trunk/doc/hebrew.txt, trunk/doc/help.txt,
+	  trunk/doc/helphelp.txt, trunk/doc/howto.txt,
+	  trunk/doc/if_cscop.txt, trunk/doc/if_lua.txt,
+	  trunk/doc/if_ole.txt, trunk/doc/if_perl.txt,
+	  trunk/doc/if_pyth.txt, trunk/doc/if_tcl.txt,
+	  trunk/doc/indent.txt, trunk/doc/insert.txt, trunk/doc/intro.txt,
+	  trunk/doc/map.txt, trunk/doc/mbyte.txt, trunk/doc/message.txt,
+	  trunk/doc/mlang.txt, trunk/doc/motion.txt,
+	  trunk/doc/netbeans.txt, trunk/doc/options.txt,
+	  trunk/doc/os_dos.txt, trunk/doc/os_mac.txt,
+	  trunk/doc/os_mint.txt, trunk/doc/os_msdos.txt,
+	  trunk/doc/os_os2.txt, trunk/doc/os_qnx.txt,
+	  trunk/doc/os_unix.txt, trunk/doc/os_vms.txt,
+	  trunk/doc/os_win32.txt, trunk/doc/pattern.txt,
+	  trunk/doc/pi_getscript.txt, trunk/doc/pi_gzip.txt,
+	  trunk/doc/pi_netrw.txt, trunk/doc/pi_spec.txt,
+	  trunk/doc/pi_vimball.txt, trunk/doc/pi_zip.txt,
+	  trunk/doc/print.txt, trunk/doc/quickfix.txt,
+	  trunk/doc/quickref.txt, trunk/doc/recover.txt,
+	  trunk/doc/scroll.txt, trunk/doc/spell.txt, trunk/doc/sponsor.txt,
+	  trunk/doc/syntax.txt, trunk/doc/term.txt, trunk/doc/tips.txt,
+	  trunk/doc/uganda.txt, trunk/doc/undo.txt, trunk/doc/usr_01.txt,
+	  trunk/doc/usr_02.txt, trunk/doc/usr_03.txt, trunk/doc/usr_04.txt,
+	  trunk/doc/usr_05.txt, trunk/doc/usr_06.txt, trunk/doc/usr_07.txt,
+	  trunk/doc/usr_08.txt, trunk/doc/usr_09.txt, trunk/doc/usr_10.txt,
+	  trunk/doc/usr_11.txt, trunk/doc/usr_12.txt, trunk/doc/usr_20.txt,
+	  trunk/doc/usr_21.txt, trunk/doc/usr_22.txt, trunk/doc/usr_23.txt,
+	  trunk/doc/usr_24.txt, trunk/doc/usr_25.txt, trunk/doc/usr_26.txt,
+	  trunk/doc/usr_27.txt, trunk/doc/usr_28.txt, trunk/doc/usr_29.txt,
+	  trunk/doc/usr_30.txt, trunk/doc/usr_31.txt, trunk/doc/usr_40.txt,
+	  trunk/doc/usr_41.txt, trunk/doc/usr_42.txt, trunk/doc/usr_43.txt,
+	  trunk/doc/usr_44.txt, trunk/doc/usr_45.txt, trunk/doc/usr_90.txt,
+	  trunk/doc/various.txt, trunk/doc/version5.txt,
+	  trunk/doc/version7.txt, trunk/doc/visual.txt,
+	  trunk/doc/windows.txt: punctunation consistency fix
+
+2010-11-15 22:32  yianwillis
+
+	* trunk/doc/mbyte.txt, trunk/doc/message.txt,
+	  trunk/doc/quickfix.txt, trunk/doc/vim2html.pl: patch from
+	  lane.east@gmail.com
+
+2010-08-20 02:48  yianwillis
+
+	* trunk/ChangeLog, trunk/INSTALL, trunk/NEWS, trunk/VERSION,
+	  trunk/vimcdoc.vim: 1.8.0 post update
+
+2010-08-16 19:36  yianwillis
+
+	* trunk/doc/change.txt, trunk/doc/cmdline.txt, trunk/doc/diff.txt,
+	  trunk/doc/digraph.txt, trunk/doc/eval.txt, trunk/doc/fold.txt,
+	  trunk/doc/index.txt, trunk/doc/insert.txt, trunk/doc/map.txt,
+	  trunk/doc/mbyte.txt, trunk/doc/motion.txt, trunk/doc/options.txt,
+	  trunk/doc/os_amiga.txt, trunk/doc/os_beos.txt,
+	  trunk/doc/pattern.txt, trunk/doc/rileft.txt,
+	  trunk/doc/starting.txt, trunk/doc/tags, trunk/doc/term.txt,
+	  trunk/doc/todo.txt, trunk/doc/usr_02.txt, trunk/doc/various.txt,
+	  trunk/doc/version7.txt, trunk/doc/windows.txt: vim 7.3 final
+
+2010-08-13 23:13  yianwillis
+
+	* trunk/doc/arabic.txt, trunk/doc/autocmd.txt,
+	  trunk/doc/change.txt, trunk/doc/cmdline.txt, trunk/doc/debug.txt,
+	  trunk/doc/debugger.txt, trunk/doc/develop.txt,
+	  trunk/doc/diff.txt, trunk/doc/digraph.txt, trunk/doc/editing.txt,
+	  trunk/doc/eval.txt, trunk/doc/farsi.txt, trunk/doc/filetype.txt,
+	  trunk/doc/fold.txt, trunk/doc/ft_ada.txt, trunk/doc/ft_sql.txt,
+	  trunk/doc/gui.txt, trunk/doc/gui_w16.txt, trunk/doc/gui_w32.txt,
+	  trunk/doc/gui_x11.txt, trunk/doc/hangulin.txt,
+	  trunk/doc/hebrew.txt, trunk/doc/help.txt, trunk/doc/helphelp.txt,
+	  trunk/doc/howto.txt, trunk/doc/if_cscop.txt,
+	  trunk/doc/if_lua.txt, trunk/doc/if_mzsch.txt,
+	  trunk/doc/if_ole.txt, trunk/doc/if_perl.txt,
+	  trunk/doc/if_pyth.txt, trunk/doc/if_ruby.txt,
+	  trunk/doc/if_sniff.txt, trunk/doc/if_tcl.txt,
+	  trunk/doc/indent.txt, trunk/doc/index.txt, trunk/doc/insert.txt,
+	  trunk/doc/intro.txt, trunk/doc/map.txt, trunk/doc/mbyte.txt,
+	  trunk/doc/message.txt, trunk/doc/mlang.txt, trunk/doc/motion.txt,
+	  trunk/doc/netbeans.txt, trunk/doc/options.txt,
+	  trunk/doc/os_390.txt, trunk/doc/os_amiga.txt,
+	  trunk/doc/os_beos.txt, trunk/doc/os_dos.txt,
+	  trunk/doc/os_mac.txt, trunk/doc/os_mint.txt,
+	  trunk/doc/os_msdos.txt, trunk/doc/os_os2.txt,
+	  trunk/doc/os_qnx.txt, trunk/doc/os_risc.txt,
+	  trunk/doc/os_unix.txt, trunk/doc/os_vms.txt,
+	  trunk/doc/os_win32.txt, trunk/doc/pattern.txt,
+	  trunk/doc/pi_getscript.txt, trunk/doc/pi_gzip.txt,
+	  trunk/doc/pi_netrw.txt, trunk/doc/pi_paren.txt,
+	  trunk/doc/pi_spec.txt, trunk/doc/pi_tar.txt,
+	  trunk/doc/pi_vimball.txt, trunk/doc/pi_zip.txt,
+	  trunk/doc/print.txt, trunk/doc/quickfix.txt,
+	  trunk/doc/quickref.txt, trunk/doc/quotes.txt,
+	  trunk/doc/recover.txt, trunk/doc/remote.txt,
+	  trunk/doc/repeat.txt, trunk/doc/rileft.txt,
+	  trunk/doc/russian.txt, trunk/doc/scroll.txt, trunk/doc/sign.txt,
+	  trunk/doc/spell.txt, trunk/doc/sponsor.txt,
+	  trunk/doc/starting.txt, trunk/doc/syntax.txt,
+	  trunk/doc/tabpage.txt, trunk/doc/tagsrch.txt, trunk/doc/term.txt,
+	  trunk/doc/tips.txt, trunk/doc/todo.txt, trunk/doc/uganda.txt,
+	  trunk/doc/undo.txt, trunk/doc/usr_01.txt, trunk/doc/usr_02.txt,
+	  trunk/doc/usr_03.txt, trunk/doc/usr_04.txt, trunk/doc/usr_05.txt,
+	  trunk/doc/usr_06.txt, trunk/doc/usr_07.txt, trunk/doc/usr_08.txt,
+	  trunk/doc/usr_09.txt, trunk/doc/usr_10.txt, trunk/doc/usr_11.txt,
+	  trunk/doc/usr_12.txt, trunk/doc/usr_20.txt, trunk/doc/usr_21.txt,
+	  trunk/doc/usr_22.txt, trunk/doc/usr_23.txt, trunk/doc/usr_24.txt,
+	  trunk/doc/usr_25.txt, trunk/doc/usr_26.txt, trunk/doc/usr_27.txt,
+	  trunk/doc/usr_28.txt, trunk/doc/usr_29.txt, trunk/doc/usr_30.txt,
+	  trunk/doc/usr_31.txt, trunk/doc/usr_32.txt, trunk/doc/usr_40.txt,
+	  trunk/doc/usr_41.txt, trunk/doc/usr_42.txt, trunk/doc/usr_43.txt,
+	  trunk/doc/usr_44.txt, trunk/doc/usr_45.txt, trunk/doc/usr_90.txt,
+	  trunk/doc/usr_toc.txt, trunk/doc/various.txt,
+	  trunk/doc/version4.txt, trunk/doc/version5.txt,
+	  trunk/doc/version6.txt, trunk/doc/version7.txt,
+	  trunk/doc/vi_diff.txt, trunk/doc/visual.txt,
+	  trunk/doc/windows.txt, trunk/doc/workshop.txt: 7.3 update
+
+2010-02-11 20:38  yianwillis
+
+	* trunk/doc/change.txt: bug update from zhichtang@gmail.com
+
+2009-04-10 21:04  yianwillis
+
+	* trunk/doc/autocmd.txt, trunk/doc/change.txt,
+	  trunk/doc/cmdline.txt, trunk/doc/diff.txt, trunk/doc/editing.txt,
+	  trunk/doc/eval.txt, trunk/doc/ft_ada.txt, trunk/doc/gui.txt,
+	  trunk/doc/hangulin.txt, trunk/doc/help.txt,
+	  trunk/doc/if_cscop.txt, trunk/doc/if_ole.txt,
+	  trunk/doc/if_pyth.txt, trunk/doc/if_tcl.txt, trunk/doc/index.txt,
+	  trunk/doc/insert.txt, trunk/doc/map.txt, trunk/doc/mbyte.txt,
+	  trunk/doc/message.txt, trunk/doc/motion.txt,
+	  trunk/doc/netbeans.txt, trunk/doc/options.txt,
+	  trunk/doc/os_vms.txt, trunk/doc/pattern.txt,
+	  trunk/doc/pi_netrw.txt, trunk/doc/quickref.txt,
+	  trunk/doc/spell.txt, trunk/doc/starting.txt,
+	  trunk/doc/syntax.txt, trunk/doc/tagsrch.txt, trunk/doc/tips.txt,
+	  trunk/doc/todo.txt, trunk/doc/uganda.txt, trunk/doc/usr_21.txt,
+	  trunk/doc/usr_43.txt, trunk/doc/usr_44.txt, trunk/doc/usr_45.txt,
+	  trunk/doc/usr_90.txt, trunk/doc/various.txt,
+	  trunk/doc/version5.txt, trunk/doc/version7.txt,
+	  trunk/doc/visual.txt, trunk/doc/windows.txt: sync to 7.2 patch
+	  148
+
+2009-01-08 07:03  yianwillis
+
+	* trunk/common.aap, trunk/www/htdocs/batch,
+	  trunk/www/htdocs/gro_index.html, trunk/www/htdocs/main.aap: gro
+	  update
+
+2008-12-23 23:47  yianwillis
+
+	* trunk/ChangeLog, trunk/common.aap, trunk/doc/main.aap,
+	  trunk/release/main.aap, trunk/www/htdocs/images/screenshot.jpg,
+	  trunk/www/htdocs/vimcdoc-sf.py: Post-update for the 1.7.0 release
+
+2008-12-23 22:40  yianwillis
+
+	* trunk/ChangeLog, trunk/INSTALL, trunk/NEWS, trunk/TODO,
+	  trunk/VERSION, trunk/common.aap, trunk/doc/main.aap,
+	  trunk/doc/vim-stylesheet.css, trunk/guides.txt, trunk/main.aap,
+	  trunk/release/batch, trunk/release/main.aap,
+	  trunk/vcd-setup-unicode.nsi, trunk/vcd-setup.nsi,
+	  trunk/vimcdoc.sh, trunk/vimcdoc.vim, trunk/www/htdocs/main.aap,
+	  trunk/www/htdocs/vimcdoc-sf.py: Preparing for the 1.7.0 release
+
+2008-12-13 00:44  yianwillis
+
+	* trunk/doc/various.txt, trunk/doc/version4.txt,
+	  trunk/doc/version5.txt, trunk/doc/version6.txt,
+	  trunk/doc/version7.txt, trunk/doc/vi_diff.txt,
+	  trunk/doc/visual.txt, trunk/doc/windows.txt,
+	  trunk/doc/workshop.txt: 7.2 update: various, version4, version5,
+	  version6, version7, vi_diff, visual, windows, workshop
+
+2008-12-07 21:11  yianwillis
+
+	* trunk/doc/uganda.txt, trunk/doc/undo.txt, trunk/doc/usr_01.txt,
+	  trunk/doc/usr_02.txt, trunk/doc/usr_03.txt, trunk/doc/usr_04.txt,
+	  trunk/doc/usr_05.txt, trunk/doc/usr_06.txt, trunk/doc/usr_07.txt,
+	  trunk/doc/usr_08.txt, trunk/doc/usr_09.txt, trunk/doc/usr_10.txt,
+	  trunk/doc/usr_11.txt, trunk/doc/usr_12.txt, trunk/doc/usr_20.txt,
+	  trunk/doc/usr_21.txt, trunk/doc/usr_22.txt, trunk/doc/usr_23.txt,
+	  trunk/doc/usr_24.txt, trunk/doc/usr_25.txt, trunk/doc/usr_26.txt,
+	  trunk/doc/usr_27.txt, trunk/doc/usr_28.txt, trunk/doc/usr_29.txt,
+	  trunk/doc/usr_30.txt, trunk/doc/usr_31.txt, trunk/doc/usr_32.txt,
+	  trunk/doc/usr_40.txt, trunk/doc/usr_41.txt, trunk/doc/usr_42.txt,
+	  trunk/doc/usr_43.txt, trunk/doc/usr_44.txt, trunk/doc/usr_45.txt,
+	  trunk/doc/usr_90.txt, trunk/doc/usr_toc.txt: 7.2 update: uganda,
+	  undo, usr_*
+
+2008-11-23 01:39  yianwillis
+
+	* trunk/doc/tabpage.txt, trunk/doc/tagsrch.txt, trunk/doc/term.txt,
+	  trunk/doc/tips.txt, trunk/doc/todo.txt: 7.2 update: tabpage,
+	  tagsrch, term, tips, todo
+
+2008-11-15 18:11  yianwillis
+
+	* trunk/doc/recover.txt, trunk/doc/remote.txt,
+	  trunk/doc/repeat.txt, trunk/doc/rileft.txt,
+	  trunk/doc/russian.txt, trunk/doc/scroll.txt, trunk/doc/sign.txt,
+	  trunk/doc/spell.txt, trunk/doc/sponsor.txt,
+	  trunk/doc/starting.txt, trunk/doc/syntax.txt: 7.2 update:
+	  recover, remote, repeat, rileft, russian, scroll, sign, spell,
+	  sponsor, starting, syntax
+
+2008-11-08 20:39  yianwillis
+
+	* trunk/doc/quickfix.txt, trunk/doc/quickref.txt,
+	  trunk/doc/quotes.txt: 7.2 update: quickfix, quickref, quotes
+
+2008-11-01 22:10  yianwillis
+
+	* trunk/doc/pattern.txt, trunk/doc/pi_getscript.txt,
+	  trunk/doc/pi_gzip.txt, trunk/doc/pi_netrw.txt,
+	  trunk/doc/pi_paren.txt, trunk/doc/pi_spec.txt,
+	  trunk/doc/pi_tar.txt, trunk/doc/pi_vimball.txt,
+	  trunk/doc/pi_zip.txt, trunk/doc/print.txt: 7.2 update: pattern,
+	  pi_*, print
+
+2008-10-26 00:51  yianwillis
+
+	* trunk/doc/options.txt, trunk/doc/os_390.txt,
+	  trunk/doc/os_amiga.txt, trunk/doc/os_beos.txt,
+	  trunk/doc/os_dos.txt, trunk/doc/os_mac.txt,
+	  trunk/doc/os_mint.txt, trunk/doc/os_msdos.txt,
+	  trunk/doc/os_os2.txt, trunk/doc/os_qnx.txt,
+	  trunk/doc/os_risc.txt, trunk/doc/os_unix.txt,
+	  trunk/doc/os_vms.txt, trunk/doc/os_win32.txt: 7.2 update:
+	  options, os_*
+
+2008-10-18 06:40  yianwillis
+
+	* trunk/doc/netbeans.txt: 7.2 update: netbeans
+
+2008-10-11 19:39  yianwillis
+
+	* trunk/doc/map.txt, trunk/doc/mbyte.txt, trunk/doc/message.txt,
+	  trunk/doc/mlang.txt, trunk/doc/motion.txt: 7.2 update: map,
+	  mbyte, message, mlang, motion
+
+2008-10-06 16:26  yianwillis
+
+	* trunk/doc/tags, trunk/doc/vim2html.pl: update tags and fix
+	  vim2html for the special help-tags tag
+
+2008-10-06 16:15  yianwillis
+
+	* trunk/common.aap: update shell access parameters
+
+2008-10-06 15:55  yianwillis
+
+	* trunk/doc/hangulin.txt, trunk/doc/hebrew.txt, trunk/doc/help.txt,
+	  trunk/doc/howto.txt, trunk/doc/if_cscop.txt,
+	  trunk/doc/if_mzsch.txt, trunk/doc/if_ole.txt,
+	  trunk/doc/if_perl.txt, trunk/doc/if_pyth.txt,
+	  trunk/doc/if_ruby.txt, trunk/doc/if_sniff.txt,
+	  trunk/doc/if_tcl.txt, trunk/doc/indent.txt, trunk/doc/index.txt,
+	  trunk/doc/insert.txt, trunk/doc/intro.txt: 7.2 update: hangulin,
+	  hebrew, help, howto, if_cscop, if_mzsch, if_ole, if_perl,
+	  if_pyth, if_ruby, if_sniff, if_tcl, indent, index, insert, intro
+
+2008-09-27 00:09  yianwillis
+
+	* trunk/doc/gui.txt, trunk/doc/gui_w16.txt, trunk/doc/gui_w32.txt,
+	  trunk/doc/gui_x11.txt: 7.2 update: gui, gui_w16, gui_w32, gui_x11
+
+2008-09-18 02:17  yianwillis
+
+	* trunk/doc/editing.txt, trunk/doc/eval.txt, trunk/doc/farsi.txt,
+	  trunk/doc/filetype.txt, trunk/doc/fold.txt, trunk/doc/ft_ada.txt,
+	  trunk/doc/ft_sql.txt: 7.2 update: editing, eval, farsi, filetype,
+	  fold, ft_ada, ft_sql
+
+2008-09-18 02:13  yianwillis
+
+	* trunk/doc/ada.txt, trunk/doc/ft_ada.txt, trunk/doc/ft_sql.txt,
+	  trunk/doc/sql.txt: rename ada and sql doc
+
+2008-09-06 17:34  yianwillis
+
+	* trunk/doc/debug.txt, trunk/doc/debugger.txt,
+	  trunk/doc/develop.txt, trunk/doc/diff.txt, trunk/doc/digraph.txt:
+	  7.2 update: develop, digraph, debug, diff, debugger
+
+2008-08-21 16:24  yianwillis
+
+	* trunk/doc/change.txt, trunk/doc/cmdline.txt: 7.2 update: change,
+	  cmdline
+
+2008-08-14 22:35  yianwillis
+
+	* trunk/doc/arabic.txt, trunk/doc/autocmd.txt: 7.2 update: arabic,
+	  autocmd
+
+2008-06-27 08:54  yianwillis
+
+	* trunk/doc/version7.txt: 7.2a beta.
+
+2008-05-31 07:37  yianwillis
+
+	* trunk/doc/indent.txt, trunk/doc/pattern.txt: bugfix
+
+2008-05-23 22:54  lang2
+
+	* trunk/doc/options.txt: fixed translation for 'diffopt'
+
+2008-05-06 23:00  lang2
+
+	* trunk/doc/usr_06.txt: bug report by GuoXi
+
+2008-04-16 16:20  wandys
+
+	* trunk/doc/pattern.txt: bug report by jacky lau (bluegene8210)
+
+2008-03-26 04:38  yianwillis
+
+	* trunk/doc/editing.txt: Bugfix.
+
+2007-12-06 20:48  lang2
+
+	* trunk/doc/undo.txt: bug report tangyj8397
+
+2007-11-29 18:50  yianwillis
+
+	* trunk/doc/various.txt: bugfix based on suggestion from
+	  wbk@kingdee.com
+
+2007-09-27 18:32  yianwillis
+
+	* trunk/doc/farsi.txt, trunk/doc/pi_vimball.txt: bugfix, minor
+	  rewording
+
+2007-09-20 19:22  yianwillis
+
+	* trunk/doc/vim2html.pl, trunk/www/htdocs/doc/Makefile,
+	  trunk/www/htdocs/doc/vim2html.pl: fix {} formatting bug, dedup
+	  vim2html.pl
+
+2007-09-20 02:03  foolstone
+
+	* trunk/doc/if_perl.txt: minor correction
+
+2007-09-17 07:52  yianwillis
+
+	* trunk/common.aap, trunk/doc/main.aap, trunk/www/htdocs/main.aap:
+	  aap update
+
+2007-09-17 06:51  yianwillis
+
+	* trunk/main.aap: generate a more compatible ChangeLog format. Note
+	  that this needs a svn2cl patch
+
+2007-09-17 06:44  yianwillis
+
+	* trunk/ChangeLog, trunk/NEWS, trunk/main.aap,
+	  trunk/www/htdocs/main.aap: more 1.6.0 preparation: ChangeLog and
+	  NEWS updated
+
+2007-09-17 05:37  yianwillis
+
+	* trunk/INSTALL, trunk/NEWS, trunk/VERSION, trunk/common.aap,
+	  trunk/main.aap, trunk/www/htdocs/doc/vim2html.pl,
+	  trunk/www/htdocs/vimcdoc-sf.py: bump version to 1.6.0
+
+2007-09-17 05:31  yianwillis
+
+	* trunk/doc/batch, trunk/doc/main.aap,
+	  trunk/doc/vim-stylesheet.css, trunk/doc/vim2html.pl: move css
+	  into a separate file
+
+2007-09-14 14:25  foolstone
+
+	* trunk/doc/if_perl.txt: error corrected
+
+2007-07-30 20:36  yianwillis
+
+	* trunk/doc/eval.txt: bugfix
+
+2007-07-20 22:57  lang2
+
+	* trunk/NEWS: fixed the homepage.
+
+2007-07-15 10:58  lang2
+
+	* trunk/doc/tips.txt: bug report from Tang Zhicheng.
+
+2007-05-14 20:36  yianwillis
+
+	* trunk/doc/ada.txt, trunk/doc/arabic.txt, trunk/doc/autocmd.txt,
+	  trunk/doc/change.txt, trunk/doc/cmdline.txt, trunk/doc/debug.txt,
+	  trunk/doc/debugger.txt, trunk/doc/develop.txt,
+	  trunk/doc/diff.txt, trunk/doc/digraph.txt, trunk/doc/editing.txt,
+	  trunk/doc/eval.txt, trunk/doc/farsi.txt, trunk/doc/filetype.txt,
+	  trunk/doc/fold.txt, trunk/doc/getscript.txt, trunk/doc/gui.txt,
+	  trunk/doc/gui_w16.txt, trunk/doc/gui_w32.txt,
+	  trunk/doc/gui_x11.txt, trunk/doc/hangulin.txt,
+	  trunk/doc/hebrew.txt, trunk/doc/help.txt, trunk/doc/howto.txt,
+	  trunk/doc/if_cscop.txt, trunk/doc/if_mzsch.txt,
+	  trunk/doc/if_ole.txt, trunk/doc/if_perl.txt,
+	  trunk/doc/if_pyth.txt, trunk/doc/if_ruby.txt,
+	  trunk/doc/if_sniff.txt, trunk/doc/if_tcl.txt,
+	  trunk/doc/indent.txt, trunk/doc/index.txt, trunk/doc/insert.txt,
+	  trunk/doc/intro.txt, trunk/doc/map.txt, trunk/doc/mbyte.txt,
+	  trunk/doc/message.txt, trunk/doc/mlang.txt, trunk/doc/motion.txt,
+	  trunk/doc/netbeans.txt, trunk/doc/options.txt,
+	  trunk/doc/os_390.txt, trunk/doc/os_amiga.txt,
+	  trunk/doc/os_beos.txt, trunk/doc/os_dos.txt,
+	  trunk/doc/os_mac.txt, trunk/doc/os_mint.txt,
+	  trunk/doc/os_msdos.txt, trunk/doc/os_os2.txt,
+	  trunk/doc/os_qnx.txt, trunk/doc/os_risc.txt,
+	  trunk/doc/os_unix.txt, trunk/doc/os_vms.txt,
+	  trunk/doc/os_win32.txt, trunk/doc/pattern.txt,
+	  trunk/doc/pi_getscript.txt, trunk/doc/pi_gzip.txt,
+	  trunk/doc/pi_netrw.txt, trunk/doc/pi_paren.txt,
+	  trunk/doc/pi_spec.txt, trunk/doc/pi_tar.txt,
+	  trunk/doc/pi_vimball.txt, trunk/doc/pi_zip.txt,
+	  trunk/doc/print.txt, trunk/doc/quickfix.txt,
+	  trunk/doc/quickref.txt, trunk/doc/quotes.txt,
+	  trunk/doc/recover.txt, trunk/doc/remote.txt,
+	  trunk/doc/repeat.txt, trunk/doc/rileft.txt,
+	  trunk/doc/russian.txt, trunk/doc/scroll.txt, trunk/doc/sign.txt,
+	  trunk/doc/spell.txt, trunk/doc/sponsor.txt, trunk/doc/sql.txt,
+	  trunk/doc/starting.txt, trunk/doc/syntax.txt,
+	  trunk/doc/tabpage.txt, trunk/doc/tags, trunk/doc/tagsrch.txt,
+	  trunk/doc/term.txt, trunk/doc/tips.txt, trunk/doc/todo.txt,
+	  trunk/doc/uganda.txt, trunk/doc/undo.txt, trunk/doc/usr_01.txt,
+	  trunk/doc/usr_02.txt, trunk/doc/usr_03.txt, trunk/doc/usr_04.txt,
+	  trunk/doc/usr_05.txt, trunk/doc/usr_06.txt, trunk/doc/usr_07.txt,
+	  trunk/doc/usr_08.txt, trunk/doc/usr_09.txt, trunk/doc/usr_10.txt,
+	  trunk/doc/usr_11.txt, trunk/doc/usr_12.txt, trunk/doc/usr_20.txt,
+	  trunk/doc/usr_21.txt, trunk/doc/usr_22.txt, trunk/doc/usr_23.txt,
+	  trunk/doc/usr_24.txt, trunk/doc/usr_25.txt, trunk/doc/usr_26.txt,
+	  trunk/doc/usr_27.txt, trunk/doc/usr_28.txt, trunk/doc/usr_29.txt,
+	  trunk/doc/usr_30.txt, trunk/doc/usr_31.txt, trunk/doc/usr_32.txt,
+	  trunk/doc/usr_40.txt, trunk/doc/usr_41.txt, trunk/doc/usr_42.txt,
+	  trunk/doc/usr_43.txt, trunk/doc/usr_44.txt, trunk/doc/usr_45.txt,
+	  trunk/doc/usr_90.txt, trunk/doc/usr_toc.txt,
+	  trunk/doc/various.txt, trunk/doc/version4.txt,
+	  trunk/doc/version5.txt, trunk/doc/version6.txt,
+	  trunk/doc/version7.txt, trunk/doc/vi_diff.txt,
+	  trunk/doc/visual.txt, trunk/doc/windows.txt,
+	  trunk/doc/workshop.txt: 7.1 update
+
+2007-02-11 16:16  lang2
+
+	* trunk/doc/usr_44.txt: bug reported by comekpy
+
+2006-12-28 11:15  lang2
+
+	* trunk/doc/usr_40.txt: user reported bug.
+
+2006-12-19 23:16  lang2
+
+	* trunk/doc/scroll.txt: bug report by user
+
+2006-12-19 23:13  lang2
+
+	* trunk/doc/insert.txt: bug report by user
+
+2006-12-07 22:08  lang2
+
+	* trunk/doc/usr_10.txt: unecessary translation.
+
+2006-11-12 00:40  lang2
+
+	* trunk/TODO: usre suggestion to improve installer
+
+2006-10-23 02:04  yianwillis
+
+	* trunk/doc/eval.txt: 7.0.122 update
+
+2006-10-23 01:45  yianwillis
+
+	* trunk/doc/cmdline.txt: update
+
+2006-08-25 07:47  wandys
+
+	* trunk/guides.txt: correct the trunk url
+
+2006-08-24 22:25  lang2
+
+	* trunk/common.aap, trunk/guides.txt: updated guide for new
+	  branching scheme
+
+2006-08-24 01:59  wandys
+
+	* trunk/doc/usr_01.txt: correct the OPL license url.
+
+2006-08-24 01:51  yianwillis
+
+	* trunk/doc/help.txt, trunk/doc/usr_toc.txt: digraph consistency
+
+2006-08-23 13:17  wandys
+
+	* trunk/doc/usr_30.txt: update the change date as well.
+
+2006-08-23 13:14  wandys
+
+	* trunk/doc/vim2html.pl: make the check of 'doubleline' more
+	  strict.
+	  
+	  the old code mistakenly regarded the indentation '==' [1] command
+	  as
+	  the doubleline.
+	  
+	  [1] in usr_30.txt
+
+2006-08-23 12:43  wandys
+
+	* trunk/doc/usr_30.txt: a minor tweak and a typo fix.
+
+2006-08-20 09:24  lang2
+
+	* trunk/tools/svnchanges.sh: remove non-comment line from
+	  changelog.
+
+2006-08-20 04:46  wandys
+
+	* trunk/tools/svnchanges.sh: empty logs was actually not 'empty':
+	  only one dash line
+
+2006-08-20 04:09  wandys
+
+	* trunk/tools/svnchanges.sh: 1. use svn info instead of svnversion
+	  to get the numeric revision of last
+	  tagged release (FYI, svnversion gets the revision of the working
+	  copy).
+	  
+	  2. detect newly added files since.
+	  
+	  3. do not output info if the file has no change.
+	  
+	  4. make the layout look similar to the old one.
+
+2006-08-19 23:46  lang2
+
+	* trunk/tools/svnchanges.sh: a primitive replacement for the
+	  changes.py. Need improvement.
+
+2006-08-19 12:25  wandys
+
+	* trunk/doc/version7.txt: reviewed; trivial polish
+
+2006-08-19 11:27  wandys
+
+	* trunk/doc/os_beos.txt: reviewed; fixed minor typos
+
+2006-08-19 08:44  wandys
+
+	* branches/vimcdoc-vim7, trunk: make the -vim7 branch the default
+	  trunk
+
+2006-08-19 03:24  yianwillis
+
+	* branches/vimcdoc-vim7/doc/eval.txt,
+	  branches/vimcdoc-vim7/doc/help.txt,
+	  branches/vimcdoc-vim7/doc/syntax.txt: update
+
+2006-08-18 17:50  lang2
+
+	* branches/vimcdoc-vim7/www/htdocs/vimcdoc-sf.py: added side link
+	  to subversion and removed the CVS info.
+
+2006-08-18 06:11  wandys
+
+	* branches/vimcdoc-vim7/doc/batch,
+	  branches/vimcdoc-vim7/release/batch: set correct permission: g+w
+
+2006-08-18 03:31  wandys
+
+	* branches/vimcdoc-vim7/doc/main.aap: add the svn commit function
+	  (tested)
+
+2006-08-18 03:30  wandys
+
+	* branches/vimcdoc-vim7/doc/help.txt: test seems fine.
+
+2006-08-18 03:28  wandys
+
+	* branches/vimcdoc-vim7/doc/help.txt: test aap svn commit and
+	  auto-updating html pages on both sf and gro.
+
+2006-08-18 03:07  wandys
+
+	* branches/vimcdoc-vim7/doc/main.aap: backout the SF_URL change:
+	  aap's bultin scp url is ddifferent from the plain scp command
+	  syntax
+
+2006-08-18 02:18  wandys
+
+	* branches/vimcdoc-vim7/common.aap,
+	  branches/vimcdoc-vim7/doc/batch,
+	  branches/vimcdoc-vim7/doc/main.aap,
+	  branches/vimcdoc-vim7/release/main.aap: first attempt to do the
+	  cvs->svn convert and some minor cleanups
+
+2006-08-18 02:17  wandys
+
+	* branches/vimcdoc-vim7/release/batch: for auto-updating releases
+	  on the gro mirror using sftp
+
+2006-08-17 22:05  lang2
+
+	* branches/vimcdoc-vim7/www/htdocs/main.aap: complete hack to
+	  recover from OSError.
+
+2006-08-17 21:49  lang2
+
+	* branches/vimcdoc-vim7/ChangeLog: committing ChangeLog. OK it is
+	  missing the old part. But I don't think
+	  anybody would mind.
+
+2006-08-17 21:47  lang2
+
+	* branches/vimcdoc-vim7/www/htdocs/index.html: removing index.html
+
+2006-08-17 21:45  lang2
+
+	* branches/vimcdoc-vim7/NEWS: announcing 1.5.0
+
+2006-08-17 21:44  lang2
+
+	* branches/vimcdoc-vim7/www/htdocs/main.aap: cvs2cl -> svn2cl
+
+2006-08-17 04:17  wandys
+
+	* branches/vimcdoc-vim7/doc/usr_10.txt: fix a typo (bug report on
+	  gro)
+
+2006-08-17 02:38  yianwillis
+
+	* branches/vimcdoc-vim7/INSTALL: update
+
+2006-08-17 02:04  yianwillis
+
+	* branches/vimcdoc-vim7/ChangeLog: Changelog update
+
+2006-08-16 21:33  lang2
+
+	* branches/vimcdoc-vim7/VERSION: preparing to release 1.5.0
+
+2006-08-16 21:28  lang2
+
+	* branches/vimcdoc-vim7/main.aap: adding version5 and version6 to
+	  release.
+
+2006-08-16 02:34  tocer
+
+	* branches/vimcdoc-vim7/AUTHORS: add me
+
+2006-08-15 23:06  yianwillis
+
+	* branches/vimcdoc-vim7/NEWS, branches/vimcdoc-vim7/guides.txt:
+	  small update
+
+2006-08-14 14:56  yianwillis
+
+	* branches/vimcdoc-vim7/doc/cmdline.txt,
+	  branches/vimcdoc-vim7/doc/debugger.txt,
+	  branches/vimcdoc-vim7/doc/develop.txt,
+	  branches/vimcdoc-vim7/doc/diff.txt,
+	  branches/vimcdoc-vim7/doc/filetype.txt,
+	  branches/vimcdoc-vim7/doc/fold.txt,
+	  branches/vimcdoc-vim7/doc/getscript.txt,
+	  branches/vimcdoc-vim7/doc/gui_w16.txt,
+	  branches/vimcdoc-vim7/doc/gui_w32.txt,
+	  branches/vimcdoc-vim7/doc/gui_x11.txt,
+	  branches/vimcdoc-vim7/doc/help.txt,
+	  branches/vimcdoc-vim7/doc/howto.txt,
+	  branches/vimcdoc-vim7/doc/if_cscop.txt,
+	  branches/vimcdoc-vim7/doc/if_ole.txt,
+	  branches/vimcdoc-vim7/doc/if_perl.txt,
+	  branches/vimcdoc-vim7/doc/if_ruby.txt,
+	  branches/vimcdoc-vim7/doc/indent.txt,
+	  branches/vimcdoc-vim7/doc/insert.txt,
+	  branches/vimcdoc-vim7/doc/intro.txt,
+	  branches/vimcdoc-vim7/doc/map.txt,
+	  branches/vimcdoc-vim7/doc/message.txt,
+	  branches/vimcdoc-vim7/doc/mlang.txt,
+	  branches/vimcdoc-vim7/doc/os_dos.txt,
+	  branches/vimcdoc-vim7/doc/os_mac.txt,
+	  branches/vimcdoc-vim7/doc/os_mint.txt,
+	  branches/vimcdoc-vim7/doc/os_msdos.txt,
+	  branches/vimcdoc-vim7/doc/os_unix.txt,
+	  branches/vimcdoc-vim7/doc/os_win32.txt,
+	  branches/vimcdoc-vim7/doc/pattern.txt,
+	  branches/vimcdoc-vim7/doc/pi_gzip.txt,
+	  branches/vimcdoc-vim7/doc/quickfix.txt,
+	  branches/vimcdoc-vim7/doc/recover.txt,
+	  branches/vimcdoc-vim7/doc/remote.txt,
+	  branches/vimcdoc-vim7/doc/scroll.txt,
+	  branches/vimcdoc-vim7/doc/sponsor.txt,
+	  branches/vimcdoc-vim7/doc/term.txt,
+	  branches/vimcdoc-vim7/doc/tips.txt,
+	  branches/vimcdoc-vim7/doc/undo.txt,
+	  branches/vimcdoc-vim7/doc/usr_08.txt,
+	  branches/vimcdoc-vim7/doc/usr_10.txt,
+	  branches/vimcdoc-vim7/doc/usr_11.txt,
+	  branches/vimcdoc-vim7/doc/usr_toc.txt,
+	  branches/vimcdoc-vim7/doc/visual.txt,
+	  branches/vimcdoc-vim7/doc/windows.txt: review round 4
+
+2006-08-09 18:52  yianwillis
+
+	* branches/vimcdoc-vim7/doc/usr_01.txt,
+	  branches/vimcdoc-vim7/doc/usr_02.txt,
+	  branches/vimcdoc-vim7/doc/usr_03.txt,
+	  branches/vimcdoc-vim7/doc/usr_04.txt,
+	  branches/vimcdoc-vim7/doc/usr_05.txt,
+	  branches/vimcdoc-vim7/doc/usr_06.txt,
+	  branches/vimcdoc-vim7/doc/usr_07.txt,
+	  branches/vimcdoc-vim7/doc/usr_08.txt,
+	  branches/vimcdoc-vim7/doc/usr_09.txt,
+	  branches/vimcdoc-vim7/doc/usr_10.txt,
+	  branches/vimcdoc-vim7/doc/usr_11.txt,
+	  branches/vimcdoc-vim7/doc/usr_12.txt,
+	  branches/vimcdoc-vim7/doc/usr_20.txt,
+	  branches/vimcdoc-vim7/doc/usr_21.txt,
+	  branches/vimcdoc-vim7/doc/usr_22.txt,
+	  branches/vimcdoc-vim7/doc/usr_23.txt,
+	  branches/vimcdoc-vim7/doc/usr_24.txt,
+	  branches/vimcdoc-vim7/doc/usr_25.txt,
+	  branches/vimcdoc-vim7/doc/usr_26.txt,
+	  branches/vimcdoc-vim7/doc/usr_27.txt,
+	  branches/vimcdoc-vim7/doc/usr_28.txt,
+	  branches/vimcdoc-vim7/doc/usr_29.txt,
+	  branches/vimcdoc-vim7/doc/usr_30.txt,
+	  branches/vimcdoc-vim7/doc/usr_31.txt,
+	  branches/vimcdoc-vim7/doc/usr_40.txt,
+	  branches/vimcdoc-vim7/doc/usr_42.txt,
+	  branches/vimcdoc-vim7/doc/usr_43.txt,
+	  branches/vimcdoc-vim7/doc/usr_44.txt,
+	  branches/vimcdoc-vim7/doc/usr_45.txt,
+	  branches/vimcdoc-vim7/doc/usr_90.txt,
+	  branches/vimcdoc-vim7/doc/usr_toc.txt: review round 3
+
+2006-08-05 17:01  yianwillis
+
+	* branches/vimcdoc-vim7/doc/arabic.txt,
+	  branches/vimcdoc-vim7/doc/autocmd.txt,
+	  branches/vimcdoc-vim7/doc/debug.txt,
+	  branches/vimcdoc-vim7/doc/digraph.txt,
+	  branches/vimcdoc-vim7/doc/farsi.txt,
+	  branches/vimcdoc-vim7/doc/hangulin.txt,
+	  branches/vimcdoc-vim7/doc/hebrew.txt,
+	  branches/vimcdoc-vim7/doc/if_mzsch.txt,
+	  branches/vimcdoc-vim7/doc/if_pyth.txt,
+	  branches/vimcdoc-vim7/doc/if_sniff.txt,
+	  branches/vimcdoc-vim7/doc/if_tcl.txt,
+	  branches/vimcdoc-vim7/doc/mbyte.txt,
+	  branches/vimcdoc-vim7/doc/os_390.txt,
+	  branches/vimcdoc-vim7/doc/os_amiga.txt,
+	  branches/vimcdoc-vim7/doc/os_risc.txt,
+	  branches/vimcdoc-vim7/doc/print.txt,
+	  branches/vimcdoc-vim7/doc/quickfix.txt,
+	  branches/vimcdoc-vim7/doc/repeat.txt,
+	  branches/vimcdoc-vim7/doc/rileft.txt,
+	  branches/vimcdoc-vim7/doc/sign.txt,
+	  branches/vimcdoc-vim7/doc/sql.txt,
+	  branches/vimcdoc-vim7/doc/tagsrch.txt,
+	  branches/vimcdoc-vim7/doc/usr_32.txt,
+	  branches/vimcdoc-vim7/doc/various.txt,
+	  branches/vimcdoc-vim7/doc/vi_diff.txt,
+	  branches/vimcdoc-vim7/doc/workshop.txt: review round 2
+
+2006-08-01 01:10  yianwillis
+
+	* branches/vimcdoc-vim7/doc/editing.txt,
+	  branches/vimcdoc-vim7/doc/index.txt,
+	  branches/vimcdoc-vim7/doc/motion.txt,
+	  branches/vimcdoc-vim7/doc/pi_netrw.txt,
+	  branches/vimcdoc-vim7/doc/quickref.txt,
+	  branches/vimcdoc-vim7/doc/spell.txt,
+	  branches/vimcdoc-vim7/doc/syntax.txt,
+	  branches/vimcdoc-vim7/doc/tabpage.txt,
+	  branches/vimcdoc-vim7/doc/todo.txt,
+	  branches/vimcdoc-vim7/doc/uganda.nsis.txt,
+	  branches/vimcdoc-vim7/doc/uganda.txt,
+	  branches/vimcdoc-vim7/doc/usr_41.txt,
+	  branches/vimcdoc-vim7/doc/version5.txt,
+	  branches/vimcdoc-vim7/doc/version6.txt: review round 1
+
+2006-07-31 08:32  tocer
+
+	* branches/vimcdoc-vim7/doc/message.txt: update to version 7.0
+
+2006-07-31 06:28  tocer
+
+	* branches/vimcdoc-vim7/doc/filetype.txt: update to version 7.0
+
+2006-07-31 04:46  tocer
+
+	* branches/vimcdoc-vim7/doc/cmdline.txt: update to version 7.0
+
+2006-07-30 05:07  tocer
+
+	* branches/vimcdoc-vim7/doc/os_390.txt: update to version 7.0
+
+2006-07-29 11:08  tocer
+
+	* branches/vimcdoc-vim7/doc/farsi.txt,
+	  branches/vimcdoc-vim7/doc/os_risc.txt: update to version 7.0
+
+2006-07-29 10:53  tocer
+
+	* branches/vimcdoc-vim7/doc/undo.txt: fix spell error
+
+2006-07-29 03:53  yianwillis
+
+	* branches/vimcdoc-vim7/doc/gui.txt,
+	  branches/vimcdoc-vim7/doc/os_beos.txt,
+	  branches/vimcdoc-vim7/doc/repeat.txt,
+	  branches/vimcdoc-vim7/doc/starting.txt: 7.0 update
+
+2006-07-28 09:55  tocer
+
+	* branches/vimcdoc-vim7/doc/indent.txt,
+	  branches/vimcdoc-vim7/doc/mbyte.txt,
+	  branches/vimcdoc-vim7/doc/tagsrch.txt,
+	  branches/vimcdoc-vim7/doc/uganda.txt: update to version 7.0
+
+2006-07-28 07:34  tocer
+
+	* branches/vimcdoc-vim7/doc/develop.txt: update to version 7.0
+
+2006-07-27 02:19  yianwillis
+
+	* branches/vimcdoc-vim7/doc/motion.txt,
+	  branches/vimcdoc-vim7/doc/windows.txt: 7.0 update
+
+2006-07-26 07:15  tocer
+
+	* branches/vimcdoc-vim7/doc/develop.txt: fix spell error
+
+2006-07-26 07:14  tocer
+
+	* branches/vimcdoc-vim7/doc/diff.txt,
+	  branches/vimcdoc-vim7/doc/quotes.txt,
+	  branches/vimcdoc-vim7/doc/tips.txt: update to version 7.0
+
+2006-07-26 04:38  tocer
+
+	* branches/vimcdoc-vim7/doc/undo.txt: update to version 7.0
+
+2006-07-25 02:20  tocer
+
+	* branches/vimcdoc-vim7/doc/intro.txt,
+	  branches/vimcdoc-vim7/doc/sponsor.txt,
+	  branches/vimcdoc-vim7/doc/usr_05.txt: update to version 7.0
+
+2006-07-24 20:41  yianwillis
+
+	* branches/vimcdoc-vim7/doc/netbeans.txt,
+	  branches/vimcdoc-vim7/doc/os_vms.txt: 7.0 update
+
+2006-07-23 10:28  tocer
+
+	* branches/vimcdoc-vim7/doc/term.txt: update to version 7.0
+
+2006-07-23 09:10  tocer
+
+	* branches/vimcdoc-vim7/doc/debugger.txt,
+	  branches/vimcdoc-vim7/doc/if_ole.txt,
+	  branches/vimcdoc-vim7/doc/version5.txt: update to version 7.0
+
+2006-07-21 17:43  yianwillis
+
+	* branches/vimcdoc-vim7/doc/eval.txt: 7.0 update
+
+2006-07-21 03:58  tocer
+
+	* branches/vimcdoc-vim7/doc/visual.txt: update to version 7.0
+
+2006-07-21 03:26  tocer
+
+	* branches/vimcdoc-vim7/doc/usr_08.txt: update to version 7.0
+
+2006-07-20 02:33  tocer
+
+	* branches/vimcdoc-vim7/doc/if_ruby.txt: update to version 7.0
+
+2006-07-20 02:18  tocer
+
+	* branches/vimcdoc-vim7/doc/gui_w32.txt: update to version 7.0
+
+2006-07-20 02:05  tocer
+
+	* branches/vimcdoc-vim7/doc/os_amiga.txt: update to version 7.0
+
+2006-07-20 01:43  tocer
+
+	* branches/vimcdoc-vim7/doc/arabic.txt,
+	  branches/vimcdoc-vim7/doc/os_msdos.txt,
+	  branches/vimcdoc-vim7/doc/os_win32.txt: update to version 7.0
+
+2006-07-18 17:17  yianwillis
+
+	* branches/vimcdoc-vim7/doc/options.txt: 7.0 update
+
+2006-07-13 01:02  yianwillis
+
+	* branches/vimcdoc-vim7/doc/version7.txt: new and final add
+
+2006-07-11 03:05  yianwillis
+
+	* branches/vimcdoc-vim7/doc/pattern.txt: 7.0 update
+
+2006-07-10 07:44  tocer
+
+	* branches/vimcdoc-vim7/doc/pi_spec.txt: update to version 7.0
+
+2006-07-10 07:36  tocer
+
+	* branches/vimcdoc-vim7/doc/gui_w16.txt,
+	  branches/vimcdoc-vim7/doc/gui_x11.txt,
+	  branches/vimcdoc-vim7/doc/hangulin.txt,
+	  branches/vimcdoc-vim7/doc/os_mac.txt,
+	  branches/vimcdoc-vim7/doc/os_os2.txt,
+	  branches/vimcdoc-vim7/doc/scroll.txt,
+	  branches/vimcdoc-vim7/doc/workshop.txt: update to version 7.0
+
+2006-07-10 04:00  tocer
+
+	* branches/vimcdoc-vim7/main.aap: fix a bug in windows platform
+
+2006-07-10 02:51  tocer
+
+	* branches/vimcdoc-vim7/doc/fold.txt,
+	  branches/vimcdoc-vim7/doc/if_tcl.txt,
+	  branches/vimcdoc-vim7/doc/russian.txt,
+	  branches/vimcdoc-vim7/doc/usr_44.txt: update to version 7.0
+
+2006-07-10 02:16  tocer
+
+	* branches/vimcdoc-vim7/doc/if_cscop.txt,
+	  branches/vimcdoc-vim7/doc/if_perl.txt,
+	  branches/vimcdoc-vim7/doc/remote.txt,
+	  branches/vimcdoc-vim7/doc/usr_40.txt,
+	  branches/vimcdoc-vim7/doc/usr_toc.txt: update to version 7.0
+
+2006-07-09 10:41  tocer
+
+	* branches/vimcdoc-vim7/doc/usr_24.txt: update to version 7.0
+
+2006-07-09 01:55  yianwillis
+
+	* branches/vimcdoc-vim7/doc/vi_diff.txt: 7.0 update
+
+2006-07-07 07:01  tocer
+
+	* branches/vimcdoc-vim7/doc/insert.txt: update to version 7.0
+
+2006-07-07 01:32  yianwillis
+
+	* branches/vimcdoc-vim7/doc/index.txt: 7.0 update
+
+2006-07-06 02:45  tocer
+
+	* branches/vimcdoc-vim7/doc/quickfix.txt: fix spell error
+
+2006-07-05 00:59  yianwillis
+
+	* branches/vimcdoc-vim7/doc/change.txt: 7.0 update
+
+2006-07-02 21:22  yianwillis
+
+	* branches/vimcdoc-vim7/doc/various.txt: 7.0 update
+
+2006-06-30 01:25  yianwillis
+
+	* branches/vimcdoc-vim7/doc/quickref.txt: 7.0 update
+
+2006-06-27 22:06  yianwillis
+
+	* branches/vimcdoc-vim7/doc/quickfix.txt: 7.0 update
+
+2006-06-24 22:16  yianwillis
+
+	* branches/vimcdoc-vim7/NEWS,
+	  branches/vimcdoc-vim7/doc/editing.txt: 7.0 update
+
+2006-06-22 17:48  yianwillis
+
+	* branches/vimcdoc-vim7/ChangeLog,
+	  branches/vimcdoc-vim7/doc/autocmd.txt,
+	  branches/vimcdoc-vim7/doc/tags: 7.0 update and some cleanup
+
+2006-06-20 01:49  yianwillis
+
+	* branches/vimcdoc-vim7/ChangeLog, branches/vimcdoc-vim7/VERSION,
+	  branches/vimcdoc-vim7/doc/help.txt,
+	  branches/vimcdoc-vim7/doc/tags,
+	  branches/vimcdoc-vim7/doc/vim2html.pl,
+	  branches/vimcdoc-vim7/help_cn.vim,
+	  branches/vimcdoc-vim7/www/htdocs/doc/vim2html.pl: clearing up
+	  files for pre-release
+
+2006-06-17 00:57  yianwillis
+
+	* branches/vimcdoc-vim7/doc/usr_41.txt: 7.0 update
+
+2006-06-14 22:14  yianwillis
+
+	* branches/vimcdoc-vim7/doc/map.txt: 7.0 update
+
+2006-06-09 21:13  yianwillis
+
+	* branches/vimcdoc-vim7/doc/if_cscop.txt,
+	  branches/vimcdoc-vim7/doc/if_mzsch.txt,
+	  branches/vimcdoc-vim7/doc/if_perl.txt,
+	  branches/vimcdoc-vim7/doc/if_pyth.txt,
+	  branches/vimcdoc-vim7/doc/if_ruby.txt,
+	  branches/vimcdoc-vim7/doc/if_tcl.txt: merge from 6.4 update
+
+2006-06-09 03:30  yianwillis
+
+	* branches/vimcdoc-vim7/doc/syntax.txt,
+	  branches/vimcdoc-vim7/doc/todo.txt: 7.0 update
+
+2006-06-04 01:57  yianwillis
+
+	* branches/vimcdoc-vim7/doc/pi_expl.txt,
+	  branches/vimcdoc-vim7/doc/pi_netrw.txt: 7.0 update, also remove
+	  pi_expl.txt
+
+2006-06-01 23:53  yianwillis
+
+	* branches/vimcdoc-vim7/doc/spell.txt: new add
+
+2006-06-01 01:47  tocer
+
+	* branches/vimcdoc-vim7/doc/insert.txt: update to version 7.0,but
+	  not completed.
+	  hold place first.
+
+2006-06-01 01:18  tocer
+
+	* branches/vimcdoc-vim7/doc/recover.txt: 调整格式
+
+2006-06-01 01:14  tocer
+
+	* branches/vimcdoc-vim7/doc/recover.txt: update to version 7.0
+
+2006-05-31 10:54  tocer
+
+	* branches/vimcdoc-vim7/doc/usr_31.txt: update to version 7.0
+
+2006-05-30 20:23  yianwillis
+
+	* branches/vimcdoc-vim7/doc/eval.txt,
+	  branches/vimcdoc-vim7/doc/options.txt,
+	  branches/vimcdoc-vim7/doc/os_dos.txt: merge from 6.4 update
+
+2006-05-30 20:07  yianwillis
+
+	* branches/vimcdoc-vim7/doc/pi_paren.txt,
+	  branches/vimcdoc-vim7/doc/pi_tar.txt,
+	  branches/vimcdoc-vim7/doc/pi_vimball.txt,
+	  branches/vimcdoc-vim7/doc/pi_zip.txt: new add
+
+2006-05-30 14:05  tocer
+
+	* branches/vimcdoc-vim7/doc/os_unix.txt,
+	  branches/vimcdoc-vim7/doc/usr_03.txt,
+	  branches/vimcdoc-vim7/doc/usr_11.txt: update to version 7.0
+
+2006-05-30 00:19  tocer
+
+	* branches/vimcdoc-vim7/doc/version6.txt: update to version 7.0
+
+2006-05-29 03:13  tocer
+
+	* branches/vimcdoc-vim7/doc/usr_21.txt: update to version 7.0
+
+2006-05-26 22:21  yianwillis
+
+	* branches/vimcdoc-vim7/doc/debug.txt,
+	  branches/vimcdoc-vim7/doc/usr_32.txt: new add
+
+2006-05-26 14:05  tocer
+
+	* branches/vimcdoc-vim7/doc/usr_02.txt: update to version 7.0
+
+2006-05-25 12:41  tocer
+
+	* branches/vimcdoc-vim7/doc/sign.txt: update to version 7.0
+
+2006-05-24 18:59  yianwillis
+
+	* branches/vimcdoc-vim7/doc/getscript.txt,
+	  branches/vimcdoc-vim7/doc/if_mzsch.txt,
+	  branches/vimcdoc-vim7/getscript.txt,
+	  branches/vimcdoc-vim7/if_mzsch.txt: new add
+
+2006-05-24 17:51  yianwillis
+
+	* branches/vimcdoc-vim7/getscript.txt,
+	  branches/vimcdoc-vim7/if_mzsch.txt: new add
+
+2006-05-23 13:16  tocer
+
+	* branches/vimcdoc-vim7/doc/os_dos.txt: no translate terminal
+
+2006-05-23 12:26  tocer
+
+	* branches/vimcdoc-vim7/doc/os_dos.txt: update to version 7.0
+
+2006-05-22 17:19  yianwillis
+
+	* branches/vimcdoc-vim7/doc/print.txt: new add
+
+2006-05-22 14:50  tocer
+
+	* branches/vimcdoc-vim7/doc/if_sniff.txt: update to version 7.0
+
+2006-05-21 13:37  tocer
+
+	* branches/vimcdoc-vim7/doc/usr_01.txt: update to version 7.0
+
+2006-05-18 17:02  yianwillis
+
+	* branches/vimcdoc-vim7/doc/sql.txt: new add
+
+2006-05-18 08:21  tocer
+
+	* branches/vimcdoc-vim7/doc/os_qnx.txt: update to version 7.0
+
+2006-05-17 06:16  tocer
+
+	* branches/vimcdoc-vim7/doc/digraph.txt,
+	  branches/vimcdoc-vim7/doc/os_mint.txt,
+	  branches/vimcdoc-vim7/doc/usr_04.txt,
+	  branches/vimcdoc-vim7/doc/usr_10.txt,
+	  branches/vimcdoc-vim7/doc/usr_12.txt,
+	  branches/vimcdoc-vim7/doc/usr_30.txt: update to version 7.0
+
+2006-05-16 18:05  yianwillis
+
+	* branches/vimcdoc-vim7/doc/tabpage.txt: new add
+
+2006-05-16 01:07  tocer
+
+	* branches/vimcdoc-vim7/doc/rileft.txt,
+	  branches/vimcdoc-vim7/doc/usr_06.txt,
+	  branches/vimcdoc-vim7/doc/usr_07.txt,
+	  branches/vimcdoc-vim7/doc/usr_09.txt,
+	  branches/vimcdoc-vim7/doc/usr_20.txt,
+	  branches/vimcdoc-vim7/doc/usr_23.txt,
+	  branches/vimcdoc-vim7/doc/usr_25.txt,
+	  branches/vimcdoc-vim7/doc/usr_27.txt,
+	  branches/vimcdoc-vim7/doc/usr_28.txt,
+	  branches/vimcdoc-vim7/doc/usr_42.txt: update to version 7.0
+
+2006-05-15 16:25  yianwillis
+
+	* branches/vimcdoc-vim7/doc/digraph.txt,
+	  branches/vimcdoc-vim7/doc/options.txt: merge from 6.4 update
+
+2006-05-15 12:56  tocer
+
+	* branches/vimcdoc-vim7/doc/howto.txt,
+	  branches/vimcdoc-vim7/doc/usr_43.txt,
+	  branches/vimcdoc-vim7/doc/usr_45.txt,
+	  branches/vimcdoc-vim7/doc/usr_90.txt,
+	  branches/vimcdoc-vim7/doc/version4.txt: update to version 7.0
+
+2006-05-15 06:20  tocer
+
+	* branches/vimcdoc-vim7/doc/mlang.txt,
+	  branches/vimcdoc-vim7/doc/pi_gzip.txt,
+	  branches/vimcdoc-vim7/doc/usr_22.txt,
+	  branches/vimcdoc-vim7/doc/usr_26.txt,
+	  branches/vimcdoc-vim7/doc/usr_29.txt: update to version 7.0
+
+2006-05-15 04:11  tocer
+
+	* branches/vimcdoc-vim7/doc/hebrew.txt: update to 7.0
+
+2006-05-14 17:42  lang2
+
+	* branches/vimcdoc-vim7: creating vim7 branch
+
+2006-05-14 09:39  lang2
+
+	* trunk/vimcdoc/TODO: removing version6 from TODO.
+
+2006-05-14 09:31  lang2
+
+	* trunk/data, trunk/vimcdoc: rename data to vimcdoc.
+
+2006-05-14 09:10  lang2
+
+	* trunk/data, trunk/data/AUTHORS, trunk/data/ChangeLog,
+	  trunk/data/INSTALL, trunk/data/LICENSE, trunk/data/Makefile,
+	  trunk/data/NEWS, trunk/data/README, trunk/data/TODO,
+	  trunk/data/VERSION, trunk/data/common.aap, trunk/data/dict.txt,
+	  trunk/data/doc, trunk/data/doc/arabic.txt,
+	  trunk/data/doc/autocmd.txt, trunk/data/doc/batch,
+	  trunk/data/doc/change.txt, trunk/data/doc/cmdline.txt,
+	  trunk/data/doc/debugger.txt, trunk/data/doc/develop.txt,
+	  trunk/data/doc/diff.txt, trunk/data/doc/digraph.txt,
+	  trunk/data/doc/editing.txt, trunk/data/doc/eval.txt,
+	  trunk/data/doc/farsi.txt, trunk/data/doc/filetype.txt,
+	  trunk/data/doc/fold.txt, trunk/data/doc/gui.txt,
+	  trunk/data/doc/gui_w16.txt, trunk/data/doc/gui_w32.txt,
+	  trunk/data/doc/gui_x11.txt, trunk/data/doc/hangulin.txt,
+	  trunk/data/doc/hebrew.txt, trunk/data/doc/help.txt,
+	  trunk/data/doc/howto.txt, trunk/data/doc/if_cscop.txt,
+	  trunk/data/doc/if_ole.txt, trunk/data/doc/if_perl.txt,
+	  trunk/data/doc/if_pyth.txt, trunk/data/doc/if_ruby.txt,
+	  trunk/data/doc/if_sniff.txt, trunk/data/doc/if_tcl.txt,
+	  trunk/data/doc/indent.txt, trunk/data/doc/index.txt,
+	  trunk/data/doc/insert.txt, trunk/data/doc/intro.txt,
+	  trunk/data/doc/main.aap, trunk/data/doc/map.txt,
+	  trunk/data/doc/mbyte.txt, trunk/data/doc/message.txt,
+	  trunk/data/doc/mlang.txt, trunk/data/doc/motion.txt,
+	  trunk/data/doc/netbeans.txt, trunk/data/doc/options.txt,
+	  trunk/data/doc/os_390.txt, trunk/data/doc/os_amiga.txt,
+	  trunk/data/doc/os_beos.txt, trunk/data/doc/os_dos.txt,
+	  trunk/data/doc/os_mac.txt, trunk/data/doc/os_mint.txt,
+	  trunk/data/doc/os_msdos.txt, trunk/data/doc/os_os2.txt,
+	  trunk/data/doc/os_qnx.txt, trunk/data/doc/os_risc.txt,
+	  trunk/data/doc/os_unix.txt, trunk/data/doc/os_vms.txt,
+	  trunk/data/doc/os_win32.txt, trunk/data/doc/pattern.txt,
+	  trunk/data/doc/pi_expl.txt, trunk/data/doc/pi_gzip.txt,
+	  trunk/data/doc/pi_netrw.txt, trunk/data/doc/pi_spec.txt,
+	  trunk/data/doc/quickfix.txt, trunk/data/doc/quickref.txt,
+	  trunk/data/doc/quotes.txt, trunk/data/doc/recover.txt,
+	  trunk/data/doc/remote.txt, trunk/data/doc/repeat.txt,
+	  trunk/data/doc/rileft.txt, trunk/data/doc/russian.txt,
+	  trunk/data/doc/scroll.txt, trunk/data/doc/sign.txt,
+	  trunk/data/doc/sponsor.txt, trunk/data/doc/starting.txt,
+	  trunk/data/doc/syntax.txt, trunk/data/doc/tags,
+	  trunk/data/doc/tagsrch.txt, trunk/data/doc/term.txt,
+	  trunk/data/doc/tips.txt, trunk/data/doc/todo.txt,
+	  trunk/data/doc/uganda.nsis.txt, trunk/data/doc/uganda.txt,
+	  trunk/data/doc/undo.txt, trunk/data/doc/usr_01.txt,
+	  trunk/data/doc/usr_02.txt, trunk/data/doc/usr_03.txt,
+	  trunk/data/doc/usr_04.txt, trunk/data/doc/usr_05.txt,
+	  trunk/data/doc/usr_06.txt, trunk/data/doc/usr_07.txt,
+	  trunk/data/doc/usr_08.txt, trunk/data/doc/usr_09.txt,
+	  trunk/data/doc/usr_10.txt, trunk/data/doc/usr_11.txt,
+	  trunk/data/doc/usr_12.txt, trunk/data/doc/usr_20.txt,
+	  trunk/data/doc/usr_21.txt, trunk/data/doc/usr_22.txt,
+	  trunk/data/doc/usr_23.txt, trunk/data/doc/usr_24.txt,
+	  trunk/data/doc/usr_25.txt, trunk/data/doc/usr_26.txt,
+	  trunk/data/doc/usr_27.txt, trunk/data/doc/usr_28.txt,
+	  trunk/data/doc/usr_29.txt, trunk/data/doc/usr_30.txt,
+	  trunk/data/doc/usr_31.txt, trunk/data/doc/usr_40.txt,
+	  trunk/data/doc/usr_41.txt, trunk/data/doc/usr_42.txt,
+	  trunk/data/doc/usr_43.txt, trunk/data/doc/usr_44.txt,
+	  trunk/data/doc/usr_45.txt, trunk/data/doc/usr_90.txt,
+	  trunk/data/doc/usr_toc.txt, trunk/data/doc/various.txt,
+	  trunk/data/doc/version4.txt, trunk/data/doc/version5.txt,
+	  trunk/data/doc/version6.txt, trunk/data/doc/vi_diff.txt,
+	  trunk/data/doc/vim2html.pl, trunk/data/doc/visual.txt,
+	  trunk/data/doc/windows.txt, trunk/data/doc/workshop.txt,
+	  trunk/data/guides.txt, trunk/data/help_cn.vim,
+	  trunk/data/main.aap, trunk/data/release,
+	  trunk/data/release/main.aap, trunk/data/tools,
+	  trunk/data/tools/changes.py, trunk/data/tools/formatmb.vim,
+	  trunk/data/tools/gb2utf, trunk/data/tools/tagscngen.py,
+	  trunk/data/tools/testtags.py, trunk/data/vcd-setup.nsi,
+	  trunk/data/vimcdoc.sh, trunk/data/www, trunk/data/www/cgi-bin,
+	  trunk/data/www/htdocs, trunk/data/www/htdocs/2html.vim,
+	  trunk/data/www/htdocs/2htmlcmd.vim, trunk/data/www/htdocs/doc,
+	  trunk/data/www/htdocs/doc/Makefile,
+	  trunk/data/www/htdocs/doc/vim2html.pl,
+	  trunk/data/www/htdocs/images, trunk/data/www/htdocs/index.html,
+	  trunk/data/www/htdocs/main.aap,
+	  trunk/data/www/htdocs/vimcdoc-sf.py: importing from CVS latest
+
