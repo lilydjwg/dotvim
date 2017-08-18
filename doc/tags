@@ -52,11 +52,6 @@
 'loaded_nerd_tree'	NERD_tree.txt	/*'loaded_nerd_tree'*
 57-asyncrun-run-shell-command	asyncrun.txt	/*57-asyncrun-run-shell-command*
 :Abolish	abolish.txt	/*:Abolish*
-:Ag	ag.txt	/*:Ag*
-:AgAdd	ag.txt	/*:AgAdd*
-:AgFile	ag.txt	/*:AgFile*
-:AgFromSearch	ag.txt	/*:AgFromSearch*
-:AgHelp	ag.txt	/*:AgHelp*
 :Align	Align.txt	/*:Align*
 :AlignCtrl	Align.txt	/*:AlignCtrl*
 :AlignMapsClean	Align.txt	/*:AlignMapsClean*
@@ -84,9 +79,6 @@
 :IndentGuidesDisable	indent_guides.txt	/*:IndentGuidesDisable*
 :IndentGuidesEnable	indent_guides.txt	/*:IndentGuidesEnable*
 :IndentGuidesToggle	indent_guides.txt	/*:IndentGuidesToggle*
-:LAg	ag.txt	/*:LAg*
-:LAgAdd	ag.txt	/*:LAgAdd*
-:LAgHelp	ag.txt	/*:LAgHelp*
 :Linediff	linediff.txt	/*:Linediff*
 :LinediffReset	linediff.txt	/*:LinediffReset*
 :Mark	mark.txt	/*:Mark*
@@ -550,9 +542,6 @@ abolish-patterns	abolish.txt	/*abolish-patterns*
 abolish-search	abolish.txt	/*abolish-search*
 abolish-substitute	abolish.txt	/*abolish-substitute*
 abolish.txt	abolish.txt	/*abolish.txt*
-ag	ag.txt	/*ag*
-ag-mappings	ag.txt	/*ag-mappings*
-ag.txt	ag.txt	/*ag.txt*
 align	Align.txt	/*align*
 align-align	Align.txt	/*align-align*
 align-codepoint	Align.txt	/*align-codepoint*
