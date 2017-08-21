@@ -40,6 +40,16 @@ class Base(object):
             _paste(self.vim,
                    target.get('action__text', target['word']), 'p', 'v')
 
+    def get_action_names(self):
+        return ['default'] + [x.replace('action_', '') for x in dir(self)
+                              if x.find('action_') == 0]
+
+
+class Kind(Base):
+
+    def __init__(self, vim):
+        super().__init__(vim)
+
 
 def _yank(vim, word):
     vim.call('setreg', '"', word, 'v')

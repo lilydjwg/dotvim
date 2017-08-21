@@ -34,8 +34,9 @@ function! denite#util#execute_path(command, path) abort
     call mkdir(dir, 'p')
   endif
 
+  let save_wildignore = &wildignore
   try
-    execute a:command fnameescape(a:path)
+    execute a:command '`=s:expand(a:path)`'
     if &l:filetype ==# ''
       filetype detect
     endif
@@ -44,6 +45,8 @@ function! denite#util#execute_path(command, path) abort
   catch
     call denite#util#print_error(v:throwpoint)
     call denite#util#print_error(v:exception)
+  finally
+    let &wildignore = save_wildignore
   endtry
 endfunction
 function! denite#util#execute_command(command) abort
@@ -222,6 +225,13 @@ function! s:_path2project_directory_others(vcs, path) abort
   endif
   return fnamemodify(d, ':p:h:h')
 endfunction
+function! s:expand(path) abort "{{{
+  return s:substitute_path_separator(
+        \ (a:path =~# '^\~') ? fnamemodify(a:path, ':p') :
+        \ (a:path =~# '^\$\h\w*') ? substitute(a:path,
+        \             '^\$\h\w*', '\=eval(submatch(0))', '') :
+        \ a:path)
+endfunction"}}}
 
 function! denite#util#alternate_buffer() abort
   if len(filter(range(1, bufnr('$')), 'buflisted(v:val)')) <= 1

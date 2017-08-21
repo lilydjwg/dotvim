@@ -1,3 +1,8 @@
+denite.nvim
+===========
+
+[![Build Status](https://travis-ci.org/Shougo/denite.nvim.svg?branch=master)](https://travis-ci.org/Shougo/denite.nvim)
+
 ## About
 
 [![Join the chat at https://gitter.im/Shougo/denite.nvim](https://badges.gitter.im/Shougo/denite.nvim.svg)](https://gitter.im/Shougo/denite.nvim?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
@@ -65,14 +70,6 @@ you should read `:help provider-python`.
 
 * source completion support: `completion(args, arglead)`
 
-* `matcher_hide_hidden_files`
-
-* quickmatch feature
-
-* `--no-split`, `--tab` option
-
 * [`defx`](https://github.com/Shougo/defx.nvim) support
 
 * match highlight improvement
-
-* `denite#custom#action()`

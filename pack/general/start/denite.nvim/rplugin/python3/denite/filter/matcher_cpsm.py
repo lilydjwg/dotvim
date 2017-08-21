@@ -5,7 +5,7 @@
 # ============================================================================
 
 from .base import Base
-from denite.util import globruntime, error, convert2fuzzy_pattern, split_input
+from denite.util import globruntime, error, convert2fuzzy_pattern
 import sys
 import os
 
@@ -43,15 +43,15 @@ class Filter(Base):
                 self.__disabled = True
                 return []
 
-        import cpsm_py
-        candidates = context['candidates']
         ispath = (os.path.exists(context['candidates'][0]['word']))
-        for pattern in split_input(context['input']):
-            cpsm_result = cpsm_py.ctrlp_match(
-                (d['word'] for d in candidates),
-                pattern, limit=1000, ispath=ispath)[0]
-            candidates = [x for x in candidates if x['word'] in cpsm_result]
-        return candidates
+        cpsm_result = self._get_cpsm_result(
+            ispath, context['candidates'], context['input'])
+        return [x for x in context['candidates'] if x['word'] in cpsm_result]
 
     def convert_pattern(self, input_str):
         return convert2fuzzy_pattern(input_str)
+
+    def _get_cpsm_result(self, ispath, candidates, pattern):
+        import cpsm_py
+        return cpsm_py.ctrlp_match((d['word'] for d in candidates),
+                                   pattern, limit=1000, ispath=ispath)[0]

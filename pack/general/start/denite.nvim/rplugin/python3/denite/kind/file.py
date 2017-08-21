@@ -9,6 +9,7 @@ import os
 from itertools import filterfalse
 
 from .openable import Kind as Openable
+from denite.util import clearmatch
 
 
 class Kind(Openable):
@@ -39,15 +40,41 @@ class Kind(Openable):
                     'denite#util#execute_path', 'edit', path)
             elif self.vim.call('bufwinnr',
                                match_path) != self.vim.current.buffer:
-                self.vim.call(
-                    'denite#util#execute_path', 'buffer', path)
+                self.vim.command('buffer' +
+                                 str(self.vim.call('bufnr', path)))
             self.__jump(context, target)
 
     def action_preview(self, context):
-        return self.__preview(context, False)
+        target = context['targets'][0]
+
+        if (not context['auto_preview'] and
+                self.__get_preview_window() and
+                self._previewed_target == target):
+            self.vim.command('pclose!')
+            return
+
+        path = target['action__path'].replace('/./', '/')
+        prev_id = self.vim.call('win_getid')
+        self.vim.call('denite#helper#preview_file', context, path)
+        self.vim.command('wincmd P')
+        self.__jump(context, target)
+        self.__highlight(context, int(target.get('action__line', 0)))
+        self.vim.call('win_gotoid', prev_id)
+        self._previewed_target = target
 
     def action_highlight(self, context):
-        return self.__preview(context, True)
+        target = context['targets'][0]
+        bufnr = self.vim.call('bufnr', target['action__path'])
+
+        if not (self.vim.call('win_id2win', context['prev_winid']) and
+                context['prev_winid'] in self.vim.call('win_findbuf', bufnr)):
+            return
+
+        prev_id = self.vim.call('win_getid')
+        self.vim.call('win_gotoid', context['prev_winid'])
+        self.__jump(context, target)
+        self.__highlight(context, int(target.get('action__line', 0)))
+        self.vim.call('win_gotoid', prev_id)
 
     def action_quickfix(self, context):
         qflist = [{
@@ -59,29 +86,15 @@ class Kind(Openable):
         self.vim.call('setqflist', qflist)
         self.vim.command('copen')
 
+    def __highlight(self, context, line):
+        clearmatch(self.vim)
+        self.vim.current.window.vars['denite_match_id'] = self.vim.call(
+            'matchaddpos', context['highlight_preview_line'], [line])
+
     def __get_preview_window(self):
         return next(filterfalse(lambda x:
                                 not x.options['previewwindow'],
                                 self.vim.windows), None)
-
-    def __preview(self, context, highlight):
-        target = context['targets'][0]
-        path = target['action__path'].replace('/./', '/')
-
-        preview_window = self.__get_preview_window()
-        if (preview_window and self._previewed_target == target):
-            self.vim.command('pclose!')
-        else:
-            prev_id = self.vim.call('win_getid')
-            self.vim.call('denite#helper#preview_file', context, path)
-            self.vim.command('wincmd P')
-            self.__jump(context, target)
-            if highlight:
-                self.vim.call('clearmatches')
-                self.vim.call('matchaddpos', 'Search',
-                              [int(target.get('action__line', 0))])
-            self.vim.call('win_gotoid', prev_id)
-            self._previewed_target = target
 
     def __jump(self, context, target):
         if 'action__pattern' in target:

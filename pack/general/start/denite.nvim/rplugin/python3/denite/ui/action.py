@@ -1,4 +1,6 @@
 import re
+from datetime import timedelta, datetime
+
 from denite.util import debug
 from denite.prompt.util import build_keyword_pattern_set
 
@@ -20,11 +22,38 @@ def _choose_action(prompt, params):
 
 
 def _move_to_next_line(prompt, params):
+    for cnt in range(0, _accel_count(prompt.denite)):
+        prompt.denite.move_to_next_line()
     return prompt.denite.move_to_next_line()
 
 
 def _move_to_previous_line(prompt, params):
+    for cnt in range(0, _accel_count(prompt.denite)):
+        prompt.denite.move_to_prev_line()
     return prompt.denite.move_to_prev_line()
+
+
+def _accel_count(denite):
+    if not denite._context['auto_accel']:
+        return 0
+    now = datetime.now()
+    if not hasattr(denite, '_accel_timeout'):
+        denite._accel_timeout = now
+    timeout = denite._accel_timeout
+    denite._accel_timeout = now + timedelta(milliseconds=100)
+    return 2 if timeout > now else 0
+
+
+def _move_to_top(prompt, params):
+    return prompt.denite.move_to_top()
+
+
+def _move_to_middle(prompt, params):
+    return prompt.denite.move_to_middle()
+
+
+def _move_to_bottom(prompt, params):
+    return prompt.denite.move_to_bottom()
 
 
 def _move_to_first_line(prompt, params):
@@ -39,8 +68,16 @@ def _scroll_window_upwards(prompt, params):
     return prompt.denite.scroll_window_upwards()
 
 
+def _scroll_window_up_one_line(prompt, params):
+    return prompt.denite.scroll_window_up_one_line()
+
+
 def _scroll_window_downwards(prompt, params):
     return prompt.denite.scroll_window_downwards()
+
+
+def _scroll_window_down_one_line(prompt, params):
+    return prompt.denite.scroll_window_down_one_line()
 
 
 def _scroll_page_forwards(prompt, params):
@@ -59,12 +96,32 @@ def _scroll_down(prompt, params):
     return prompt.denite.scroll_down(int(params))
 
 
+def _scroll_cursor_to_top(prompt, params):
+    return prompt.denite.scroll_cursor_to_top()
+
+
+def _scroll_cursor_to_middle(prompt, params):
+    return prompt.denite.scroll_cursor_to_middle()
+
+
+def _scroll_cursor_to_bottom(prompt, params):
+    return prompt.denite.scroll_cursor_to_bottom()
+
+
+def _jump_to_next_by(prompt, params):
+    return prompt.denite.jump_to_next_by(params)
+
+
+def _jump_to_previous_by(prompt, params):
+    return prompt.denite.jump_to_prev_by(params)
+
+
 def _jump_to_next_source(prompt, params):
-    return prompt.denite.jump_to_next_source()
+    return prompt.denite.jump_to_next_by('source')
 
 
 def _jump_to_previous_source(prompt, params):
-    return prompt.denite.jump_to_prev_source()
+    return prompt.denite.jump_to_prev_by('source')
 
 
 def _input_command_line(prompt, params):
@@ -103,8 +160,9 @@ def _wincmd(prompt, params):
             }
     if params not in mapping:
         return
+    ret = prompt.denite.suspend()
     prompt.nvim.command(mapping[params])
-    return prompt.denite.suspend()
+    return ret
 
 
 def _restart(prompt, params):
@@ -142,6 +200,26 @@ def _toggle_select_up(prompt, params):
     return prompt.denite.move_to_prev_line()
 
 
+def _toggle_matchers(prompt, params):
+    matchers = ''.join(params)
+    context = prompt.denite._context
+    if context['matchers'] != matchers:
+        context['matchers'] = matchers
+    else:
+        context['matchers'] = ''
+    return prompt.denite.redraw()
+
+
+def _toggle_sorters(prompt, params):
+    sorters = ''.join(params)
+    context = prompt.denite._context
+    if context['sorters'] != sorters:
+        context['sorters'] = sorters
+    else:
+        context['sorters'] = ''
+    return prompt.denite.redraw()
+
+
 def _print_messages(prompt, params):
     for mes in prompt.denite._context['messages']:
         debug(prompt.nvim, mes)
@@ -173,6 +251,14 @@ def _change_word(prompt, params):
 def _change_line(prompt, params):
     prompt.text = ''
     prompt.caret.locus = 0
+    prompt.denite.change_mode('insert')
+
+
+def _change_char(prompt, params):
+    prompt.text = ''.join([
+        prompt.caret.get_backward_text(),
+        prompt.caret.get_forward_text(),
+    ])
     prompt.denite.change_mode('insert')
 
 
@@ -209,6 +295,55 @@ def _insert_to_head(prompt, params):
     prompt.denite.change_mode('insert')
 
 
+def _quick_move(prompt, params):
+    def get_quick_move_table():
+        table = {}
+        context = prompt.denite._context
+        base = prompt.denite._win_cursor
+        for [key, number] in context['quick_move_table'].items():
+            pos = (base - number) if context['reversed'] else (number + base)
+            if pos > 0:
+                table[key] = pos
+        return table
+
+    def quick_move_redraw(table, is_define):
+        bufnr = _vim.current.buffer.number
+        for [key, number] in table.items():
+            signid = 2000 + number
+            name = 'denite_quick_move_' + str(number)
+            if is_define:
+                _vim.command(
+                    'sign define {0} text={1} texthl=Special'.format(
+                        name, key))
+                _vim.command(
+                    'sign place {0} name={1} line={2} buffer={3}'.format(
+                        signid, name, number, bufnr))
+            else:
+                _vim.command('silent! sign unplace {0} buffer={1}'.format(
+                    signid, bufnr))
+                _vim.command('silent! sign undefine ' + name)
+
+    _vim = prompt.denite._vim
+
+    quick_move_table = get_quick_move_table()
+    _vim.command('redraw')
+    _vim.command('echo "Input quick match key: "')
+    quick_move_redraw(quick_move_table, True)
+
+    char = ''
+    while char == '':
+        char = _vim.call('nr2char', _vim.call('getchar'))
+
+    quick_move_redraw(quick_move_table, False)
+
+    if (char not in quick_move_table or
+            quick_move_table[char] > prompt.denite._winheight):
+        return
+
+    prompt.denite._win_cursor = quick_move_table[char]
+    prompt.denite.update_cursor()
+
+
 DEFAULT_ACTION_RULES = [
     ('denite:change_path', _change_path),
     ('denite:choose_action', _choose_action),
@@ -216,6 +351,8 @@ DEFAULT_ACTION_RULES = [
     ('denite:enter_mode', _enter_mode),
     ('denite:input_command_line', _input_command_line),
     ('denite:insert_word', _insert_word),
+    ('denite:jump_to_next_by', _jump_to_next_by),
+    ('denite:jump_to_previous_by', _jump_to_previous_by),
     ('denite:jump_to_next_source', _jump_to_next_source),
     ('denite:jump_to_previous_source', _jump_to_previous_source),
     ('denite:leave_mode', _leave_mode),
@@ -224,6 +361,9 @@ DEFAULT_ACTION_RULES = [
     ('denite:move_to_last_line', _move_to_last_line),
     ('denite:move_to_next_line', _move_to_next_line),
     ('denite:move_to_previous_line', _move_to_previous_line),
+    ('denite:move_to_top', _move_to_top),
+    ('denite:move_to_middle', _move_to_middle),
+    ('denite:move_to_bottom', _move_to_bottom),
     ('denite:quit', _quit),
     ('denite:redraw', _redraw),
     ('denite:restart', _restart),
@@ -232,20 +372,29 @@ DEFAULT_ACTION_RULES = [
     ('denite:scroll_page_forwards', _scroll_page_forwards),
     ('denite:scroll_up', _scroll_up),
     ('denite:scroll_window_downwards', _scroll_window_downwards),
+    ('denite:scroll_window_down_one_line', _scroll_window_down_one_line),
     ('denite:scroll_window_upwards', _scroll_window_upwards),
+    ('denite:scroll_window_up_one_line', _scroll_window_up_one_line),
+    ('denite:scroll_cursor_to_top', _scroll_cursor_to_top),
+    ('denite:scroll_cursor_to_middle', _scroll_cursor_to_middle),
+    ('denite:scroll_cursor_to_bottom', _scroll_cursor_to_bottom),
     ('denite:suspend', _suspend),
     ('denite:print_messages', _print_messages),
     ('denite:toggle_select', _toggle_select),
     ('denite:toggle_select_down', _toggle_select_down),
     ('denite:toggle_select_up', _toggle_select_up),
     ('denite:toggle_select_all', _toggle_select_all),
+    ('denite:toggle_matchers', _toggle_matchers),
+    ('denite:toggle_sorters', _toggle_sorters),
     ('denite:move_caret_to_next_word', _move_caret_to_next_word),
     ('denite:move_caret_to_end_of_word', _move_caret_to_end_of_word),
     ('denite:change_word', _change_word),
     ('denite:change_line', _change_line),
+    ('denite:change_char', _change_char),
     ('denite:append', _append),
     ('denite:append_to_line', _append_to_line),
     ('denite:insert_to_head', _insert_to_head),
+    ('denite:quick_move', _quick_move),
 ]
 
 DEFAULT_ACTION_KEYMAP = {
@@ -299,10 +448,17 @@ DEFAULT_ACTION_KEYMAP = {
         ('k', '<denite:move_to_previous_line>', 'noremap'),
         ('gg', '<denite:move_to_first_line>', 'noremap'),
         ('G', '<denite:move_to_last_line>', 'noremap'),
+        ('H', '<denite:move_to_top>', 'noremap'),
+        ('L', '<denite:move_to_bottom>', 'noremap'),
         ('<C-U>', '<denite:scroll_window_upwards>', 'noremap'),
+        ('<C-Y>', '<denite:scroll_window_up_one_line>', 'noremap'),
         ('<C-D>', '<denite:scroll_window_downwards>', 'noremap'),
+        ('<C-E>', '<denite:scroll_window_down_one_line>', 'noremap'),
         ('<C-F>', '<denite:scroll_page_forwards>', 'noremap'),
         ('<C-B>', '<denite:scroll_page_backwards>', 'noremap'),
+        ('zt', '<denite:scroll_cursor_to_top>', 'noremap'),
+        ('zz', '<denite:scroll_cursor_to_middle>', 'noremap'),
+        ('zb', '<denite:scroll_cursor_to_bottom>', 'noremap'),
         ('q', '<denite:quit>', 'noremap'),
         ('<C-L>', '<denite:redraw>', 'noremap'),
         ('<C-R>', '<denite:restart>', 'noremap'),
@@ -316,19 +472,25 @@ DEFAULT_ACTION_KEYMAP = {
         ('0', '<denite:move_caret_to_head>', 'noremap'),
         ('$', '<denite:move_caret_to_tail>', 'noremap'),
         ('cc', '<denite:change_line>', 'noremap'),
+        ('S', '<denite:change_line>', 'noremap'),
         ('cw', '<denite:change_word>', 'noremap'),
+        ('S', '<denite:change_line>', 'noremap'),
+        ('s', '<denite:change_char>', 'noremap'),
+        ('x', '<denite:delete_char_under_caret>', 'noremap'),
         ('dd', '<denite:delete_entire_text>', 'noremap'),
         ('h', '<denite:move_caret_to_left>', 'noremap'),
         ('l', '<denite:move_caret_to_right>', 'noremap'),
         ('a', '<denite:append>', 'noremap'),
         ('A', '<denite:append_to_line>', 'noremap'),
         ('I', '<denite:insert_to_head>', 'noremap'),
+        ('X', '<denite:quick_move>', 'noremap'),
 
         # Denite specific actions
         ('p', '<denite:do_action:preview>', 'noremap'),
         ('d', '<denite:do_action:delete>', 'noremap'),
         ('n', '<denite:do_action:new>', 'noremap'),
         ('t', '<denite:do_action:tabopen>', 'noremap'),
+        ('y', '<denite:do_action:yank>', 'noremap'),
         ('<C-w>h', '<denite:wincmd:h>', 'noremap'),
         ('<C-w>j', '<denite:wincmd:j>', 'noremap'),
         ('<C-w>k', '<denite:wincmd:k>', 'noremap'),

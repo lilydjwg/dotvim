@@ -4,7 +4,8 @@
 # License: MIT license
 # ============================================================================
 
-from denite.util import get_custom_source, find_rplugins
+from denite.util import (get_custom_source,
+                         find_rplugins, split_input, abspath)
 
 import denite.source  # noqa
 import denite.filter  # noqa
@@ -12,6 +13,9 @@ import denite.kind    # noqa
 
 import importlib.machinery
 import copy
+import re
+from collections import ChainMap
+from itertools import filterfalse
 
 
 class Denite(object):
@@ -49,9 +53,11 @@ class Denite(object):
             ctx['is_redraw'] = context['is_redraw']
             ctx['messages'] = context['messages']
             ctx['mode'] = context['mode']
+            ctx['input'] = context['input']
             ctx['prev_input'] = context['input']
             ctx['event'] = 'gather'
             ctx['async_timeout'] = 0.01
+            ctx['path'] = abspath(self._vim, context['path'])
 
             candidates = self._gather_source_candidates(
                 source.context, source)
@@ -62,7 +68,7 @@ class Denite(object):
             context['messages'] = ctx['messages']
 
     def _gather_source_candidates(self, context, source):
-        max_len = context['max_candidate_width'] * 2
+        max_len = int(context['max_candidate_width']) * 2
         candidates = source.gather_candidates(context)
         for candidate in [x for x in candidates if len(x['word']) > max_len]:
             candidate['word'] = candidate['word'][: max_len]
@@ -71,7 +77,10 @@ class Denite(object):
     def filter_candidates(self, context):
         for source in self._current_sources:
             ctx = source.context
+            ctx['matchers'] = context['matchers']
             ctx['input'] = context['input']
+            if context['smartcase']:
+                ctx['ignorecase'] = re.search(r'[A-Z]', ctx['input']) is None
             ctx['mode'] = context['mode']
             ctx['async_timeout'] = 0.03 if ctx['mode'] != 'insert' else 0.02
             if ctx['prev_input'] != ctx['input'] and ctx['is_interactive']:
@@ -83,19 +92,18 @@ class Denite(object):
             if ctx['is_async']:
                 ctx['event'] = 'async'
                 entire += self._gather_source_candidates(ctx, source)
-            if not entire or (ctx['is_async'] and
-                              len(entire) > source.max_candidates and
-                              ctx['input']):
-                yield source.name, entire, []
+            if not entire:
+                yield source.name, entire, [], []
                 continue
             partial = []
             ctx['candidates'] = entire
             for i in range(0, len(entire), 1000):
                 ctx['candidates'] = entire[i:i+1000]
-                for matcher in [self._filters[x]
-                                for x in source.matchers
-                                if x in self._filters]:
-                    ctx['candidates'] = matcher.filter(ctx)
+                matchers = [self._filters[x] for x in
+                            (ctx['matchers'].split(',') if ctx['matchers']
+                             else source.matchers)
+                            if x in self._filters]
+                self.match_candidates(ctx, matchers)
                 partial += ctx['candidates']
                 if len(partial) >= 1000:
                     break
@@ -108,7 +116,31 @@ class Denite(object):
             for c in partial:
                 c['source'] = source.name
             ctx['candidates'] = []
-            yield source.name, entire, partial
+
+            patterns = filterfalse(lambda x: x == '', (
+                self._filters[x].convert_pattern(context['input'])
+                for x in source.matchers if self._filters[x]))
+
+            yield source.name, entire, partial, patterns
+
+    def match_candidates(self, context, matchers):
+        for pattern in split_input(context['input']):
+            ctx = copy.copy(context)
+            if pattern and pattern[0] == '!':
+                if pattern == '!':
+                    continue
+                ctx['input'] = pattern[1:]
+                ignore = self.call_matchers(ctx, matchers)
+                context['candidates'] = [x for x in context['candidates']
+                                         if x not in ignore]
+            else:
+                ctx['input'] = pattern
+                context['candidates'] = self.call_matchers(ctx, matchers)
+
+    def call_matchers(self, ctx, matchers):
+        for matcher in matchers:
+            ctx['candidates'] = matcher.filter(ctx)
+        return ctx['candidates']
 
     def on_init(self, context):
         self._current_sources = []
@@ -118,7 +150,7 @@ class Denite(object):
                 raise NameError('Source "' + name + '" is not found.')
 
             source = copy.copy(self._sources[name])
-            source.context = copy.deepcopy(context)
+            source.context = copy.copy(context)
             source.context['args'] = args
             source.context['is_async'] = False
             source.context['is_interactive'] = False
@@ -161,12 +193,6 @@ class Denite(object):
     def error(self, msg):
         self._vim.call('denite#util#print_error', msg)
 
-    def get_sources(self):
-        return self._sources
-
-    def get_source(self, name):
-        return self._sources.get(name, {})
-
     def get_current_sources(self):
         return self._current_sources
 
@@ -190,9 +216,6 @@ class Denite(object):
                     self._sources[alias].name = alias
                     self._sources[alias].path = path
                     self._sources[alias].syntax_name = syntax_name
-
-    def get_filter(self, filter_name):
-        return self._filters.get(filter_name, None)
 
     def load_filters(self, context):
         # Load filters from runtimepath
@@ -233,9 +256,11 @@ class Denite(object):
             sources.pop()].context if len(sources) == 1 else {}
 
         context['targets'] = targets
-        return action['func'](context)
+        return action['func'](context) if action['func'] else self._vim.call(
+            'denite#custom#call_action',
+            action['kind'], action['name'], context)
 
-    def get_kind(self, context, targets):
+    def _get_kind(self, context, targets):
         if not targets:
             return {}
 
@@ -262,32 +287,73 @@ class Denite(object):
 
         return kind
 
+    def _get_source(self, context, targets):
+        if not targets:
+            return {}
+
+        sources = set()
+        for target in targets:
+            sources.add(self._sources[target['source']])
+        if len(sources) != 1:
+            self.error('Multiple sources are detected')
+            return {}
+        return sources.pop()
+
     def get_action(self, context, action_name, targets):
-        kind = self.get_kind(context, targets)
+        kind = self._get_kind(context, targets)
         if not kind:
+            return {}
+
+        source = self._get_source(context, targets)
+        if not source:
             return {}
 
         if action_name == 'default':
             action_name = context['default_action']
             if action_name == 'default':
+                action_name = source.default_action
+            if action_name == 'default':
                 action_name = kind.default_action
+
+        # Custom action
+        custom_actions = self.get_custom_actions(kind.name)
+        if action_name in custom_actions:
+            _, user_attrs = custom_actions[action_name]
+            return ChainMap(user_attrs, {
+                'name': action_name,
+                'kind': kind.name,
+                'func': None,
+                'is_quit': True,
+                'is_redraw': False,
+            })
+
         action_attr = 'action_' + action_name
         if not hasattr(kind, action_attr):
             self.error('Invalid action: ' + action_name)
             return {}
         return {
             'name': action_name,
+            'kind': kind.name,
             'func': getattr(kind, action_attr),
             'is_quit': (action_name not in kind.persist_actions),
             'is_redraw': (action_name in kind.redraw_actions),
         }
 
-    def get_actions(self, context, targets):
-        kind = self.get_kind(context, targets)
+    def get_custom_actions(self, kind_name):
+        actions = {}
+        if '_' in self._custom['action']:
+            actions.update(self._custom['action']['_'])
+        if kind_name in self._custom['action']:
+            actions.update(self._custom['action'][kind_name])
+        return actions
+
+    def get_action_names(self, context, targets):
+        kind = self._get_kind(context, targets)
         if not kind:
             return []
-        return ['default'] + [x.replace('action_', '') for x in dir(kind)
-                              if x.find('action_') == 0]
+        actions = kind.get_action_names()
+        actions += self.get_custom_actions(kind.name).keys()
+        return actions
 
     def is_async(self):
         return len([x for x in self._current_sources

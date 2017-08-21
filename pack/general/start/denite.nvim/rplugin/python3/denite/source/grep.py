@@ -35,7 +35,8 @@ GREP_PATTERNS_HIGHLIGHT = 'highlight default link deniteGrepPatterns Function'
 
 def _candidate(result, path):
     return {
-        'word': '{0}:{1}{2} {3}'.format(
+        'word': result[3],
+        'abbr': '{0}:{1}{2} {3}'.format(
             path,
             result[1],
             (':' + result[2] if result[2] != '0' else ''),
@@ -153,14 +154,16 @@ class Source(Base):
                 '.*'.join(util.split_input(context['input']))]
 
         if context['__proc']:
-            return self.__async_gather_candidates(
-                context, context['async_timeout'])
+            if not context['is_redraw']:
+                return self.__async_gather_candidates(
+                    context, context['async_timeout'])
+            self.on_close(context)
 
-        if not context['__patterns']:
+        if not context['__patterns'] or not self.vars['command']:
             return []
 
-        args = []
-        args += self.vars['command']
+        args = [util.expand(self.vars['command'][0])]
+        args += self.vars['command'][1:]
         args += self.vars['default_opts']
         args += self.vars['recursive_opts']
         args += context['__arguments']

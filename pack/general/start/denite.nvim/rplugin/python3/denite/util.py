@@ -89,7 +89,7 @@ def load_external_module(file, module):
 
 
 def split_input(text):
-    return [x for x in re.split(r'\s+', text) if x != '']
+    return [x for x in re.split(r'\s+', text) if x != ''] if text else ['']
 
 
 def path2dir(path):
@@ -127,6 +127,10 @@ def expand(path):
 
 def abspath(vim, path):
     return normpath(join(vim.call('getcwd'), expand(path)))
+
+
+def relpath(vim, path):
+    return normpath(vim.call('fnamemodify', expand(path), ':~:.'))
 
 
 def convert2fuzzy_pattern(text):
@@ -175,8 +179,8 @@ def find_rplugins(context, source, loaded_paths):
     for runtime in context.get('runtimepath', '').split(','):
         for path in glob.iglob(os.path.join(runtime, src)):
             name = os.path.splitext(os.path.basename(path))[0]
-            if (name == 'base' or name == '__init__' or
-                    path in loaded_paths):
+            if ((source != 'kind' and name == 'base') or
+                    name == '__init__' or path in loaded_paths):
                 continue
             yield path, name
 
@@ -207,3 +211,10 @@ def parse_tagline(line, tagpath):
     info['ref'] = ' '.join(elem[1:])
 
     return info
+
+
+def clearmatch(vim):
+    if vim.call('exists', 'w:denite_match_id'):
+        vim.call('matchdelete',
+                 vim.current.window.vars['denite_match_id'])
+        vim.command('unlet w:denite_match_id')

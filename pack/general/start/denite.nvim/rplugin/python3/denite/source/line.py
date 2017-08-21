@@ -25,21 +25,41 @@ class Source(Base):
 
     def on_init(self, context):
         context['__linenr'] = self.vim.current.window.cursor[0]
-        context['__bufname'] = self.vim.current.buffer.name
-        context['__bufnr'] = self.vim.current.buffer.number
+        context['__bufnrs'] = [self.vim.current.buffer.number]
+        context['__direction'] = 'all'
+        context['__fmt'] = '%' + str(len(
+            str(self.vim.call('line', '$')))) + 'd: %s'
+        if context['args']:
+            direction = context['args'][0]
+            if (direction == 'all' or direction == 'forward' or
+                    direction == 'backward'):
+                context['__direction'] = direction
+            elif direction == 'buffers':
+                context['__bufnrs'] = [x.number for x in self.vim.buffers]
+            elif direction == 'args':
+                context['__bufnrs'] = [self.vim.call('bufnr', x) for x
+                                       in self.vim.call('argv')]
 
     def highlight(self):
         self.vim.command(LINE_NUMBER_SYNTAX + self.syntax_name)
         self.vim.command(LINE_NUMBER_HIGHLIGHT)
 
     def gather_candidates(self, context):
-        fmt = '%' + str(len(str(self.vim.call('line', '$')))) + 'd: %s'
-
-        lines = [{'word': x,
-                  'abbr': (fmt % (i + 1, x)),
-                  'action__path': context['__bufname'],
-                  'action__line': (i + 1)}
-                 for [i, x] in
-                 enumerate(self.vim.call(
-                     'getbufline', context['__bufnr'], 1, '$'))]
-        return lines[context['__linenr']-1:] + lines[:context['__linenr']-1]
+        linenr = context['__linenr']
+        candidates = []
+        for bufnr in context['__bufnrs']:
+            lines = [{
+                'word': x,
+                'abbr': (context['__fmt'] % (i + 1, x)),
+                'action__path': self.vim.call('bufname', bufnr),
+                'action__line': (i + 1)}
+                for [i, x] in
+                enumerate(self.vim.call('getbufline', bufnr, 1, '$'))]
+            if context['__direction'] == 'all':
+                candidates += lines
+            elif context['__direction'] == 'backward':
+                candidates += list(reversed(lines[:linenr])) + list(
+                    reversed(lines[linenr:]))
+            else:
+                candidates += lines[linenr-1:] + lines[:linenr-1]
+        return candidates

@@ -25,13 +25,17 @@ class Source(Base):
     def gather_candidates(self, context):
         candidates = []
         for f in self.__tags:
-            with open(f, 'r') as ins:
+            with open(f, 'r', encoding=context['encoding'],
+                      errors='replace') as ins:
                 for line in ins:
                     if re.match('!', line) or not line:
                         continue
                     info = parse_tagline(line.rstrip(), f)
+                    if not info:
+                        continue
                     candidate = {
-                        'word': '{name} [{type}] {file} {ref}'.format(**info),
+                        'word': info['name'],
+                        'abbr': '{name} [{type}] {file} {ref}'.format(**info),
                         'action__path': info['file'],
                     }
                     if info['line']:
