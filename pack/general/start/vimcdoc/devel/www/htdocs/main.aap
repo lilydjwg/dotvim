@@ -1,0 +1,19 @@
+TOPLEVELDIR=../../..
+:include $TOPLEVELDIR/devel/common.aap
+
+Files =    index.html
+	   `glob('images/*.png')`
+   	   `glob('images/*.jpg')`
+
+:attr {publish = $SF_SCP_WEB_URL/%file%} $Files
+:attr {publish = $SF_SCP_WEB_URL/%basename%} ../../../ChangeLog
+
+all: index.html
+	:print Use 'aap publish' to publish the latest index.html, ChangeLog and screenshots.
+
+index.html: $TOPLEVELDIR/NEWS $TOPLEVELDIR/AUTHORS vimcdoc-sf.py
+	:sys touch index.html
+	:sys ./vimcdoc-sf.py -ci
+
+clean:
+	:del {r}{force} index.html *~ *.bak

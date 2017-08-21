@@ -1,6 +1,6 @@
-TOPLEVELDIR=..
-:include {once} $TOPLEVELDIR/common.aap
-:child $TOPLEVELDIR/tools/main.aap
+TOPLEVELDIR=../..
+:include {once} $TOPLEVELDIR/devel/common.aap
+:child $TOOLS_DIR/main.aap
 
 all:
 	:print Use 'aap clean' to clean up.
@@ -8,7 +8,8 @@ all:
 	:print Use 'aap release' to generate pdf mauals to release.
 
 help.html:
-	:execute $DOC_DIR/main.aap allhtml
+	:sys $TOOLS_DIR/vim2html.pl $DOC_DIR/tags-cn $DOC_FILES
+	:copy $TOOLS_DIR/vim-stylesheet.css .
 	:sys ./uncss.sh
 
 :rule %.tex: help.html ../tools/html2lex %.inp
@@ -22,6 +23,5 @@ release: reference.pdf user_manual.pdf
         :copy user_manual.pdf $(RELEASE_DIR)/user_manual-$(VERSION).pdf
 
 clean:
-	:del {r}{force} *.html *.pdf *.tex *.aux *.log *.out *.fdb_latexmk *.fls
-	:execute $DOC_DIR/main.aap clean
+	:del {r}{force} *.html *.pdf *.tex *.aux *.log *.out *.fdb_latexmk *.fls *.css
 	:execute $TOOLS_DIR/main.aap clean
