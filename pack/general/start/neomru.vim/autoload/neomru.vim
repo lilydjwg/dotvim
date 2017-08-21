@@ -359,6 +359,12 @@ function! neomru#_save(...) abort "{{{
     call m.save(opts)
   endfor
 endfunction"}}}
+function! neomru#_abbr(path, time) abort "{{{
+  let abbr = (g:neomru#time_format == '') ? '' :
+          \ strftime('(' . g:neomru#time_format . ') ', a:time)
+  let abbr .= a:path
+  return abbr
+endfunction"}}}
 "}}}
 "}}}
 

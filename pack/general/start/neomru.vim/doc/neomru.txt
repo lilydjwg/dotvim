@@ -157,6 +157,12 @@ file_mru
 		Set a large number like 5000 for the long limit will not
 		impact vim performance.
 
+		Source custom variables:
+		fnamemodify
+			a flag to modify given paths.
+			Use |filename-modifiers|.
+				(default is ':~')
+
 						*unite-source-neomru/directory*
 neomru/directory
 						*unite-source-directory_mru*
