@@ -321,6 +321,7 @@ let g:error_maker = NeomakeTestsCommandMaker('error-maker', 'echo error; false')
 let g:error_maker.errorformat = '%E%m'
 function! g:error_maker.postprocess(entry) abort
   let a:entry.bufnr = bufnr('')
+  let a:entry.lnum = 1
 endfunction
 let g:success_maker = NeomakeTestsCommandMaker('success-maker', 'echo success')
 let g:true_maker = NeomakeTestsCommandMaker('true-maker', 'true')
@@ -372,14 +373,25 @@ function! s:After()
     \ .string(map(jobs, "v:val.make_id.'.'.v:val.id")))
   endif
 
-  let make_info = neomake#GetStatus().make_info
+  let status = neomake#GetStatus()
+  let make_info = status.make_info
   if has_key(make_info, -42)
     unlet make_info[-42]
   endif
   if !empty(make_info)
     call add(errors, 'make_info is not empty: '.string(make_info))
   endif
-  NeomakeTestsWaitForRemovedJobs
+  let actions = filter(copy(status.action_queue), '!empty(v:val)')
+  if !empty(actions)
+    call add(errors, printf('action_queue is not empty: %d entries: %s',
+          \ len(actions), string(status.action_queue)))
+  endif
+  try
+    NeomakeTestsWaitForRemovedJobs
+  catch
+    call neomake#CancelJobs(1)
+    call add(errors, v:exception)
+  endtry
 
   if exists('#neomake_tests')
     autocmd! neomake_tests
@@ -396,6 +408,8 @@ function! s:After()
           exe 'bwipe!' b
         endif
       endfor
+      " In case there are two windows with Vader-workbench.
+      only
     catch
       Log "Error while cleaning windows: ".v:exception
     endtry
@@ -441,7 +455,15 @@ function! s:After()
     call extend(g:neomake_test_funcs_before, new_funcs)
   endif
 
+  if exists('#neomake_event_queue')
+    call add(errors, '#neomake_event_queue was not empty.')
+    autocmd! neomake_event_queue
+    augroup! neomake_event_queue
+  endif
+
   if !empty(errors)
+    " Reload to reset e.g. s:action_queue.
+    runtime autoload/neomake.vim
     throw len(errors).' error(s) in teardown: '.join(errors, "\n")
   endif
 endfunction

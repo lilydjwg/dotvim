@@ -41,6 +41,7 @@ function! neomake#makers#ft#python#pylint() abort
             \ '%A%f:(%l): %m,' .
             \ '%-Z%p^%.%#,' .
             \ '%-G%.%#',
+        \ 'output_stream': 'stdout',
         \ 'postprocess': [
         \   function('neomake#postprocess#GenericLengthPostprocess'),
         \   function('neomake#makers#ft#python#PylintEntryProcess'),
@@ -282,7 +283,7 @@ endfunction
 " --silent-imports: replaced by --ignore-missing-imports --follow-imports=skip
 function! neomake#makers#ft#python#mypy() abort
     return {
-        \ 'args': ['--ignore-missing-imports', '--follow-imports=skip'],
+        \ 'args': ['--check-untyped-defs', '--ignore-missing-imports', '--follow-imports=skip'],
         \ 'errorformat':
             \ '%E%f:%l: error: %m,' .
             \ '%W%f:%l: warning: %m,' .

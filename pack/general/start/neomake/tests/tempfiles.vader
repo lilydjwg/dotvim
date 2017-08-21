@@ -66,6 +66,8 @@ Execute (Uses temporary file for unreadable buffer):
   let bufnr = bufnr('%')
   AssertNeomakeMessage '\v^Using tempfile for unreadable buffer: "(.*)"', 3
   let tempfile_name = g:neomake_test_matchlist[1]
+  AssertEqual fnamemodify(tempfile_name, ':t'), printf(
+  \ '.doesnotexist@neomake_%d_%d', getpid(), neomake#GetStatus().last_make_id)
   let cwd = getcwd()
   AssertEqual tempfile_name[0:len(cwd)-1], cwd
   bwipe
@@ -74,8 +76,7 @@ Execute (2nd maker uses temporary file):
   call g:NeomakeSetupAutocmdWrappers()
 
   new
-  file doesnotexist
-  set ft=python
+  file doesnotexist.ext.ext2
 
   let maker1 = {
       \ 'exe': 'true',
@@ -93,7 +94,10 @@ Execute (2nd maker uses temporary file):
   let make_id = neomake#GetStatus().last_make_id
 
   let bufnr = bufnr('%')
-  AssertNeomakeMessage '\m^Using tempfile for unreadable buffer:'
+  AssertNeomakeMessage '\v^Using tempfile for unreadable buffer: "(.*)"', 3
+  let tempfile_name = g:neomake_test_matchlist[1]
+  AssertEqual fnamemodify(tempfile_name, ':t'), printf(
+  \ '.doesnotexist.ext.ext2@neomake_%d_%d.ext2', getpid(), neomake#GetStatus().last_make_id)
   NeomakeTestsWaitForFinishedJobs
   AssertEqual len(g:neomake_test_finished), 1
   AssertEqual len(g:neomake_test_jobfinished), 3
@@ -226,54 +230,6 @@ Execute (_get_fname_for_buffer does not add trailing newline):
   AssertEqual readfile(make_info.tempfiles[0]), ['line1']
   bwipe!
 
-Execute (neomake#utils#write_tempfile):
-  Save &endofline, &binary
-  let vim_temp = tempname()
-  let neomake_temp = tempname()
-
-  if !exists('+fixeol')
-    NeomakeTestsSkip 'Skipping +fixeol variants'
-    let variants = [
-    \ 'endofline   binary',
-    \ 'endofline   nobinary',
-    \ 'noendofline binary',
-    \ 'noendofline nobinary',
-    \ ]
-  else
-    Save &fixeol
-    let variants = [
-    \ 'fixeol   endofline   binary',
-    \ 'fixeol   endofline   nobinary',
-    \ 'fixeol   noendofline binary',
-    \ 'fixeol   noendofline nobinary',
-    \ 'nofixeol endofline   binary',
-    \ 'nofixeol endofline   nobinary',
-    \ 'nofixeol noendofline binary',
-    \ 'nofixeol noendofline nobinary',
-    \ ]
-  endif
-
-  for variant in variants
-    new
-    let bufnr = bufnr('%')
-    exe 'set' variant
-
-    exe 'w!' vim_temp
-    new
-    call neomake#utils#write_tempfile(bufnr, neomake_temp)
-    AssertEqual readfile(vim_temp, 'b'), readfile(neomake_temp, 'b')
-
-    b#
-    normal! ifoo
-    exe 'w!' vim_temp
-    b#
-    call neomake#utils#write_tempfile(bufnr, neomake_temp)
-    AssertEqual readfile(vim_temp, 'b'), readfile(neomake_temp, 'b')
-
-    bwipe!
-    bwipe
-  endfor
-
 Execute (same tempfile is used for all jobs (serialized)):
   if NeomakeAsyncTestsSetup()
     new
@@ -391,12 +347,16 @@ Execute (Existing bufnr is kept with tempfiles):
   bwipe
 
 Execute (Temporary buffer is not wiped if opened):
+  Save g:neomake_verbose
+  let g:neomake_verbose = 3
+
   let maker = NeomakeTestsCommandMaker('echo-error', 'printf ''%s:1:error\nanother_file:2:another_error''')
   let maker.errorformat = '%f:%l:%m'
   let maker.append_file = 1
 
   new
   let bufnr = bufnr('%')
+  let tempfile_bufnr = bufnr + 1
   let b:neomake_tempfile_enabled = 1
   call neomake#Make(1, [maker])
 
@@ -422,6 +382,10 @@ Execute (Temporary buffer is not wiped if opened):
   bwipe
   exe 'bwipe' tempfile_name
   exe 'bwipe' unlisted_bufnr
+
+  AssertNeomakeMessage '\v^Setting bufnr according to tempfile for entry: .* ''bufnr'': '.tempfile_bufnr
+  AssertNeomakeMessage 'Modified list entry (postprocess): bufnr: '.tempfile_bufnr.' => '.bufnr.'.'
+  AssertNeomakeMessage 'WARN: seen entries with bufnr different from jobinfo.bufnr ('.bufnr.'): {'''.unlisted_bufnr.''': 1}, current bufnr: '.bufnr.'.'
 
 Execute (unlisted buffers created for tempfiles get wiped):
   if NeomakeAsyncTestsSetup()
