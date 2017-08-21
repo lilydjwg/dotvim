@@ -4,7 +4,7 @@ g:highlightedyank_highlight_duration	highlightedyank.jax	/*g:highlightedyank_hig
 highlightedyank-highlight-groups	highlightedyank.jax	/*highlightedyank-highlight-groups*
 highlightedyank-index	highlightedyank.jax	/*highlightedyank-index*
 highlightedyank-introduction	highlightedyank.jax	/*highlightedyank-introduction*
-highlightedyank-known-issue	highlightedyank.jax	/*highlightedyank-known-issue*
+highlightedyank-known-issues	highlightedyank.jax	/*highlightedyank-known-issues*
 highlightedyank.txt	highlightedyank.jax	/*highlightedyank.txt*
 highlightedyank.vim	highlightedyank.jax	/*highlightedyank.vim*
 hl-HighlightedyankRegion	highlightedyank.jax	/*hl-HighlightedyankRegion*

@@ -1,3 +1,4 @@
+'g:go_addtags_transform'	vim-go.txt	/*'g:go_addtags_transform'*
 'g:go_alternate_mode'	vim-go.txt	/*'g:go_alternate_mode'*
 'g:go_asmfmt_autosave'	vim-go.txt	/*'g:go_asmfmt_autosave'*
 'g:go_auto_sameids'	vim-go.txt	/*'g:go_auto_sameids'*
@@ -52,11 +53,11 @@
 'g:go_metalinter_excludes'	vim-go.txt	/*'g:go_metalinter_excludes'*
 'g:go_play_browser_command'	vim-go.txt	/*'g:go_play_browser_command'*
 'g:go_play_open_browser'	vim-go.txt	/*'g:go_play_open_browser'*
-'g:go_snippet_case_type'	vim-go.txt	/*'g:go_snippet_case_type'*
 'g:go_snippet_engine'	vim-go.txt	/*'g:go_snippet_engine'*
 'g:go_statusline_duration'	vim-go.txt	/*'g:go_statusline_duration'*
 'g:go_template_autocreate'	vim-go.txt	/*'g:go_template_autocreate'*
 'g:go_template_file'	vim-go.txt	/*'g:go_template_file'*
+'g:go_template_test_file'	vim-go.txt	/*'g:go_template_test_file'*
 'g:go_template_use_pkg'	vim-go.txt	/*'g:go_template_use_pkg'*
 'g:go_term_enabled'	vim-go.txt	/*'g:go_term_enabled'*
 'g:go_term_height'	vim-go.txt	/*'g:go_term_height'*
@@ -152,6 +153,7 @@
 :GoInfo	vim-go.txt	/*:GoInfo*
 :GoInstall	vim-go.txt	/*:GoInstall*
 :GoInstallBinaries	vim-go.txt	/*:GoInstallBinaries*
+:GoKeyify	vim-go.txt	/*:GoKeyify*
 :GoLint	vim-go.txt	/*:GoLint*
 :GoMetaLinter	vim-go.txt	/*:GoMetaLinter*
 :GoMetaLinterAutoSaveToggle	vim-go.txt	/*:GoMetaLinterAutoSaveToggle*

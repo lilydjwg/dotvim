@@ -3,7 +3,7 @@ g:highlightedyank_highlight_duration	highlightedyank.txt	/*g:highlightedyank_hig
 highlightedyank-highlight-groups	highlightedyank.txt	/*highlightedyank-highlight-groups*
 highlightedyank-index	highlightedyank.txt	/*highlightedyank-index*
 highlightedyank-introduction	highlightedyank.txt	/*highlightedyank-introduction*
-highlightedyank-known-issue	highlightedyank.txt	/*highlightedyank-known-issue*
+highlightedyank-known-issues	highlightedyank.txt	/*highlightedyank-known-issues*
 highlightedyank.txt	highlightedyank.txt	/*highlightedyank.txt*
 highlightedyank.vim	highlightedyank.txt	/*highlightedyank.vim*
 hl-HighlightedyankRegion	highlightedyank.txt	/*hl-HighlightedyankRegion*
