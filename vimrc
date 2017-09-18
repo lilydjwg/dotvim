@@ -841,7 +841,6 @@ command -nargs=1 -range=% -complete=customlist,Lilydjwg_Align_complete LA <line1
 command -nargs=1 -range=% Column <line1>,<line2>Align! w<args>0P1p \S\@<=\s\@=
 command -range=% Paste <line1>,<line2>py3 LilyPaste()
 command -range=% Tohtml call Lilydjwg_to_html(<line1>, <line2>)
-command Agg exe 'Ag -Q ' . expand('<cword>')
 command BufClean call Lilydjwg_cleanbufs()
 command Helptags for d in filter(globpath(&rtp, "doc/", 0, 1), 'filewritable(v:val)') | exec "helptags" d | endfor
 " 插件配置[[[1
