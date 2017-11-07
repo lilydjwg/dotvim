@@ -517,7 +517,7 @@ else
     let g:mytmpdir = expand("~/tmpfs")
   endif
   let g:MuttVim_configfile = expand('~/scripts/python/pydata/muttvim.json')
-  cmap <C-T> ~/tmpfs/
+  cnoremap <expr> <C-T> getcmdtype() == ':' ? '~/tmpfs/' : "\<C-t>"
   " cron 的目录不要备份
   set backupskip+=/etc/cron.*/*
   set backupskip+=*/HTTPSEverywhereUserRules/*
