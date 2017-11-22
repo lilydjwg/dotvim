@@ -6,6 +6,7 @@
 [subrepo]
 	remote = git@github.com:ternjs/tern_for_vim.git
 	branch = master
-	commit = ae42c69ada7243fe4801fce3b916bbc2f40ac4ac
+	commit = 85e25210e0a0d9fbe00efa4bb38f5ebad993aeb4
 	parent = 976edeeb84385ea13ad2bce601227321bde0c9f3
 	cmdver = 0.3.1
+	method = merge
