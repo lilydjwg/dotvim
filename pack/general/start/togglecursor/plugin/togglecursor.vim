@@ -2,7 +2,7 @@
 " File:         togglecursor.vim
 " Description:  Toggles cursor shape in the terminal
 " Maintainer:   John Szakmeister <john@szakmeister.net>
-" Version:      0.5.1
+" Version:      0.5.2
 " License:      Same license as Vim.
 " ============================================================================
 
@@ -54,6 +54,10 @@ let s:xterm_blinking_line = "\<Esc>[5 q"
 let s:xterm_blinking_underline = "\<Esc>[3 q"
 
 let s:in_tmux = exists("$TMUX")
+
+" Detect whether this version of vim supports changing the replace cursor
+" natively.
+let s:sr_supported = exists("+t_SR")
 
 let s:supported_terminal = ''
 
@@ -169,7 +173,7 @@ function! s:ToggleCursorInit()
 
     let &t_EI = s:GetEscapeCode(g:togglecursor_default)
     let &t_SI = s:GetEscapeCode(g:togglecursor_insert)
-    if (v:version == 704 && has('patch687')) || v:version > 704
+    if s:sr_supported
         let &t_SR = s:GetEscapeCode(g:togglecursor_replace)
     endif
 endfunction
@@ -203,5 +207,7 @@ augroup ToggleCursorStartup
     autocmd!
     autocmd VimEnter * call <SID>ToggleCursorInit()
     autocmd VimLeave * call <SID>ToggleCursorLeave()
-    autocmd InsertEnter * call <SID>ToggleCursorByMode()
+    if !s:sr_supported
+        autocmd InsertEnter * call <SID>ToggleCursorByMode()
+    endif
 augroup END
