@@ -79,6 +79,8 @@
 				:help |
 				:help k| only
 <			注意 如果 '|' 之前有空格，它是 ":help" 参数的一部分。
+			(译者注: 前者查找 | 的帮助，后者查找 k 的帮助并执行
+			only 命令使帮助窗口成为唯一窗口)
 			你也可以用 <LF> 或 <CR> 来分隔 help 命令和其后的命令。
 			你需要先输入 CTRL-V，再输入 <LF> 或 <CR>。例如: >
 				:help so<C-V><CR>only
@@ -88,7 +90,7 @@
 			文件相同语言的标签的文件。参见 |help-translated|。
 
 							*:helpc* *:helpclose*
-:helpc[lose]            关闭一个帮助窗口，如果有的话。
+:helpc[lose]            如果有的话，关闭一个帮助窗口。
 
 							*:helpg* *:helpgrep*
 :helpg[rep] {pattern}[@xx]
@@ -175,7 +177,7 @@
 				*E154* *E150* *E151* *E152* *E153* *E670*
 :helpt[ags] [++t] {dir}
 			为目录 {dir} 生成帮助标签文件 tags。{dir} 为 ALL 时，
-			使用 'runtimepath' 的所有 "doc" 目录.
+			使用 'runtimepath' 的所有 "doc" 目录。
 
 			扫描该目录及其子目录中所有的 "*.txt" 和 "*.??x" 文件中
 			帮助标签定义。标签定义出现在星号之间。"*.??x" 文件是经
@@ -268,8 +270,8 @@ Help 文件一定要使用 latin1 或 utf-8 编码。Vim 如果发现首行有�
 段给出该文件的最后修改日期。字段之间用制表符分隔。
 
 在帮助文件的底部放上 Vim 的模式行，它设置 'textwidth'、'tabstop' 选项，并把
-'filetype' 设为 "help"。请不要在 modeline 上设置全局选项，否则读取帮助的用户会
-有不希望的后果。
+'filetype' 设为 "help"。请不要在模式行上设置全局选项，否则读取帮助的用户会有不
+希望的后果。
 
 
 标 签

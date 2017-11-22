@@ -370,9 +370,9 @@ Vim 将那个数字乘以 'shiftwidth': "1s" 是 'shiftwidth'，"2s" 是 'shiftw
 <
 							*cino-(*
 	(N    在没有结束的括号内，相对没有结束的括号所在行进行 N 个字符的缩
-	      进。对每一个没有结束的括号增加 'shiftwidth' 的缩进。如果 N 为 0,
-	      或没有结束的括号是其所在行的首个非空白字符，和括号之后下一个非空
-	      白字符对齐。(缺省为 'shiftwidth' * 2)。
+	      进。对每一个没有结束的括号增加 'shiftwidth' 的缩进。如果 N 为
+	      0，或没有结束的括号是其所在行的首个非空白字符，和括号之后下一个
+	      非空白字符对齐。(缺省为 'shiftwidth' * 2)。
 
 		cino=			  cino=(0 >
 		  if (c1 && (c2 ||	    if (c1 && (c2 ||
@@ -477,7 +477,7 @@ Vim 将那个数字乘以 'shiftwidth': "1s" 是 'shiftwidth'，"2s" 是 'shiftw
 			*javascript-cinoptions* *javascript-indenting* *cino-J*
 	JN    正确缩进 JavaScript 对象声明，不把它错误地当成标签。目前 'N' 的
 	      值并没有用到但不能为 0 (比如 'J1'). 要打开之，也应考虑同时打开
-	      |cino-j|。>
+	      |cino-j|。 >
 
 		var bar = {
 		    foo: {
@@ -506,7 +506,7 @@ Vim 将那个数字乘以 'shiftwidth': "1s" 是 'shiftwidth'，"2s" 是 'shiftw
 	#N    如果 N 非零，识别 shell/Perl 风格 # 开头的注释，不识别预处理命令
 	      行；允许以 "#" 开头的行的右移。
 	      如果 N 为零 (缺省): 不识别 '#' 注释，但识别预处理命令行；不允许
-	      以 “#” 开头的行右移。
+	      以 "#" 开头的行右移。
 
 
 全部的缺省值是:
@@ -862,8 +862,8 @@ R								*ft-r-indent*
 
 SHELL							*ft-sh-indent*
 
-通过 b:sh_indent_defaults 字典 |Dictionary| 的以下键，可以配置 shell 文件在各
-种情况下使用的缩进距离。它们可以是某个特定的值或者是返回所需距离的函数引用
+通过 b:sh_indent_defaults 字典 |Dictionary| 的以下键，可以配置外壳文件在各种情
+况下使用的缩进距离。它们可以是某个特定的值或者是返回所需距离的函数引用
 |Funcref|:
 
 b:sh_indent_options['default']	缺省缩进距离。
@@ -906,7 +906,7 @@ VERILOG							*ft-verilog-indent*
   let b:verilog_indent_width = 4
   let b:verilog_indent_width = &sw * 2
 
-你还可以打开 verbose 模式来帮助调试: >
+你还可以打开详细模式来帮助调试: >
 
   let b:verilog_indent_verbose = 1
 

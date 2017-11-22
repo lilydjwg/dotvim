@@ -1120,8 +1120,8 @@ se[t]			字符串 "set " 或 "se " (注意 空格)；使用 "Vim" 时必须
 	  <empty>	普通缓冲区
 	  nofile	和文件不相关且不会写回的缓冲区
 	  nowrite	不会写回的缓冲区
-	  acwrite	缓冲区总是用 BufWriteCmd 自动命令写回 {仅当编译时加入
-	  		|+autocmd| 特性才有效}
+	  acwrite	缓冲区总是用 BufWriteCmd 自动命令写回
+	  		{仅当编译时加入 |+autocmd| 特性才有效}
 	  quickfix	quickfix 缓冲区，包含错误列表 |:cwindow| 或位置列表
 			|:lwindow|
 	  help		帮助缓冲区 (你不应该手动设置本值)
@@ -2116,8 +2116,8 @@ se[t]			字符串 "set " 或 "se " (注意 空格)；使用 "Vim" 时必须
 			全局
 			{Vi 无此功能}
 			{仅当编译时加入 |+diff| 特性才有效}
-	diff 模式的设置选项。由以下几个项目组成。全都是可选的。项目之间由逗号
-	分隔。
+	比较模式的设置选项。由以下几个项目组成。全都是可选的。项目之间由逗号分
+	隔。
 
 		filler		显示填充行，使得文本和在相同位置多出文本的其它
 				窗口同步。多用于并排并且置位 'scrollbind' 的窗
@@ -2136,13 +2136,13 @@ se[t]			字符串 "set " 或 "se " (注意 空格)；使用 "Vim" 时必须
 				文档了解该标志位具体的行为。比如，它应该忽略行
 				尾的空白，但不忽略行首的。
 
-		horizontal	以水平分割启动 diff 模式 (除非显式指定不要如
+		horizontal	以水平分割启动比较模式 (除非显式指定不要如
 				此)。
 
-		vertical	以垂直分割启动 diff 模式 (除非显式指定不要如
+		vertical	以垂直分割启动比较模式 (除非显式指定不要如
 				此)。
 
-		foldcolumn:{n}	启动 diff 模式时设置 'foldcolumn' 选项为 {n}。
+		foldcolumn:{n}	启动比较模式时设置 'foldcolumn' 选项为 {n}。
 				如果不存在，用 2。
 	示例: >
 
@@ -2233,7 +2233,7 @@ se[t]			字符串 "set " 或 "se " (注意 空格)；使用 "Vim" 时必须
 			全局
 			{Vi 无此功能}
 			{仅当编译时加入 |+multi_byte| 特性才有效}
-	如果打开，所有的 Unicode emoji 字符作为全宽字符处理。
+	如果打开，所有的 Unicode 表情字符作为全宽字符处理。
 
 
 					*'encoding'* *'enc'* *E543*
@@ -2358,8 +2358,8 @@ se[t]			字符串 "set " 或 "se " (注意 空格)；使用 "Vim" 时必须
 	插入模式识别 <Esc> 开始的功能键。如果关闭此选项，光标和功能键，如果它
 	们以 <Esc> 开头的话，不能用于插入模式。它的优点是，单个 <Esc> 可以被马
 	上识别，而不用等待一秒。除了复位此选项以外，你也可以改变 'timeoutlen'
-	和 'ttimeoutlen' 的值。注意如果 'esckeys' 关闭，你仍然可以建立相关的映
-	射，但缺省情况下无法使用光标键。
+	和 'ttimeoutlen' 的值。注意 如果 'esckeys' 关闭，你仍然可以建立相关的
+	映射，但缺省情况下无法使用光标键。
 	注意: 如果置位 'compatible'，本选项被设为 Vi 的缺省值。相反，如果复位
 	'compatible'，本选项被设为 Vim 的缺省值。
 
@@ -2482,7 +2482,7 @@ se[t]			字符串 "set " 或 "se " (注意 空格)；使用 "Vim" 时必须
 		cp1250,latin1		总是使用 "cp1250"
 	如果 'fileencodings' 为空，不修改 'fileencoding'。
 	'fileencoding' 说明本选项可能的值。
-	直到下一次读入文件时，此选项的设置才会有效果。
+	直到下一次读入文件时，此选项的设置才会有效。
 
 					*'fileformat'* *'ff'*
 'fileformat' 'ff'	字符串 (MS-DOS、MS-Windows、OS/2 的缺省: "dos"，
@@ -2494,10 +2494,10 @@ se[t]			字符串 "set " 或 "se " (注意 空格)；使用 "Vim" 时必须
 	    dos	    <CR> <NL>
 	    unix    <NL>
 	    mac	    <CR>
-	如果使用 "dos"，文件尾的 CTRL-Z 被忽略。
+	如果使用 "dos"，忽略文件尾的 CTRL-Z。
 	见 |file-formats| 和 |file-read|。
 	文件使用的字符编码见 'fileencoding'。
-	如果设置 'binary'，忽略 'fileformat' 的值。文件输入/输出如同它被设为
+	如果置位 'binary'，忽略 'fileformat' 的值。文件输入/输出如同它被设为
 	"unix" 那样。
 	文件开始编辑时，如果 'fileformats' 非空而 'binary' 关闭，本选项被自动
 	设置。
@@ -3351,10 +3351,10 @@ se[t]			字符串 "set " 或 "se " (注意 空格)；使用 "Vim" 时必须
 	|hl-WildMenu|	 W  'wildmenu' 显示的通配符匹配
 	|hl-Folded|	 f  关闭的折叠所用的行
 	|hl-FoldColumn|	 F  'foldcolumn'
-	|hl-DiffAdd|	 A  diff 模式增加的行
-	|hl-DiffChange|	 C  diff 模式改变的行
-	|hl-DiffDelete|	 D  diff 模式删除的行
-	|hl-DiffText|	 T  diff 模式插入的文本
+	|hl-DiffAdd|	 A  比较模式增加的行
+	|hl-DiffChange|	 C  比较模式改变的行
+	|hl-DiffDelete|	 D  比较模式删除的行
+	|hl-DiffText|	 T  比较模式插入的文本
 	|hl-SignColumn|	 >  |signs| 所用的列
 	|hl-SpellBad|	 B  拼写错误的单词 |spell|
 	|hl-SpellCap|	 P  应该大写开头的单词 |spell|
@@ -5555,7 +5555,7 @@ se[t]			字符串 "set " 或 "se " (注意 空格)；使用 "Vim" 时必须
 		"-- XXX completion (YYY)"、"match 1 of 2"、"The only match"、
 		"Pattern not found"、"Back at original" 等等。
 	  q	用 "recording" 代替 "recording @a"
-	  F	编辑文件时不给出文件信息，就象给命令用了 `:silent` 一样
+	  F	编辑文件时不给出文件信息，就像给命令用了 `:silent` 一样
 
 	这给你一个机会，避免在缓冲区之间切换要按 <Enter>，但仍然能够在可用的空
 	间里得到有用的消息。要得到 'shm' 为空时的完整消息，使用 ":file!"。
@@ -6278,8 +6278,8 @@ se[t]			字符串 "set " 或 "se " (注意 空格)；使用 "Vim" 时必须
 	可以用 "*"、"**" 和其它通配符来搜索目录树下的标签文件。见
 	|file-searching|。例如，"/lib/**/tags" 会找到 "/lib" 下面所有名为
 	"tags" 的文件。文件名本身不能包含通配符，会按原样使用。例如
-	"/lib/**/tags?" 会找到名为 "tags?" 的文件 {仅当编译时加入
-	|+path_extra| 特性才有效}
+	"/lib/**/tags?" 会找到名为 "tags?" 的文件
+	{仅当编译时加入 |+path_extra| 特性才有效}
 	可以用 |tagfiles()| 函数来得到实际使用的文件名列表。
 	如果 Vim 编译时加入 |+emacs_tags| 特性，也支持 Emacs 风格的标签文件。
 	它们被自动识别。缺省值这时变成 "./tags,./TAGS,tags,TAGS"，除非大小写被
@@ -6567,8 +6567,8 @@ se[t]			字符串 "set " 或 "se " (注意 空格)；使用 "Vim" 时必须
 	本选项的内容控制若干工具栏的设置。可能的值是:
 		icons		工具栏按钮使用图标显示。
 		text		工具栏按钮使用文字显示。
-		horiz		工具栏按钮使用水平排放的图标和文本。{仅适用于
-				GTK+ 2 GUI}
+		horiz		工具栏按钮使用水平排放的图标和文本。
+				{仅适用于 GTK+ 2 GUI}
 		tooltips	激活工具栏按钮的工具提示。
 	工具提示指的是鼠标光标在工具栏按钮上停留短暂的时间后弹出的帮助文本。
 
@@ -6656,7 +6656,7 @@ se[t]			字符串 "set " 或 "se " (注意 空格)；使用 "Vim" 时必须
 	   pterm	QNX 终端鼠标处理。
 							*urxvt-mouse*
 	   urxvt	urxvt (rxvt-unicode) 终端鼠标处理。
-	   		只有终端支持此编码风格鼠标才能工作，但不象 "xterm" 或
+	   		只有终端支持此编码风格鼠标才能工作，但不像 "xterm" 或
 			"xterm2" 那样有 223 列的限制。
 							*sgr-mouse*
 	   sgr		对产生 SGR 风格鼠标报告的终端鼠标处理。鼠标在 223 以外
@@ -7055,7 +7055,7 @@ se[t]			字符串 "set " 或 "se " (注意 空格)；使用 "Vim" 时必须
 			{Vi 无此功能}
 	置位时对文件名和目录的补全忽略大小写。'fileignorecase' 置位时没有作
 	用。
-	不适用于用 shell 扩展通配符的情况，当有特殊字符时这会发生。
+	不适用于用外壳扩展通配符的情况，当有特殊字符时这会发生。
 
 
 				*'wildmenu'* *'wmnu'* *'nowildmenu'* *'nowmnu'*
@@ -7304,4 +7304,3 @@ se[t]			字符串 "set " 或 "se " (注意 空格)；使用 "Vim" 时必须
 	不适用于 MS-DOS pcterm。此选项为调试所设。
 
  vim:tw=78:ts=8:ft=help:norl:
-	|tab-page| 解释标签页的更多信息。

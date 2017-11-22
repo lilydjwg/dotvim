@@ -485,7 +485,7 @@ Javascript 还可以让你在 url 中省略窗口号或开头的那个 L。
 						       *g:html_ignore_folding*
 缺省: 0。
 为 0 时，关闭折叠里的实际文本被 Vim 显示折叠所用的文本 (|fold-foldtext|) 代
-替。如果你还想允许在 HTML 中用户可以扩展折叠看到实际文本，就象 Vim 可以做的那
+替。如果你还想允许在 HTML 中用户可以扩展折叠看到实际文本，就像 Vim 可以做的那
 样的话，另见 |g:html_dynamic_folds|。
 为 1 时，在生成的 HTML 中包括所有的缓冲区文本；不管文本是否在折叠中都一样。此
 时，|g:html_dynamic_folds| 无效。
@@ -2021,7 +2021,7 @@ perl 的语法高亮有一些可用的选项。
 
 (Vim 6.x 里相反，用 "perl_extended_vars" 打开此项分析。)
 
-你可以改变颜色字符串。缺省，字符串和 qq 等变形会象下面第一行那样高亮。如果你设
+你可以改变颜色字符串。缺省，字符串和 qq 等变形会像下面第一行那样高亮。如果你设
 置了变量 perl_string_as_statement，那么就像下面第二行那样高亮。
    "hello world!"; qq|hello world|;
    ^^^^^^^^^^^^^^NN^^^^^^^^^^^^^^^N	  (unlet perl_string_as_statement)
@@ -2498,7 +2498,7 @@ SH		*sh.vim*  *ft-sh-syntax*  *ft-bash-syntax*  *ft-ksh-syntax*
 这里讨论较古老的 Unix (Bourne) sh 和较新的外壳如 bash、dash、posix 和 Korn
 shell 的语法高亮。
 
-Vim 试图根据文件名决定使用的 shell 类型: >
+Vim 试图根据文件名决定使用的外壳类型: >
 
     ksh : .kshrc* *.ksh
     bash: .bashrc* bashrc bash.bashrc .bash_profile* *.bash
@@ -3062,7 +3062,7 @@ Vim 理解三种语法项目的类型:
   :syntax iskeyword @,48-57,192-255,$,_
 <
 	这使得语法特定的 iskeyword 选项包含所有的字母、数位，所有的重音字符，
-	还包含 ”_" 和 "$"。
+	还包含 "_" 和 "$"。
 
 	如果不给出参数，输出当前值。
 
@@ -4229,13 +4229,13 @@ CursorLine	置位 'cursorline' 时，光标所在的屏幕行
 							*hl-Directory*
 Directory	目录名 (还有列表里的其它特殊名字)
 							*hl-DiffAdd*
-DiffAdd		diff 模式: 增加的行 |diff.txt|
+DiffAdd		比较模式: 增加的行 |diff.txt|
 							*hl-DiffChange*
-DiffChange	diff 模式: 改变的行 |diff.txt|
+DiffChange	比较模式: 改变的行 |diff.txt|
 							*hl-DiffDelete*
-DiffDelete	diff 模式: 删除的行 |diff.txt|
+DiffDelete	比较模式: 删除的行 |diff.txt|
 							*hl-DiffText*
-DiffText	diff 模式: 改变行里的改动文本 |diff.txt|
+DiffText	比较模式: 改变行里的改动文本 |diff.txt|
 							*hl-EndOfBuffer*
 EndOfBuffer	缓冲区的末行之后的填充行 (~)。缺省用 |hl-NonText| 类似的高亮。
 							*hl-ErrorMsg*
