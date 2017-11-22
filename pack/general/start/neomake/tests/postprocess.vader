@@ -48,8 +48,6 @@ Execute (neomake#postprocess#GenericLengthPostprocess):
   bwipe!
 
 Execute (Postprocess: called with dict+maker as self for list):
-  runtime autoload/neomake/highlights.vim
-
   new
   file file1.vim
   norm! ifoo = bar - 5
@@ -391,6 +389,7 @@ Execute (Postprocess: lambda from conf):
   endif
 
 Execute (Hook context gets cleaned on error in postprocess):
+  call NeomakeTestsSetVimMessagesMarker()
   let maker = copy(g:success_maker)
   function! maker.postprocess(entry)
     throw 'error from postprocess'
@@ -398,4 +397,7 @@ Execute (Hook context gets cleaned on error in postprocess):
   call neomake#Make({'enabled_makers': [maker]})
   NeomakeTestsWaitForFinishedJobs
   AssertNeomakeMessage 'Error during output processing for success-maker: error from postprocess.', 0
+  let vim_msgs = NeomakeTestsGetVimMessages()
+  Assert vim_msgs[-1] =~# 'Neomake error in: function .*', 'message found'
+  AssertEqual len(vim_msgs), 1
   Assert !exists('g:neomake_postprocess_context'), 'Hook context was cleaned.'

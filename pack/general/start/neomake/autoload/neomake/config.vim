@@ -1,5 +1,9 @@
+" Config API.
+
 let g:neomake#config#undefined = {}
 lockvar! g:neomake#config#undefined
+
+let s:refs_for_profiling = []
 
 " Resolve a:name (split on dots) and (optionally) init a:dict accordingly.
 function! s:resolve_name(dict, name, init) abort
@@ -25,7 +29,7 @@ function! s:get(dict, parts, prefixes) abort
     for prefix in a:prefixes
         let [c, k] = s:resolve_name(a:dict, prefix + a:parts[0:-1], 0)
         if has_key(c, k)
-            return [prefix, c[k]]
+            return [prefix, get(c, k)]
         endif
     endfor
     return [[], g:neomake#config#undefined]
@@ -107,6 +111,9 @@ function! neomake#config#get_with_source(name, ...) abort
                             \ log_name, string(R), source,
                             \   empty(prefix) ? '' : ' (prefix: '.string(prefix).')'),
                             \ context)
+                if v:profiling && type(R) == type(function('tr'))
+                    let s:refs_for_profiling += [R]
+                endif
                 return [R, source]
             endif
             unlet R  " for Vim without patch-7.4.1546

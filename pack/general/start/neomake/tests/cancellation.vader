@@ -137,7 +137,7 @@ Execute (neomake#CancelJob with trapped TERM):
 
     NeomakeTestsWaitForMessage '\Mstdout: \.\*''not stopping on SIGTERM''', 3, jobinfo
     AssertNeomakeMessage 'Ignoring output (job was canceled).', 3, jobinfo
-    NeomakeTestsWaitForMessage 'exit: job was canceled.', 3, jobinfo
+    NeomakeTestsWaitForMessage 'exit: job was canceled.', 3, jobinfo, {'timeout': 5000}
     if !has('nvim')
       AssertNeomakeMessage 'Forcefully killing still running Vim job.', 3, jobinfo, {'ignore_order': 1}
     endif
@@ -162,6 +162,28 @@ Execute (neomake#CancelMake stops all jobs):
 
 Execute (neomake#CancelMake handles invalid make id):
   AssertEqual neomake#CancelMake(-1), 0
+  AssertNeomakeMessage 'CancelMake: make not found: -1.', 0
+
+Execute (neomake#CancelMake removes queued actions):
+  if NeomakeAsyncTestsSetup()
+    new
+    let maker = NeomakeTestsCommandMaker('silent-sleep-success', 'sleep .01')
+    let jobinfo = neomake#Make({'enabled_makers': [maker]})[0]
+    new
+    NeomakeTestsWaitForFinishedJobs
+    AssertNeomakeMessage 'Cleaning jobinfo.', 3
+    AssertNeomakeMessage 'Postponing final location list handling (in another window).', 3
+    AssertNeomakeMessage 'Queueing action: s:handle_locqf_list_for_finished_jobs for WinEnter.', 3
+
+    call neomake#CancelAllMakes()
+    AssertNeomakeMessage 'Cancelling make.', 3
+    AssertNeomakeMessage 'Removed 1 action queue entries.', 3
+    AssertNeomakeMessage 'Skipping final processing for canceled make.'
+    call neomake#CancelMake(jobinfo.make_id)
+    AssertNeomakeMessage 'CancelMake: make not found: '.jobinfo.make_id.'.', 0
+    bwipe
+    bwipe
+  endif
 
 Execute (neomake#CancelJob empties action queue):
   if NeomakeAsyncTestsSetup()
@@ -170,17 +192,18 @@ Execute (neomake#CancelJob empties action queue):
     augroup END
 
     new
-    let jobinfos = neomake#Make({'enabled_makers': [g:sleep_maker]})
-    let job_id = jobinfos[0].id
+    let jobinfo = neomake#Make({'enabled_makers': [g:sleep_maker]})[0]
+    let job_id = jobinfo.id
     if has('patch-7.4.2299')
       NeomakeTestsWaitForFinishedJobs
-      AssertNeomakeMessage 'Queueing action: s:ProcessEntries for WinEnter.'
+      AssertNeomakeMessage 'Queueing action: s:AddExprCallback for WinEnter.'
+      AssertNeomakeMessage 'Skipping cleaning of job info because of queued actions: s:AddExprCallback.'
+      AssertNeomakeMessage 'Queueing action: s:CleanJobinfo for WinEnter.'
     endif
     call neomake#CancelJob(job_id)
     if has('patch-7.4.2299')
-      AssertNeomakeMessage 'Removed 1 action queue entries.', 3
-      AssertNeomakeMessage 'CancelJob: job not found: '.job_id.'.', 0
-      call neomake#CancelMake(jobinfos[0].make_id, 1)
+      AssertNeomakeMessage 'Removed 2 action queue entries.', 3
+      AssertNeomakeMessage 'Removing already finished job.', 3, jobinfo
       wincmd p
     else
       NeomakeTestsWaitForFinishedJobs
@@ -188,4 +211,21 @@ Execute (neomake#CancelJob empties action queue):
     AssertNeomakeMessage 'Cleaning make info.', 3
     bwipe
     Assert !exists('#neomake_event_queue#WinEnter'), 'autocmd does not exist'
+  endif
+
+Execute (neomake#CancelJob handles dict):
+  if NeomakeAsyncTestsSetup()
+    let jobinfo = neomake#Make({'enabled_makers': [g:sleep_maker]})[0]
+    Assert type(jobinfo), type({})
+    AssertEqual neomake#CancelJob(jobinfo), 1
+    AssertNeomakeMessage 'Stopping job.', 3, jobinfo
+    NeomakeTestsWaitForFinishedJobs
+  endif
+
+Execute (neomake#CancelJob handles string with job_id at the beginning):
+  if NeomakeAsyncTestsSetup()
+    let jobinfo = neomake#Make({'enabled_makers': [g:sleep_maker]})[0]
+    AssertEqual neomake#CancelJob(jobinfo.id . ':'), 1
+    AssertNeomakeMessage 'Stopping job.', 3, jobinfo
+    NeomakeTestsWaitForFinishedJobs
   endif

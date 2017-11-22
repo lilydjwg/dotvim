@@ -7,4 +7,4 @@ testmaker/
 tests/shada.nvim
 tests/vader
 tests/viminfo
-tests/vim/plugins
+build/
