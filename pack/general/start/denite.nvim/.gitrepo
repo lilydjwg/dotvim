@@ -6,6 +6,7 @@
 [subrepo]
 	remote = git@github.com:Shougo/denite.nvim.git
 	branch = master
-	commit = 0cff0ba01f060bc18bc92400ac67307077f99dfe
+	commit = 57118402ea4e0d23ae8990fc5424428e165515e1
 	parent = 23bbdad91c4e2a3e00662818dcb8ac87f2b676ba
 	cmdver = 0.3.1
+	method = merge
