@@ -1,5 +1,9 @@
 b:highlightedyank_highlight_duration	highlightedyank.txt	/*b:highlightedyank_highlight_duration*
+b:highlightedyank_max_lines	highlightedyank.txt	/*b:highlightedyank_max_lines*
+b:highlightedyank_timeout	highlightedyank.txt	/*b:highlightedyank_timeout*
 g:highlightedyank_highlight_duration	highlightedyank.txt	/*g:highlightedyank_highlight_duration*
+g:highlightedyank_max_lines	highlightedyank.txt	/*g:highlightedyank_max_lines*
+g:highlightedyank_timeout	highlightedyank.txt	/*g:highlightedyank_timeout*
 highlightedyank-highlight-groups	highlightedyank.txt	/*highlightedyank-highlight-groups*
 highlightedyank-index	highlightedyank.txt	/*highlightedyank-index*
 highlightedyank-introduction	highlightedyank.txt	/*highlightedyank-introduction*
