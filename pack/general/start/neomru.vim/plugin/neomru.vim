@@ -11,9 +11,6 @@ if exists('g:loaded_neomru')
   finish
 endif
 
-let s:save_cpo = &cpo
-set cpo&vim
-
 command! NeoMRUReload call neomru#_reload()
 command! NeoMRUSave call neomru#_save()
 
@@ -32,17 +29,11 @@ augroup END
 
 let g:loaded_neomru = 1
 
-function! s:append(path) abort "{{{
+function! s:append(path) abort
   if bufnr('%') != expand('<abuf>')
         \ || a:path == ''
     return
   endif
 
   call neomru#_append()
-endfunction"}}}
-
-let &cpo = s:save_cpo
-unlet s:save_cpo
-
-" __END__
-" vim: foldmethod=marker
+endfunction

@@ -5,14 +5,11 @@
 " License: MIT license
 "=============================================================================
 
-let s:save_cpo = &cpo
-set cpo&vim
-
-" Source  "{{{
+" Source
 call neomru#init()
-function! unite#sources#neomru#define() abort "{{{
+function! unite#sources#neomru#define() abort
   return [s:file_mru_source, s:dir_mru_source]
-endfunction"}}}
+endfunction
 let s:file_mru_source = {
       \ 'name' : 'neomru/file',
       \ 'description' : 'candidates from file MRU list',
@@ -37,22 +34,22 @@ let s:dir_mru_source = {
       \ 'max_candidates' : 200,
       \}
 
-function! s:file_mru_source.hooks.on_syntax(args, context) abort "{{{
+function! s:file_mru_source.hooks.on_syntax(args, context) abort
   syntax match uniteSource__FileMru_Time
         \ /([^)]*)\s\+/
         \ contained containedin=uniteSource__FileMru
   highlight default link uniteSource__FileMru_Time Statement
-endfunction"}}}
-function! s:dir_mru_source.hooks.on_syntax(args, context) abort "{{{
+endfunction
+function! s:dir_mru_source.hooks.on_syntax(args, context) abort
   syntax match uniteSource__DirectoryMru_Time
         \ /([^)]*)\s\+/
         \ contained containedin=uniteSource__DirectoryMru
   highlight default link uniteSource__DirectoryMru_Time Statement
-endfunction"}}}
-function! s:file_mru_source.hooks.on_post_filter(args, context) abort "{{{
+endfunction
+function! s:file_mru_source.hooks.on_post_filter(args, context) abort
   return s:on_post_filter(a:args, a:context)
-endfunction"}}}
-function! s:dir_mru_source.hooks.on_post_filter(args, context) abort "{{{
+endfunction
+function! s:dir_mru_source.hooks.on_post_filter(args, context) abort
   for candidate in a:context.candidates
     if !has_key(candidate, 'abbr')
       let candidate.abbr = candidate.word
@@ -62,8 +59,8 @@ function! s:dir_mru_source.hooks.on_post_filter(args, context) abort "{{{
     endif
   endfor
   return s:on_post_filter(a:args, a:context)
-endfunction"}}}
-function! s:file_mru_source.gather_candidates(args, context) abort "{{{
+endfunction
+function! s:file_mru_source.gather_candidates(args, context) abort
   let mru = neomru#_get_mrus().file
   let candidates = mru.gather_candidates(a:args, a:context)
   return exists('*unite#helper#paths2candidates') ?
@@ -72,8 +69,8 @@ function! s:file_mru_source.gather_candidates(args, context) abort "{{{
         \ 'word' : v:val,
         \ 'action__path' : v:val,
         \}")
-endfunction"}}}
-function! s:dir_mru_source.gather_candidates(args, context) abort "{{{
+endfunction
+function! s:dir_mru_source.gather_candidates(args, context) abort
   let mru = neomru#_get_mrus().directory
   let candidates = mru.gather_candidates(a:args, a:context)
   return exists('*unite#helper#paths2candidates') ?
@@ -82,18 +79,18 @@ function! s:dir_mru_source.gather_candidates(args, context) abort "{{{
         \ 'word' : v:val,
         \ 'action__path' : v:val,
         \}")
-endfunction"}}}
-"}}}
-" Actions "{{{
+endfunction
+
+" Actions
 let s:file_mru_source.action_table.delete = {
       \ 'description' : 'delete from file_mru list',
       \ 'is_invalidate_cache' : 1,
       \ 'is_quit' : 0,
       \ 'is_selectable' : 1,
       \ }
-function! s:file_mru_source.action_table.delete.func(candidates) abort "{{{
+function! s:file_mru_source.action_table.delete.func(candidates) abort
   call neomru#_get_mrus().file.delete(a:candidates)
-endfunction"}}}
+endfunction
 
 let s:dir_mru_source.action_table.delete = {
       \ 'description' : 'delete from directory_mru list',
@@ -101,13 +98,13 @@ let s:dir_mru_source.action_table.delete = {
       \ 'is_quit' : 0,
       \ 'is_selectable' : 1,
       \ }
-function! s:dir_mru_source.action_table.delete.func(candidates) abort "{{{
+function! s:dir_mru_source.action_table.delete.func(candidates) abort
   call neomru#_get_mrus().directory.delete(a:candidates)
-endfunction"}}}
-"}}}
+endfunction
 
-" Filters "{{{
-function! s:converter(candidates, context) abort "{{{
+
+" Filters
+function! s:converter(candidates, context) abort
   if g:neomru#filename_format == '' && g:neomru#time_format == ''
     return a:candidates
   endif
@@ -126,27 +123,20 @@ function! s:converter(candidates, context) abort "{{{
   endfor
 
   return a:candidates
-endfunction"}}}
-function! s:file_mru_source.source__converter(candidates, context) abort "{{{
+endfunction
+function! s:file_mru_source.source__converter(candidates, context) abort
   return s:converter(a:candidates, a:context)
-endfunction"}}}
+endfunction
 let s:file_mru_source.converters = [ s:file_mru_source.source__converter ]
-function! s:dir_mru_source.source__converter(candidates, context) abort "{{{
+function! s:dir_mru_source.source__converter(candidates, context) abort
   return s:converter(a:candidates, a:context)
-endfunction"}}}
+endfunction
 let s:dir_mru_source.converters = [ s:dir_mru_source.source__converter ]
-"}}}
 
-" Misc "{{{
-function! s:on_post_filter(args, context) abort "{{{
+" Misc
+function! s:on_post_filter(args, context) abort
   for candidate in a:context.candidates
     let candidate.action__directory =
           \ unite#util#path2directory(candidate.action__path)
   endfor
-endfunction"}}}
-"}}}
-"
-let &cpo = s:save_cpo
-unlet s:save_cpo
-
-" vim: foldmethod=marker
+endfunction
