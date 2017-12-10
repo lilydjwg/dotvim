@@ -179,7 +179,7 @@ def tern_bufferFragment():
       start = i
 
   if start is None: start = max(0, line - 50)
-  end = min(len(buf) - 1, line + 20)
+  end = min(len(buf), line + 20)
   return {"type": "part",
           "name": tern_relativeFile(),
           "text": tern_bufferSlice(buf, start, end),
@@ -275,16 +275,18 @@ def tern_ensureCompletionCached():
   if ternCompletionQuery is None:
     ternCompletionQuery = dict()
 
-  completionQuery = dict({"type": "completions", "types": True, "docs": True}, **ternCompletionQuery)
+  ignorecase = int(vim.eval('&ignorecase'))
+  completionQuery = dict({"caseInsensitive": bool(ignorecase), "type": "completions", "types": True, "docs": True}, **ternCompletionQuery)
 
   data = tern_runCommand(completionQuery, {"line": curRow - 1, "ch": curCol})
   if data is None: return
 
   completions = []
   for rec in data["completions"]:
-    completions.append({"word": rec["name"],
-                        "menu": tern_asCompletionIcon(rec.get("type")),
-                        "info": tern_typeDoc(rec) })
+    completions.append({"word":  rec["name"],
+                        "icase": ignorecase,
+                        "menu":  tern_asCompletionIcon(rec.get("type")),
+                        "info":  tern_typeDoc(rec) })
   vim.command("let b:ternLastCompletion = " + json.dumps(completions))
   start, end = (data["start"]["ch"], data["end"]["ch"])
   vim.command("let b:ternLastCompletionPos = " + json.dumps({
@@ -384,7 +386,14 @@ def tern_refs():
                  "col": col,
                  "filename": filename,
                  "text": name + " (file not loaded)" if len(text)==0 else text[0]})
-  vim.command("call setloclist(0," + json.dumps(refs) + ") | lopen")
+
+  vim.command("call setloclist(0," + json.dumps(refs) + ")")
+  if vim.eval("g:tern_show_loc_after_refs") == '1':
+    vim.command("lopen")
+  else:
+    curRow, curCol = vim.current.window.cursor
+    index = next((i for i,ref in enumerate(refs) if ref["lnum"] == curRow), None)
+    if index is not None: vim.command(str(index + 1) + "ll")
 
 # Copied here because Python 2.6 and lower don't have it built in, and
 # python 3.0 and higher don't support old-style cmp= args to the sort
@@ -427,6 +436,8 @@ def tern_rename(newName):
     for buf in vim.buffers:
       if buf.name == file:
         buffer = buf
+      if platform.system().lower()=='windows' and buf.name == file.replace('/', '\\'):
+        buffer = buf
 
     if buffer is not None:
       lines = buffer
@@ -459,5 +470,10 @@ def tern_rename(newName):
   if len(external):
     tern_sendBuffer(external)
 
+  vim.command("call setloclist(0," + json.dumps(changes) + ")")
   if vim.eval("g:tern_show_loc_after_rename") == '1':
-    vim.command("call setloclist(0," + json.dumps(changes) + ") | lopen")
+    vim.command("lopen")
+  else:
+    curRow, curCol = vim.current.window.cursor
+    index = next((i for i,change in enumerate(changes) if change["lnum"] == curRow), None)
+    if index is not None: vim.command(str(index + 1) + "ll")

@@ -31,31 +31,44 @@ if [ "$1" = vader ]; then
     debug_color='[30;1m'
   fi
 
-  if ((quiet)); then
+  if ((quiet || compact)); then
     spinner_chars='/-\|'
     spinner_current=0
   fi
 
-  quiet_started=$((!quiet))
+  quiet_started=$(( !(quiet || compact) ))
   if ((compact || quiet)); then
     # Do not display output for successful tests (i.e. the log statements).
     last_start_match=
     re_non_log_line='^      > \[(debug  |verbose|warning|error  )|((D|V|W|E) +\+[.0-9]+)\]'
     filtering=0
+    quiet_filtered=
     while read -r; do
-      if [[ "$REPLY" == 'Vader error:'* ]]; then
-        echo "$REPLY"
+      if [[ "$REPLY" == 'Vader error:'* ]] || [[ "$REPLY" == 'Error'* ]] || [[ "$REPLY" == 'Traceback'* ]]; then
+        printf "\r" >&2
+        if [[ -n "$quiet_filtered" ]]; then
+          echo "$quiet_filtered"
+          quiet_filtered=
+        fi
+        printf "[31m[1m%s[0m\n" "$REPLY"
+        quiet_started=1
         continue
       fi
-      # quiet: suppress output until "Starting Vader:".
+      # quiet/compact: suppress output until "Starting Vader:".
       if ! ((quiet_started)); then
         if [[ "$REPLY" == 'Starting Vader:'* ]]; then
           printf "\r" >&2
           echo "$REPLY"
           quiet_started=1
+          quiet_filtered=
         else
           printf "\r%s" ${spinner_chars:spinner_current++:1} >&2
           ((spinner_current==${#spinner_chars})) && spinner_current=0
+          if [[ -n "$quiet_filtered" ]]; then
+            quiet_filtered="$quiet_filtered"$'\n'"$REPLY"
+          else
+            quiet_filtered="$REPLY"
+          fi
         fi
         continue
       fi

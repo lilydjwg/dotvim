@@ -99,8 +99,8 @@ rgvim	vim -gZ	    和 "gvim" 类似，但以受限模式启动。	  	  *rgvim*
 rgview	vim -RgZ    和 "gview" 类似，但以受限模式启动。	  	  *rgview*
 evim    vim -y      简易 Vim: 置位 'insertmode' (见 |-y|)	    *evim*
 eview   vim -yR     和 "evim" 类似，启用只读模式		  *eview*
-vimdiff vim -d	    以 diff 模式启动 |diff-mode|
-gvimdiff vim -gd    以 diff 模式启动 GUI |diff-mode|
+vimdiff vim -d	    以比较模式启动 |diff-mode|
+gvimdiff vim -gd    以比较模式启动 GUI |diff-mode|
 
 程序名字后面还可以有附加的字符，它们都被忽略。例如，你可以用 "gvim-5" 来启动
 GUI。当然，你必须有这个名字的可执行文件。
@@ -123,8 +123,8 @@ VMS 上，所有的选项参数假定都是小写的，除非前面有一个正�
 		关于捕获文本，见 |info-message|。
 
 							*--version*
---version	显示版本信息并退出。和 |:version| 命令的输出结果相同。{Vi 无此
-		功能}
+--version	显示版本信息并退出。和 |:version| 命令的输出结果相同。
+		{Vi 无此功能}
 		关于捕获文本，见 |info-message|。
 
 							*--noplugin*
@@ -196,8 +196,8 @@ VMS 上，所有的选项参数假定都是小写的，除非前面有一个正�
 		|crash-recovery|。
 
 							*-L*
--L		和 -r 相同。 {仅在 Vi 的有些版本里存在: "列出可恢复的编辑会
-		话"}
+-L		和 -r 相同。
+		{仅在 Vi 的有些版本里存在: "列出可恢复的编辑会话"}
 
 							*-R*
 -R		只读模式。为所有编辑的文件置位 'readonly' 选项。你仍然可以编辑
@@ -377,7 +377,7 @@ VMS 上，所有的选项参数假定都是小写的，除非前面有一个正�
 --ttyfail	标准输入或标准输出不是终端 (tty) 时立即退出。
 
 							*-d*
--d		以 diff 模式启动，和 |vimdiff| 类似。
+-d		以比较模式启动，和 |vimdiff| 类似。
 		{Vi 无此功能} {仅当编译时加入 |+diff| 特性才有效}
 
 -d {device}	只出现在 Amiga 上，并且编译时没有加入 |+diff| 特性才适用。
@@ -889,16 +889,16 @@ Vim 启动时，'compatible' 选项是打开的。Vim 开始初始化的时候�
 							*defaults.vim*
 如果 Vim 正常启动且没找到用户 vimrc 文件，载入 $VIMRUTIME/defaults.vim 脚本。
 这会关闭 'compatible'，打开语法高亮和一些更多的设置。详见该脚本。注意: 这从
-Vim 8.0 开始，不是 Vim 7.4。(准确地说，在 7.4.2111 补丁加入)。
+Vim 8.0 开始，不是 Vim 7.4。(准确地说，由 7.4.2111 补丁加入)。
 
 这方便了新 Vim 用户。如果创建了自己 .vimrc，建议在顶部附近加入此行: >
 	unlet! skip_defaults_vim
 	source $VIMRUNTIME/defaults.vim
-这样 Vim 就像之前你有 .vimrc 一样的工作了。一个方法是复制
+如果你有 .vimrc，这样 Vim 就像之前一样地工作了。一个方法是复制
 $VIMRUNTIME/vimrc_example。此外，也可以复制 defaults.vim 到 .vimrc 并自行修改
 (但下次它更动时，你不会得到更新)。
 
-如果你不喜欢部分缺省设置，仍然可以先执行 defaults.vim 然后回滚个别设置。参见
+如果你不喜欢部分缺省设置，仍然可以先执行 defaults.vim，然后回滚个别设置。参见
 defaults.vim 文件中关于如何回滚每个项目的提示。
 						*skip_defaults_vim*
 如果使用系统范围的 vimrc 但不想用 defaults.vim 来改变设置，置位
@@ -1390,7 +1390,7 @@ viminfo 文件，或者修正这个错误，或者先删除这个文件 (在 Vim
 
 						*:ol* *:oldfiles*
 :ol[dfiles]		列出 viminfo 文件中存储位置标记的文件。该列表在启动时
-			读入，其后只有 `:rviminfo`` 能改变它。另见
+			读入，其后只有 `:rviminfo!` 能改变它。另见
 			|v:oldfiles|。
 			其中的编号可用于 |c_#<|。
 			输出结果可用 |:filter| 过滤，例如: >

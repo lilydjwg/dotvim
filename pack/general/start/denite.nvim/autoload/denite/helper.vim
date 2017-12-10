@@ -47,7 +47,8 @@ function! denite#helper#call_denite(command, args, line1, line2) abort
     let context.path = fnamemodify(bufname('%'), ':p:h')
   elseif a:command ==# 'DeniteProjectDir'
     let context.path = denite#util#path2project_directory(
-          \ get(context, 'path', getcwd()))
+          \ get(context, 'path', getcwd()),
+          \ get(context, 'root_markers', ''))
   endif
 
   call denite#start(args, context)
@@ -63,7 +64,7 @@ function! denite#helper#preview_file(context, filename) abort
     let previewheight_save = &previewheight
     try
       let &previewheight = a:context.previewheight
-      call denite#util#execute_path('silent pedit!', a:filename)
+      call denite#util#execute_path('silent aboveleft pedit!', a:filename)
     finally
       let &previewheight = previewheight_save
     endtry

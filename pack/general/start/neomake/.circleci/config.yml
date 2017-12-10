@@ -1,0 +1,76 @@
+version: 2
+
+common: &common
+  docker:
+    - image: neomake/vims-for-tests:17@sha256:e9d152b2daec99afa2f074ba524028b104ac18a26c6eff3f04f1bfac962c1c90
+  working_directory: ~/repo
+  steps:
+    - checkout
+    - run: make --keep-going testcoverage TEST_VIM=$TEST_VIM
+    - run:
+        name: Upload coverage results
+        command: |
+          set -x
+          coverage report -m --skip-covered
+          coverage xml
+          codecov -X search gcov pycov -f coverage.xml --required \
+            --name "$CIRCLE_JOB" --flags ${CIRCLE_JOB%%-*} ${CIRCLE_JOB//-/}
+          set +x
+jobs:
+  nvim-master:
+    <<: *common
+    environment:
+      TEST_VIM=/vim-build/bin/neovim-master
+  nvim-017:
+    <<: *common
+    environment:
+      TEST_VIM=/vim-build/bin/neovim-v0.1.7
+  nvim-020:
+    <<: *common
+    environment:
+      TEST_VIM=/vim-build/bin/neovim-v0.2.0
+  nvim-021:
+    <<: *common
+    environment:
+      TEST_VIM=/vim-build/bin/neovim-v0.2.1
+  vim-master:
+    <<: *common
+    environment:
+      TEST_VIM=/vim-build/bin/vim-master
+  vim-8069:
+    <<: *common
+    environment:
+      TEST_VIM=/vim-build/bin/vim8069
+  vim-74-xenial:
+    <<: *common
+    environment:
+      TEST_VIM=/vim-build/bin/vim74-xenial
+  vim-74-trusty:
+    <<: *common
+    environment:
+      TEST_VIM=/vim-build/bin/vim74-trusty
+  vim-73:
+    <<: *common
+    environment:
+      TEST_VIM=/vim-build/bin/vim73
+
+  checkqa:
+    <<: *common
+    steps:
+      - checkout
+      - run: make --keep-going check check_docker check_lint_diff
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - nvim-021
+      - nvim-020
+      - nvim-master
+      - nvim-017
+      - vim-8069
+      - vim-master
+      - vim-74-xenial
+      - vim-74-trusty
+      - vim-73
+      - checkqa

@@ -1,0 +1,61 @@
+" Main entry point to run all Vader tests.
+" You can run the included files by themselves (since they also source
+" include/setup.vader).
+
+~ Features
+Include (Cancellation): cancellation.vader
+Include (Automaking): automake.vader
+Include (Completion): completion.vader
+Include (Compat): compat.vader
+Include (Config): config.vader
+Include (Current working dir): cwd.vader
+Include (Environment variables): env.vader
+Include (Error handling): errors.vader
+Include (Filetype handling): filetypes.vader
+Include (Filter output): filter_output.vader
+Include (Hooks): hooks.vader
+Include (Hooks get queued): hooks-queue.vader
+Include (Highlights): highlights.vader
+Include (Integration tests): integration.vader
+Include (Jobinfo): jobinfo.vader
+Include (JSON): json.vader
+Include (Lists): lists.vader
+Include (Maker args): args.vader
+Include (Makers): makers.vader
+Include (Maker errors): maker_errors.vader
+Include (Mapexpr): mapexpr.vader
+Include (:NeomakeInfo): cmd_neomakeinfo.vader
+Include (Postprocess): postprocess.vader
+Include (Processing): processing.vader
+Include (Serialize): serialize.vader
+Include (Signs): signs.vader
+Include (Statusline): statusline.vader
+Include (Temporary files): tempfiles.vader
+Include (Toggling): toggle.vader
+Include (Utils): utils.vader
+Include (Verbosity): verbosity.vader
+Include (Custom Quickfix): customqf.vader
+
+~ Filetype specific
+Include (Haskell): ft_haskell.vader
+Include (Perl): ft_perl.vader
+Include (Python): ft_python.vader
+Include (Shell): ft_sh.vader
+Include (Text): ft_text.vader
+Include (Elixir): ft_elixir.vader
+Include (Elm): ft_elm.vader
+Include (PHP): ft_php.vader
+Include (Cs): ft_cs.vader
+Include (Css): ft_css.vader
+Include (Idris): ft_idris.vader
+Include (Vim): ft_vim.vader
+Include (SQL): ft_sql.vader
+Include (Rust): ft_rust.vader
+Include (Asciidoc): ft_asciidoc.vader
+Include (Markdown): ft_markdown.vader
+Include (Pandoc): ft_pandoc.vader
+Include (TypeScript): ft_typescript.vader
+Include (JavaScript): ft_javascript.vader
+Include (PureScript): ft_purescript.vader
+Include (Go): ft_go.vader
+Include (ReStructuredText): ft_rst.vader

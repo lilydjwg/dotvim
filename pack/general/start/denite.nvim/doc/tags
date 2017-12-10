@@ -181,9 +181,10 @@ denite-options-quit	denite.txt	/*denite-options-quit*
 denite-options-refresh	denite.txt	/*denite-options-refresh*
 denite-options-resume	denite.txt	/*denite-options-resume*
 denite-options-reversed	denite.txt	/*denite-options-reversed*
-denite-options-short-source-names	denite.txt	/*denite-options-short-source-names*
+denite-options-root-markers	denite.txt	/*denite-options-root-markers*
 denite-options-smartcase	denite.txt	/*denite-options-smartcase*
 denite-options-sorters	denite.txt	/*denite-options-sorters*
+denite-options-source-names	denite.txt	/*denite-options-source-names*
 denite-options-split	denite.txt	/*denite-options-split*
 denite-options-statusline	denite.txt	/*denite-options-statusline*
 denite-options-unique	denite.txt	/*denite-options-unique*

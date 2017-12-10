@@ -12,7 +12,7 @@ function! neomake#makers#clippy#clippy() abort
             let s:rustup_has_nightly = 0
             call system('rustc --version | grep -q "\-nightly"')
             if v:shell_error
-                call neomake#utils#ErrorMessage('Clippy requires a nightly rust installation.')
+                call neomake#utils#QuietMessage('Clippy requires a nightly rust installation.')
             endif
         else
             call system('rustup show | grep -q "^nightly-"')
@@ -27,14 +27,12 @@ function! neomake#makers#clippy#clippy() abort
         return {
             \ 'exe': 'rustup',
             \ 'args': ['run', 'nightly', 'cargo', 'clippy'] + json_args,
-            \ 'errorformat': cargo_maker.errorformat,
             \ 'process_output': cargo_maker.process_output,
             \ }
     else
         return {
             \ 'exe': 'cargo',
             \ 'args': ['clippy'] + json_args,
-            \ 'errorformat': cargo_maker.errorformat,
             \ 'process_output': cargo_maker.process_output,
             \ }
     endif

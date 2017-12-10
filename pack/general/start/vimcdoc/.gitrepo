@@ -6,6 +6,7 @@
 [subrepo]
 	remote = git@github.com:yianwillis/vimcdoc.git
 	branch = master
-	commit = 978faa9945874e02d49085098e708c769ecb1ad8
-	parent = 37cf93d41030cdc867a4ff98be0c54a1c19c9037
+	commit = 0bb5afe5249c561e034308686f6f022ac0df3de1
+	parent = 87221a8d368f6631643d226b37ccc49ccebdd89a
 	cmdver = 0.3.1
+	method = merge

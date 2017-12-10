@@ -3,22 +3,32 @@
 
 set noloadplugins
 
+" Indicator for tests being run.
+let g:neomake_test_messages = []
+
+" Shorter timeouts during tests.
+let g:neomake_action_queue_timeouts = {1: 10, 2: 20, 3: 30}
+
+if exists('$NEOMAKE_TESTS_DEP_PLUGINS_DIR')
+  let s:dep_plugins_base = $NEOMAKE_TESTS_DEP_PLUGINS_DIR
+else
+  let s:dep_plugins_base = expand('<sfile>:p:h').'/../../build/vim/plugins'
+endif
 if exists('$TESTS_VADER_DIR')
   let vader_dir = expand($TESTS_VADER_DIR)
 else
-  let vader_dir = expand('<sfile>:p:h').'/plugins/vader'
+  let vader_dir = s:dep_plugins_base . '/vader'
 endif
 let &runtimepath .= ','.vader_dir
-exe 'source' vader_dir.'/plugin/vader.vim'
+exe 'source '.vader_dir.'/plugin/vader.vim'
 
-let s:plugins_dir = expand('<sfile>:p:h').'/plugins/'
 let s:sourced_plugins = []
 function! s:load_plugin_on_demand(name) abort
   Save &runtimepath
-  let dir = s:plugins_dir.a:name
+  let dir = s:dep_plugins_base.'/'.a:name
   let &runtimepath .= ','.dir
   if index(s:sourced_plugins, a:name) == -1
-    exe 'source' dir.'/plugin/'.a:name.'.vim'
+    exe 'source '.dir.'/plugin/*.vim'
     call add(s:sourced_plugins, a:name)
   endif
 endfunction
@@ -26,6 +36,7 @@ command! -nargs=1 NeomakeTestsLoadPlugin call s:load_plugin_on_demand(<args>)
 
 let plugin_dir = expand('<sfile>:p:h:h:h')
 let &runtimepath .= ','.plugin_dir
+
 exe 'source' plugin_dir.'/plugin/neomake.vim'
 
 filetype plugin indent on
@@ -56,9 +67,7 @@ set cmdheight=5
 set textwidth=79
 set hidden
 set splitbelow  " Easier for window numbers (incrementing).
-
-
-set debug=msg,throw
+set complete=.  " Just simple completion from the current buffer.
 
 let mapleader=','
 

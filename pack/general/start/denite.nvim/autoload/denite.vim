@@ -18,16 +18,16 @@ function! denite#start(sources, ...) abort
 endfunction
 
 function! denite#get_status_mode() abort
-  return b:denite_statusline_mode
+  return get(b:, 'denite_statusline_mode', '')
 endfunction
 function! denite#get_status_sources() abort
-  return b:denite_statusline_sources
+  return get(b:, 'denite_statusline_sources', '')
 endfunction
 function! denite#get_status_path() abort
-  return b:denite_statusline_path
+  return get(b:, 'denite_statusline_path', '')
 endfunction
 function! denite#get_status_linenr() abort
-  return b:denite_statusline_linenr
+  return get(b:, 'denite_statusline_linenr', '')
 endfunction
 
 
@@ -51,6 +51,9 @@ function! s:start(sources, user_context) abort
         \ 'has_key(context, v:val[0])')
     let context[new_option] = context[old_option]
   endfor
+  if get(context, 'short_source_names', v:false)
+    let context['source_names'] = 'short'
+  endif
 
   if denite#initialize()
     return
