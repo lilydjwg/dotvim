@@ -3,15 +3,6 @@
 " Author:       lilydjwg <lilydjwg@gmail.com>
 
 " ---------------------------------------------------------------------
-"  自带的配置会在任何时候都设置为 pythoncomplete#Complete
-if has("python3")
-  setlocal omnifunc=python3complete#Complete
-elseif has("python")
-  setlocal omnifunc=pythoncomplete#Complete
-else
-  setlocal omnifunc=syntaxcomplete#Complete
-endif
-" ---------------------------------------------------------------------
 " load python code, set 'sw' etc {{{1
 " Vim 7.4 from some patch level unconditionally set 'sw' and 'sts' to 4
 function! Python_setsw(chan, out)
