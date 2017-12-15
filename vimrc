@@ -326,15 +326,6 @@ function Lilydjwg_toggle_color()
   let i = (i+1) % len(colors)
   exe 'colorscheme ' . get(colors, i)
 endfunction
-" 打开 snippets 文件[[[2
-function Lilydjwg_snippets(ft)
-  let d = g:neosnippet#snippets_directory
-  if a:ft == ''
-    exe 'tabe '.d.'/'.&ft.'.snip'
-  else
-    exe 'tabe '.d.'/'.a:ft.'.snip'
-  endif
-endfunction
 "   %xx -> 对应的字符(到消息)[[[2
 function Lilydjwg_hexchar()
   let chars = Lilydjwg_get_pattern_at_cursor('\(%[[:xdigit:]]\{2}\)\+')
@@ -831,8 +822,6 @@ command -nargs=? -complete=file RSplit vs <args>|normal <C-W>L<C-W>w
 command -range=% -bar SQuote <line1>,<line2>s/“\|”\|″/"/ge|<line1>,<line2>s/‘\|’\|′/'/ge
 command -range -bar HTMLEscape <line1>,<line2>s/&/\&amp;/ge|<line1>,<line2>s/</\&lt;/ge|<line1>,<line2>s/>/\&gt;/ge
 command -range -bar HTMLUnescape <line1>,<line2>s/&amp;/\&/ge|<line1>,<line2>s/&lt;/</ge|<line1>,<line2>s/&gt;/>/ge
-"   载入 snippets
-command -nargs=? Snippets silent call Lilydjwg_snippets("<args>")
 "   用 VimExplorer 插件打开当前文件所在的目录
 command Path VE %:p:h
 command -nargs=1 Enc e ++bad=keep ++enc=<args> %
@@ -858,22 +847,6 @@ let g:mwDefaultHighlightingPalette = 'maximum'
 let g:extradite_showhash = 1
 "   linediff[[[2
 let g:linediff_buffer_type = 'scratch'
-"   neosnippet[[[2
-let g:neosnippet#snippets_directory = g:vimfiles . '/snippets'
-imap <expr><TAB> neosnippet#expandable_or_jumpable() ?
-      \ "\<Plug>(neosnippet_expand_or_jump)"
-      \: pumvisible() ? "\<C-n>" : "\<TAB>"
-smap <expr><TAB> neosnippet#expandable_or_jumpable() ?
-      \ "\<Plug>(neosnippet_expand_or_jump)"
-      \: "\<TAB>"
-"   neocomplete[[[2
-let g:neocomplete#enable_at_startup = 1
-let g:neocomplete#enable_smart_case = 1
-let g:neocomplete#enable_prefetch = 0
-" disable text mode completely
-call neocomplete#util#disable_default_dictionary('g:neocomplete#text_mode_filetypes')
-let g:neocomplete#same_filetypes = {}
-let g:neocomplete#same_filetypes._ = '_'
 "   rst_tables[[[2
 let g:rst_tables_no_warning = 1
 "   signify [[[2
