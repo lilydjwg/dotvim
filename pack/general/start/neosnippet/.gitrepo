@@ -1,0 +1,11 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:Shougo/neosnippet.vim.git
+	branch = master
+	commit = 9ee1b4e059d4ffcc02312da13ee36315dacbffe4
+	parent = 24409e6d1179e9578b300e7b0b2925a77653360f
+	cmdver = 0.3.1
