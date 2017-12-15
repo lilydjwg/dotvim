@@ -854,12 +854,6 @@ let g:choosewin_overlay_enable = 1
 let g:choosewin_statusline_replace = 0
 "   mark.vim[[[2
 let g:mwDefaultHighlightingPalette = 'maximum'
-"   deoplete[[[2
-if has('nvim')
-  let g:deoplete#enable_at_startup = 1
-else
-  let g:loaded_deoplete = 1
-endif
 "   extradite.vim[[[2
 let g:extradite_showhash = 1
 "   linediff[[[2
