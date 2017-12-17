@@ -12,6 +12,8 @@ function! Python_setsw(chan, out)
   endif
   let &l:sw = a:out
   let &l:sts = a:out
+  " refresh folds
+  normal! zX
 endfunction
 function! Python_err(chan, out)
   echoerr a:out
