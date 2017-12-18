@@ -2,6 +2,8 @@
 let g:neosnippet#disable_runtime_snippets = {
       \   '_' : 1,
       \ }
+" or (s won't expand s
+let g:neosnippet#expand_word_boundary = 1
 
 let g:neosnippet#snippets_directory = g:vimfiles . '/snippets'
 imap <expr><TAB> neosnippet#expandable_or_jumpable() ?
