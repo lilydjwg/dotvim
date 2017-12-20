@@ -781,8 +781,9 @@ autocmd CmdwinEnter	* let s:cmdwin = 1
 autocmd CmdwinLeave	* let s:cmdwin = 0
 autocmd InsertLeave	* if s:cmdwin == 0 && pumvisible() == 0|pclose|endif
 "   插入模式下长时间不动则打断撒消序列
-" disable because of a bug: https://github.com/vim/vim/issues/2451
-" autocmd CursorHoldI * call feedkeys("\<C-g>u", 'nt')
+if (v:version == 800 && has("patch1407")) || v:version != 800
+  autocmd CursorHoldI * call feedkeys("\<C-g>u", 'nt')
+endif
 autocmd BufReadCmd *.maff,*.xmind,*.crx,*.apk,*.whl,*.egg  call zip#Browse(expand("<amatch>"))
 "   见 ft-syntax-omni
 if has("autocmd") && exists("+omnifunc")
