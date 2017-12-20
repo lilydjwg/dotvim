@@ -1,7 +1,7 @@
-let g:neosnippet#snippets_directory = g:vimfiles . '/snippets'
-imap <expr><TAB> neosnippet#expandable_or_jumpable() ?
-      \ "\<Plug>(neosnippet_expand_or_jump)"
-      \: pumvisible() ? "\<C-n>" : "\<TAB>"
-smap <expr><TAB> neosnippet#expandable_or_jumpable() ?
-      \ "\<Plug>(neosnippet_expand_or_jump)"
-      \: "\<TAB>"
+let g:neocomplete#enable_at_startup = 1
+let g:neocomplete#enable_smart_case = 1
+let g:neocomplete#enable_prefetch = 0
+" disable text mode completely
+call neocomplete#util#disable_default_dictionary('g:neocomplete#text_mode_filetypes')
+let g:neocomplete#same_filetypes = {}
+let g:neocomplete#same_filetypes._ = '_'
