@@ -406,6 +406,9 @@ function Lilydjwg_trycycle(dir)
 endfunction
 " set 相关[[[1
 "   一般设置[[[2
+" nvim needs this to enable ftplugin
+filetype plugin on
+filetype indent on
 " maybe necessary when root
 syntax on
 " set guifont=文泉驿等宽正黑\ Medium\ 10
