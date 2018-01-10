@@ -26,12 +26,9 @@ options head
 	}
 	
 	fn main() {
-	  match main2() {
-	    Ok(()) => {},
-	    Err(e) => {
-	      eprintln!("Error: {:?}", e);
-	    },
-	  };
+	  if let Err(e) = main2() {
+	    eprintln!("Error: {:?}", e);
+	  }
 	}
 snippet uni
         unimplemented!()
