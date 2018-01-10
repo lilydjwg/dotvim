@@ -10,3 +10,26 @@ snippet s
 	self
 snippet u
         unwrap()
+snippet error
+options head
+	#[macro_use] extern crate error_chain;
+	
+	mod errors;
+	
+	use errors::*;
+snippet main2
+options head
+	fn main2() -> Result<()> {
+	  ${1}
+	
+	  Ok(())
+	}
+	
+	fn main() {
+	  match main2() {
+	    Ok(()) => {},
+	    Err(e) => {
+	      eprintln!("Error: {:?}", e);
+	    },
+	  };
+	}
