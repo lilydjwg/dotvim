@@ -215,6 +215,8 @@ Execute (Output gets not processed while in loclist):
   endif
 
 Execute (Unbuffered output handled correctly (loclist)):
+  " XXX: flaky?! (maker2 not exited in https://circleci.com/gh/neomake/neomake/4960).
+  " Also for qflist one below (https://circleci.com/gh/neomake/neomake/4971).
   if NeomakeAsyncTestsSetup()
     " Produce intersected output: 1_1, 2_1, 1_2, 2_2, …
     let s:tmpfile1 = tempname()
@@ -447,11 +449,11 @@ Execute (Handle finished job that got canceled (#1158)):
 Execute (Job does not get restarted when canceled):
   if NeomakeAsyncTestsSetup()
     let maker = NeomakeTestsCommandMaker('mymaker', 'echo output; sleep .1; echo output2')
-    let jobinfo = neomake#Make({'enabled_makers': [maker]})[0]
+    let jobinfo = neomake#Make({'enabled_makers': [maker], 'buffer_output': 0})[0]
     NeomakeTestsWaitForMessage "stdout: mymaker: ['output', ''].", 3, jobinfo
     call neomake#CancelJob(jobinfo.id)
 
-    let jobinfo2 = neomake#Make(1, [maker])[0]
+    let jobinfo2 = neomake#Make({'enabled_makers': [maker], 'buffer_output': 0})[0]
     NeomakeTestsWaitForFinishedJobs
 
     AssertNeomakeMessage "stdout: mymaker: ['output', ''].", 3, jobinfo2
@@ -459,11 +461,13 @@ Execute (Job does not get restarted when canceled):
 
     AssertEqual len(g:neomake_test_finished), 1
     AssertEqual len(g:neomake_test_jobfinished), 1
-"     AssertEqual len(g:neomake_test_countschanged), 0
-    AssertEqual len(g:neomake_test_countschanged), 1
+    AssertEqual len(g:neomake_test_countschanged), 3
   endif
 
 Execute (100 lines of output should not get processed one by one):
+  Save g:neomake_verbose
+  let g:neomake_verbose = 3
+
   " This would be the case when using Vim's 'nl' mode.
   call g:NeomakeSetupAutocmdWrappers()
   let maker = NeomakeTestsCommandMaker('echo_100', 'i=100; while ((i--)); do echo $i; done')
@@ -472,7 +476,7 @@ Execute (100 lines of output should not get processed one by one):
   NeomakeTestsWaitForFinishedJobs
   let c = g:neomake_test_countschanged
   Assert len(c) < 50, 'There were 50+ count changes: '.len(c)
-  AssertNeomakeMessage '\v^Skipped \d+ entries without bufnr\.'
+  AssertNeomakeMessage '\v^Skipped \d+ entries without bufnr: .*\.'
 
 Execute (Mixed newlines get handled correctly):
   let maker = {
@@ -751,6 +755,7 @@ Execute (action queue handles E48 in process_output):
   bwipe
   AssertNeomakeMessage 'action queue: processing for WinEnter (1 items, winnr: 1).'
   if async
+    AssertNeomakeMessage 'action queue: processing Timer queue first.', 3
     AssertNeomakeMessage 'action queue: processing for Timer (1 items, winnr: 1).'
     AssertNeomakeMessage 'action queue: calling s:ProcessJobOutput.'
     AssertNeomakeMessage 'Postponing location list processing.'
@@ -770,44 +775,47 @@ Execute (action queue handles E48 in process_output):
   AssertNeomakeMessage 'Cleaning jobinfo.', 3, jobinfo
 
 Execute (job finishes while in tabline function):
-  if neomake#has_async_support()  " use manual setup without autocmds to work around bug in vim8069
+  if NeomakeAsyncTestsSetup()
     Save &tabline, g:neomake_test_flagfile
 
     let g:neomake_test_flagfile = tempname()
 
     function! s:NeomakeTestTabline()
       call writefile(['1'], g:neomake_test_flagfile)
-      while 1
-        if !filereadable(g:neomake_test_flagfile)
-          break
-        endif
-        sleep 1m
-      endwhile
-      NeomakeTestsWaitForMessage 'Error during pcall: Vim(laddexpr):E523: Not allowed here:                 laddexpr a:lines.', 3
-      AssertNeomakeMessage '\v\(in function .*\.\.\<SNR\>\d+_NeomakeTestTabline\[\d+\]\.\..*\)', 3
+      NeomakeTestsWaitForFinishedJobs
       call neomake#utils#DebugMessage('tabline_end.')
     endfunction
 
     new
-    set tabline=%!s:NeomakeTestTabline()
     let maker1 = NeomakeTestsCommandMaker('sleep', printf(
     \ 'while ! [ -e %s ]; do sleep 0.01; done; echo finished_in_tabline; rm %s',
     \ fnameescape(g:neomake_test_flagfile), fnameescape(g:neomake_test_flagfile)))
     let jobinfo = neomake#GetJob(neomake#Make(1, [maker1])[0])
-    redraw
-    NeomakeTestsWaitForFinishedJobs
+    set tabline=%!s:NeomakeTestTabline()
+    redrawstatus
+
+    NeomakeTestsWaitForMessage 'Error during pcall: Vim(laddexpr):E523: Not allowed here:                 laddexpr a:lines.', 3
+    AssertNeomakeMessage '\v\(in function .*\.\.\<SNR\>\d+_NeomakeTestTabline\[\d+\]\.\..*\)', 3
+    AssertNeomakeMessage 'Queueing action: s:ProcessJobOutput for Timer.', 3
 
     AssertNeomakeMessage 'Skipping cleaning of job info because of queued actions: s:ProcessJobOutput.'
     AssertNeomakeMessage 'Queueing action: s:CleanJobinfo for WinEnter.'
     AssertNeomakeMessage 'tabline_end.', 3
+    sleep 20m
+    AssertNeomakeMessage 'action queue: processing for Timer (1 items, winnr: 2).', 3
+    AssertNeomakeMessage 'action queue: calling s:ProcessJobOutput.', 3
 
+    " Restore here already for vim8090 (E117: Unknown function: s:NeomakeTestTabline)
+    Restore &tabline
     doautocmd WinEnter
+    AssertNeomakeMessage 'action queue: processing for WinEnter (1 items, winnr: 2).', 3
+    AssertNeomakeMessageAbsent 'action queue: processing for Timer (0 items, winnr: 2).', 3
+    AssertNeomakeMessage 'action queue: calling s:CleanJobinfo.', 3
+
     AssertEqual map(getloclist(0), 'v:val.text'), ['finished_in_tabline']
     bwipe
     Assert exists('#neomake_statusline'), 'statusline augroup was created'
     Assert !exists('#neomake_statusline#ColorScheme'), 'ColorScheme was not hooked into'
-  else
-    NeomakeTestsSkip 'no async support.'
   endif
 
 Execute (get_list_entries job processes entries while in tabline function):

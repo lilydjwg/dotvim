@@ -340,7 +340,7 @@ function! g:error_maker.postprocess(entry) abort
 endfunction
 let g:success_maker = NeomakeTestsCommandMaker('success-maker', 'echo success')
 let g:true_maker = NeomakeTestsCommandMaker('true-maker', 'true')
-let g:entry_maker = {}
+let g:entry_maker = {'name': 'entry_maker'}
 function! g:entry_maker.get_list_entries(...) abort
   return get(g:, 'neomake_test_getlistentries', [
   \   {'text': 'error', 'lnum': 1, 'type': 'E'}])
@@ -390,6 +390,16 @@ function! NeomakeTestsGetVimMessages()
   return reverse(msgs[0 : idx-1])
 endfunction
 
+function! NeomakeTestsGetMakerWithOutput(func, lines) abort
+  let output_file = tempname()
+  call writefile(a:lines, output_file)
+
+  let maker = call(a:func, [])
+  let maker.exe = 'cat'
+  let maker.args = [output_file]
+  return maker
+endfunction
+
 function! s:After()
   if exists('#neomake_automake')
     au! neomake_automake
@@ -398,7 +408,7 @@ function! s:After()
   Restore
   unlet! g:expected  " for old Vim with Vader, that does not wrap tests in a function.
 
-  let errors = []
+  let errors = g:neomake_test_errors
 
   " Stop any (non-canceled) jobs.  Canceled jobs might take a while to call the
   " exit handler, but that is OK.
@@ -488,10 +498,10 @@ function! s:After()
   endfor
 
   " Check that no new global functions are defined.
-  redir => output_func
+  redir => neomake_output_func_after
     silent function /\C^[A-Z]
   redir END
-  let funcs = map(split(output_func, '\n'),
+  let funcs = map(split(neomake_output_func_after, '\n'),
         \ "substitute(v:val, '\\v^function (.*)\\(.*$', '\\1', '')")
   let new_funcs = filter(copy(funcs), 'index(g:neomake_test_funcs_before, v:val) == -1')
   if !empty(new_funcs)

@@ -113,7 +113,7 @@ function! neomake#quickfix#FormatQuickfix() abort
                     if index(makers, maker.name) == -1
                         call add(makers, maker.name)
                     endif
-                    let item.text = item.text[:(idx-1)]
+                    let item.text = idx == 0 ? '' : item.text[:(idx-1)]
                 catch
                     call neomake#utils#log_exception(printf(
                                 \ 'Error when evaluating nmcfg (%s): %s.',
@@ -133,7 +133,7 @@ function! neomake#quickfix#FormatQuickfix() abort
         let i += 1
     endfor
 
-    let syntax = makers
+    let syntax = copy(makers)
     if src_buf
         for ft in split(neomake#compat#getbufvar(src_buf, '&filetype', ''), '\.')
             if !empty(ft) && index(syntax, ft) == -1
@@ -158,7 +158,7 @@ function! neomake#quickfix#FormatQuickfix() abort
     let buffer_names = {}
     if len(buffers) > 1
         for b in buffers
-            let bufname = bufname(b)
+            let bufname = b ? bufname(b) : ''
             if empty(bufname)
                 let bufname = 'buf:'.b
             else

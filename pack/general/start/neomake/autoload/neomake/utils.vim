@@ -6,8 +6,6 @@ let s:short_level_to_name = {0: 'E', 1: 'W', 2: 'V', 3: 'D'}
 
 let s:is_testing = exists('g:neomake_test_messages')
 
-let s:refs_for_profiling = []
-
 function! s:reltime_lastmsg() abort
     if exists('s:last_msg_ts')
         let cur = neomake#compat#reltimefloat()
@@ -231,6 +229,7 @@ endfunction
 
 let s:command_maker = {
             \ 'remove_invalid_entries': 0,
+            \ '_get_fname_for_args': get(g:neomake#core#command_maker_base, '_get_fname_for_args'),
             \ }
 function! s:command_maker.fn(jobinfo) dict abort
     " Return a cleaned up copy of self.
@@ -241,24 +240,26 @@ function! s:command_maker.fn(jobinfo) dict abort
         let argv = split(&shell) + split(&shellcmdflag)
         let maker.exe = argv[0]
         let maker.args = argv[1:] + [command]
-        let maker._exe_wrapped_in_shell = split(command)[0]
     else
         let maker.exe = command[0]
         let maker.args = command[1:]
-        let maker._exe_wrapped_in_shell = ''
     endif
-
-    if get(maker, 'append_file', a:jobinfo.file_mode)
-        let fname = fnamemodify(self._get_fname_for_buffer(a:jobinfo), ':p')
+    let fname = self._get_fname_for_args(a:jobinfo)
+    if !empty(fname)
         if type(command) == type('')
             let maker.args[-1] .= ' '.fname
         else
             call add(maker.args, fname)
         endif
-        let maker.append_file = 0
     endif
     return maker
 endfunction
+
+" @vimlint(EVL103, 1, a:jobinfo)
+function! s:command_maker._get_argv(jobinfo) abort dict
+    return neomake#compat#get_argv(self.exe, self.args, 1)
+endfunction
+" @vimlint(EVL103, 0, a:jobinfo)
 
 " Create a maker object, with a "fn" callback.
 " Args: command (string or list).  Gets wrapped in a shell in case it is a
@@ -347,11 +348,7 @@ function! neomake#utils#GetSetting(key, maker, default, ft, bufnr, ...) abort
         endif
     endif
 
-    let Ret2 = s:get_oldstyle_setting(a:key, a:maker, a:default, a:ft, a:bufnr, maker_only)
-    if v:profiling && type(Ret2) == type(function('tr'))
-        let s:refs_for_profiling += [Ret2]
-    endif
-    return Ret2
+    return s:get_oldstyle_setting(a:key, a:maker, a:default, a:ft, a:bufnr, maker_only)
 endfunction
 
 function! s:get_oldstyle_setting(key, maker, default, ft, bufnr, maker_only) abort
@@ -461,9 +458,12 @@ function! neomake#utils#redir(cmd) abort
         endfor
         return r
     endif
-    redir => neomake_redir
     try
+        redir => neomake_redir
         silent exe a:cmd
+    catch /^Vim(redir):E121:/
+        throw printf('Neomake: neomake#utils#redir: called with outer :redir (error: %s).',
+                    \ v:exception)
     finally
         redir END
     endtry
@@ -476,22 +476,16 @@ function! neomake#utils#ExpandArgs(args) abort
     " \\% is expanded to \\file.ext
     " %% becomes %
     " % must be followed with an expansion keyword
-    let isk = &iskeyword
-    set iskeyword=p,h,t,r,e,%,:
-    try
-        let ret = map(a:args,
-                    \ 'substitute(v:val, '
-                    \ . '''\(\%(\\\@<!\\\)\@<!%\%(%\|\%(:[phtre]\+\)*\)\ze\)\w\@!'', '
-                    \ . '''\=(submatch(1) == "%%" ? "%" : expand(submatch(1)))'', '
-                    \ . '''g'')')
-        let ret = map(ret,
-                    \ 'substitute(v:val, '
-                    \ . '''\(\%(\\\@<!\\\)\@<!\~\)'', '
-                    \ . 'expand(''~''), '
-                    \ . '''g'')')
-    finally
-        let &iskeyword = isk
-    endtry
+    let ret = map(a:args,
+                \ 'substitute(v:val, '
+                \ . '''\(\%(\\\@<!\\\)\@<!%\%(%\|\%(:[phtre]\+\)*\)\ze\)\w\@!'', '
+                \ . '''\=(submatch(1) == "%%" ? "%" : expand(submatch(1)))'', '
+                \ . '''g'')')
+    let ret = map(ret,
+                \ 'substitute(v:val, '
+                \ . '''\(\%(\\\@<!\\\)\@<!\~\)'', '
+                \ . 'expand(''~''), '
+                \ . '''g'')')
     return ret
 endfunction
 
@@ -541,9 +535,6 @@ function! neomake#utils#hook(event, context, ...) abort
                 unlet g:neomake_hook_context
             endif
         endtry
-    else
-        call neomake#utils#DebugMessage(printf(
-                    \ 'Skipping User autocmd %s: no hooks.', a:event))
     endif
 endfunction
 
@@ -685,4 +676,25 @@ function! neomake#utils#highlight_is_defined(group) abort
         return 0
     endif
     return neomake#utils#parse_highlight(a:group) !=# 'cleared'
+endfunction
+
+function! neomake#utils#get_project_root(bufnr) abort
+    let ft = getbufvar(a:bufnr, '&filetype')
+    call neomake#utils#load_ft_makers(ft)
+
+    let project_root_files = ['.git', 'Makefile']
+
+    let ft_project_root_files = 'neomake#makers#ft#'.ft.'#project_root_files'
+    if has_key(g:, ft_project_root_files)
+        let project_root_files = get(g:, ft_project_root_files) + project_root_files
+    endif
+
+    let buf_dir = expand('#'.a:bufnr.':p:h')
+    for fname in project_root_files
+        let project_root = neomake#utils#FindGlobFile(fname, buf_dir)
+        if !empty(project_root)
+            return fnamemodify(project_root, ':h')
+        endif
+    endfor
+    return ''
 endfunction

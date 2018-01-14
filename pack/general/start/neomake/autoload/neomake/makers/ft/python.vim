@@ -20,6 +20,8 @@ function! neomake#makers#ft#python#EnabledMakers() abort
     return makers
 endfunction
 
+let neomake#makers#ft#python#project_root_files = ['setup.cfg', 'tox.ini']
+
 function! neomake#makers#ft#python#pylint() abort
     let maker = {
         \ 'args': [
@@ -40,7 +42,7 @@ function! neomake#makers#ft#python#pylint() abort
         \ ]}
     function! maker.filter_output(lines, context) abort
         if a:context.source ==# 'stderr'
-            call filter(a:lines, "v:val !=# 'No config file found, using default configuration'")
+            call filter(a:lines, "v:val !=# 'No config file found, using default configuration' && v:val !~# '^Using config file '")
         endif
     endfunction
     return maker
