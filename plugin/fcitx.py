@@ -31,6 +31,8 @@ class FcitxComm(object):
   def _error(self, e):
     estr = str(e).replace('"', r'\"')
     file = self.socketfile.replace('"', r'\"')
+    if file and file[0] == '\0':
+      file = '@' + file[1:]
     vim.command('echohl WarningMsg | echo "fcitx.vim: socket %s error: %s" | echohl NONE' % (file, estr))
 
   def _connect(self):
