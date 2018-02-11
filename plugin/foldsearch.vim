@@ -273,10 +273,10 @@ function! s:FoldSearchInit()
     execute "mkview " . b:foldsearch_viewfile
   endif
 
-  let &foldtext = ""
-  let &foldmethod = "manual"
-  let &foldenable = 1
-  let &foldminlines = 0
+  let &l:foldtext = ""
+  let &l:foldmethod = "manual"
+  let &l:foldenable = 1
+  let &l:foldminlines = 0
 
   " erase all folds to begin with
   normal zE
