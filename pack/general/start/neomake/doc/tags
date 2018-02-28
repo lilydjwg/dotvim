@@ -27,7 +27,6 @@ NeomakeJobStarted	neomake.txt	/*NeomakeJobStarted*
 b:neomake_<ft>_<name>_<property>	neomake.txt	/*b:neomake_<ft>_<name>_<property>*
 b:neomake_<ft>_enabled_makers	neomake.txt	/*b:neomake_<ft>_enabled_makers*
 b:neomake_<name>_<property>	neomake.txt	/*b:neomake_<name>_<property>*
-b:neomake_enabled_makers	neomake.txt	/*b:neomake_enabled_makers*
 g:airline#extensions#neomake#enabled	neomake.txt	/*g:airline#extensions#neomake#enabled*
 g:neomake_<ft>_<name>_<property>	neomake.txt	/*g:neomake_<ft>_<name>_<property>*
 g:neomake_<ft>_<name>_maker	neomake.txt	/*g:neomake_<ft>_<name>_maker*
@@ -60,10 +59,8 @@ neomake#statusline#LoclistCounts	neomake.txt	/*neomake#statusline#LoclistCounts*
 neomake#statusline#LoclistStatus	neomake.txt	/*neomake#statusline#LoclistStatus*
 neomake#statusline#QflistCounts	neomake.txt	/*neomake#statusline#QflistCounts*
 neomake#statusline#QflistStatus	neomake.txt	/*neomake#statusline#QflistStatus*
-neomake#statusline#get()	neomake.txt	/*neomake#statusline#get()*
 neomake-args-file	neomake.txt	/*neomake-args-file*
 neomake-autocmds	neomake.txt	/*neomake-autocmds*
-neomake-automake	neomake.txt	/*neomake-automake*
 neomake-commands	neomake.txt	/*neomake-commands*
 neomake-configuration	neomake.txt	/*neomake-configuration*
 neomake-contents	neomake.txt	/*neomake-contents*
@@ -87,7 +84,6 @@ neomake-makers-process_output	neomake.txt	/*neomake-makers-process_output*
 neomake-makers-processing	neomake.txt	/*neomake-makers-processing*
 neomake-makers-properties	neomake.txt	/*neomake-makers-properties*
 neomake-makers-remove_invalid_entries	neomake.txt	/*neomake-makers-remove_invalid_entries*
-neomake-makers-supports_stdin	neomake.txt	/*neomake-makers-supports_stdin*
 neomake-makers-tempfile_enabled	neomake.txt	/*neomake-makers-tempfile_enabled*
 neomake-object-jobinfo	neomake.txt	/*neomake-object-jobinfo*
 neomake-object-maker	neomake.txt	/*neomake-object-maker*

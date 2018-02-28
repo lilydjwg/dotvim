@@ -19,7 +19,7 @@ command! -bang -nargs=1 -complete=custom,neomake#cmd#complete_jobs
             \ NeomakeCancelJob call neomake#CancelJob(<q-args>, <bang>0)
 command! -bang NeomakeCancelJobs call neomake#CancelJobs(<bang>0)
 
-command! -bang -bar NeomakeInfo call neomake#DisplayInfo(<bang>0)
+command! -bang -bar NeomakeInfo call neomake#debug#display_info(<bang>0)
 
 " Enable/disable/toggle commands.  {{{
 function! s:toggle(scope) abort
@@ -30,8 +30,10 @@ function! s:toggle(scope) abort
         call neomake#config#unset_dict(a:scope, 'neomake.disabled')
     endif
     call s:display_status()
+    call neomake#statusline#clear_cache()
 endfunction
 function! s:disable(scope, disabled) abort
+    let old = get(get(a:scope, 'neomake', {}), 'disabled', -1)
     call neomake#config#set_dict(a:scope, 'neomake.disabled', a:disabled)
     if a:scope is# g:
         if a:disabled
@@ -45,6 +47,9 @@ function! s:disable(scope, disabled) abort
     endif
     if &verbose
         call s:display_status()
+    endif
+    if old != a:disabled
+        call neomake#statusline#clear_cache()
     endif
 endfunction
 function! s:display_status() abort

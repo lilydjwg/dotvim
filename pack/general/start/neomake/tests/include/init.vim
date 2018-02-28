@@ -339,6 +339,7 @@ function! g:error_maker.postprocess(entry) abort
   let a:entry.lnum = 1
 endfunction
 let g:success_maker = NeomakeTestsCommandMaker('success-maker', 'echo success')
+let g:success_maker.errorformat = '%-Gsuccess'
 let g:true_maker = NeomakeTestsCommandMaker('true-maker', 'true')
 let g:entry_maker = {'name': 'entry_maker'}
 function! g:entry_maker.get_list_entries(...) abort
@@ -395,8 +396,9 @@ function! NeomakeTestsGetMakerWithOutput(func, lines) abort
   call writefile(a:lines, output_file)
 
   let maker = call(a:func, [])
-  let maker.exe = 'cat'
-  let maker.args = [output_file]
+  let maker.exe = &shell
+  let maker.args = [&shellcmdflag, 'cat '.fnameescape(output_file)]
+  let maker.name = printf('%s-mocked', substitute(a:func, '^.*#', '', ''))
   return maker
 endfunction
 
@@ -434,18 +436,22 @@ function! s:After()
   endif
   if !empty(make_info)
     call add(errors, 'make_info is not empty: '.string(make_info))
+    try
+      call neomake#CancelAllMakes(1)
+    catch
+      call add(errors, v:exception)
+    endtry
   endif
   let actions = filter(copy(status.action_queue), '!empty(v:val)')
   if !empty(actions)
     call add(errors, printf('action_queue is not empty: %d entries: %s',
           \ len(actions), string(status.action_queue)))
+    try
+      call neomake#CancelAllMakes(1)
+    catch
+      call add(errors, v:exception)
+    endtry
   endif
-  try
-    NeomakeTestsWaitForRemovedJobs
-  catch
-    call neomake#CancelJobs(1)
-    call add(errors, v:exception)
-  endtry
 
   if exists('#neomake_tests')
     autocmd! neomake_tests
@@ -486,16 +492,12 @@ function! s:After()
 
   let new_buffers = filter(range(1, bufnr('$')), 'bufexists(v:val) && index(g:neomake_test_buffers_before, v:val) == -1')
   if !empty(new_buffers)
-    call add(errors, 'Unexpected/not wiped buffers: '.join(new_buffers, ', '))
-    Log neomake#utils#redir('ls!')
+    let curbuffers = neomake#utils#redir('ls!')
+    call add(errors, 'Unexpected/not wiped buffers: '.join(new_buffers, ', ')."\ncurrent buffers:".curbuffers)
     for b in new_buffers
       exe 'bwipe!' b
     endfor
   endif
-
-  for k in keys(make_info)
-    unlet make_info[k]
-  endfor
 
   " Check that no new global functions are defined.
   redir => neomake_output_func_after
@@ -516,7 +518,8 @@ function! s:After()
   endif
 
   if !empty(errors)
-    throw len(errors).' error(s) in teardown: '.join(errors, "\n")
+    call map(errors, "printf('%d. %s', v:key+1, v:val)")
+    throw len(errors)." error(s) in teardown:\n".join(errors, "\n")
   endif
 endfunction
 command! NeomakeTestsGlobalAfter call s:After()

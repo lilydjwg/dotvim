@@ -290,7 +290,7 @@ function! neomake#utils#load_ft_makers(ft) abort
     " monkeypatching it in tests).
     if index(s:loaded_ft_maker_runtime, a:ft) == -1
         if !exists('*neomake#makers#ft#'.a:ft.'#EnabledMakers')
-            exe 'runtime! autoload/neomake/makers/ft/'.a:ft.'.vim'
+            silent exe 'runtime! autoload/neomake/makers/ft/'.a:ft.'.vim'
         endif
         call add(s:loaded_ft_maker_runtime, a:ft)
     endif
@@ -431,14 +431,9 @@ function! neomake#utils#ReverseSynIDattr(attr) abort
     return a:attr
 endfunction
 
+" Deprecated: moved to neomake#postprocess#compress_whitespace.
 function! neomake#utils#CompressWhitespace(entry) abort
-    let text = a:entry.text
-    let text = substitute(text, "\001", '', 'g')
-    let text = substitute(text, '\r\?\n', ' ', 'g')
-    let text = substitute(text, '\m\s\{2,}', ' ', 'g')
-    let text = substitute(text, '\m^\s\+', '', '')
-    let text = substitute(text, '\m\s\+$', '', '')
-    let a:entry.text = text
+    call neomake#postprocess#compress_whitespace(a:entry)
 endfunction
 
 function! neomake#utils#redir(cmd) abort
@@ -476,7 +471,7 @@ function! neomake#utils#ExpandArgs(args) abort
     " \\% is expanded to \\file.ext
     " %% becomes %
     " % must be followed with an expansion keyword
-    let ret = map(a:args,
+    let ret = map(copy(a:args),
                 \ 'substitute(v:val, '
                 \ . '''\(\%(\\\@<!\\\)\@<!%\%(%\|\%(:[phtre]\+\)*\)\ze\)\w\@!'', '
                 \ . '''\=(submatch(1) == "%%" ? "%" : expand(submatch(1)))'', '
@@ -538,16 +533,25 @@ function! neomake#utils#hook(event, context, ...) abort
     endif
 endfunction
 
-function! neomake#utils#diff_dict(d1, d2) abort
-    let diff = [{}, {}, {}]
-    let keys = keys(a:d1) + keys(a:d2)
+function! neomake#utils#diff_dict(old, new) abort
+    let diff = {}
+    let keys = keys(a:old) + keys(a:new)
     for k in keys
-        if !has_key(a:d2, k)
-            let diff[1][k] = a:d1[k]
-        elseif !has_key(a:d1, k)
-            let diff[2][k] = a:d2[k]
-        elseif type(a:d1[k]) !=# type(a:d2[k]) || a:d1[k] !=# a:d2[k]
-            let diff[0][k] = [a:d1[k], a:d2[k]]
+        if !has_key(a:new, k)
+            if !has_key(diff, 'removed')
+                let diff['removed'] = {}
+            endif
+            let diff['removed'][k] = a:old[k]
+        elseif !has_key(a:old, k)
+            if !has_key(diff, 'added')
+                let diff['added'] = {}
+            endif
+            let diff['added'][k] = a:new[k]
+        elseif type(a:old[k]) !=# type(a:new[k]) || a:old[k] !=# a:new[k]
+            if !has_key(diff, 'changed')
+                let diff['changed'] = {}
+            endif
+            let diff['changed'][k] = [a:old[k], a:new[k]]
         endif
     endfor
     return diff
@@ -601,7 +605,7 @@ function! s:gsub(str,pat,rep) abort
 endfunction
 
 function! neomake#utils#shellescape(arg) abort
-    if a:arg =~# '^[A-Za-z0-9_/.-]\+$'
+    if a:arg =~# '^[A-Za-z0-9_/.=-]\+$'
         return a:arg
     elseif &shell =~? 'cmd' || exists('+shellslash') && !&shellslash
         return '"'.s:gsub(s:gsub(a:arg, '"', '""'), '\%', '"%"').'"'

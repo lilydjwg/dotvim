@@ -25,7 +25,8 @@ function! neomake#makers#ft#go#go() abort
             \ '%E%f:%l:%c:%m,' .
             \ '%E%f:%l:%m,' .
             \ '%C%\s%\+%m,' .
-            \ '%-G#%.%#'
+            \ '%-G#%.%#',
+        \ 'postprocess': function('neomake#postprocess#compress_whitespace'),
         \ }
 endfunction
 
@@ -60,6 +61,8 @@ function! neomake#makers#ft#go#gometalinter() abort
         \ 'args': ['--disable-all', '--enable=errcheck', '--enable=megacheck'],
         \ 'append_file': 0,
         \ 'cwd': '%:h',
-        \ 'errorformat': '%f:%l:%c:%t%*[^:]: %m',
+        \ 'errorformat':
+            \ '%f:%l:%c:%t%*[^:]: %m,' .
+            \ '%f:%l::%t%*[^:]: %m'
         \ }
 endfunction

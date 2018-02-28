@@ -30,6 +30,7 @@ Include (Processing): processing.vader
 Include (Serialize): serialize.vader
 Include (Signs): signs.vader
 Include (Statusline): statusline.vader
+Include (Stdin): stdin.vader
 Include (Temporary files): tempfiles.vader
 Include (Toggling): toggle.vader
 Include (Utils): utils.vader
@@ -53,8 +54,6 @@ Include (Vim): ft_vim.vader
 Include (SQL): ft_sql.vader
 Include (Rust): ft_rust.vader
 Include (Asciidoc): ft_asciidoc.vader
-Include (Markdown): ft_markdown.vader
-Include (Pandoc): ft_pandoc.vader
 Include (TypeScript): ft_typescript.vader
 Include (JavaScript): ft_javascript.vader
 Include (PureScript): ft_purescript.vader

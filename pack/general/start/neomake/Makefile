@@ -176,20 +176,36 @@ vimhelplint: | $(if $(VIMHELPLINT_DIR),,build/vimhelplint)
 
 # Run tests in dockerized Vims.
 DOCKER_REPO:=neomake/vims-for-tests
-DOCKER_TAG:=19
+DOCKER_TAG:=22
 NEOMAKE_DOCKER_IMAGE?=
 DOCKER_IMAGE:=$(if $(NEOMAKE_DOCKER_IMAGE),$(NEOMAKE_DOCKER_IMAGE),$(DOCKER_REPO):$(DOCKER_TAG))
 DOCKER_STREAMS:=-ti
 DOCKER=docker run $(DOCKER_STREAMS) --rm \
     -v $(PWD):/testplugin \
+    -w /testplugin \
     -e NEOMAKE_TEST_NO_COLORSCHEME \
     $(DOCKER_IMAGE)
 docker_image:
 	docker build -f Dockerfile.tests -t $(DOCKER_REPO):$(DOCKER_TAG) .
 docker_push:
 	docker push $(DOCKER_REPO):$(DOCKER_TAG)
+docker_update_image:
+	@git diff --cached --exit-code >/dev/null || { echo "WARN: git index is not clean."; }
+	@if git diff --exit-code Makefile >/dev/null; then \
+	  sed -i '/^DOCKER_TAG:=/s/:=.*/:=$(shell echo $$(($(DOCKER_TAG)+1)))/' Makefile; \
+	else \
+	  echo "WARN: Makefile is not clean. Not updating."; \
+	fi
+	@if git diff --exit-code Dockerfile.tests >/dev/null; then \
+	  sed -i '/^ENV NEOMAKE_DOCKERFILE_UPDATE=/s/=.*/=$(shell date +%Y-%m-%d)/' Dockerfile.tests; \
+	else \
+	  echo "WARN: Dockerfile.tests is not clean. Not updating."; \
+	fi
+	make docker_image
+	make docker_test DOCKER_VIM=neovim-master
+	@echo "Done.  Use 'make docker_push' to push it, and then update .circleci/config.yml."
 
-DOCKER_VIMS:=vim73 vim74-trusty vim74-xenial vim8069 vim-master neovim-v0.1.7 neovim-v0.2.0 neovim-v0.2.1 neovim-v0.2.2 neovim-master
+DOCKER_VIMS:=vim73 vim74-trusty vim74-xenial vim-8.0.586 vim-master neovim-v0.1.7 neovim-v0.2.0 neovim-v0.2.1 neovim-v0.2.2 neovim-master
 _DOCKER_VIM_TARGETS:=$(addprefix docker_test-,$(DOCKER_VIMS))
 
 docker_test_all: $(_DOCKER_VIM_TARGETS)
@@ -214,8 +230,11 @@ docker_run: $(DEP_PLUGINS)
 docker_run:
 	$(DOCKER) $(if $(DOCKER_RUN),$(DOCKER_RUN),bash)
 
-docker_make: DOCKER_RUN=make -C /testplugin $(DOCKER_MAKE_TARGET)
+docker_make: DOCKER_RUN=make $(DOCKER_MAKE_TARGET)
 docker_make: docker_run
+
+docker_check: DOCKER_MAKE_TARGET=check_docker
+docker_check: docker_make
 
 docker_vimhelplint:
 	$(MAKE) docker_make "DOCKER_MAKE_TARGET=vimhelplint \
@@ -249,8 +268,7 @@ check_lint_diff:
 
 check_lint: vimlint vint vimhelplint
 
-# Checks to be run with Docker.
-# This is kept separate from "check" to not require Docker there.
+# Checks to be run within the Docker image.
 check_docker:
 	@:; set -e; ret=0; \
 	echo '== Checking for DOCKER_VIMS to be in sync'; \
@@ -258,8 +276,7 @@ check_docker:
 	docker_vims="$$(printf '%s\n' $(DOCKER_VIMS) | sort)"; \
 	if ! [ "$$vims" = "$$docker_vims" ]; then \
 	  echo "DOCKER_VIMS is out of sync with Vims in image."; \
-	  echo "DOCKER_VIMS: $$docker_vims"; \
-	  echo "in image:    $$vims"; \
+	  diff <(echo "$$vims") <(echo "$$docker_vims"); \
 	  (( ret+=8 )); \
 	fi; \
 	exit $$ret
@@ -283,7 +300,8 @@ check:
 	  (( ret+=2 )); \
 	fi; \
 	echo '== Checking for absent :Log calls'; \
-	if grep --line-number --color '^\s*Log\b' $(shell git ls-files tests/*.vader $(LINT_ARGS)); then \
+	if git --no-pager grep --line-number --color '^(\s*au.*\b)?\s*Log\b' \
+	    -- :^tests/include/init.vim :^tests/include/setup.vader; then \
 	  echo "Found Log commands."; \
 	  (( ret+=4 )); \
 	fi; \
@@ -300,12 +318,18 @@ check:
 	contrib/vim-checks $(LINT_ARGS) || (( ret+= 16 )); \
 	exit $$ret
 
-build/coverage: $(shell find . -name '*.vim')
+.coverage.covimerage: .coveragerc $(shell find . -name '*.vim')
 	$(MAKE) testcoverage
-.coverage: build/coverage
-	covimerage write_coverage $?/*.profile
-coverage: .coverage
-	coverage report -m --skip-covered
+coverage: .coverage.covimerage
+	coverage report -m
+
+NEOMAKE_LOG:=/tmp/neomake.log
+tail_log:
+	fifo=$(shell mktemp -u); \
+	  mkfifo $$fifo; \
+	  tail -f $(NEOMAKE_LOG) \
+	  | $(CURDIR)/contrib/highlight-log >> $$fifo & \
+		less --force --chop-long-lines +F $$fifo
 
 clean:
 	$(RM) -r build

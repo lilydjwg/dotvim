@@ -3,22 +3,27 @@ Include: include/setup.vader
 Execute (Displays custom formatted quickfix buffer):
   call neomake#quickfix#enable()
   try
+    new
+    let bufnr = bufnr('%')
+    noautocmd set filetype=python
+    Assert !hlexists('neomakePythonLint'), 'neomakePythonLint does not exist'
+
     call setloclist(0, [{
         \   'lnum': 1,
-        \   'bufnr': 1,
-        \   'text': 'Line 1 nmcfg:{"name": "Alpha", "short": "Alph"}',
+        \   'bufnr': bufnr,
+        \   'text': 'Line 1 nmcfg:{"name": "python", "short": "Alph"}',
         \ },
         \ {
         \   'lnum': 2,
         \   'col': 5,
-        \   'bufnr': 1,
+        \   'bufnr': bufnr,
         \   'text': 'Line 2',
         \ }])
 
     lopen
     let loclist_bufnr = bufnr('%')
     AssertEqual b:current_syntax, 'neomake_qf'
-
+    Assert hlexists('neomakePythonLint'), 'neomakePythonLint does exists'
 
     AssertEqual getline(1, '$'),
       \ ['Alph 1:- Line 1', 'Alph 2:5 Line 2']
@@ -75,6 +80,7 @@ Execute (Displays custom formatted quickfix buffer):
     close
   finally
     call neomake#quickfix#disable()
+    bwipe
   endtry
 
 Execute (Sets quickfix title (location list)):
@@ -313,8 +319,7 @@ Execute (neomake#quickfix#FormatQuickfix reuses signs):
     lopen
     let loclist_bufnr = bufnr('%')
     AssertEqual getline(1), 'b 1:- Text with marker'
-    let bufnr = bufnr('%')
-    AssertNeomakeMessage 'Placing sign: sign place 5000 line=1 name=neomake_file_err buffer='.bufnr.'.', 3
+    AssertNeomakeMessage 'Placing sign: sign place 5000 line=1 name=neomake_file_err buffer='.loclist_bufnr.'.', 3
 
     call setloclist(0, [{
         \ 'lnum': 1,
@@ -322,6 +327,96 @@ Execute (neomake#quickfix#FormatQuickfix reuses signs):
         \}])
     AssertNeomakeMessage 'Reusing sign: id=5000, type=neomake_file_err, lnum=1.', 3, {'bufnr': loclist_bufnr}
 
+    lclose
+    bwipe
+  finally
+    call neomake#quickfix#disable()
+  endtry
+
+Execute (custom qf gets disabled with manual setloclist()):
+  call neomake#quickfix#enable()
+  try
+    new
+    call setloclist(0, [{
+        \ 'lnum': 1,
+        \ 'text': 'Text with marker nmcfg:{"name": "b", "short": "b"}',
+        \}])
+    lopen
+    AssertEqual getline(1), 'b 1:- Text with marker'
+    doautocmd CursorMoved
+
+    Assert !empty(filter(getmatches(), "v:key == 'neomakeMakerName'")), 'There are existing matches.'
+    call setloclist(0, [{'text': 'something custom'}])
+    AssertNeomakeMessage 'Resetting custom qf for non-Neomake change.', 3
+    Assert empty(filter(getmatches(), "v:key == 'neomakeMakerName'")), 'There are no existing matches.'
+
+    call setloclist(0, [{
+        \ 'lnum': 1,
+        \ 'text': 'Text with marker nmcfg:{"name": "b", "short": "b"}',
+        \}])
+    Assert !empty(filter(getmatches(), "v:key == 'neomakeMakerName'")), 'There are existing matches again.'
+
+    lclose
+    bwipe
+  finally
+    call neomake#quickfix#disable()
+  endtry
+
+Execute (disabling it restores initial lines (in qf window)):
+  new
+  call setloclist(0, [{
+      \ 'lnum': 1,
+      \ 'text': 'Text with marker nmcfg:{"name": "b", "short": "b"}',
+      \}])
+  lopen
+  AssertEqual getline(1), '|1| Text with marker nmcfg:{"name": "b", "short": "b"}'
+  call neomake#quickfix#enable()
+  try
+    AssertEqual getline(1), 'b 1:- Text with marker'
+    call neomake#quickfix#disable()
+    AssertEqual getline(1), '|1| Text with marker nmcfg:{"name": "b", "short": "b"}'
+    lclose
+    bwipe
+  finally
+    call neomake#quickfix#disable()
+  endtry
+
+Execute (enabling does not touch existing lists (in another window)):
+  new
+  call setloclist(0, [{
+      \ 'lnum': 1,
+      \ 'text': 'Text with marker nmcfg:{"name": "b", "short": "b"}',
+      \}])
+  lopen
+  AssertEqual getline(1), '|1| Text with marker nmcfg:{"name": "b", "short": "b"}'
+  wincmd p
+  call neomake#quickfix#enable()
+  try
+    wincmd p
+    AssertEqual getline(1), '|1| Text with marker nmcfg:{"name": "b", "short": "b"}'
+    call neomake#quickfix#disable()
+    AssertEqual getline(1), '|1| Text with marker nmcfg:{"name": "b", "short": "b"}'
+    lclose
+    bwipe
+  finally
+    call neomake#quickfix#disable()
+  endtry
+
+Execute (enabling does not touch existing lists (in another window)):
+  new
+  call setloclist(0, [{
+      \ 'lnum': 1,
+      \ 'text': 'Text with marker nmcfg:{"name": "b", "short": "b"}',
+      \}])
+  lopen
+  AssertEqual getline(1), '|1| Text with marker nmcfg:{"name": "b", "short": "b"}'
+  call neomake#quickfix#enable()
+  try
+    AssertEqual getline(1), 'b 1:- Text with marker'
+    wincmd p
+    call neomake#quickfix#disable()
+    wincmd p
+    AssertEqual getline(1), 'b 1:- Text with marker'
     lclose
     bwipe
   finally

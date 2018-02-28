@@ -1,4 +1,4 @@
-*Neomake* - asynchronous make for Vim version 7.4+ and Neovim
+*neomake.txt* - asynchronous make for Vim version 7.4+ and Neovim
 
         ███╗   ██╗███████╗ ██████╗ ███╗   ███╗ █████╗ ██╗  ██╗███████╗
         ████╗  ██║██╔════╝██╔═══██╗████╗ ████║██╔══██╗██║ ██╔╝██╔════╝
@@ -7,15 +7,15 @@
         ██║ ╚████║███████╗╚██████╔╝██║ ╚═╝ ██║██║  ██║██║  ██╗███████╗
         ╚═╝  ╚═══╝╚══════╝ ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝
 
-       Run make tasks (such as linters and build tools) asynchronously
+       Run make tasks (such as linters and build tools) asynchronously.
 
 ==============================================================================
-CONTENTS                                                    *neomake-contents*
+CONTENTS                                                             *neomake*
 
     1. Introduction ............................... |neomake-introduction|
     2. Commands ....................................... |neomake-commands|
     3. Configuration ............................. |neomake-configuration|
-    3.1. Automake
+    3.1. Automake ..................................... |neomake-automake|
     4. Functions ..................................... |neomake-functions|
     5. Autocommands/Hooks ............................. |neomake-autocmds|
     6. Frequently Asked Questions (FAQ) .................... |neomake-faq|
@@ -26,8 +26,9 @@ CONTENTS                                                    *neomake-contents*
 Neomake leverages Neovim's or Vim's |job-control| feature where available to
 run programs like syntax checkers asynchronously. Where job control is not
 available, it resorts to a synchronous |system()| call, making it possible to
-run this plugin in both Vim and Neovim. This plugin is heavily inspired by
-fantastic Vim plugins such as syntastic and dispatch.
+run this plugin in both older Vims and Neovim.
+This plugin is heavily inspired by Vim plugins such as Syntastic and
+dispatch.
 
 ==============================================================================
 2. Commands                                                 *neomake-commands*
@@ -77,25 +78,25 @@ fantastic Vim plugins such as syntastic and dispatch.
 2.1. Toggle commands                                          *neomake-toggle*
 
 The following commands enable, disable or toggle Neomake globally, per tab or
-per buffer by changing the `disabled` setting, which is checked when Neomake
-is called via autocommands. Calling |:Neomake| manually will not use this
-setting.
-In verbose mode (e.g. when called with |:verbose|) the new status gets
-displayed.
+per buffer by changing the `disabled` setting, which gets checked when Neomake
+gets called via autocommands, e.g. with |neomake-automake| or custom
+autocommands. You can still call e.g. |:Neomake| manually, and it will run.
+In verbose mode (e.g. when called with |:verbose| (`:verb Neomake`)) the new
+status gets displayed.
 
-*:NeomakeToggle* toggles Neomake globally.
-*:NeomakeToggleBuffer* toggles Neomake for the current buffer.
-*:NeomakeToggleTab* toggles Neomake for the current tab.
+*:NeomakeToggle*        toggles Neomake globally.
+*:NeomakeToggleBuffer*  toggles Neomake for the current buffer.
+*:NeomakeToggleTab*     toggles Neomake for the current tab.
                                                              *neomake-disable*
-*:NeomakeDisable* disables Neomake globally.
+*:NeomakeDisable*       disables Neomake globally.
 *:NeomakeDisableBuffer* disables Neomake for the current buffer.
-*:NeomakeDisableTab* disables Neomake for the current tab.
+*:NeomakeDisableTab*    disables Neomake for the current tab.
                                                               *neomake-enable*
-*:NeomakeEnable* enables Neomake globally.
-*:NeomakeEnableBuffer* enables Neomake for the current buffer.
-*:NeomakeEnableTab* enables Neomake for the current tab.
+*:NeomakeEnable*        enables Neomake globally.
+*:NeomakeEnableBuffer*  enables Neomake for the current buffer.
+*:NeomakeEnableTab*     enables Neomake for the current tab.
 
-*:NeomakeStatus* displays the current status.
+*:NeomakeStatus*        displays the current status.
 
 ==============================================================================
 3. Configuration                                       *neomake-configuration*
@@ -296,9 +297,10 @@ The following `mapexpr` could be used to prefix the output type: >
     "printf('[%s] %s', neomake_output_source, v:val)"
 <
                                                   *neomake-makers-postprocess*
-The `postprocess` property is a function that gets called for each entry in
-the location or quickfix list. It allows to change entries there or remove
-them by setting the `valid` entry to `-1`.
+The `postprocess` property is a function (or list of functions) that get(s)
+called for each entry in the location or quickfix list.
+It allows to change entries there or remove them by setting the `valid` entry
+to `-1`.
 
 Example: make all entries a warning where `nr` is in the range of 100-199: >
     function PostprocessLintMaker(entry)
@@ -320,11 +322,11 @@ Example: remove some entry for a specific maker (using |expr-lambda|): >
         \ : entry}
 <
 
-The default is to use `neomake#utils#CompressWhitespace` here, which fixes
-whitespace issues (important with multiline error messages).
-
-This can also be used to set the `length` property of an entry, which is used
-to highlight entries in the text (|neomake-highlight|).
+Builtin postprocessors are `neomake#postprocess#compress_whitespace`, which
+fixes whitespace issues (which is useful with multiline error messages),
+and `neomake#postprocess#generic_length`, which adds a length property (used
+for highlights |neomake-highlight|) for entries, when the message refers to an
+identifier at the entry's column.
 See `neomake#makers#ft#text#PostprocessWritegood` for an example.
 
 Entries can be selectively removed in post-processing by setting its "valid"
@@ -365,7 +367,8 @@ You can specify the default for this via |g:neomake_remove_invalid_entries|.
 
                                                           *neomake-makers-cwd*
 The working directory of a maker defaults to the current working directory
-of the make run (|getcwd()|).
+of the make run (|getcwd()|), or the buffer's directory in case of using stdin
+(see |neomake-makers-supports_stdin|).
 The `cwd` property overrides this, and gets expanded in the context of the
 current buffer. Special buffers (like fugitive blobs) get handled for values
 starting with `%:` (typically used in this context), falling back to
@@ -576,21 +579,20 @@ This setting enables highlighting of lines for items from the location and
 quickfix list. This overrides |g:neomake_highlight_columns|, since it
 highlights the whole line already. Defaults to 0.
 
-The following highlighting groups are used. They default to fg/bg colors from
-common highlighting groups, similar to |neomake-signs|, but
-underlined/undercurled (GUI).
- - NeomakeError
- - NeomakeWarning
- - NeomakeInfo
- - NeomakeMessage
+The following highlighting groups are used:
+ - NeomakeError: links to "SpellBad" (|hl-SpellBad|)
+ - NeomakeWarning: links to "SpellCap" (|hl-SpellCap|)
+ - NeomakeInfo: links to "NeomakeWarning"
+ - NeomakeMessage: links to "NeomakeWarning"
 
 You can define them yourself: >
 
     augroup my_neomake_highlights
         au!
         autocmd ColorScheme *
-          \ hi link NeomakeError SpellBad |
-          \ hi link NeomakeWarning SpellCap
+          \ highlight NeomakeError … |
+          \ highlight NeomakeWarning …
+          guisp=White
     augroup END
 >
 

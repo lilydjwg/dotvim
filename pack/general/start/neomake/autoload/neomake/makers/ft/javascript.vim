@@ -1,7 +1,9 @@
 " vim: ts=4 sw=4 et
 
 function! neomake#makers#ft#javascript#EnabledMakers() abort
-    return ['jshint', 'jscs', 'eslint']
+    return ['jshint', 'jscs',
+                \ executable('eslint_d') ? 'eslint_d' : 'eslint',
+                \]
 endfunction
 
 function! neomake#makers#ft#javascript#gjslint() abort
@@ -18,8 +20,8 @@ endfunction
 function! neomake#makers#ft#javascript#jshint() abort
     return {
         \ 'args': ['--verbose'],
-        \ 'errorformat': '%A%f: line %l\, col %v\, %m \(%t%*\d\)',
-        \ 'postprocess': function('neomake#postprocess#GenericLengthPostprocess'),
+        \ 'errorformat': '%A%f: line %l\, col %v\, %m \(%t%*\d\),%-G,%-G%\\d%\\+ errors',
+        \ 'postprocess': function('neomake#postprocess#generic_length'),
         \ }
 endfunction
 
@@ -34,16 +36,13 @@ function! neomake#makers#ft#javascript#eslint() abort
     return {
         \ 'args': ['-f', 'compact'],
         \ 'errorformat': '%E%f: line %l\, col %c\, Error - %m,' .
-        \   '%W%f: line %l\, col %c\, Warning - %m,%-G,%-G%*\d problems%#'
+        \   '%W%f: line %l\, col %c\, Warning - %m,%-G,%-G%*\d problems%#',
+        \ 'cwd': '%:p:h',
         \ }
 endfunction
 
 function! neomake#makers#ft#javascript#eslint_d() abort
-    return {
-        \ 'args': ['-f', 'compact'],
-        \ 'errorformat': '%E%f: line %l\, col %c\, Error - %m,' .
-        \ '%W%f: line %l\, col %c\, Warning - %m'
-        \ }
+    return neomake#makers#ft#javascript#eslint()
 endfunction
 
 function! neomake#makers#ft#javascript#standard() abort
