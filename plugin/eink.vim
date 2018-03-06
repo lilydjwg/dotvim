@@ -34,4 +34,6 @@ function! s:AutoEink(t)
     call s:Eink('')
   endif
 endfunction
-autocmd VimEnter * call timer_start(100, function('s:AutoEink'))
+if exists('*timer_start')
+  autocmd VimEnter * call timer_start(100, function('s:AutoEink'))
+endif
