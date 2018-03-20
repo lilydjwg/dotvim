@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:ElmCast/elm-vim.git
+	branch = master
+	commit = ae5315396cd0f3958750f10a5f3ad9d34d33f40d
+	parent = 6e5f9b1f2b773e22ebde43ed770f2e3ada042a47
+	method = merge
+	cmdver = 0.4.0
