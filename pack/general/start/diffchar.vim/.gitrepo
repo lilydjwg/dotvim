@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:rickhowe/diffchar.vim.git
+	branch = master
+	commit = 62def8d7c0df68f8644904b04dcf387f56a19819
+	parent = 299ada32dbd00f541aa38a1f93c69e4fec106615
+	method = merge
+	cmdver = 0.4.0
