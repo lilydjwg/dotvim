@@ -637,7 +637,6 @@ nmap <F4> :ls<CR>:buffer
 nmap <F6> :cnext<CR>
 nmap <S-F6> :cprevious<CR>
 nmap <silent> <F9> :enew<CR>
-nmap <silent> <F8> :GundoToggle<CR>
 nmap <F11> :next<CR>
 nmap <S-F11> :previous<CR>
 " 重新载入当前文件
