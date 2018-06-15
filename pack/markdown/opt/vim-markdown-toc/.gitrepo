@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:mzlogin/vim-markdown-toc.git
+	branch = master
+	commit = bde5df7b74a4786785119514abee25e76287e795
+	parent = 5f2ae757073383971311e3ee792a65e02d1b7ba0
+	method = merge
+	cmdver = 0.4.0
