@@ -20,7 +20,7 @@ setlocal fo+=B
 " 不能设置在 .vimrc 里，因为那里 wiki 变量还未被建立
 " 直接打开文件时无效
 " 如果 {{{ 不在行首亦无效
-let wiki.nested_syntaxes = {'sh': 'sh', 'c': 'c'}
+let wiki.nested_syntaxes = {'sh': 'sh', 'c': 'c', 'rust': 'rust'}
 
 imap <buffer> <BS> <C-R>=Lilydjwg_checklist_bs('\v^\s*[*-]( \[.\])? $')<CR>
 
