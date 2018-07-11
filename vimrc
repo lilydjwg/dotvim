@@ -1,7 +1,7 @@
 scriptencoding utf-8
 " ========================================================================
 " 依云(lilydjwg) 的 vimrc
-" 我的博客： http://blog.lilydjwg.me/
+" 我的博客： https://blog.lilydjwg.me/
 "
 " 整个配置仅适用于本人
 " 不过，其中的部分配置很可能非常适合你哦～～
