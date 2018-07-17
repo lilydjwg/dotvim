@@ -6,6 +6,10 @@ function! neomake#makers#ft#javascript#EnabledMakers() abort
                 \]
 endfunction
 
+function! neomake#makers#ft#javascript#tsc() abort
+    return neomake#makers#ft#typescript#tsc()
+endfunction
+
 function! neomake#makers#ft#javascript#gjslint() abort
     return {
         \ 'args': ['--nodebug_indentation', '--nosummary', '--unix_mode', '--nobeep'],
@@ -33,12 +37,21 @@ function! neomake#makers#ft#javascript#jscs() abort
 endfunction
 
 function! neomake#makers#ft#javascript#eslint() abort
-    return {
-        \ 'args': ['-f', 'compact'],
+    let maker = {
+        \ 'args': ['--format=compact'],
         \ 'errorformat': '%E%f: line %l\, col %c\, Error - %m,' .
         \   '%W%f: line %l\, col %c\, Warning - %m,%-G,%-G%*\d problems%#',
         \ 'cwd': '%:p:h',
+        \ 'output_stream': 'stdout',
         \ }
+
+    function! maker.supports_stdin(_jobinfo) abort
+        let self.args += ['--stdin', '--stdin-filename=%:p']
+        let self.tempfile_name = ''
+        return 1
+    endfunction
+
+    return maker
 endfunction
 
 function! neomake#makers#ft#javascript#eslint_d() abort
@@ -79,7 +92,7 @@ function! neomake#makers#ft#javascript#flow() abort
         \   '%-GNo errors!,'
         \   .'%EFile "%f"\, line %l\, characters %c-%m,'
         \   .'%trror: File "%f"\, line %l\, characters %c-%m,'
-        \   .'%C%m,%Z%m',
+        \   .'%C%m,%Z',
         \ 'postprocess': function('neomake#makers#ft#javascript#FlowProcess')
         \ }
 endfunction

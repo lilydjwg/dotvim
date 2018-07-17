@@ -33,7 +33,7 @@ function! s:debug_log(msg, ...) abort
     if a:0
         call extend(context, a:1)
     endif
-    call neomake#utils#DebugMessage(printf('automake: %s.', a:msg), context)
+    call neomake#log#debug(printf('automake: %s.', a:msg), context)
 endfunction
 
 " Check if buffer's tick (or ft) changed.
@@ -70,21 +70,26 @@ function! s:tick_changed(context, update) abort
 endfunction
 
 function! s:neomake_do_automake(context) abort
-    let disabled = neomake#config#get_with_source('disabled', 0)
-    if disabled[0]
-        call s:debug_log(printf('disabled (%s)', disabled[1]))
-        return
-    endif
     let bufnr = +a:context.bufnr
 
     if a:context.delay
         if exists('s:timer_by_bufnr[bufnr]')
-            call timer_stop(s:timer_by_bufnr[bufnr])
-            unlet s:timer_by_bufnr[bufnr]
+            let timer = s:timer_by_bufnr[bufnr]
+            call s:stop_timer(timer)
+            call s:debug_log(printf('stopped existing timer: %d', timer), {'bufnr': bufnr})
         endif
         if !s:tick_changed(a:context, 0)
             call s:debug_log('buffer was not changed', {'bufnr': bufnr})
             return
+        endif
+
+        " Cancel any already running automake runs.
+        let prev_make_ids = getbufvar(bufnr, 'neomake_automake_make_ids')
+        if !empty(prev_make_ids)
+            call s:debug_log(printf('stopping previous make runs: %s', join(prev_make_ids, ', ')))
+            for prev_make_id in prev_make_ids
+              call neomake#CancelMake(prev_make_id)
+            endfor
         endif
 
         let timer = timer_start(a:context.delay, function('s:automake_delayed_cb'))
@@ -92,7 +97,7 @@ function! s:neomake_do_automake(context) abort
         if !has_key(a:context, 'pos')
             let s:timer_info[timer].pos = [getpos('.'), neomake#compat#get_mode()]
         endif
-        let s:timer_by_bufnr[a:context.bufnr] = timer
+        let s:timer_by_bufnr[bufnr] = timer
         call s:debug_log(printf('started timer (%dms): %d', a:context.delay, timer),
                     \ {'bufnr': a:context.bufnr})
         return
@@ -105,13 +110,6 @@ function! s:neomake_do_automake(context) abort
     if !s:tick_changed({'event': event, 'bufnr': bufnr, 'ft': ft}, 1)
         call s:debug_log('buffer was not changed', {'bufnr': bufnr})
         return
-    endif
-    let prev_make_ids = getbufvar(bufnr, 'neomake_automake_make_ids')
-    if !empty(prev_make_ids)
-        call s:debug_log(printf('stopping previous make runs: %s', join(prev_make_ids, ', ')))
-        for prev_make_id in prev_make_ids
-          call neomake#CancelMake(prev_make_id)
-        endfor
     endif
 
     call s:debug_log(printf('enabled makers: %s', join(map(copy(a:context.maker_jobs), 'v:val.maker.name'), ', ')))
@@ -131,10 +129,6 @@ endfunction
 
 function! s:automake_delayed_cb(timer) abort
     let timer_info = s:timer_info[a:timer]
-    if !len(timer_info)
-        call s:debug_log(printf('no timer_info found for timer: %d', a:timer))
-        return
-    endif
     unlet s:timer_info[a:timer]
     unlet s:timer_by_bufnr[timer_info.bufnr]
 
@@ -222,7 +216,7 @@ function! s:parse_events_from_args(config, string_or_dict_config, ...) abort
             let delay = a:1
         else
             if a:1 != 0
-                call neomake#utils#QuietMessage('automake: timer support is required for delayed events.')
+                call neomake#log#warning('automake: timer support is required for delayed events.')
             endif
             let delay = 0
         endif
@@ -236,14 +230,14 @@ function! s:parse_events_from_args(config, string_or_dict_config, ...) abort
         " Validate events.
         for [event, config] in items(events)
             if !exists('##'.event)
-                call neomake#utils#ErrorMessage(printf(
+                call neomake#log#error(printf(
                             \ 'automake: event %s does not exist.', event))
                 unlet events[event]
                 continue
             endif
 
             if get(config, 'delay', 0) && !has('timers')
-                call neomake#utils#ErrorMessage(printf(
+                call neomake#log#error(printf(
                             \ 'automake: timer support is required for automaking, removing event %s.',
                             \ event))
                 unlet events[event]
@@ -427,6 +421,11 @@ endfunction
 
 " Called from autocommands.
 function! s:neomake_automake(event, bufnr) abort
+    let disabled = neomake#config#get_with_source('disabled', 0)
+    if disabled[0]
+        call s:debug_log(printf('disabled (%s)', disabled[1]))
+        return
+    endif
     let bufnr = +a:bufnr
 
     " TODO: blacklist/whitelist.
@@ -437,6 +436,16 @@ function! s:neomake_automake(event, bufnr) abort
         call s:debug_log(printf('ignoring %s for buftype=%s', a:event, buftype),
                     \ {'bufnr': bufnr})
         return
+    endif
+
+    if a:event ==# 'TextChanged' && has('patch-8.0.1494') && !has('patch-8.0.1633')
+      " TextChanged gets triggered in this case when loading a buffer (Vim
+      " issue #2742).
+      if !getbufvar(bufnr, '_neomake_seen_TextChanged', 0)
+        call s:debug_log('Ignoring first TextChanged')
+        call setbufvar(bufnr, '_neomake_seen_TextChanged', 1)
+        return
+      endif
     endif
     call s:debug_log(printf('handling event %s', a:event), {'bufnr': bufnr})
 
@@ -480,18 +489,32 @@ function! s:neomake_automake(event, bufnr) abort
     call s:neomake_do_automake(context)
 endfunction
 
+function! s:stop_timer(timer) abort
+    let timer_info = s:timer_info[a:timer]
+    unlet s:timer_info[a:timer]
+    unlet s:timer_by_bufnr[timer_info.bufnr]
+    call timer_stop(+a:timer)
+endfunction
+
+function! s:stop_timers() abort
+    let timers = keys(s:timer_info)
+    call s:debug_log(printf('stopping timers: %s', join(timers, ', ')))
+    for timer in timers
+        call s:stop_timer(timer)
+    endfor
+endfunction
+
 function! neomake#configure#reset_automake() abort
     let s:configured_buffers = {}
     let s:registered_events = []
+    call s:stop_timers()
 endfunction
 
 function! s:neomake_automake_clean(bufnr) abort
     if has_key(s:timer_by_bufnr, a:bufnr)
         let timer = s:timer_by_bufnr[a:bufnr]
-        call s:debug_log('automake: cleaning timer for wiped buffer: '.timer)
-        unlet s:timer_info[timer]
-        unlet s:timer_by_bufnr[a:bufnr]
-        call timer_stop(timer)
+        call s:stop_timer(timer)
+        call s:debug_log('stopped timer for wiped buffer: '.timer)
     endif
     if has_key(s:configured_buffers, a:bufnr)
         unlet s:configured_buffers[a:bufnr]

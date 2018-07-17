@@ -5,7 +5,19 @@ let s:is_enabled = 0
 
 let s:match_base_priority = 10
 
-function! neomake#quickfix#enable() abort
+" args: a:1: force enabling?  (used in tests and for VimEnter callback)
+function! neomake#quickfix#enable(...) abort
+    if has('vim_starting') && !(a:0 && a:1)
+        " Delay enabling for our FileType autocommand to happen as late as
+        " possible, since placing signs triggers a redraw, and together with
+        " vim-qf_resize this causes flicker.
+        " https://github.com/vim/vim/issues/2763
+        augroup neomake_qf
+            autocmd!
+            autocmd VimEnter * call neomake#quickfix#enable(1)
+        augroup END
+        return
+    endif
     let s:is_enabled = 1
     augroup neomake_qf
         autocmd!
@@ -21,6 +33,10 @@ function! neomake#quickfix#disable() abort
     let s:is_enabled = 0
     if &filetype ==# 'qf'
         call neomake#quickfix#FormatQuickfix()
+    endif
+    if exists('#neomake_qf')
+        autocmd! neomake_qf
+        augroup! neomake_qf
     endif
 endfunction
 
@@ -115,7 +131,7 @@ function! neomake#quickfix#FormatQuickfix() abort
     endif
 
     if empty(qflist) || qflist[0].text !~# ' nmcfg:{.\{-}}$'
-        call neomake#utils#DebugMessage('Resetting custom qf for non-Neomake change.')
+        call neomake#log#debug('Resetting custom qf for non-Neomake change.')
         call s:clean_qf_annotations()
         set syntax=qf
         return
@@ -150,7 +166,7 @@ function! neomake#quickfix#FormatQuickfix() abort
                     endif
                     let item.text = idx == 0 ? '' : item.text[:(idx-1)]
                 catch
-                    call neomake#utils#log_exception(printf(
+                    call neomake#log#exception(printf(
                                 \ 'Error when evaluating nmcfg (%s): %s.',
                                 \ config, v:exception))
                 endtry
@@ -189,11 +205,12 @@ function! neomake#quickfix#FormatQuickfix() abort
     endif
 
     " Count number of different buffers and cache their names.
-    let buffers = neomake#compat#uniq(sort(map(copy(qflist), 'v:val.bufnr')))
+    let buffers = neomake#compat#uniq(sort(
+                \ filter(map(copy(qflist), 'v:val.bufnr'), 'v:val != 0')))
     let buffer_names = {}
     if len(buffers) > 1
         for b in buffers
-            let bufname = b ? bufname(b) : ''
+            let bufname = bufname(b)
             if empty(bufname)
                 let bufname = 'buf:'.b
             else
@@ -215,7 +232,7 @@ function! neomake#quickfix#FormatQuickfix() abort
         let i += 1
 
         let text = item.text
-        if !empty(buffer_names)
+        if item.bufnr != 0 && !empty(buffer_names)
             if last_bufnr != item.bufnr
                 let text = printf('[%s] %s', buffer_names[item.bufnr], text)
                 let last_bufnr = item.bufnr

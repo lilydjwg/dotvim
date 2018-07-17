@@ -14,7 +14,7 @@ function! neomake#makers#ft#go#go() abort
     return {
         \ 'args': [
             \ 'test', '-c',
-            \ '-o', neomake#utils#DevNull(),
+            \ '-o', g:neomake#compat#dev_null,
         \ ],
         \ 'append_file': 0,
         \ 'cwd': '%:h',
@@ -58,7 +58,7 @@ function! neomake#makers#ft#go#gometalinter() abort
     "
     " All linters are only warnings, the go compiler will report errors
     return {
-        \ 'args': ['--disable-all', '--enable=errcheck', '--enable=megacheck'],
+        \ 'args': ['--disable-all', '--enable=errcheck', '--enable=megacheck', '--vendor'],
         \ 'append_file': 0,
         \ 'cwd': '%:h',
         \ 'errorformat':

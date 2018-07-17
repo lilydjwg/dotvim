@@ -5,6 +5,16 @@ Execute (neomake#compat#uniq):
   AssertEqual neomake#compat#uniq([1, 2]), [1, 2]
   AssertEqual neomake#compat#uniq([1, 2, 1]), [1, 2, 1]
   AssertEqual neomake#compat#uniq([1, 1, 2]), [1, 2]
+  AssertEqual neomake#compat#uniq([1, 1, 2, 2]), [1, 2]
+  AssertEqual neomake#compat#uniq([1, 1, 2, 2, '2']), [1, 2, '2']
+
+  AssertEqual neomake#compat#uniq([[1], [1]]), [[1]]
+  AssertEqual neomake#compat#uniq([{'a': 1}]), [{'a': 1}]
+
+Execute (neomake#compat#uniq modifies list in place):
+  let l = [5, 5]
+  call neomake#compat#uniq(l)
+  AssertEqual l, [5]
 
 Execute (neomake#compat#reltimefloat):
   let r = neomake#compat#reltimefloat()
@@ -38,6 +48,16 @@ Execute (neomake#compat#systemlist with empty args):
 Execute (neomake#compat#json_decode):
   AssertEqual neomake#compat#json_decode(''), g:neomake#compat#json_none
   Assert neomake#compat#json_decode('') is g:neomake#compat#json_none
+
+  if has('nvim')
+    let expected_exception = 'Vim(return):E474: Unidentified byte: success'
+  elseif exists('*json_decode')
+    let expected_exception = 'Vim(return):E474: Invalid argument'
+  else
+    let expected_exception = 'Neomake: Failed to parse JSON input'
+  endif
+  AssertThrows call neomake#compat#json_decode('success')
+  AssertEqual g:vader_exception, expected_exception
 
 Execute (neomake#compat#json_none):
   AssertThrows call items(g:neomake#compat#json_none)
@@ -127,3 +147,12 @@ Execute (neomake#compat#get_mode with insert mode completion (imap)):
   AssertEqual getline('.'), 'word'
 
   bwipe!
+
+Execute (neomake#compat#glob_list):
+  AssertEqual neomake#compat#glob_list('doesnotexist'), []
+  AssertEqual neomake#compat#glob_list(g:vader_file), [g:vader_file]
+
+  Save &wildignore
+  let &wildignore = '*.vader'
+  AssertEqual fnamemodify(g:vader_file, ':e'), 'vader'
+  AssertEqual neomake#compat#glob_list(g:vader_file), [g:vader_file]

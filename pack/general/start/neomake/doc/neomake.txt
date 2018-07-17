@@ -271,6 +271,32 @@ are required.  `bufnr` defaults to the jobs's buffer.
 Using this method skips the processing based on `errorformat` (including
 `mapexpr` and `postprocess`).
 
+See |neomake-makers-process_json| below for handling JSON output.
+
+                                                 *neomake-makers-process_json*
+A maker's `process_json` function gets a |dict| with parsed JSON directly,
+handling the JSON parsing and any errors before.
+
+The function gets called with a `context` dictionary, containing the following
+entries:
+ - `json`: a dictionary with the parsed JSON
+ - `source`: the source of the output (`stderr`, `stdout`)
+ - `jobinfo`: the jobinfo object, see |neomake-object-jobinfo|
+It should return a list of entries (dictionaries), where `text` and `lnum`
+are required.  `bufnr` defaults to the jobs's buffer.
+
+Using this method skips the processing based on `errorformat` (including
+`mapexpr` and `postprocess`).
+
+                                                *neomake-makers-filter_output*
+A maker's `filter_output` function can filter any output before it gets
+processed further.
+
+The function gets called with two arguments: the list of lines (to be modified
+in place) and a context dictionary with the following entries:
+ - `source`: the source of the output (`stderr`, `stdout`)
+ - `jobinfo`: the jobinfo object, see |neomake-object-jobinfo|
+
                                                       *neomake-makers-mapexpr*
 You can define two optional properties on a maker object to process its
 output: `mapexpr` is applied to the maker's output before any processing, and
@@ -367,8 +393,7 @@ You can specify the default for this via |g:neomake_remove_invalid_entries|.
 
                                                           *neomake-makers-cwd*
 The working directory of a maker defaults to the current working directory
-of the make run (|getcwd()|), or the buffer's directory in case of using stdin
-(see |neomake-makers-supports_stdin|).
+of the make run (|getcwd()|).
 The `cwd` property overrides this, and gets expanded in the context of the
 current buffer. Special buffers (like fugitive blobs) get handled for values
 starting with `%:` (typically used in this context), falling back to
@@ -409,7 +434,15 @@ current jobinfo as its argument, and should return 1 or 0.
 This function can change `self.args`, which is useful to append options like
 e.g. "['--stdin-display-name', '%:p']".
 You can also change `self.tempfile_name` therein.
-
+It can be useful to change the current working directory for the maker here,
+e.g. when it does not use its `--stdin-display-name` (or similar) option
+to look for its config.  Use the jobinfo's `cd` method for this: >
+    function! maker.supports_stdin(jobinfo) abort
+        let self.args += ['--stdin-display-name', '%:.']
+        call a:jobinfo.cd('%:h')
+        return 1
+    endfunction
+<
 Global Options                                               *neomake-options*
 
 *g:neomake_<name>_maker*
@@ -694,6 +727,7 @@ A simpler example: >
           \ 'format_quickfix_issues': '%s',
           \ })
 <
+
 You can use the following options:
   - format_running: used in case there are jobs running.  Use 0 (as a number)
     to disable this, but fall through to the last known status.
@@ -721,14 +755,35 @@ You can use the following options:
     be useful for non-current windows.
     Default: `'%s'` (used with |printf()|).
 
-  - format_status: used to wrap the whole status (if Neomake is not enabled).
+  - format_status: used to wrap the whole status.
     This is a |printf()| format string, where `%s` gets replaced with the
     whole status (and any literal/non-printf `%` needs to be escaped as `%%`).
     Default: not used / `'%s'`
+  - format_status_disabled: used to wrap the whole status when disabled.
+    This is a |printf()| format string, where `%s` gets replaced with the
+    whole status (and any literal/non-printf `%` needs to be escaped as `%%`).
+    Default: `'{{disabled_info}} %s'`
+  - format_disabled_info: The `disabled_info` placeholder from the
+    "format_status_disabled" argument. There `disabled_scope` placeholder is
+    available here. Default: `'{{disabled_scope}}-'`
+  - format_status_enabled: used to wrap the whole status when enabled.
+    This is a |printf()| format string, where `%s` gets replaced with the
+    whole status (and any literal/non-printf `%` needs to be escaped as `%%`).
+    Default: not used / `'%s'`
+  - format_running_job_file: Wrap the running job name for file-level makers.
+    Default: not used / `'%s'`
+  - format_running_job_project: Wrap the running job name for project makers.
+    Default: `'%s!'`.
+  - running_jobs_separator: Separator for formatted running job names.
+    Default: `', '`.
 
 You can use the following format placeholders:
   - `{{running_job_names}}}`: comma-separated list of running jobs (typically
-    their maker names)
+    their maker names).
+    This gets built using `format_running_job_file`,
+    `format_running_job_project`, and `running_jobs_separator`.
+  - `{{disabled_scope}}`: When manually overriden, the scope of the disabling.
+    One of "b", "t", "g".
 
 *neomake#statusline#LoclistStatus*
 *neomake#statusline#QflistStatus*
@@ -873,7 +928,8 @@ Here are some tips to develop the 'errorformat' setting for makers:
 2. Set the errorformat, e.g. `:let &efm = '%E%f:%l:%c\,%n: %m,%Z%m`.
    See |errorformat| for documentation of the format itself.
 3. Load the buffer into the quickfix list: `:cgetbuffer`.
-4. Use `:echo getqflist()` to display the raw data.
+4. Use |:copen| to open the quickfix window, and/or `:echo getqflist()` to
+   display the raw data.
 5. Pay attention to the "`valid`" property of entries.
 
 vim: ft=help tw=78 isk+=<,>,\:,-,'

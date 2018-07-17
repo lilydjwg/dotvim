@@ -7,7 +7,7 @@ Execute (python: errorformat):
   Neomake python
   NeomakeTestsWaitForFinishedJobs
 
-  AssertEqual getloclist(0), [{
+  AssertEqualQf getloclist(0), [{
   \ 'lnum': 1,
   \ 'bufnr': bufnr('%'),
   \ 'col': 22,
@@ -25,14 +25,14 @@ Execute (python: pylama: errorformat):
   new
   file file1.py
   lgetexpr "file1.py:16:1: [C] C901 'load_library' is too complex (13) [mccabe]"
-  AssertEqual getloclist(0), [
+  AssertEqualQf getloclist(0), [
     \ {'lnum': 16, 'bufnr': bufnr('%'), 'col': 1, 'valid': 1, 'vcol': 0,
     \  'nr': -1, 'type': 'C', 'pattern': '',
     \  'text': 'C901 ''load_library'' is too complex (13) [mccabe]'}]
 
   let e = getloclist(0)[0]
   call neomake#makers#ft#python#PylamaEntryProcess(e)
-  AssertEqual e, {
+  AssertEqualQf [e], [{
   \ 'lnum': 16,
   \ 'bufnr': bufnr('%'),
   \ 'col': 1,
@@ -41,7 +41,7 @@ Execute (python: pylama: errorformat):
   \ 'nr': 901,
   \ 'type': 'I',
   \ 'pattern': '',
-  \ 'text': "C901 'load_library' is too complex (13) [mccabe]"}
+  \ 'text': "C901 'load_library' is too complex (13) [mccabe]"}]
   bwipe
 
 Execute (python: pylama: cwd):
@@ -71,14 +71,14 @@ Execute (python: flake8: errorformat/postprocess: F811):
   norm ofrom os import os
   lgetexpr "file1.py:2:1: F811 redefinition of unused 'os' from line 1"
 
-  AssertEqual [
+  AssertEqualQf getloclist(0), [
   \ {'lnum': 2, 'bufnr': bufnr('%'), 'col': 1, 'valid': 1, 'vcol': 0,
   \  'nr': 811, 'type': 'F', 'pattern': '',
-  \  'text': "redefinition of unused 'os' from line 1"}], getloclist(0)
+  \  'text': "redefinition of unused 'os' from line 1"}]
 
   let e = getloclist(0)[0]
   call neomake#makers#ft#python#Flake8EntryProcess(e)
-  AssertEqual {
+  AssertEqualQf [e], [{
   \ 'lnum': 2,
   \ 'bufnr': bufnr('%'),
   \ 'col': 21,
@@ -88,18 +88,18 @@ Execute (python: flake8: errorformat/postprocess: F811):
   \ 'nr': '',
   \ 'length': 2,
   \ 'type': 'E',
-  \ 'text': "F811 redefinition of unused 'os' from line 1"}, e
+  \ 'text': "F811 redefinition of unused 'os' from line 1"}]
 
   lgetexpr "file1.py:3:1: F811 redefinition of unused 'os' from line 2"
 
-  AssertEqual [
+  AssertEqualQf getloclist(0), [
   \ {'lnum': 3, 'bufnr': bufnr('%'), 'col': 1, 'valid': 1, 'vcol': 0,
   \  'nr': 811, 'type': 'F', 'pattern': '',
-  \  'text': "redefinition of unused 'os' from line 2"}], getloclist(0)
+  \  'text': "redefinition of unused 'os' from line 2"}]
 
   let e = getloclist(0)[0]
   call neomake#makers#ft#python#Flake8EntryProcess(e)
-  AssertEqual {
+  AssertEqualQf [e], [{
   \ 'lnum': 3,
   \ 'bufnr': bufnr('%'),
   \ 'col': 16,
@@ -109,7 +109,7 @@ Execute (python: flake8: errorformat/postprocess: F811):
   \ 'nr': '',
   \ 'length': 2,
   \ 'type': 'E',
-  \ 'text': "F811 redefinition of unused 'os' from line 2"}, e
+  \ 'text': "F811 redefinition of unused 'os' from line 2"}]
   bwipe!
 
 Execute (flake8: postprocess for F821 in continuous f-strings):
@@ -167,7 +167,7 @@ Execute (flake8: postprocess for F821 in continuous f-strings):
   Assert !has_key(e, 'length')
   bwipe!
 
-Execute (neomake#makers#ft#python#Flake8EntryProcess):
+Execute (python: flake8: neomake#makers#ft#python#Flake8EntryProcess):
   let bufnr = bufnr('%')
   let entry = {'type': 'F', 'nr': 841, 'text': "local variable 'foo' is assigned to but never used", 'lnum': 1, 'col': 1, 'bufnr': bufnr}
   call neomake#makers#ft#python#Flake8EntryProcess(entry)
@@ -194,15 +194,27 @@ Execute (python: flake8):
   lgetexpr 'foo/bar.py:90:1: I001 isort found an import in the wrong position'
   let llist = getloclist(0)
   let bufnr = bufnr('%')
-  AssertEqual llist, [
+  AssertEqualQf llist, [
   \ {'lnum': 90, 'bufnr': bufnr, 'col': 1, 'valid': 1, 'vcol': 0,
   \  'nr': 1, 'type': 'I', 'pattern': '',
   \  'text': 'isort found an import in the wrong position'}]
   let entry = llist[0]
   call neomake#makers#ft#python#Flake8EntryProcess(entry)
-  AssertEqual entry, {'lnum': 90, 'bufnr': bufnr, 'col': 1, 'valid': 1,
+  AssertEqualQf [entry], [{'lnum': 90, 'bufnr': bufnr, 'col': 1, 'valid': 1,
   \ 'vcol': 0, 'nr': '', 'type': 'I', 'pattern': '',
-  \ 'text': 'I1 isort found an import in the wrong position'}
+  \ 'text': 'I1 isort found an import in the wrong position'}]
+  bwipe
+
+Execute (python: flake8: supports_stdin):
+  new
+  let fname = ''
+  noautocmd setfiletype python
+
+  let b:neomake = {'flake8': {'exe': 'echo', 'errorformat': '%m'}}
+  CallNeomake 1, ['flake8']
+  AssertNeomakeMessage "\\vStarting .{-}: echo --format\\=default --stdin-display-name '' -.", 2
+  AssertEqual getloclist(0)[0].text,
+  \ '-1 --format=default --stdin-display-name  -'
   bwipe
 
 Execute (python: pylint):
@@ -250,11 +262,49 @@ Execute (python: pylint: filters expected msgs on stderr):
   \ ]
   let output = copy(stderr)
   call maker.filter_output(output, {'source': 'stdout'})
-  AssertEqual output, [
-  \ 'No config file found, using default configuration',
-  \ 'Using config file /Users/liyong/.pylintrc',
+  AssertEqual output, stderr
+
+Execute (python: pylint: filters Python warnings):
+  let stderr = [
+  \ '/usr/lib/python3.6/inspect.py:79: Warning: gsignal.c:1675: parameter 1 of type ''<invalid>'' for signal "GstBus::sync_message" is not a value type',
+  \ '  return isinstance(object, type)',
+  \ '/usr/lib/python3.6/inspect.py:79: Warning: gsignal.c:1675: parameter 1 of type ''<invalid>'' for signal "GstBus::message" is not a value type',
+  \ '  return isinstance(object, type)',
   \ 'Some unexpected error',
+  \ '/usr/lib/python3.6/inspect.py:79: Warning: g_param_spec_boxed: assertion ''G_TYPE_IS_BOXED (boxed_type)'' failed',
+  \ '  return isinstance(object, type)',
+  \ '/usr/lib/python3.6/inspect.py:79: Warning: validate_pspec_to_install: assertion ''G_IS_PARAM_SPEC (pspec)'' failed',
+  \ '  return isinstance(object, type)',
+  \ 'Another unexpected error',
   \ ]
+  let maker = neomake#GetMaker('pylint', 'python')
+  let output = copy(stderr)
+  call maker.filter_output(output, {'source': 'stderr'})
+  AssertEqual output, [
+  \ 'Some unexpected error',
+  \ 'Another unexpected error',
+  \ ]
+  let output = copy(stderr)
+  call maker.filter_output(output, {'source': 'stdout'})
+  AssertEqual output, stderr
+
+Execute (neomake#makers#ft#python#FilterPythonWarnings):
+  let lines = [
+  \ '/usr/lib/python3.6/inspect.py:79: Warning: gsignal.c:1675: parameter 1 of type ''<invalid>'' for signal "GstBus::sync_message" is not a value type',
+  \ 'this is not a source location',
+  \]
+  call neomake#makers#ft#python#FilterPythonWarnings(lines, {'source': 'stderr'})
+  AssertEqual lines, [
+  \ 'this is not a source location',
+  \ ]
+
+Execute (neomake#makers#ft#python#FilterPythonWarnings: FutureWarning):
+  let lines = [
+  \ '/some/.venv 37 with space/lib/python3.7/site-packages/pycodestyle.py:113: FutureWarning: Possible nested set at position 1',
+  \ "  EXTRANEOUS_WHITESPACE_REGEX = re.compile(r'[[({] | []}),;:]')",
+  \ ]
+  call neomake#makers#ft#python#FilterPythonWarnings(lines, {'source': 'stderr'})
+  AssertEqual lines, []
 
 Execute (python: mypy: handles --py2):
   call g:NeomakeTestsSetPATH('')

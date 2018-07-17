@@ -25,12 +25,41 @@ let neomake#makers#ft#python#project_root_files = ['setup.cfg', 'tox.ini']
 function! neomake#makers#ft#python#DetectPythonVersion() abort
     let output = neomake#compat#systemlist('python -V 2>&1')
     if v:shell_error
-        call neomake#utils#ErrorMessage(printf(
+        call neomake#log#error(printf(
                     \ 'Failed to detect Python version: %s.',
                     \ join(output)))
         let s:python_version = [-1, -1, -1]
     else
         let s:python_version = split(split(output[0])[1], '\.')
+    endif
+endfunction
+
+let s:ignore_python_warnings = [
+            \ '\v[\/]inspect.py:\d+: Warning:',
+            \ '\v^.{-}:\d+: FutureWarning:',
+            \ ]
+
+" Filter Python warnings (the warning and the following line).
+" To be used as a funcref with filter().
+function! s:filter_py_warning(v) abort
+    if s:filter_next_py_warning
+        let s:filter_next_py_warning = 0
+        " Only keep (expected) lines starting with two spaces.
+        return a:v[0:1] !=# '  '
+    endif
+    for pattern in s:ignore_python_warnings
+        if a:v =~# pattern
+            let s:filter_next_py_warning = 1
+            return 0
+        endif
+    endfor
+    return 1
+endfunction
+
+function! neomake#makers#ft#python#FilterPythonWarnings(lines, context) abort
+    if a:context.source ==# 'stderr'
+        let s:filter_next_py_warning = 0
+        call filter(a:lines, 's:filter_py_warning(v:val)')
     endif
 endfunction
 
@@ -56,6 +85,7 @@ function! neomake#makers#ft#python#pylint() abort
         if a:context.source ==# 'stderr'
             call filter(a:lines, "v:val !=# 'No config file found, using default configuration' && v:val !~# '^Using config file '")
         endif
+        call neomake#makers#ft#python#FilterPythonWarnings(a:lines, a:context)
     endfunction
     return maker
 endfunction
@@ -91,14 +121,15 @@ function! neomake#makers#ft#python#flake8() abort
             \ '%-G%.%#',
         \ 'postprocess': function('neomake#makers#ft#python#Flake8EntryProcess'),
         \ 'short_name': 'fl8',
+        \ 'output_stream': 'stdout',
+        \ 'filter_output': function('neomake#makers#ft#python#FilterPythonWarnings'),
         \ }
 
-    " @vimlint(EVL103, 1, a:jobinfo)
     function! maker.supports_stdin(jobinfo) abort
-        let self.args += ['--stdin-display-name', bufname('%')]
+        let self.args += ['--stdin-display-name', '%:.']
+        call a:jobinfo.cd('%:h')
         return 1
     endfunction
-    " @vimlint(EVL103, 0, a:jobinfo)
     return maker
 endfunction
 

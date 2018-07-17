@@ -1,17 +1,16 @@
+let g:neomake#core#valid_maker_name_pattern = '\v^\w+$'
+
 " Keep track of for what maker.exe an error was thrown.
 let s:exe_error_thrown = {}
 
 function! neomake#core#create_jobs(options, makers) abort
     let args = [a:options, a:makers]
-    if a:options.file_mode
-        let args += [a:options.ft]
-    endif
     let jobs = call('s:bind_makers_for_job', args)
     return jobs
 endfunction
 
 " Map/bind a:makers to a list of job options, using a:options.
-function! s:bind_makers_for_job(options, makers, ...) abort
+function! s:bind_makers_for_job(options, makers) abort
     let r = []
     for maker in a:makers
         let options = copy(a:options)
@@ -33,9 +32,9 @@ function! s:bind_makers_for_job(options, makers, ...) abort
                     let error = printf('Non-string given for executable of maker %s: type %s.',
                                 \ maker.name, type(maker.exe))
                     if !get(maker, 'auto_enabled', 0)
-                        call neomake#utils#ErrorMessage(error, options)
+                        call neomake#log#error(error, options)
                     else
-                        call neomake#utils#DebugMessage(error, options)
+                        call neomake#log#debug(error, options)
                     endif
                     continue
                 endif
@@ -44,12 +43,12 @@ function! s:bind_makers_for_job(options, makers, ...) abort
                         let error = printf('Exe (%s) of maker %s is not executable.', maker.exe, maker.name)
                         if !has_key(s:exe_error_thrown, maker.exe)
                             let s:exe_error_thrown[maker.exe] = 1
-                            call neomake#utils#ErrorMessage(error, options)
+                            call neomake#log#error(error, options)
                         else
-                            call neomake#utils#DebugMessage(error, options)
+                            call neomake#log#debug(error, options)
                         endif
                     else
-                        call neomake#utils#DebugMessage(printf(
+                        call neomake#log#debug(printf(
                                     \ 'Exe (%s) of auto-configured maker %s is not executable, skipping.', maker.exe, maker.name), options)
                     endif
                     continue
@@ -58,7 +57,7 @@ function! s:bind_makers_for_job(options, makers, ...) abort
 
         catch /^Neomake: /
             let error = substitute(v:exception, '^Neomake: ', '', '').'.'
-            call neomake#utils#ErrorMessage(error, {'make_id': options.make_id})
+            call neomake#log#error(error, {'make_id': options.make_id})
             continue
         endtry
         let options.maker = maker
@@ -69,6 +68,7 @@ endfunction
 
 " Base class for command makers.
 let g:neomake#core#command_maker_base = {}
+
 function! g:neomake#core#command_maker_base._get_fname_for_args(jobinfo) abort dict
     " Append file?  (defaults to jobinfo.file_mode, project/global makers should set it to 0)
     let append_file = neomake#utils#GetSetting('append_file', self, a:jobinfo.file_mode, a:jobinfo.ft, a:jobinfo.bufnr)
@@ -81,4 +81,8 @@ function! g:neomake#core#command_maker_base._get_fname_for_args(jobinfo) abort d
         endif
     endif
     return ''
+endfunction
+
+function! g:neomake#core#command_maker_base._get_argv(_jobinfo) abort dict
+    return neomake#compat#get_argv(self.exe, self.args, type(self.args) == type([]))
 endfunction

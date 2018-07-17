@@ -10,21 +10,21 @@ TEST_VIM_PREFIX:=SHELL=$(bash)
 SHELL:=$(bash) -o pipefail
 
 # Use nvim if it is installed, otherwise vim.
+ifeq ($(TEST_VIM),)
 ifeq ($(shell command -v nvim 2>/dev/null),)
-  DEFAULT_VIM:=vim
+  TEST_VIM:=vim
 else
-  DEFAULT_VIM:=nvim
+  TEST_VIM:=nvim
+endif
 endif
 
-TEST_VIM:=nvim
 IS_NEOVIM=$(findstring nvim,$(TEST_VIM))$(findstring neovim,$(TEST_VIM))
-# Run testnvim and testvim by default, and only one if TEST_VIM is given.
-test: $(if $(TEST_VIM),$(if $(IS_NEOVIM),testnvim,testvim),testnvim testvim)
+test: $(if $(IS_NEOVIM),testnvim,testvim)
 test_interactive: $(if $(TEST_VIM),$(if $(IS_NEOVIM),testnvim_interactive,testvim_interactive),testnvim_interactive testvim_interactive)
 
 VADER:=Vader!
 VADER_OPTIONS:=-q
-VADER_ARGS=tests/main.vader tests/isolated.vader
+VADER_ARGS=tests/all.vader
 VIM_ARGS='+$(VADER) $(VADER_OPTIONS) $(VADER_ARGS)'
 
 NEOMAKE_TESTS_DEP_PLUGINS_DIR?=build/vim/plugins
@@ -55,10 +55,8 @@ testnvimx: testnvim
 testvimx: override VADER_OPTIONS+=-x
 testvimx: testvim
 
-# Neovim might quit after ~5s with stdin being closed.  Use --headless mode to
-# work around this.
-# > Vim: Error reading input, exiting...
-# > Vim: Finished.
+# Set Neovim logfile destination to prevent `.nvimlog` being created.
+testnvim: export NVIM_LOG_FILE:=/dev/stderr
 testnvim: TEST_VIM:=nvim
 # Neovim needs a valid HOME (https://github.com/neovim/neovim/issues/5277).
 testnvim: build/neovim-test-home
@@ -66,7 +64,7 @@ testnvim: TEST_VIM_PREFIX+=HOME=$(CURDIR)/build/neovim-test-home
 testnvim: TEST_VIM_PREFIX+=VADER_OUTPUT_FILE=/dev/stderr
 testnvim: | build $(DEP_PLUGINS)
 	$(call func-run-vim)
-	
+
 testvim: TEST_VIM:=vim
 testvim: TEST_VIM_PREFIX+=HOME=/dev/null
 testvim: | build $(DEP_PLUGINS)
@@ -79,14 +77,20 @@ testvim: | build $(DEP_PLUGINS)
 # 4. non-Neomake log lines (e.g. from :Log) in bold/bright yellow.
 _SED_HIGHLIGHT_ERRORS:=| contrib/highlight-log --compact vader
 # Need to close stdin to fix spurious 'sed: couldn't write X items to stdout: Resource temporarily unavailable'.
-# Redirect to stderr again for Docker (where only stderr is used from).
-_REDIR_STDOUT:=2>&1 </dev/null >/dev/null $(_SED_HIGHLIGHT_ERRORS) >&2
+_REDIR_STDOUT:=2>&1 </dev/null >/dev/null $(_SED_HIGHLIGHT_ERRORS)
 
-_COVIMERAGE=$(if $(filter-out 0,$(NEOMAKE_DO_COVERAGE)),covimerage run --append --no-report ,)
+# Neovim might quit after ~5s with stdin being closed.  Use --headless mode to
+# work around this.
+# > Vim: Error reading input, exiting...
+# > Vim: Finished.
+# For Vim `-s /dev/null` is used to skip the 2s delay with warning
+# "Vim: Warning: Output is not to a terminal".
+COVERAGE_FILE:=.coverage_covimerage
+_COVIMERAGE=$(if $(filter-out 0,$(NEOMAKE_DO_COVERAGE)),covimerage run --data-file $(COVERAGE_FILE) --append --no-report ,)
 define func-run-vim
 	$(info Using: $(shell $(TEST_VIM_PREFIX) $(TEST_VIM) --version | head -n2))
 	$(_COVIMERAGE)$(if $(TEST_VIM_PREFIX),env $(TEST_VIM_PREFIX) ,)$(TEST_VIM) \
-	  $(if $(IS_NEOVIM),$(if $(_REDIR_STDOUT),--headless,),-X) \
+	  $(if $(IS_NEOVIM),$(if $(_REDIR_STDOUT),--headless,),-X $(if $(_REDIR_STDOUT),-s /dev/null,)) \
 	  --noplugin -Nu $(TEST_VIMRC) -i NONE $(VIM_ARGS) $(_REDIR_STDOUT)
 endef
 
@@ -117,14 +121,14 @@ runnvim: testnvim_interactive
 TESTS:=$(wildcard tests/*.vader tests/*/*.vader)
 uniq = $(if $1,$(firstword $1) $(call uniq,$(filter-out $(firstword $1),$1)))
 _TESTS_REL_AND_ABS:=$(call uniq,$(abspath $(TESTS)) $(TESTS))
-FILE_TEST_TARGET=test$(DEFAULT_VIM)
+FILE_TEST_TARGET=$(if $(IS_NEOVIM),testnvim,testvim)
 $(_TESTS_REL_AND_ABS):
 	$(MAKE) --no-print-directory $(FILE_TEST_TARGET) VADER_ARGS='$@'
 .PHONY: $(_TESTS_REL_AND_ABS)
 
 testcoverage: COVERAGE_VADER_ARGS:=tests/main.vader $(wildcard tests/isolated/*.vader)
 testcoverage:
-	$(RM) .coverage.covimerage
+	$(RM) $(COVERAGE_FILE)
 	@ret=0; \
 	for testfile in $(COVERAGE_VADER_ARGS); do \
 	  $(MAKE) --no-print-directory test VADER_ARGS=$$testfile NEOMAKE_DO_COVERAGE=1 || (( ++ret )); \
@@ -156,7 +160,7 @@ build/vimlint: | build
 	git clone -q --depth=1 https://github.com/syngan/vim-vimlint $@
 build/vimlparser: | build
 	git clone -q --depth=1 https://github.com/ynkdir/vim-vimlparser $@
-VIMLINT_OPTIONS=-u -e EVL102.l:_=1
+VIMLINT_OPTIONS=-u -e EVL102.l:_=1 -e 'EVL103.a:_.*=1'
 vimlint: | $(firstword $(VIMLINT_BIN))
 	$(VIMLINT_BIN) $(VIMLINT_OPTIONS) $(LINT_ARGS)
 vimlint-errors: | $(firstword VIMLINT_BIN)
@@ -176,7 +180,7 @@ vimhelplint: | $(if $(VIMHELPLINT_DIR),,build/vimhelplint)
 
 # Run tests in dockerized Vims.
 DOCKER_REPO:=neomake/vims-for-tests
-DOCKER_TAG:=22
+DOCKER_TAG:=28
 NEOMAKE_DOCKER_IMAGE?=
 DOCKER_IMAGE:=$(if $(NEOMAKE_DOCKER_IMAGE),$(NEOMAKE_DOCKER_IMAGE),$(DOCKER_REPO):$(DOCKER_TAG))
 DOCKER_STREAMS:=-ti
@@ -189,6 +193,9 @@ docker_image:
 	docker build -f Dockerfile.tests -t $(DOCKER_REPO):$(DOCKER_TAG) .
 docker_push:
 	docker push $(DOCKER_REPO):$(DOCKER_TAG)
+docker_update_latest:
+	docker tag $(DOCKER_REPO):$(DOCKER_TAG) $(DOCKER_REPO):latest
+	docker push $(DOCKER_REPO):latest
 docker_update_image:
 	@git diff --cached --exit-code >/dev/null || { echo "WARN: git index is not clean."; }
 	@if git diff --exit-code Makefile >/dev/null; then \
@@ -205,7 +212,8 @@ docker_update_image:
 	make docker_test DOCKER_VIM=neovim-master
 	@echo "Done.  Use 'make docker_push' to push it, and then update .circleci/config.yml."
 
-DOCKER_VIMS:=vim73 vim74-trusty vim74-xenial vim-8.0.586 vim-master neovim-v0.1.7 neovim-v0.2.0 neovim-v0.2.1 neovim-v0.2.2 neovim-master
+DOCKER_VIMS:=vim73 vim74-trusty vim74-xenial vim-8.0.586 vim-8.0.1832 vim-master \
+  neovim-v0.1.7 neovim-v0.2.0 neovim-v0.2.1 neovim-v0.2.2 neovim-v0.3.0 neovim-master
 _DOCKER_VIM_TARGETS:=$(addprefix docker_test-,$(DOCKER_VIMS))
 
 docker_test_all: $(_DOCKER_VIM_TARGETS)
@@ -216,7 +224,8 @@ $(_DOCKER_VIM_TARGETS):
 _docker_test: DOCKER_VIM:=vim-master
 _docker_test: DOCKER_MAKE_TARGET=$(DOCKER_MAKE_TEST_TARGET) \
   TEST_VIM='/vim-build/bin/$(DOCKER_VIM)' \
-  VADER_OPTIONS="$(VADER_OPTIONS)" VADER_ARGS="$(VADER_ARGS)"
+  VADER_OPTIONS="$(VADER_OPTIONS)" VADER_ARGS="$(VADER_ARGS)" \
+	$(DOCKER_MAKE_TEST_ARGS)
 _docker_test: docker_make
 docker_test: DOCKER_MAKE_TEST_TARGET:=test
 docker_test: DOCKER_STREAMS:=-t
@@ -225,6 +234,14 @@ docker_test: _docker_test
 docker_test_interactive: DOCKER_MAKE_TEST_TARGET:=test_interactive
 docker_test_interactive: DOCKER_STREAMS:=-ti
 docker_test_interactive: _docker_test
+
+docker_testcoverage: DOCKER_MAKE_TEST_TARGET:=testcoverage
+# Pick up VADER_ARGS from command line for COVERAGE_VADER_ARGS.
+docker_testcoverage: DOCKER_MAKE_TEST_ARGS:=$(if $(filter command line,$(origin COVERAGE_VADER_ARGS)),COVERAGE_VADER_ARGS="$(COVERAGE_VADER_ARGS)",$(if $(filter command line,$(origin VADER_ARGS)),COVERAGE_VADER_ARGS="$(VADER_ARGS)",))
+docker_testcoverage: DOCKER_STREAMS:=-t
+docker_testcoverage: _docker_test
+	sed -i 's~/testplugin/~$(CURDIR)/~g' $(COVERAGE_FILE)
+	coverage report -m
 
 docker_run: $(DEP_PLUGINS)
 docker_run:
@@ -283,26 +300,28 @@ check_docker:
 
 check:
 	@:; set -e; ret=0; \
+	[ $$TERM = dumb ] && export TERM=xterm; \
+	echo_bold() { tput bold; echo "$$@"; tput sgr0; }; \
 	echo '== Checking that all tests are included'; \
-	for f in $(filter-out main.vader isolated.vader,$(notdir $(shell git ls-files tests/*.vader))); do \
+	for f in $(filter-out all.vader main.vader isolated.vader,$(notdir $(shell git ls-files tests/*.vader))); do \
 	  if ! grep -q "^Include.*: $$f" tests/main.vader; then \
-	    echo "Test not included in main.vader: $$f" >&2; ret=1; \
+	    echo_bold "Test not included in main.vader: $$f" >&2; ret=1; \
 	  fi; \
 	done; \
-	for f in $(filter-out main.vader,$(notdir $(shell git ls-files tests/isolated/*.vader))); do \
+	for f in $(notdir $(shell git ls-files tests/isolated/*.vader)); do \
 	  if ! grep -q "^Include.*: isolated/$$f" tests/isolated.vader; then \
-	    echo "Test not included in isolated.vader: $$f" >&2; ret=1; \
+	    echo_bold "Test not included in isolated.vader: $$f" >&2; ret=1; \
 	  fi; \
 	done; \
 	echo '== Checking for absent Before sections in tests'; \
 	if grep '^Before:' tests/*.vader; then \
-	  echo "Before: should not be used in tests itself, because it overrides the global one."; \
+	  echo_bold "Before: should not be used in tests itself, because it overrides the global one."; \
 	  (( ret+=2 )); \
 	fi; \
 	echo '== Checking for absent :Log calls'; \
 	if git --no-pager grep --line-number --color '^(\s*au.*\b)?\s*Log\b' \
 	    -- :^tests/include/init.vim :^tests/include/setup.vader; then \
-	  echo "Found Log commands."; \
+	  echo_bold "Found Log commands."; \
 	  (( ret+=4 )); \
 	fi; \
 	echo '== Checking tests'; \
@@ -310,17 +329,19 @@ check:
 		| grep -E '^[^[:space:]]+- ' \
 		| grep -v g:vader_exception | sed -e s/-/:/ -e s/-// || true)"; \
 	if [[ -n "$$output" ]]; then \
-		echo 'AssertThrows used without checking g:vader_exception:' >&2; \
+		echo_bold 'AssertThrows used without checking g:vader_exception:' >&2; \
 		echo "$$output" >&2; \
 	  (( ret+=16 )); \
 	fi; \
 	echo '== Running custom checks'; \
+	tput bold; \
 	contrib/vim-checks $(LINT_ARGS) || (( ret+= 16 )); \
+	tput sgr0; \
 	exit $$ret
 
-.coverage.covimerage: .coveragerc $(shell find . -name '*.vim')
+$(COVERAGE_FILE): .coveragerc $(shell find . -name '*.vim')
 	$(MAKE) testcoverage
-coverage: .coverage.covimerage
+coverage: $(COVERAGE_FILE)
 	coverage report -m
 
 NEOMAKE_LOG:=/tmp/neomake.log
@@ -334,6 +355,47 @@ tail_log:
 clean:
 	$(RM) -r build
 .PHONY: clean
+
+# Fixtures {{{
+
+# A function to define targets/rules for fixture generation.
+# Args:
+# 1: the tool (bin) and input/output dir.
+# 2: arguments for the tool
+# NOTE: uses "sed -i.bak" for MacOS's default sed.
+define func-generate-fixture
+tests/fixtures/output/$1:
+	mkdir -p $$@
+tests/fixtures/output/$1/%.stderr tests/fixtures/output/$1/%.stdout tests/fixtures/output/$1/%.exitcode: tests/fixtures/input/$1/% | tests/fixtures/output/$1
+	@baseout=tests/fixtures/output/$1/$$*; \
+	echo "Generating $$$$baseout"; \
+	$1 $2 $$< >$$$$baseout.stdout 2>$$$$baseout.stderr; \
+	ret=$$$$?; \
+	printf $$$$ret > $$$$baseout.exitcode; \
+	if ! [ -f $$$$baseout.stdout ]; then \
+	  echo "Missing output: $$$$baseout.stdout." >&2; exit 1; \
+	fi; \
+	sed -i.bak -e "s~$(CURDIR)/~/tmp/neomake-tests/~g" \
+	  $$$$baseout.stdout $$$$baseout.stderr; \
+	$(RM) $$$$baseout.stdout.bak $$$$baseout.stderr.bak
+endef
+
+# Call and eval the above function to generate rules for different tools.
+$(eval $(call func-generate-fixture,puppet,parser validate --color=false))
+$(eval $(call func-generate-fixture,puppet-lint,--log-format "%{path}:%{line}:%{column}:%{kind}:[%{check}] %{message}"))
+$(eval $(call func-generate-fixture,xmllint,--xinclude --postvalid --noout))
+
+_FIXTURES_INPUT:=$(wildcard tests/fixtures/input/*/*)
+_FIXTURES_OUTPUT:=$(patsubst tests/fixtures/input/%,tests/fixtures/output/%,$(addsuffix .stdout,$(_FIXTURES_INPUT)) $(addsuffix .stderr,$(_FIXTURES_INPUT)))
+
+fixtures: $(_FIXTURES_OUTPUT)
+.PHONY: fixtures
+
+fixtures-rebuild:
+	$(RM) tests/fixtures/output/*/*.stdout tests/fixtures/output/*/*.stderr
+	$(MAKE) --keep-going fixtures
+.PHONY: fixtures-rebuild
+# }}}
 
 .PHONY: vint vint-errors vimlint vimlint-errors
 .PHONY: test testnvim testvim testnvim_interactive testvim_interactive

@@ -149,7 +149,7 @@ function! s:AssertNeomakeMessage(msg, ...)
   let level = a:0 ? a:1 : -1
   let context = a:0 > 1 ? copy(a:2) : -1
   let options = a:0 > 2 ? a:3 : {}
-  let found_but_before = 0
+  let found_but_before = -1
   let found_but_context_diff = []
   let ignore_order = get(options, 'ignore_order', 0)
   let found_but_other_level = -1
@@ -177,9 +177,7 @@ function! s:AssertNeomakeMessage(msg, ...)
     endif
     if r
       if !ignore_order && idx <= g:neomake_test_messages_last_idx
-        if idx < g:neomake_test_messages_last_idx
-          let found_but_before = 1
-        endif
+        let found_but_before = g:neomake_test_messages_last_idx - idx
         let r = 0
       endif
     endif
@@ -232,15 +230,15 @@ function! s:AssertNeomakeMessage(msg, ...)
     call add(g:_neomake_test_asserted_messages, msg_entry)
     return 1
   endfor
-  if found_but_before || found_but_other_level != -1
+  if found_but_before != -1 || found_but_other_level != -1
     let msgs = []
     if found_but_other_level != -1
       let msgs += ['for level '.found_but_other_level]
     endif
-    if found_but_before
-      let msgs += ['_before_ last asserted one']
+    if found_but_before != -1
+      let msgs += [printf('%d entries before last asserted one', found_but_before)]
     endif
-    let msg = "Message '".a:msg."' was found, but ".join(msgs, ' and ')
+    let msg = printf('Message %s was found, but %s.', string(a:msg), join(msgs, ' and '))
     throw msg
   endif
   if !empty(found_but_context_diff)
@@ -249,6 +247,15 @@ function! s:AssertNeomakeMessage(msg, ...)
   throw "Message '".a:msg."' not found."
 endfunction
 command! -nargs=+ AssertNeomakeMessage call s:AssertNeomakeMessage(<args>)
+
+function! s:AssertEqualQf(actual, expected, ...) abort
+  let expected = a:expected
+  if has('patch-8.0.1782')
+    let expected = map(copy(expected), "extend(v:val, {'module': ''})")
+  endif
+  call call('vader#assert#equal', [a:actual, expected] + a:000)
+endfunction
+command! -nargs=1 AssertEqualQf call s:AssertEqualQf(<args>)
 
 function! s:AssertNeomakeMessageAbsent(msg, ...)
   try
@@ -379,11 +386,8 @@ function! NeomakeTestsSetVimMessagesMarker()
 endfunction
 
 function! NeomakeTestsGetVimMessages()
-  redir => messages_output
-    silent messages
-  redir END
+  let msgs = split(neomake#utils#redir('messages'), "\n")
   call NeomakeTestsSetVimMessagesMarker()
-  let msgs = split(messages_output, "\n")
   let idx = index(reverse(msgs), s:vim_msgs_marker)
   if idx <= 0
     return []
@@ -391,14 +395,50 @@ function! NeomakeTestsGetVimMessages()
   return reverse(msgs[0 : idx-1])
 endfunction
 
-function! NeomakeTestsGetMakerWithOutput(func, lines) abort
-  let output_file = tempname()
-  call writefile(a:lines, output_file)
+function! NeomakeTestsGetMakerWithOutput(func, lines_or_file) abort
+  if type(a:lines_or_file) == type([])
+    let output_file = tempname()
+    call writefile(a:lines_or_file, output_file)
+  else
+    let output_file = a:lines_or_file
+  endif
+
+  let maker = call(a:func, [])
+  let maker.exe = 'cat'
+  let maker.args = [output_file]
+  let maker.append_file = 0
+  let maker.name = printf('%s-mocked', substitute(a:func, '^.*#', '', ''))
+  return maker
+endfunction
+
+let s:fixture_root = '/tmp/neomake-tests'
+
+function! NeomakeTestsFixtureMaker(func, fname) abort
+  let output_base = getcwd().'/'.substitute(a:fname, '^tests/fixtures/input/', 'tests/fixtures/output/', '')
+  let stdout = printf('%s.stdout', output_base)
+  let stderr = printf('%s.stderr', output_base)
+  let exitcode = readfile(printf('%s.exitcode', output_base))[0]
 
   let maker = call(a:func, [])
   let maker.exe = &shell
-  let maker.args = [&shellcmdflag, 'cat '.fnameescape(output_file)]
-  let maker.name = printf('%s-mocked', substitute(a:func, '^.*#', '', ''))
+  let maker.args = [&shellcmdflag, printf(
+        \ 'cat %s; cat %s >&2; exit %d',
+        \ fnameescape(stdout), fnameescape(stderr), exitcode)]
+  let maker.name = printf('%s-fixture', substitute(a:func, '^.*#', '', ''))
+
+  " Massage current buffer.
+  if get(b:, 'neomake_tests_massage_buffer', 1)
+    " Write the input file to the temporary root.
+    let test_fname = s:fixture_root . '/' . a:fname
+    let test_fname_dir = fnamemodify(test_fname, ':h')
+    if !isdirectory(test_fname_dir)
+      call mkdir(test_fname_dir, 'p')
+    endif
+    call writefile(readfile(a:fname), test_fname, 'b')
+    exe 'file ' . s:fixture_root . '/' . a:fname
+    exe 'lcd '.s:fixture_root
+  endif
+
   return maker
 endfunction
 
@@ -427,6 +467,13 @@ function! s:After()
         \ 'v:val[0] == 0 && index(g:_neomake_test_asserted_messages, v:val) == -1')
   if !empty(unexpected_errors)
     call add(errors, 'found unexpected error messages: '.string(unexpected_errors))
+  endif
+
+  let unexpected_warnings = filter(copy(g:neomake_test_messages),
+        \ 'v:val[0] == 1 && v:val[1] !=# "automake: timer support is required for delayed events."'.
+        \ '&& index(g:_neomake_test_asserted_messages, v:val) == -1')
+  if !empty(unexpected_warnings)
+    call add(errors, 'found unexpected warning messages: '.string(unexpected_warnings))
   endif
 
   let status = neomake#GetStatus()
@@ -500,9 +547,7 @@ function! s:After()
   endif
 
   " Check that no new global functions are defined.
-  redir => neomake_output_func_after
-    silent function /\C^[A-Z]
-  redir END
+  let neomake_output_func_after = neomake#utils#redir('function /\C^[A-Z]')
   let funcs = map(split(neomake_output_func_after, '\n'),
         \ "substitute(v:val, '\\v^function (.*)\\(.*$', '\\1', '')")
   let new_funcs = filter(copy(funcs), 'index(g:neomake_test_funcs_before, v:val) == -1')
@@ -511,10 +556,21 @@ function! s:After()
     call extend(g:neomake_test_funcs_before, new_funcs)
   endif
 
+  " Check that no highlights are left.
+  let highlights = neomake#highlights#_get()
+  if highlights != {'file': {}, 'project': {}}
+    call add(errors, printf('Highlights were not reset (use a new buffer): %s', highlights))
+  endif
+
   if exists('#neomake_event_queue')
     call add(errors, '#neomake_event_queue is not empty: ' . neomake#utils#redir('au neomake_event_queue'))
     autocmd! neomake_event_queue
     augroup! neomake_event_queue
+  endif
+
+  if !empty(v:warningmsg)
+    call add(errors, printf('There was a v:warningmsg: %s', v:warningmsg))
+    let v:warningmsg = ''
   endif
 
   if !empty(errors)

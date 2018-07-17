@@ -1,31 +1,5 @@
 Include: include/setup.vader
 
-Execute (neomake#utils#LogMessage writes to logfile always):
-  Save g:neomake_verbose, g:neomake_logfile
-  let neomake_verbose = 0
-  let g:neomake_logfile = tempname()
-  call neomake#utils#LogMessage(1, 'msg1.')
-  call neomake#utils#LogMessage(1, 'msg2.')
-  if has('patch-7.4.503')
-    let logfile_msg = readfile(g:neomake_logfile)[1]
-  else
-    let logfile_msg = readfile(g:neomake_logfile)[0]
-  endif
-  Assert logfile_msg =~# '\v\d\d:\d\d:\d\d \[W      \] msg2.$', 'unexpected msg: '.logfile_msg
-
-  call neomake#utils#LogMessage(1, 'msg3.')
-  sleep 10m
-  call neomake#utils#LogMessage(1, 'msg4.')
-  let logfile_msg = readfile(g:neomake_logfile)[-1]
-  Assert logfile_msg =~# '\v\d\d:\d\d:\d\d \[W \+0.0\d\] msg4.$', 'Message does not match: '.logfile_msg
-
-Execute (neomake#utils#LogMessage unsets logfile in case of errors):
-  Save g:neomake_logfile
-  let g:neomake_logfile = '/does/not/exist'
-  call neomake#utils#LogMessage(1, 'msg1.')
-  AssertNeomakeMessage '\vError when trying to write to logfile /does/not/exist: Vim\(call\):E.*.  Unsetting g:neomake_logfile.', 0
-  Assert !exists('g:neomake_logfile'), 'g:neomake_logfile has been unset.'
-
 Execute (NeomakeTestsCreateExe creates exe):
   Assert !executable('boobar'), 'boobar is not executable'
   call g:NeomakeTestsCreateExe('boobar', [])
@@ -305,6 +279,8 @@ Execute (neomake#utils#ExpandArgs):
   \ 'C:\\%:r\\',
   \ '~',
   \ '\~',
+  \ '%:.',
+  \ '%:,',
   \ ]
   let expected_args = [
   \ 'file1.ext',
@@ -326,6 +302,8 @@ Execute (neomake#utils#ExpandArgs):
   \ 'C:\\file1\\',
   \ '/home/sweet',
   \ '\~',
+  \ 'file1.ext',
+  \ 'file1.ext:,',
   \ ]
 
   AssertEqual expected_args, neomake#utils#ExpandArgs(args)
@@ -430,22 +408,23 @@ Execute (neomake#utils#MakerFromCommand appends args for file_mode (string)):
   let jobinfo = {'file_mode': 0, 'bufnr': bufnr('%'), 'ft': ''}
   let shell_argv = split(&shell) + split(&shellcmdflag)
   AssertEqual maker.fn(jobinfo), {
+  \ '__command_is_string': 1,
   \ '_get_argv': get(maker, '_get_argv'),
   \ '_get_fname_for_args': get(maker, '_get_fname_for_args'),
   \ 'args': shell_argv[1:] + ['echo "%" 1'],
   \ 'exe': shell_argv[0],
   \ 'remove_invalid_entries': 0}
 
-  let fname = expand('%:p')
+  let fname = bufname('%')
   let jobinfo = NeomakeTestsFakeJobinfo()
   let jobinfo.maker = maker
   let bound_maker = neomake#GetMaker(maker).fn(jobinfo)
-  AssertEqual bound_maker.args, shell_argv[1:] + ['echo "%" 1 '.fname]
+  AssertEqual bound_maker.args, shell_argv[1:] + ['echo "%" 1']
   AssertEqual bound_maker.exe, shell_argv[0]
   AssertEqual bound_maker.remove_invalid_entries, 0
 
   call bound_maker._bind_args()
-  AssertEqual bound_maker.args, shell_argv[1:] + ['echo "%" 1 '.fname]
+  AssertEqual bound_maker.args, shell_argv[1:] + ['echo "%" 1']
 
   let argv = bound_maker._get_argv(jobinfo)
   if type(argv) == type([])
@@ -454,7 +433,7 @@ Execute (neomake#utils#MakerFromCommand appends args for file_mode (string)):
     AssertEqual argv, join(shell_argv)." 'echo \"".bufname('%').'" 1 '.fname."'"
   endif
   " self.args is not changed.
-  AssertEqual bound_maker.args, shell_argv[1:] + ['echo "%" 1 '.fname]
+  AssertEqual bound_maker.args, shell_argv[1:] + ['echo "%" 1']
 
   CallNeomake 0, [maker]
   AssertEqual getqflist()[0].text, 'tests/fixtures/a filename with spaces 1'
@@ -465,6 +444,7 @@ Execute (neomake#utils#MakerFromCommand appends args for file_mode (list)):
   let jobinfo = {'file_mode': 0, 'bufnr': bufnr('%'), 'ft': ''}
 
   AssertEqual maker.fn(jobinfo), {
+  \ '__command_is_string': 0,
   \ '_get_argv': get(maker, '_get_argv'),
   \ '_get_fname_for_args': get(maker, '_get_fname_for_args'),
   \ 'args': ['%', '1'],
@@ -473,14 +453,13 @@ Execute (neomake#utils#MakerFromCommand appends args for file_mode (list)):
 
   new
   edit tests/fixtures/a\ filename\ with\ spaces
-  let fname = expand('%:p')
+  let fname = bufname('%')
   let jobinfo = NeomakeTestsFakeJobinfo()
   let jobinfo.maker = maker
   let bound_maker = neomake#GetMaker(maker).fn(jobinfo)
-  AssertEqual bound_maker.args, ['%', '1', fname]
+  AssertEqual bound_maker.args, ['%', '1']
   AssertEqual bound_maker.exe, 'echo'
   AssertEqual bound_maker.remove_invalid_entries, 0
-
 
   let argv = bound_maker._get_argv(jobinfo)
   if type(argv) == type([])
@@ -488,7 +467,7 @@ Execute (neomake#utils#MakerFromCommand appends args for file_mode (list)):
   else
     AssertEqual argv, printf("echo '%s' 1 '%s'", bufname('%'), fname)
   endif
-  AssertEqual bound_maker.args, ['%', '1', fname]
+  AssertEqual bound_maker.args, ['%', '1']
 
   CallNeomake 0, [maker]
   AssertEqual getqflist()[0].text, 'tests/fixtures/a filename with spaces 1'
@@ -575,16 +554,19 @@ Execute (neomake#utils#MakerFromCommand uses tempfile):
 
   let bound_maker = neomake#GetMaker(maker).fn(jobinfo)
   let make_info = values(neomake#GetStatus().make_info)[0]
-  let temp_file = make_info.tempfiles[0]
+  Assert !has_key(make_info, 'tempfiles')
   let shell_argv = split(&shell) + split(&shellcmdflag)
-  AssertEqual bound_maker.args, shell_argv[1:] + ['echo '.temp_file]
+  AssertEqual bound_maker.args, shell_argv[1:] + ['echo']
   AssertEqual bound_maker.exe, shell_argv[0]
   AssertEqual bound_maker.remove_invalid_entries, 0
+
+  call bound_maker._get_argv(jobinfo)
+  let temp_file = fnamemodify(make_info.tempfiles[0], ':.')
   AssertNotEqual temp_file, fnameescape(temp_file)
 
   doautocmd VimLeave
   Assert empty(glob(temp_file)), 'Temporary file was removed.'
-  AssertNeomakeMessage printf('Removing temporary file: "%s".', temp_file)
+  AssertNeomakeMessage printf('Removing temporary file: "%s".', make_info.tempfiles[0])
   bwipe!
 
 Execute (neomake#utils#get_config_fts):
@@ -803,14 +785,3 @@ Execute (NeomakeTestsGetVimMessages):
   echom 2
   echom 3
   AssertEqual NeomakeTestsGetVimMessages(), ['2', '3']
-
-Execute (neomake#utils#DebugMessage throws with missing make_options in tests):
-  AssertThrows call neomake#utils#DebugMessage('msg1')
-  AssertEqual g:vader_exception, 'Log msg does not end with punctuation: "msg1".'
-
-  " Non-existing make_id should not make it verbose.
-  AssertEqual g:neomake_test_errors, []
-  call neomake#utils#DebugMessage('msg1.', {'make_id': -42})
-  AssertEqual len(g:neomake_test_errors), 1
-  Assert g:neomake_test_errors[0] =~# '\v^GetMakeOptions failed: Vim\(let\):E716: Key not present in Dictionary: -42 \(in function .*\)$'
-  let g:neomake_test_errors = []

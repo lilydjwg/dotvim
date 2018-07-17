@@ -8,14 +8,16 @@ Execute (stdin maker):
   normal! ifile1.test:line1
   normal! ofile1.test:line2
   call neomake#Make(1, [maker])
-  AssertNeomakeMessage "Using buffer's directory for cwd with uses_stdin.", 3
   if neomake#has_async_support()
     AssertNeomakeMessage "Starting async job: cat -.", 2
     NeomakeTestsWaitForFinishedJobs
   endif
-  AssertNeomakeMessage 'cwd: .', 3
+  AssertNeomakeMessage 'cwd: '.getcwd().'.', 3
   AssertNeomakeMessage '\mstdout: unnamed_maker: [''file1.test:line1.*'
+  AssertNeomakeMessage '\vUsed bufnr from stdin buffer (\d+) \(file1.test\) for 2 entries: 1, 2.'
+  let tempbuf = g:neomake_test_matchlist[1]
   AssertEqual map(getloclist(0), 'v:val.text'), ['line1', 'line2']
+  AssertNeomakeMessage "Wiping out 1 unlisted/remapped buffers: ['".tempbuf."']."
   bwipe!
 
 Execute (stdin maker (args as string)):
@@ -47,7 +49,7 @@ Execute (stdin maker (disabled tempfiles)):
   normal! iline1
   normal! oline2
   call neomake#Make(1, [maker])
-  AssertNeomakeMessage 'Using stdin for unnamed buffer.'
+  AssertNeomakeMessage 'Using stdin for unnamed buffer (-).'
   if neomake#has_async_support()
     AssertNeomakeMessage "Starting async job: cat -.", 2
     NeomakeTestsWaitForFinishedJobs
@@ -86,7 +88,7 @@ Execute (stdin maker (project mode: uses_filename)):
   normal! iline1
   normal! oline2
   call neomake#Make(0, [maker])
-  AssertNeomakeMessage 'Using stdin for unnamed buffer.'
+  AssertNeomakeMessage 'Using stdin for unnamed buffer (-).'
   if neomake#has_async_support()
     if has('nvim')
       AssertNeomakeMessage "Starting async job [string]: cat $NEOMAKE_FILE.", 2
@@ -111,7 +113,7 @@ Execute (stdin maker: supports_stdin can be a callback adding args):
   new
   set buftype=nofile
   CallNeomake 1, [maker]
-  AssertNeomakeMessage 'Using stdin for unnamed buffer.'
+  AssertNeomakeMessage 'Using stdin for unnamed buffer (-).'
   AssertEqual map(getloclist(0), 'v:val.text'), ['added_arg', '-']
   bwipe
 
@@ -127,7 +129,7 @@ Execute (stdin maker: supports_stdin can be a callback adding args, and setting 
   exe 'file '.fname
   set buftype=nofile
   CallNeomake 1, [maker]
-  AssertNeomakeMessage 'Using stdin for unreadable buffer.'
+  AssertNeomakeMessage 'Using stdin for unreadable buffer (custom_tempfile).'
   AssertEqual map(getloclist(0), 'v:val.text'), ['added_arg', fname, 'custom_tempfile']
   bwipe
 
@@ -163,8 +165,7 @@ Execute (stdin maker: uses neomake#utils#get_buffer_lines for buffer_lines):
   new
   set buftype=nofile
   CallNeomake 1, [maker]
-  AssertNeomakeMessage '\v^Using tempfile for unnamed buffer: "(.*)".$'
-  let tempfile_name = g:neomake_test_matchlist[1]
+  AssertNeomakeMessage 'Using stdin for unnamed buffer (-).'
   AssertEqual map(getloclist(0), 'v:val.text'), []
 
   normal! o
@@ -172,18 +173,60 @@ Execute (stdin maker: uses neomake#utils#get_buffer_lines for buffer_lines):
   AssertEqual map(getloclist(0), 'v:val.text'), ['', '']
   bwipe
 
-Execute (stdin maker: uses buffer's cwd by default):
+Execute (stdin maker: does not use buffer's cwd by default):
   let maker = {'exe': 'true', 'supports_stdin': 1}
   let fname = tempname()
   new
   exe 'file '.fname
 
   CallNeomake 1, [maker]
+  AssertNeomakeMessage printf('cwd: %s.', getcwd()), 3
+
+  CallNeomake 0, [extend(copy(maker), {'uses_filename': 1})]
+  AssertNeomakeMessage printf('cwd: %s.', getcwd()), 3
+
+  let maker.cwd = '.'
+  CallNeomake 1, [maker]
+  AssertNeomakeMessage printf('cwd: %s.', getcwd()), 3
+  bwipe
+
+Execute (stdin maker: can use buffer's cwd):
+  let maker = {'exe': 'true', 'name': 'flake8'}
+  function maker.supports_stdin(jobinfo) abort
+    call a:jobinfo.cd('%:h')
+    return 1
+  endfunction
+  let fname = tempname()
+  new
+  exe 'file '.fname
+
+  let orig_cwd = getcwd()
+
+  CallNeomake 1, [maker]
   AssertNeomakeMessage printf('cwd: %s (changed).', fnamemodify(fname, ':h')), 3
+  AssertEqual orig_cwd, getcwd()
 
   CallNeomake 0, [extend(copy(maker), {'uses_filename': 1})]
   AssertNeomakeMessage printf('cwd: %s (changed).', fnamemodify(fname, ':h')), 3
 
+  " Can be set using config (absolute).
+  let b:neomake_flake8_cwd = orig_cwd
+  CallNeomake 1, [maker]
+  AssertNeomakeMessage printf('jobinfo.cd(): keeping cwd from setting: %s.', string(orig_cwd))
+  AssertNeomakeMessage printf('cwd: %s.', getcwd()), 3
+
+  " Can be set using config (relative).
+  let b:neomake_flake8_cwd = '.'
+  CallNeomake 1, [maker]
+  AssertNeomakeMessage "jobinfo.cd(): keeping cwd from setting: '.'."
+  AssertNeomakeMessage printf('cwd: %s.', getcwd()), 3
+
+  " Overridden by conf.
+  let maker.cwd = '..'
+  CallNeomake 1, [maker]
+  AssertNeomakeMessage printf('cwd: %s.', getcwd()), 3
+
+  unlet b:neomake_flake8_cwd
   let maker.cwd = '.'
   CallNeomake 1, [maker]
   AssertNeomakeMessage printf('cwd: %s.', getcwd()), 3

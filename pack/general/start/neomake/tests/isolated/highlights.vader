@@ -28,7 +28,7 @@ Execute (vimlint: length postprocessing):
   NeomakeTestsWaitForFinishedJobs
 
   let bufnr = bufnr('%')
-  AssertEqual [{
+  AssertEqualQf getloclist(0), [{
     \ 'lnum': 2,
     \ 'bufnr': bufnr,
     \ 'col': 6,
@@ -48,7 +48,7 @@ Execute (vimlint: length postprocessing):
     \ 'type': 'E',
     \ 'pattern': '',
     \ 'text': 'variable may not be initialized on some execution path: `l:foo`',
-    \ }], getloclist(0)
+    \ }]
 
   AssertEqual {string(bufnr): [[2, 11], [5, 3]]}, g:neomake_tests_highlight_lengths
 
@@ -67,7 +67,7 @@ Execute (vint: highlights syntax error for command):
 
   CallNeomake 1, [vint_maker]
   let bufnr = bufnr('%')
-  AssertEqual getloclist(0), [{
+  AssertEqualQf getloclist(0), [{
   \ 'lnum': 2,
   \ 'bufnr': bufnr,
   \ 'col': 1,
@@ -128,7 +128,7 @@ Execute (get_list_entries: based on example from doc):
   " Check that existing buffer was used for filename.
   AssertEqual llist[4].bufnr, buf1, 'get_list_entries_buf1 was picked up'
 
-  AssertEqual llist, [
+  AssertEqualQf llist, [
   \ {'lnum': 1, 'bufnr': buf1, 'col': 0, 'valid': 1, 'vcol': 0, 'nr': -1,
   \  'type': 'E', 'pattern': '', 'text': 'Some error'},
   \ {'lnum': 2, 'bufnr': 0, 'col': 1, 'valid': 0, 'vcol': 0, 'nr': -1,
@@ -152,15 +152,14 @@ Execute (cargo error message):
   let g:neomake_tests_highlight_lengths = {}
   new
   file build/lib.rs
-  let cargo = neomake#makers#ft#rust#cargo()
-  let cargo.exe = 'cat'
-  let cargo.args = '../tests/fixtures/rust/cargo_error.json'
+  let cargo = NeomakeTestsGetMakerWithOutput('neomake#makers#ft#rust#cargo',
+    \ '../tests/fixtures/rust/cargo_error.json')
 
   call neomake#Make(1, [cargo])
   NeomakeTestsWaitForFinishedJobs
 
   let bufnr = bufnr('%')
-  AssertEqual [{
+  AssertEqualQf getloclist(0), [{
     \ 'type': 'E',
     \ 'bufnr': bufnr,
     \ 'nr': 308,
@@ -190,7 +189,7 @@ Execute (cargo error message):
     \ 'vcol': 0,
     \ 'pattern': '',
     \ 'text': 'found type `&proc_macro::TokenStream`'
-    \ }], getloclist(0)
+    \ }]
 
   " TODO: should not call it for the same highlight twice?!
   AssertEqual {string(bufnr): [[19, 2], [25, 40], [25, 40]]}, g:neomake_tests_highlight_lengths
@@ -201,15 +200,14 @@ Execute (cargo warning message):
   let g:neomake_tests_highlight_lengths = {}
   new
   file build/add_assign_like.rs
-  let cargo = neomake#makers#ft#rust#cargo()
-  let cargo.exe = 'cat'
-  let cargo.args = '../tests/fixtures/rust/cargo_warning.json'
+  let cargo = NeomakeTestsGetMakerWithOutput('neomake#makers#ft#rust#cargo',
+    \ '../tests/fixtures/rust/cargo_warning.json')
 
   call neomake#Make(1, [cargo])
   NeomakeTestsWaitForFinishedJobs
 
   let bufnr = bufnr('%')
-  AssertEqual [{
+  AssertEqualQf getloclist(0), [{
     \ 'type': 'W',
     \ 'bufnr': bufnr,
     \ 'nr': -1,
@@ -218,7 +216,7 @@ Execute (cargo warning message):
     \ 'valid': 1,
     \ 'vcol': 0,
     \ 'pattern': '',
-    \ 'text': 'unused import: `Variant`, #[warn(unused_imports)] on by default'}], getloclist(0)
+    \ 'text': 'unused import: `Variant`, #[warn(unused_imports)] on by default'}]
 
   AssertEqual {string(bufnr): [[2, 7]]}, g:neomake_tests_highlight_lengths
   bwipe
@@ -228,10 +226,9 @@ Execute (cargo warning for file that is not open):
   new
   file build/some_other_file.rs
 
-  let cargo = neomake#makers#ft#rust#cargo()
-  let cargo.exe = 'cat'
   " Uses build/add_assign_like.rs.
-  let cargo.args = '../tests/fixtures/rust/cargo_warning.json'
+  let cargo = NeomakeTestsGetMakerWithOutput('neomake#makers#ft#rust#cargo',
+    \ '../tests/fixtures/rust/cargo_warning.json')
 
   call neomake#Make(1, [cargo])
   NeomakeTestsWaitForFinishedJobs
@@ -239,7 +236,7 @@ Execute (cargo warning for file that is not open):
   let unlisted_bufnr = bufnr('^build/add_assign_like.rs$')
   AssertNotEqual -1, unlisted_bufnr
 
-  AssertEqual [{
+  AssertEqualQf getloclist(0), [{
     \ 'type': 'W',
     \ 'bufnr': unlisted_bufnr,
     \ 'nr': -1,
@@ -248,7 +245,7 @@ Execute (cargo warning for file that is not open):
     \ 'valid': 1,
     \ 'vcol': 0,
     \ 'pattern': '',
-    \ 'text': 'unused import: `Variant`, #[warn(unused_imports)] on by default'}], getloclist(0)
+    \ 'text': 'unused import: `Variant`, #[warn(unused_imports)] on by default'}]
 
   AssertEqual {string(unlisted_bufnr): [[2, 7]]}, g:neomake_tests_highlight_lengths
   bwipe
@@ -258,15 +255,14 @@ Execute (cargo error message children):
   let g:neomake_tests_highlight_lengths = {}
   new
   file tests/from.rs
-  let cargo = neomake#makers#ft#rust#cargo()
-  let cargo.exe = 'cat'
-  let cargo.args = 'fixtures/rust/cargo_error_children.json'
+  let cargo = NeomakeTestsGetMakerWithOutput('neomake#makers#ft#rust#cargo',
+    \ '../tests/fixtures/rust/cargo_error_children.json')
 
   call neomake#Make(1, [cargo])
   NeomakeTestsWaitForFinishedJobs
 
   let bufnr = bufnr('%')
-  AssertEqual [{
+  AssertEqualQf getloclist(0), [{
     \ 'type': 'E',
     \ 'bufnr': bufnr,
     \ 'nr': -1,
@@ -275,10 +271,13 @@ Execute (cargo error message children):
     \ 'valid': 1,
     \ 'vcol': 0,
     \ 'pattern': '',
-    \ 'text': 'custom derive attribute panicked. message: Only structs and enums can derive From'}], getloclist(0)
+    \ 'text': 'custom derive attribute panicked. message: Only structs and enums can derive From'}]
 
   AssertEqual {string(bufnr): [[11, 4]]}, g:neomake_tests_highlight_lengths
   bwipe
 
 Execute (Teardown: undo monkeypatching):
-  runtime autoload/neomake/highlights.vim
+  " Restore if not profiling.
+  if !v:profiling
+    runtime autoload/neomake/highlights.vim
+  endif

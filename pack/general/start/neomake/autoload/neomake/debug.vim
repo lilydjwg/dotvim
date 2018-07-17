@@ -3,21 +3,45 @@
 function! neomake#debug#validate_maker(maker) abort
     let issues = {'errors': [], 'warnings': []}
 
-    if has_key(a:maker, 'process_output')
-        if has_key(a:maker, 'mapexpr')
-            let issues.warnings += ['maker has mapexpr, but only process_output will be used.']
-        endif
-        if has_key(a:maker, 'postprocess')
-            let issues.warnings += ['maker has postprocess, but only process_output will be used.']
-        endif
-        if has_key(a:maker, 'errorformat')
-            let issues.warnings += ['maker has errorformat, but only process_output will be used.']
-        endif
+    if has_key(a:maker, 'process_json') && has_key(a:maker, 'process_output')
+        let issues.warnings += ['maker has process_json and process_output, but only process_json will be used.']
+        let check_process = ['process_json']
+    else
+        let check_process = ['process_json', 'process_output']
     endif
+
+    for f in check_process
+        if has_key(a:maker, f)
+            if has_key(a:maker, 'mapexpr')
+                let issues.warnings += [printf(
+                            \ 'maker has mapexpr, but only %s will be used.',
+                            \ f)]
+            endif
+            if has_key(a:maker, 'postprocess')
+                let issues.warnings += [printf(
+                            \ 'maker has postprocess, but only %s will be used.',
+                            \ f)]
+            endif
+            if has_key(a:maker, 'errorformat')
+                let issues.warnings += [printf(
+                            \ 'maker has errorformat, but only %s will be used.',
+                            \ f)]
+            endif
+        endif
+    endfor
 
     if !executable(a:maker.exe)
         let t = get(a:maker, 'auto_enabled', 0) ? 'warnings' : 'errors'
         let issues[t] += [printf("maker's exe (%s) is not executable.", a:maker.exe)]
+    endif
+
+    if has_key(a:maker, 'name')
+        if a:maker.name !~# g:neomake#core#valid_maker_name_pattern
+            call add(issues['errors'], printf(
+                  \ 'Invalid maker name: %s (should match %s)',
+                  \ string(a:maker.name),
+                  \ string(g:neomake#core#valid_maker_name_pattern)))
+        endif
     endif
 
     return issues
@@ -68,7 +92,7 @@ function! neomake#debug#display_info(...) abort
         try
             call setreg('+', join(lines, "\n"), 'l')
         catch
-            call neomake#utils#ErrorMessage(printf(
+            call neomake#log#error(printf(
                         \ 'Could not set clipboard: %s.', v:exception))
             return
         endtry
