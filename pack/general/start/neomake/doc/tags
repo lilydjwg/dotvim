@@ -78,10 +78,12 @@ neomake-job-makers	neomake.txt	/*neomake-job-makers*
 neomake-makers	neomake.txt	/*neomake-makers*
 neomake-makers-buffer_output	neomake.txt	/*neomake-makers-buffer_output*
 neomake-makers-cwd	neomake.txt	/*neomake-makers-cwd*
+neomake-makers-filter_output	neomake.txt	/*neomake-makers-filter_output*
 neomake-makers-get_list_entries	neomake.txt	/*neomake-makers-get_list_entries*
 neomake-makers-mapexpr	neomake.txt	/*neomake-makers-mapexpr*
 neomake-makers-output_stream	neomake.txt	/*neomake-makers-output_stream*
 neomake-makers-postprocess	neomake.txt	/*neomake-makers-postprocess*
+neomake-makers-process_json	neomake.txt	/*neomake-makers-process_json*
 neomake-makers-process_output	neomake.txt	/*neomake-makers-process_output*
 neomake-makers-processing	neomake.txt	/*neomake-makers-processing*
 neomake-makers-properties	neomake.txt	/*neomake-makers-properties*
