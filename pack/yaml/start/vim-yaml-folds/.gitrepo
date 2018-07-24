@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:pedrohdz/vim-yaml-folds.git
+	branch = master
+	commit = 0672d9a3b685b51b4c49d8716c2ad4e27cfa5abd
+	parent = fdbd68ec626875ed5852cb9f47c476e201182f52
+	method = merge
+	cmdver = 0.4.0
