@@ -8,8 +8,8 @@
  |     || || |   | |   |  |__ |  _  ||  _  || |  | |
  |____| |_||_|   |_|   |_____||_| |_||_| |_||_|  |_|
 <
-Last Change: 2018/02/04
-Version:     7.5
+Last Change: 2018/07/22
+Version:     7.6
 Author:      Rick Howe <rdcxy754@ybb.ne.jp>
 
 -----------------------------------------------------------------------------
@@ -193,6 +193,15 @@ OPTIONS                                                *diffchar-options*
 
 -----------------------------------------------------------------------------
 CHANGE HISTORY                                         *diffchar-history*
+
+Update : 7.6
+* Improved to make DiffChar highlights draw faster by:
+  - setting a priority of matchaddpos()/matchadd() with the line number and
+    calling matchaddpos()/matchadd()/matchdelete() in the order of which
+    vim can internally handle them earlier.
+  - drawing vim's diff mode highlights (as a workaround for 7.4.682)
+    only on non-DiffChar lines.
+  - not changing the highlight option.
 
 Update : 7.5
 * Enhanced to update DiffChar highlights much faster when adding or deleting
