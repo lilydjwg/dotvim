@@ -6,7 +6,7 @@
 [subrepo]
 	remote = git@github.com:neomake/neomake.git
 	branch = master
-	commit = f26a31a315f60150fd42682df911306b4d795dd8
+	commit = 9423dc2a8a3999d138f3a4cd8bdfc2750d1087d8
 	parent = ae4905156db326d879f3056a37956ef47e124f77
 	cmdver = 0.4.0
 	method = merge

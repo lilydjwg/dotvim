@@ -523,7 +523,6 @@ if !s:can_use_env_in_job_opts
     endfunction
 endif
 
-let s:maker_base = {}
 let s:command_maker_base = copy(g:neomake#core#command_maker_base)
 " Check if a temporary file is used, and set it in s:make_info in case it is.
 function! s:command_maker_base._get_tempfilename(jobinfo) abort dict
@@ -594,42 +593,53 @@ function! s:command_maker_base._get_fname_for_buffer(jobinfo) abort
     let bufnr = a:jobinfo.bufnr
     let bufname = bufname(bufnr)
     let temp_file = ''
-    if empty(bufname)
-        let temp_file = self._get_tempfilename(a:jobinfo)
-        if !get(a:jobinfo, 'uses_stdin', 0) && empty(temp_file)
-            throw 'Neomake: no file name.'
+    let _uses_stdin = neomake#utils#GetSetting('uses_stdin', a:jobinfo.maker, s:unset_dict, a:jobinfo.ft, bufnr)
+    if _uses_stdin isnot s:unset_dict
+        let a:jobinfo.uses_stdin = _uses_stdin
+        let uses_stdin = _uses_stdin
+        call neomake#log#debug(printf('Using uses_stdin (%s) from setting.',
+                    \ a:jobinfo.uses_stdin), a:jobinfo)
+        if a:jobinfo.uses_stdin
+            let temp_file = neomake#utils#GetSetting('tempfile_name', a:jobinfo.maker, '-', a:jobinfo.ft, bufnr)
         endif
-        let used_for = 'unnamed'
-    elseif getbufvar(bufnr, '&modified')
-        let temp_file = self._get_tempfilename(a:jobinfo)
-        if !get(a:jobinfo, 'uses_stdin', 0) && empty(temp_file)
-            call neomake#log#debug('warning: buffer is modified. You might want to enable tempfiles.',
-                        \ a:jobinfo)
-        endif
-        let used_for = 'modified'
-    elseif !filereadable(bufname)
-        let temp_file = self._get_tempfilename(a:jobinfo)
-        if !get(a:jobinfo, 'uses_stdin', 0) && empty(temp_file)
-            " Using ':p' as modifier is unpredictable as per doc, but OK.
-            throw printf('Neomake: file is not readable (%s)', fnamemodify(bufname, ':p'))
-        endif
-        let used_for = 'unreadable'
     else
-        let bufname = fnamemodify(bufname, ':.')
-        let used_for = ''
-    endif
+        if empty(bufname)
+            let temp_file = self._get_tempfilename(a:jobinfo)
+            if !get(a:jobinfo, 'uses_stdin', 0) && empty(temp_file)
+                throw 'Neomake: no file name.'
+            endif
+            let used_for = 'unnamed'
+        elseif getbufvar(bufnr, '&modified')
+            let temp_file = self._get_tempfilename(a:jobinfo)
+            if !get(a:jobinfo, 'uses_stdin', 0) && empty(temp_file)
+                call neomake#log#debug('warning: buffer is modified. You might want to enable tempfiles.',
+                            \ a:jobinfo)
+            endif
+            let used_for = 'modified'
+        elseif !filereadable(bufname)
+            let temp_file = self._get_tempfilename(a:jobinfo)
+            if !get(a:jobinfo, 'uses_stdin', 0) && empty(temp_file)
+                " Using ':p' as modifier is unpredictable as per doc, but OK.
+                throw printf('Neomake: file is not readable (%s)', fnamemodify(bufname, ':p'))
+            endif
+            let used_for = 'unreadable'
+        else
+            let bufname = fnamemodify(bufname, ':.')
+            let used_for = ''
+        endif
 
-    let uses_stdin = get(a:jobinfo, 'uses_stdin', 0)
+        let uses_stdin = get(a:jobinfo, 'uses_stdin', 0)
 
-    if !empty(used_for)
-        if uses_stdin
-            call neomake#log#debug(printf(
-                        \ 'Using stdin for %s buffer (%s).', used_for, temp_file),
-                        \ a:jobinfo)
-        elseif !empty(temp_file)
-            call neomake#log#debug(printf(
-                        \ 'Using tempfile for %s buffer: "%s".', used_for, temp_file),
-                        \ a:jobinfo)
+        if !empty(used_for)
+            if uses_stdin
+                call neomake#log#debug(printf(
+                            \ 'Using stdin for %s buffer (%s).', used_for, temp_file),
+                            \ a:jobinfo)
+            elseif !empty(temp_file)
+                call neomake#log#debug(printf(
+                            \ 'Using tempfile for %s buffer: "%s".', used_for, temp_file),
+                            \ a:jobinfo)
+            endif
         endif
     endif
 
@@ -695,19 +705,22 @@ function! s:command_maker_base._bind_args() abort dict
         let args = copy(self.args)
     endif
     let self.args = args
+    return self
 endfunction
 
 function! s:command_maker_base._get_argv(jobinfo) abort dict
-    let args = self.args
-    let args_is_list = type(self.args) == type([])
     let filename = self._get_fname_for_args(a:jobinfo)
-    if !empty(filename)
-        let args = copy(args)
-        if args_is_list
+    let args_is_list = type(self.args) == type([])
+    if args_is_list
+        let args = neomake#utils#ExpandArgs(self.args)
+        if !empty(filename)
             call add(args, filename)
-        else
-            let args .= (empty(args) ? '' : ' ').fnameescape(filename)
         endif
+    elseif !empty(filename)
+        let args = copy(self.args)
+        let args .= (empty(args) ? '' : ' ').neomake#utils#shellescape(filename)
+    else
+        let args = self.args
     endif
     return neomake#compat#get_argv(self.exe, args, args_is_list)
 endfunction
@@ -724,58 +737,85 @@ function! s:GetMakerForFiletype(ft, maker_name) abort
     return s:unset_dict
 endfunction
 
+function! neomake#get_maker_by_name(maker_name, ...) abort
+    let for_ft = a:0 ? a:1 : 0
+    let ft_config = for_ft is# 0 ? &filetype : for_ft
+    let bufnr = bufnr('%')
+    if a:maker_name !~# '\v^\w+$'
+        throw printf('Neomake: Invalid maker name: "%s"', a:maker_name)
+    endif
+
+    let maker = neomake#utils#GetSetting('maker', {'name': a:maker_name}, s:unset_dict, ft_config, bufnr)
+    if maker is# s:unset_dict
+        if a:maker_name ==# 'makeprg'
+            let maker = s:get_makeprg_maker()
+        elseif for_ft isnot# 0
+            let maker = s:GetMakerForFiletype(for_ft, a:maker_name)
+        else
+            call neomake#utils#load_global_makers()
+            let f = 'neomake#makers#'.a:maker_name.'#'.a:maker_name
+            if exists('*'.f)
+                let maker = call(f, [])
+            endif
+        endif
+    endif
+    if type(maker) != type({})
+        throw printf('Neomake: Got non-dict for maker %s: %s',
+                    \ a:maker_name, maker)
+    endif
+    if maker isnot# s:unset_dict && !has_key(maker, 'name')
+        let maker.name = a:maker_name
+    endif
+    return maker
+endfunction
+
 function! neomake#GetMaker(name_or_maker, ...) abort
-    let ft = a:0 ? a:1 : &filetype
+    let for_ft = a:0 ? a:1 : 0
     let bufnr = bufnr('%')
     if type(a:name_or_maker) == type({})
         let maker = a:name_or_maker
-    elseif a:name_or_maker ==# 'makeprg'
-        let maker = s:get_makeprg_maker()
-    elseif a:name_or_maker !~# '\v^\w+$'
-        throw printf('Neomake: Invalid maker name: "%s"', a:name_or_maker)
+        if !has_key(maker, 'name')
+            let maker.name = 'unnamed_maker'
+        endif
     else
-        let maker = neomake#utils#GetSetting('maker', {'name': a:name_or_maker}, s:unset_dict, ft, bufnr)
+        let maker = neomake#get_maker_by_name(a:name_or_maker, for_ft)
         if maker is# s:unset_dict
-            if !empty(ft)
-                let maker = s:GetMakerForFiletype(ft, a:name_or_maker)
-            endif
-            if maker is# s:unset_dict
-                call neomake#utils#load_global_makers()
-                let f = 'neomake#makers#'.a:name_or_maker.'#'.a:name_or_maker
-                if exists('*'.f)
-                    let maker = call(f, [])
-                endif
-                if maker is# s:unset_dict
-                    throw printf('Neomake: Maker not found (for %s): %s',
-                                \ !empty(ft) ? 'filetype '.ft : 'empty filetype',
-                                \ a:name_or_maker)
-                endif
+            if !a:0
+                " Check &filetype if no args where provided.
+                let maker = neomake#get_maker_by_name(a:name_or_maker, &filetype)
             endif
         endif
-        if type(maker) != type({})
-            throw printf('Neomake: Got non-dict for maker %s: %s',
-                        \ a:name_or_maker, maker)
+        if maker is# s:unset_dict
+            if for_ft isnot# 0
+                throw printf('Neomake: Maker not found (for %s): %s',
+                            \ !empty(for_ft) ? 'filetype '.for_ft : 'empty filetype',
+                            \ a:name_or_maker)
+            else
+                throw printf('Neomake: Maker not found (without filetype): %s',
+                            \ a:name_or_maker)
+            endif
         endif
     endif
+    return neomake#create_maker_object(maker, a:0 ? a:1 : &filetype)
+endfunction
+
+" NOTE: uses ft and bufnr for config only.
+function! neomake#create_maker_object(maker, ft) abort
+    let [maker, ft, bufnr] = [a:maker, a:ft, bufnr('%')]
 
     " Create the maker object.
     let GetEntries = neomake#utils#GetSetting('get_list_entries', maker, -1, ft, bufnr)
     if GetEntries isnot# -1
-        let maker = extend(copy(s:maker_base), copy(maker))
+        let maker = copy(maker)
         let maker.get_list_entries = GetEntries
     else
         let maker = extend(copy(s:command_maker_base), copy(maker))
     endif
-    if !has_key(maker, 'name')
-        if type(a:name_or_maker) == type('')
-            let maker.name = a:name_or_maker
-        else
-            let maker.name = 'unnamed_maker'
-        endif
-    endif
     if !has_key(maker, 'get_list_entries')
         " Set defaults for command/job based makers.
-        let defaults = neomake#config#get('maker_defaults')
+        let defaults = extend(
+                    \ copy(g:neomake#config#_defaults['maker_defaults']),
+                    \ neomake#config#get('maker_defaults'))
         call extend(defaults, {
             \ 'exe': maker.name,
             \ 'args': [],
@@ -883,8 +923,17 @@ function! neomake#GetEnabledMakers(...) abort
         " This variable is also used for project jobs, so it has no
         " buffer local ('b:') counterpart for now.
         let enabled_makers = copy(get(g:, 'neomake_enabled_makers', []))
-        call map(enabled_makers, "extend(neomake#GetMaker(v:val),
-                    \ {'auto_enabled': 0}, 'error')")
+        if empty(enabled_makers)
+            let makeprg_maker = s:get_makeprg_maker()
+            if !empty(makeprg_maker)
+                let makeprg_maker = neomake#GetMaker(makeprg_maker)
+                let makeprg_maker.auto_enabled = 1
+                let enabled_makers = [makeprg_maker]
+            endif
+        else
+            call map(enabled_makers, "extend(neomake#GetMaker(v:val),
+                        \ {'auto_enabled': 0}, 'error')")
+        endif
     else
         let enabled_makers = []
         let makers = neomake#utils#GetSetting('enabled_makers', {}, s:unset_list, a:1, bufnr('%'))
@@ -930,35 +979,59 @@ function! s:HandleLoclistQflistDisplay(jobinfo, loc_or_qflist, ...) abort
         let cmd = 'cwindow'
     endif
     if open_val == 2
+        let make_id = a:jobinfo.make_id
+        let make_info = s:make_info[make_id]
         let s:ignore_automake_events += 1
-        call neomake#compat#save_prev_windows()
+        try
+            call neomake#compat#save_prev_windows()
 
-        let win_count = winnr('$')
-        exe cmd height
-        if win_count == winnr('$')
-            " No new window, adjust height eventually.
-            let found = 0
-            for w in range(1, winnr('$'))
-                if getwinvar(w, 'neomake_window_for_make_id') == a:jobinfo.make_id
-                    let found = w
-                    break
+            let win_count = winnr('$')
+            exe cmd height
+            let new_win_count = winnr('$')
+            if win_count == new_win_count
+                " No new window, adjust height eventually.
+                let found = 0
+
+                if get(make_info, '_did_lwindow', 0)
+                    for w in range(1, winnr('$'))
+                        if getwinvar(w, 'neomake_window_for_make_id') == make_id
+                            let found = w
+                            break
+                        endif
+                    endfor
+                    if found
+                        let cmd = printf('%dresize %d', found, height)
+                        call neomake#log#debug(printf(
+                                    \ 'Resizing existing quickfix window: %s.',
+                                    \ cmd), a:jobinfo)
+                        exe cmd
+                    else
+                        call neomake#log#debug(
+                                    \ 'Could not find corresponding quickfix window.',
+                                    \ a:jobinfo)
+                    endif
                 endif
-            endfor
-            if found
-                call neomake#log#debug(printf(
-                            \ 'Resizing existing quickfix window (%d, height=%d).',
-                            \ found, height), a:jobinfo)
-                exe printf('%dresize %d', found, height)
+            elseif new_win_count > win_count
+                if &filetype !=# 'qf'
+                    call neomake#log#debug(printf(
+                                \ 'WARN: unexpected filetype for new window: %s',
+                                \ &filetype), a:jobinfo)
+                else
+                    call neomake#log#debug(printf(
+                                \ 'list window has been opened (old count: %d, new count: %d).',
+                                \ win_count, new_win_count), a:jobinfo)
+                    let w:neomake_window_for_make_id = a:jobinfo.make_id
+                endif
             else
-                call neomake#log#debug(
-                            \ 'Could not find corresponding quickfix window.',
-                            \ a:jobinfo)
+                call neomake#log#debug(printf(
+                            \ 'list window has been closed (old count: %d, new count: %d).',
+                            \ win_count, new_win_count), a:jobinfo)
             endif
-        else
-            let w:neomake_window_for_make_id = a:jobinfo.make_id
-        endif
-        call neomake#compat#restore_prev_windows()
-        let s:ignore_automake_events -= 1
+            call neomake#compat#restore_prev_windows()
+            let make_info._did_lwindow = 1
+        finally
+            let s:ignore_automake_events -= 1
+        endtry
     else
         exe cmd height
     endif
@@ -1158,8 +1231,16 @@ endfunction
 " This could be cached, but needs to take into account / set &errorformat,
 " and other settings that are handled by neomake#GetMaker.
 function! s:get_makeprg_maker() abort
-    let maker = neomake#utils#MakerFromCommand(&makeprg)
+    if empty(&makeprg)
+        return {}
+    elseif &makeprg =~# '\s'
+        let maker = neomake#utils#MakerFromCommand(&makeprg)
+    else
+        let maker = neomake#utils#MakerFromCommand([&makeprg])
+    endif
     let maker.name = 'makeprg'
+    " Do not append file.  &makeprg should contain %/# for this instead.
+    let maker.append_file = 0
     return neomake#GetMaker(maker)
 endfunction
 
@@ -1230,8 +1311,6 @@ function! s:Make(options) abort
                     endif
                     unlet s:make_info[make_id]
                     return []
-                else
-                    let makers = [s:get_makeprg_maker()]
                 endif
             endif
         endif
@@ -1321,7 +1400,7 @@ function! s:AddExprCallback(jobinfo, prev_list) abort
         let postprocessors = Postprocess
     endif
     let debug = neomake#utils#get_verbosity(a:jobinfo) >= 3 || !empty(get(g:, 'neomake_logfile'))
-    let maker_name = get(maker, 'name', 'makeprg')
+    let maker_name = maker.name
     let make_info = s:make_info[a:jobinfo.make_id]
     let default_type = 'unset'
 
@@ -1406,7 +1485,7 @@ function! s:AddExprCallback(jobinfo, prev_list) abort
             endif
         endif
 
-        if empty(entry.type)
+        if empty(entry.type) && entry.valid
             if default_type ==# 'unset'
                 let default_type = neomake#utils#GetSetting('default_entry_type', maker, 'W', a:jobinfo.ft, a:jobinfo.bufnr)
             endif

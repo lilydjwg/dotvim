@@ -134,6 +134,7 @@ function! g:NeomakeTestsCreateExe(name, ...)
     call system('/bin/chmod 770 '.shellescape(exe))
     Assert !v:shell_error, 'Got shell_error with chmod: '.v:shell_error
   endif
+  return exe
 endfunction
 
 let s:saved_path = 0
@@ -318,7 +319,14 @@ endfunction
 
 function! NeomakeTestsFakeJobinfo() abort
   let make_id = -42
-  let jobinfo = {'file_mode': 1, 'bufnr': bufnr('%'), 'ft': '', 'make_id': make_id}
+  let jobinfo = copy(g:neomake#jobinfo#base)
+  call extend(jobinfo, {
+        \ 'file_mode': 1,
+        \ 'bufnr': bufnr('%'),
+        \ 'ft': '',
+        \ 'make_id': make_id,
+        \ 'maker': {},
+        \ })
   let make_info = neomake#GetStatus().make_info
   let make_info[make_id] = {
         \ 'options': jobinfo,
@@ -387,8 +395,8 @@ endfunction
 
 function! NeomakeTestsGetVimMessages()
   let msgs = split(neomake#utils#redir('messages'), "\n")
-  call NeomakeTestsSetVimMessagesMarker()
   let idx = index(reverse(msgs), s:vim_msgs_marker)
+  call NeomakeTestsSetVimMessagesMarker()
   if idx <= 0
     return []
   endif
@@ -516,7 +524,9 @@ function! s:After()
         endif
       endfor
       " In case there are two windows with Vader-workbench.
-      only
+      if winnr('$') > 1
+        only
+      endif
     catch
       Log "Error while cleaning windows: ".v:exception.' (in '.v:throwpoint.').'
     endtry
@@ -574,8 +584,12 @@ function! s:After()
   endif
 
   if !empty(errors)
-    call map(errors, "printf('%d. %s', v:key+1, v:val)")
-    throw len(errors)." error(s) in teardown:\n".join(errors, "\n")
+    if get(g:, 'vader_case_ok', 1)
+      call map(errors, "printf('%d. %s', v:key+1, v:val)")
+      throw len(errors)." error(s) in teardown:\n".join(errors, "\n")
+    else
+      Log printf('NOTE: %d error(s) in teardown.', len(errors))
+    endif
   endif
 endfunction
 command! NeomakeTestsGlobalAfter call s:After()

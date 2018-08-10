@@ -1,12 +1,13 @@
 # Do not let mess "cd" with user-defined paths.
 CDPATH:=
 
-bash:=$(shell command -v bash 2>/dev/null)
-ifeq ($(bash),)
-  $(error Could not find bash)
+bash=$(shell command -v bash 2>/dev/null)
+TEST_SHELL:=$(bash)
+ifeq ($(TEST_SHELL),)
+  $(error Could not determine TEST_SHELL (defaults to bash))
 endif
 # This is expected in tests.
-TEST_VIM_PREFIX:=SHELL=$(bash)
+TEST_VIM_PREFIX:=SHELL=$(TEST_SHELL)
 SHELL:=$(bash) -o pipefail
 
 # Use nvim if it is installed, otherwise vim.
@@ -174,13 +175,12 @@ build/vimhelplint: | build
 	&& wget -O- https://github.com/machakann/vim-vimhelplint/archive/master.tar.gz \
 	  | tar xz \
 	&& mv vim-vimhelplint-master vimhelplint
-vimhelplint: export VIMHELPLINT_VIM:=vim
 vimhelplint: | $(if $(VIMHELPLINT_DIR),,build/vimhelplint)
 	contrib/vimhelplint doc/neomake.txt
 
 # Run tests in dockerized Vims.
 DOCKER_REPO:=neomake/vims-for-tests
-DOCKER_TAG:=28
+DOCKER_TAG:=30
 NEOMAKE_DOCKER_IMAGE?=
 DOCKER_IMAGE:=$(if $(NEOMAKE_DOCKER_IMAGE),$(NEOMAKE_DOCKER_IMAGE),$(DOCKER_REPO):$(DOCKER_TAG))
 DOCKER_STREAMS:=-ti
@@ -212,8 +212,8 @@ docker_update_image:
 	make docker_test DOCKER_VIM=neovim-master
 	@echo "Done.  Use 'make docker_push' to push it, and then update .circleci/config.yml."
 
-DOCKER_VIMS:=vim73 vim74-trusty vim74-xenial vim-8.0.586 vim-8.0.1832 vim-master \
-  neovim-v0.1.7 neovim-v0.2.0 neovim-v0.2.1 neovim-v0.2.2 neovim-v0.3.0 neovim-master
+DOCKER_VIMS:=vim73 vim74-trusty vim74-xenial vim80 vim81 \
+  neovim-v0.1.7 neovim-v0.3.1
 _DOCKER_VIM_TARGETS:=$(addprefix docker_test-,$(DOCKER_VIMS))
 
 docker_test_all: $(_DOCKER_VIM_TARGETS)
@@ -255,7 +255,7 @@ docker_check: docker_make
 
 docker_vimhelplint:
 	$(MAKE) docker_make "DOCKER_MAKE_TARGET=vimhelplint \
-	  VIMHELPLINT_VIM=/vim-build/bin/vim-master"
+	  VIMHELPLINT_VIM=/vim-build/bin/vim81"
 
 _ECHO_DOCKER_VIMS:=ls /vim-build/bin | grep vim | sort
 docker_list_vims:
@@ -384,6 +384,7 @@ endef
 $(eval $(call func-generate-fixture,puppet,parser validate --color=false))
 $(eval $(call func-generate-fixture,puppet-lint,--log-format "%{path}:%{line}:%{column}:%{kind}:[%{check}] %{message}"))
 $(eval $(call func-generate-fixture,xmllint,--xinclude --postvalid --noout))
+$(eval $(call func-generate-fixture,zsh,-n))
 
 _FIXTURES_INPUT:=$(wildcard tests/fixtures/input/*/*)
 _FIXTURES_OUTPUT:=$(patsubst tests/fixtures/input/%,tests/fixtures/output/%,$(addsuffix .stdout,$(_FIXTURES_INPUT)) $(addsuffix .stderr,$(_FIXTURES_INPUT)))

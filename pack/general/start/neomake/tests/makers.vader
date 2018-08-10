@@ -62,6 +62,11 @@ Execute (neomake#GetMaker uses defined errorformat with makeprg):
   let &errorformat = '%Gcustom'
   AssertEqual neomake#GetMaker('makeprg', '').errorformat, '%Gcustom'
 
+Execute (neomake#GetMaker defaults to current filetype):
+"   Save &errorformat
+"   let &errorformat = '%Gcustom'
+"   AssertEqual neomake#GetMaker('makeprg', '').errorformat, '%Gcustom'
+
 Execute (neomake#GetMaker uses defaults from b:/g:):
   Save g:neomake_test_remove_invalid_entries
   Save b:neomake_test_remove_invalid_entries
@@ -90,6 +95,22 @@ Execute (neomake#GetMaker uses defaults from b:/g: based on maker):
   AssertEqual neomake#GetMaker(maker).remove_invalid_entries, 2
   let b:neomake_test_remove_invalid_entries = 3
   AssertEqual neomake#GetMaker(maker).remove_invalid_entries, 3
+
+Execute (neomake#GetMaker uses maker_defaults):
+  Save g:neomake
+
+  let maker = {'name': 'test'}
+  AssertEqual neomake#GetMaker(maker).remove_invalid_entries, 0
+
+  call neomake#config#set('maker_defaults.remove_invalid_entries', 1)
+  AssertEqual neomake#GetMaker(maker).remove_invalid_entries, 1
+
+  " maker_defaults uses hard-coded defaults when only set partially/loaded.
+  AssertEqual neomake#GetMaker(maker).buffer_output, 1
+
+  " maker_defaults uses hard-coded defaults always.
+  call neomake#config#set('maker_defaults', {})
+  AssertEqual neomake#GetMaker(maker).remove_invalid_entries, 0
 
 Execute (neomake#GetMaker from g:neomake_foo_maker):
   let g:neomake_custom_maker = {
@@ -264,7 +285,7 @@ Execute (Neomake with non-existing default makers, explicitly called):
   AssertNeomakeMessage "Exe (maker_without_exe) of maker maker_without_exe is not executable.", 0
 
   RunNeomake maker_without_exe
-  AssertNeomakeMessage "Exe (maker_without_exe) of maker maker_without_exe is not executable.", 3
+  AssertNeomakeMessage "Exe (maker_without_exe) of maker maker_without_exe is not executable.", 0
 
 Execute (neomake#GetEnabledMakers with defaults):
   new
@@ -290,8 +311,13 @@ Execute (neomake#GetEnabledMakers without filetype):
   Save g:neomake_enabled_makers
   unlet! g:neomake_enabled_makers
 
-  let makers = neomake#GetEnabledMakers()
-  AssertEqual makers, []
+  AssertEqual map(neomake#GetEnabledMakers(''), 'v:val.name'), []
+
+  AssertEqual map(neomake#GetEnabledMakers(), 'v:val.name'), ['makeprg']
+
+  Save &makeprg
+  set makeprg=
+  AssertEqual map(neomake#GetEnabledMakers(), 'v:val.name'), []
 
   Save g:neomake_mymaker_maker
   let g:neomake_mymaker_maker = {}
@@ -333,6 +359,7 @@ Execute (maker.fn can set env var):
   \ 'args': ['-c', 'echo MYENV:$MYENV'],
   \ 'append_file': 0,
   \ 'errorformat': '%m',
+  \ 'name': 'echo_env_maker',
   \ }
   function! maker.fn(jobinfo)
     let self.args = ['MYENV=custom', self.exe] + self.args
@@ -517,7 +544,7 @@ Execute (Makers: process_json with invalid JSON):
   elseif exists('*json_decode')
     AssertNeomakeMessage "Failed to decode JSON: Vim(return):E474: Invalid argument (output: 'success').", 0
   else
-    AssertNeomakeMessage "Failed to decode JSON: Failed to parse JSON input (output: 'success').", 0
+    AssertNeomakeMessage "Failed to decode JSON: Failed to parse JSON input: invalid input (output: 'success').", 0
   endif
 
 Execute (Makers: process_json with non-list return value):
@@ -755,7 +782,7 @@ Execute (Maker can pass opts for jobstart/job_start):
       CallNeomake 0, [maker]
       AssertEqualQf getqflist(), [
       \ {'lnum': 0, 'bufnr': 0, 'col': 0, 'valid': 0, 'vcol': 0, 'nr': -1,
-      \  'type': 'W', 'pattern': '', 'text': 'custom-term'}]
+      \  'type': '', 'pattern': '', 'text': 'custom-term'}]
     endif
   endif
 

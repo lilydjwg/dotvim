@@ -25,7 +25,9 @@ Include (Integration tests): integration.vader
 Include (Jobinfo): jobinfo.vader
 Include (JSON): json.vader
 Include (Lists): lists.vader
+Include (List entries): list-entries.vader
 Include (Logging): log.vader
+Include (Makeprg): makeprg.vader
 Include (Maker args): args.vader
 Include (Maker errors): maker_errors.vader
 Include (Makers): makers.vader
@@ -53,6 +55,7 @@ Include (Go): ft_go.vader
 Include (Haskell): ft_haskell.vader
 Include (Idris): ft_idris.vader
 Include (JavaScript): ft_javascript.vader
+Include (Markdown): ft_markdown.vader
 Include (Perl): ft_perl.vader
 Include (PHP): ft_php.vader
 Include (Puppet): ft_puppet.vader
