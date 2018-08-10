@@ -18,6 +18,14 @@ if !exists("g:vmt_fence_text")
     let g:vmt_fence_text = 'vim-markdown-toc'
 endif
 
+if !exists("g:vmt_fence_closing_text")
+    let g:vmt_fence_closing_text = g:vmt_fence_text
+endif
+
+if !exists("g:vmt_fence_hidden_markdown_style")
+    let g:vmt_fence_hidden_markdown_style = ''
+endif
+
 if !exists("g:vmt_list_item_char")
     let g:vmt_list_item_char = '*'
 endif
@@ -32,11 +40,12 @@ endif
 
 let g:GFMHeadingIds = {}
 
-let s:supportMarkdownStyles = ['GFM', 'Redcarpet', 'GitLab']
+let s:supportMarkdownStyles = ['GFM', 'Redcarpet', 'GitLab', 'Marked']
 
 let s:GFM_STYLE_INDEX = 0
 let s:REDCARPET_STYLE_INDEX = 1
 let s:GITLAB_STYLE_INDEX = 2
+let s:MARKED_STYLE_INDEX = 3
 
 function! s:HeadingLineRegex()
     return '\v(^.+$\n^\=+$|^.+$\n^\-+$|^#{1,6})'
@@ -200,6 +209,14 @@ function! s:GetHeadingLinkRedcarpet(headingName)
     return l:headingLink
 endfunction
 
+function! s:GetHeadingLinkMarked(headingName)
+    let l:headingLink = tolower(a:headingName)
+
+    let l:headingLink = substitute(l:headingLink, "[ ]\\+", "-", "g")
+
+    return l:headingLink
+endfunction
+
 function! s:GetHeadingName(headingLine)
     let l:headingName = substitute(a:headingLine, '^#*\s*', "", "")
     let l:headingName = substitute(l:headingName, '\s*#*$', "", "")
@@ -217,6 +234,8 @@ function! s:GetHeadingLink(headingName, markdownStyle)
         return <SID>GetHeadingLinkRedcarpet(a:headingName)
     elseif a:markdownStyle ==# s:supportMarkdownStyles[s:GITLAB_STYLE_INDEX]
         return <SID>GetHeadingLinkGitLab(a:headingName)
+    elseif a:markdownStyle ==# s:supportMarkdownStyles[s:MARKED_STYLE_INDEX]
+        return <SID>GetHeadingLinkMarked(a:headingName)
     endif
 endfunction
 
@@ -248,7 +267,7 @@ function! s:GenTocInner(markdownStyle, isModeline)
     let l:minLevel = min(l:levels)
 
     if g:vmt_dont_insert_fence == 0
-        put =<SID>GetBeginFence(a:markdownStyle, a:isModeline)
+        silent put =<SID>GetBeginFence(a:markdownStyle, a:isModeline)
     endif
 
     if g:vmt_cycle_list_item_markers == 1
@@ -258,7 +277,7 @@ function! s:GenTocInner(markdownStyle, isModeline)
     let l:i = 0
     " a black line before toc
     if !empty(l:headingLines)
-        put =''
+        silent put =''
     endif
     for headingLine in l:headingLines
         let l:headingName = <SID>GetHeadingName(headingLine)
@@ -271,16 +290,16 @@ function! s:GenTocInner(markdownStyle, isModeline)
         let l:heading = l:heading . " [" . l:headingName . "]"
         let l:heading = l:heading . "(#" . l:headingLink . ")"
 
-        put =l:heading
+        silent put =l:heading
 
         let l:i += 1
     endfor
 
     " a blank line after toc to avoid effect typo of content below
-    put =''
+    silent put =''
 
     if g:vmt_dont_insert_fence == 0
-        put =<SID>GetEndFence()
+        silent put =<SID>GetEndFence()
     endif
 endfunction
 
@@ -297,26 +316,26 @@ endfunction
 
 function! s:GetBeginFence(markdownStyle, isModeline)
     if a:isModeline != 0
-        return <SID>GetEndFence()
+        return "<!-- " . g:vmt_fence_text . " -->"
     else
         return "<!-- ". g:vmt_fence_text . " " . a:markdownStyle . " -->"
     endif
 endfunction
 
 function! s:GetEndFence()
-    return "<!-- " . g:vmt_fence_text . " -->"
+    return "<!-- " . g:vmt_fence_closing_text . " -->"
 endfunction
 
 function! s:GetBeginFencePattern(isModeline)
     if a:isModeline != 0
-        return <SID>GetEndFencePattern()
+        return "<!-- " . g:vmt_fence_text . " -->"
     else
-        return "<!-- " . g:vmt_fence_text . " \\([[:alpha:]]\\+\\) -->"
+        return "<!-- " . g:vmt_fence_text . " \\([[:alpha:]]\\+\\)\\? \\?-->"
     endif
 endfunction
 
 function! s:GetEndFencePattern()
-    return <SID>GetEndFence()
+    return "<!-- " . g:vmt_fence_closing_text . " -->"
 endfunction
 
 function! s:GetMarkdownStyleInModeline()
@@ -398,9 +417,20 @@ function! s:DeleteExistingToc()
                 let l:markdownStyle = matchlist(l:beginLine, l:tocBeginPattern)[1]
             endif
 
+            let l:doDelete = 0
             if index(s:supportMarkdownStyles, l:markdownStyle) == -1
-                let l:markdownStyle = "Unknown"
+                if l:markdownStyle ==# "" && index(s:supportMarkdownStyles, g:vmt_fence_hidden_markdown_style) != -1
+                    let l:markdownStyle = g:vmt_fence_hidden_markdown_style
+                    let l:isModeline = 1
+                    let l:doDelete = 1
+                else
+                    let l:markdownStyle = "Unknown"
+                endif
             else
+                let l:doDelete = 1
+            endif
+
+            if l:doDelete == 1
                 let l:endLineNumber = line(".")
                 silent execute l:beginLineNumber. "," . l:endLineNumber. "delete_"
             end
@@ -421,6 +451,7 @@ endfunction
 command! GenTocGFM :call <SID>GenToc(s:supportMarkdownStyles[s:GFM_STYLE_INDEX])
 command! GenTocGitLab :call <SID>GenToc(s:supportMarkdownStyles[s:GITLAB_STYLE_INDEX])
 command! GenTocRedcarpet :call <SID>GenToc(s:supportMarkdownStyles[s:REDCARPET_STYLE_INDEX])
+command! GenTocMarked :call <SID>GenToc(s:supportMarkdownStyles[s:MARKED_STYLE_INDEX])
 command! GenTocModeline :call <SID>GenTocInner(<SID>GetMarkdownStyleInModeline(), 1)
 command! UpdateToc :call <SID>UpdateToc()
 command! RemoveToc :call <SID>DeleteExistingToc()

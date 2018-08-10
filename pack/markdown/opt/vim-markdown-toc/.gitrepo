@@ -6,7 +6,7 @@
 [subrepo]
 	remote = git@github.com:mzlogin/vim-markdown-toc.git
 	branch = master
-	commit = 72242c94de1c175f242308b61e96df928a293a28
-	parent = b6b008305138ff5722c349569706626dd127af39
+	commit = d114d39cfb740f4f3785f9a53c23eda68687ee6e
+	parent = 2c06f5de1bff90beb291c8203ba44d20c8b7eebb
 	method = merge
 	cmdver = 0.4.0
