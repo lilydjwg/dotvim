@@ -1,5 +1,5 @@
 *highlightedyank.txt*	ヤンクした場所をわかりやすくする。
-						Last change:19-Nov-2017.
+						Last change:16-Mar-2018.
 
 書いた人   : machakann <mckn{at}outlook.jp>
 ライセンス : NYSL ライセンス
@@ -22,10 +22,17 @@ KNOWN ISSUES				|highlightedyank-known-issues|
 INTRODUCTION				*highlightedyank-introduction*
 
 *highlightedyank.vim* はユーザーのヤンクした箇所をハイライトするだけのプラグイ
-ンです。あなたのコーディング作業にほんの少しの彩りを加えます。次の行を vimrc
-に書き加えると使えます。
+ンです。あなたのコーディング作業にほんの少しの彩りを加えます。
+
+Vim 8.0.1934 か neovim <https://neovim.io/> を使用している場合はインストールす
+るだけで使えます。ハイライト処理は |TextYankPost| イベントにより実行されます。
+
+|TextYankPost| イベントが使えない場合も次の行を vimrc に書き加えると使えます。
+|TextYankPost| が存在するか確認するようにするとよいでしょう。
 >
-	map y <Plug>(highlightedyank)
+	if !exists('##TextYankPost')
+	  map y <Plug>(highlightedyank)
+	endif
 <
 
 ハイライトの持続時間は次の変数を通して変更できます。
@@ -46,7 +53,7 @@ INTRODUCTION				*highlightedyank-introduction*
 ------------------------------------------------------------------------------
 
 ハイライト処理はしばしば、特に多くの行をヤンクした場合に遅くなります。これを避
-けるために二つの安全策が設けられています。
+けるために次の安全策が設けられています。
 
 					*g:highlightedyank_max_lines*
 					*b:highlightedyank_max_lines*
@@ -58,19 +65,6 @@ INTRODUCTION				*highlightedyank-introduction*
 <
 これらが明示的に指定されていない場合は、 10000 行を超える場合にハイライトをし
 ません。
-
-
-
-					*g:highlightedyank_timeout*
-					*b:highlightedyank_timeout*
-|g:highlightedyank_timeout| と |b:highlightedyank_timeout| を使い、ハイライト
-に指定された以上の時間がかかった場合、処理を中止させることができます。以下の例
-ではハイライトに 500 ミリ秒 = 0.5 秒以上かかった場合に処理を中止させます。
->
-	let g:highlightedyank_timeout = 500
-<
-これらが明示的に指定されていない場合は、 1秒 (1000 ミリ秒) を超える場合にハイ
-ライトをしません。
 
 ==============================================================================
 HIGHLIGHT GROUPS			*highlightedyank-highlight-groups*
@@ -88,6 +82,23 @@ HighlightedyankRegion				*hl-HighlightedyankRegion*
 	highlight HighlightedyankRegion ctermbg=237 guibg=#404040
 <
 	より詳しくは |:highlight| を参照してください。
+==============================================================================
+COMMANDS				*highlightedyank-commands*
+
+:HighlightedyankOff				*:HighlightedyankOff*
+	ハイライト機能を一時停止します。ハイライトは比較的重い処理です。そのた
+	め、 |complex-repeat| を使用して大量のテキストを編集する場合などに使用
+	することで処理時間を短縮できるでしょう。
+
+:HighlightedyankOn				*:HighlightedyankOn*
+	|:HighlightedyankOff| コマンドによって停止していたハイライト機能を再開
+	します。
+
+:HighlightedyankToggle				*:HighlightedyankToggle*
+	ハイライト機能のオン・オフを切り替えます。
+	|:HighlightedyankOff| および |:HighlightedyankOn| の項も参照してくださ
+	い。
+
 ==============================================================================
 KNOWN ISSUES				*highlightedyank-known-issues*
 
