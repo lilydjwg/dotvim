@@ -6,7 +6,7 @@
 [subrepo]
 	remote = git@github.com:ElmCast/elm-vim.git
 	branch = master
-	commit = ae5315396cd0f3958750f10a5f3ad9d34d33f40d
+	commit = e51e2e43ad617c26205a84453481d3ac152c8fec
 	parent = 6e5f9b1f2b773e22ebde43ed770f2e3ada042a47
 	method = merge
 	cmdver = 0.4.0
