@@ -1,6 +1,9 @@
-syntax keyword typescriptGlobal URL nextgroup=typescriptGlobalURLDot,typescriptFuncCallArg
-syntax match   typescriptGlobalURLDot /\./ contained nextgroup=typescriptURLStaticMethod
-syntax keyword typescriptGlobal Blob BlobBuilder File FileReader FileReaderSync URLUtils
+syntax keyword typescriptGlobal containedin=typescriptIdentifierName Blob BlobBuilder
+syntax keyword typescriptGlobal containedin=typescriptIdentifierName File FileReader
+syntax keyword typescriptGlobal containedin=typescriptIdentifierName FileReaderSync
+syntax keyword typescriptGlobal containedin=typescriptIdentifierName URL nextgroup=typescriptGlobalURLDot,typescriptFuncCallArg
+syntax match   typescriptGlobalURLDot /\./ contained nextgroup=typescriptURLStaticMethod,typescriptProp
+syntax keyword typescriptGlobal containedin=typescriptIdentifierName URLUtils
 syntax keyword typescriptFileMethod contained readAsArrayBuffer readAsBinaryString nextgroup=typescriptFuncCallArg
 syntax keyword typescriptFileMethod contained readAsDataURL readAsText nextgroup=typescriptFuncCallArg
 syntax cluster props add=typescriptFileMethod

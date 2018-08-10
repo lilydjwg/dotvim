@@ -63,6 +63,8 @@ try {
     predef = 'syntax keyword ' + group;
     if (contained) {
         predef += ' contained';
+    } else {
+      predef += ' containedin=typescriptIdentifierName';
     }
     def = predef;
 
@@ -73,7 +75,7 @@ try {
         console.log(predef + ' ' + rule +
             ' nextgroup=' + group + rule + 'Dot,typescriptFuncCallArg');
         console.log('syntax match   ' + group + rule +
-            'Dot /\\./ contained nextgroup=' + statics.join(','));
+            'Dot /\\./ contained nextgroup=' + statics.join(',') + ',typescriptProp');
       } else {
         if (/Style/.test(group)) {
           rule = camel(rule);

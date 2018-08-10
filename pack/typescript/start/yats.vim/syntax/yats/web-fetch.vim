@@ -1,5 +1,6 @@
-syntax keyword typescriptGlobal Headers Request Response
-syntax keyword typescriptGlobalMethod fetch nextgroup=typescriptFuncCallArg
+syntax keyword typescriptGlobal containedin=typescriptIdentifierName Headers Request
+syntax keyword typescriptGlobal containedin=typescriptIdentifierName Response
+syntax keyword typescriptGlobalMethod containedin=typescriptIdentifierName fetch nextgroup=typescriptFuncCallArg
 syntax cluster props add=typescriptGlobalMethod
 if exists("did_typescript_hilink") | HiLink typescriptGlobalMethod Structure
 endif
@@ -17,6 +18,7 @@ syntax cluster props add=typescriptRequestMethod
 if exists("did_typescript_hilink") | HiLink typescriptRequestMethod Keyword
 endif
 syntax keyword typescriptResponseProp contained type url status statusText headers
+syntax keyword typescriptResponseProp contained redirected
 syntax cluster props add=typescriptResponseProp
 if exists("did_typescript_hilink") | HiLink typescriptResponseProp Keyword
 endif

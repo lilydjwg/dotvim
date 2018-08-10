@@ -14,15 +14,11 @@ syntax cluster typescriptComments
   \ contains=typescriptDocComment,typescriptComment,typescriptLineComment
 
 syntax match   typescriptRef  +///\s*<reference\s\+.*\/>$+
-  \ contains=typescriptRefD,typescriptRefS
+  \ contains=typescriptString
 syntax match   typescriptRef  +///\s*<amd-dependency\s\+.*\/>$+
-  \ contains=typescriptRefD,typescriptRefS
+  \ contains=typescriptString
 syntax match   typescriptRef  +///\s*<amd-module\s\+.*\/>$+
-  \ contains=typescriptRefD,typescriptRefS
-syntax region  typescriptRefD
-  \ start=+"+ skip=+\\\\\|\\"+ end=+"\|$+
-syntax region  typescriptRefS
-  \ start=+'+ skip=+\\\\\|\\'+ end=+'\|$+
+  \ contains=typescriptString
 
 "JSDoc
 syntax case ignore
@@ -76,3 +72,10 @@ syntax match   typescriptDocRef                contained /\%(#\|\w\|\.\|:\|\/\)\
 syntax region  typescriptDocLinkTag            contained matchgroup=typescriptDocLinkTag start=/{/ end=/}/ contains=typescriptDocTags
 
 syntax cluster typescriptDocs                  contains=typescriptDocParamType,typescriptDocNamedParamType,typescriptDocParam
+
+if main_syntax == "typescript"
+  syntax sync clear
+  syntax sync ccomment typescriptComment minlines=200
+endif
+
+syntax case match

@@ -1,0 +1,438 @@
+Given typescript (Comment in interface):
+  interface Promise<T> {
+    /*comment in interface*/
+  }
+
+Execute:
+  AssertEqual 'typescriptComment', SyntaxAt(2, 3)
+
+Given typescript (Comment in array):
+  [/*comment in array*/]
+Execute:
+  AssertEqual 'typescriptComment', SyntaxAt(1, 2)
+
+Given typescript (Export from):
+  export {ChangeDector} from './change_detection';
+Execute:
+  AssertEqual 'typescriptImport', SyntaxAt(1, 23)
+
+Given typescript (interface property):
+  export interface Animation {
+    name: string;
+  }
+Execute:
+  AssertEqual 'typescriptMember', SyntaxAt(2, 3)
+  AssertEqual 'typescriptPredefinedType', SyntaxAt(2, 9)
+
+Given typescript (highlight global):
+  process.stdout
+Execute:
+  AssertEqual 'typescriptNodeGlobal', SyntaxAt(1, 1)
+
+Given typescript (highlight dotNotation with comment):
+  document
+      /* test */
+      .createElement
+Execute:
+  AssertEqual 'typescriptDOMDocMethod', SyntaxAt(3, 7)
+
+Given typescript (function default param):
+  function test({a = process.stdout}) {}
+Execute:
+  AssertEqual 'typescriptCall', SyntaxAt(1, 16)
+  AssertEqual 'typescriptNodeGlobal', SyntaxAt(1, 25)
+
+Given typescript (export after decorator):
+  @Inject()
+  export class Test {}
+Execute:
+  AssertEqual 'typescriptExport', SyntaxAt(2, 1)
+
+Given typescript (declare after var):
+  var b = (123) && 123
+  var k =  new K<Array<number>>()
+Execute:
+  AssertEqual 'typescriptVariable', SyntaxAt(2, 1)
+
+Given typescript (plain string):
+  a = 'static-native'
+Execute:
+  AssertEqual 'typescriptString', SyntaxAt(1, 5)
+
+Given typescript (reference directive):
+  /// <reference path='file' />
+Execute:
+  AssertEqual 'typescriptString', SyntaxAt(1, 24)
+
+Given typescript (predefined props):
+  document.createElement
+Execute:
+  AssertEqual 'typescriptBOMWindowProp', SyntaxAt(1, 1)
+  AssertEqual 'typescriptDOMDocMethod', SyntaxAt(1, 12)
+
+Given typescript (return object):
+  function test() {
+    return { test: 123}
+  }
+Execute:
+  AssertEqual 'typescriptStatementKeyword', SyntaxAt(2, 3)
+  AssertEqual 'typescriptObjectLabel', SyntaxAt(2, 14)
+
+Given typescript (double ambient declare):
+  declare module 'eslint-plugin-vue'
+  declare module 'vscode-emmet-helper'
+Execute:
+  AssertEqual 'typescriptAmbientDeclaration', SyntaxAt(1, 1)
+  AssertEqual 'typescriptAmbientDeclaration', SyntaxAt(2, 1)
+
+Given typescript (double ambient declare):
+  function test() {
+    return { name: 123, }
+  }
+Execute:
+  AssertEqual 'typescriptObjectLabel', SyntaxAt(2, 12)
+
+Given typescript (abstract generic method):
+  abstract class ComponentFactoryResolver {
+    abstract resolveComponentFactory<T>(component: Type<T>): ComponentFactory<T>;
+  }
+Execute:
+  AssertEqual 'typescriptMember', SyntaxAt(2, 12)
+
+Given typescript (binary in keyword):
+  var a = a in b
+Execute:
+  AssertEqual 'typescriptKeywordOp', SyntaxAt(1, 11)
+
+Given typescript (comment in func param):
+  function commentInFuncParam(/*test*/ a) { }
+Execute:
+  AssertEqual 'typescriptComment', SyntaxAt(1, 30)
+
+Given typescript(handle comment and divide):
+  var a = 'static-native'
+  // test
+  var a = 1/3
+  /* test */
+Execute:
+  AssertEqual 'typescriptLineComment', SyntaxAt(2, 1)
+  AssertEqual 'typescriptNumber', SyntaxAt(3, 11)
+  AssertEqual 'typescriptComment', SyntaxAt(4, 1)
+
+Given typescript (ambiguous label):
+  test({
+    a: test ? test: ee
+  })
+Execute:
+  AssertEqual 'typescriptObjectLabel', SyntaxAt(2, 3)
+
+Given typescript (as in paren):
+  (this as number)
+Execute:
+  AssertEqual 'typescriptPredefinedType', SyntaxAt(1, 12)
+
+Given typescript (access property):
+  const offset = abc[i]
+  const index = offset + i;
+Execute:
+  AssertEqual 'typescriptVariable', SyntaxAt(2, 1)
+
+Given typescript (initialize object):
+  const obj = { }
+Execute:
+  AssertEqual 'typescriptObjectLiteral', SyntaxAt(1, 14)
+
+Given typescript (consistent value highlight):
+  var a = {
+    template: this.template && this.template.toSummary( )
+  }
+  var b
+Execute:
+  AssertEqual 'typescriptFuncCallArg', SyntaxAt(2, 54)
+  AssertEqual 'typescriptVariable', SyntaxAt(4, 1)
+
+Given typescript (consistent value highlight for global):
+  profileData = {
+    value: Object.values(UserEmailType)
+  }
+Execute:
+  AssertEqual 'typescriptObjectStaticMethod', SyntaxAt(2, 20)
+
+Given typescript (class expression):
+  var a = class extends Object {}
+Execute:
+  AssertEqual 'typescriptClassKeyword', SyntaxAt(1, 9)
+  AssertEqual 'typescriptClassExtends', SyntaxAt(1, 15)
+
+Given typescript (class expression):
+  class A { d = super.d }
+Execute:
+  AssertEqual 'typescriptIdentifier', SyntaxAt(1, 16)
+
+Given typescript (complex class property):
+  class K<T> {
+  private m: Map<string, Promimse<string>> = new Map<string, Promise<string>>()
+  private a = new K<Array<number>>()
+  private b: K<Array<number>> =
+    new K<Array<number>>()
+  private c: K<Array<number>> =
+    <K<Array<number>>> new K()
+  private d = 123
+  private e: () => number = 123
+  }
+Execute:
+  AssertEqual 'typescriptAccessibilityModifier', SyntaxAt(2, 1)
+  AssertEqual 'typescriptAccessibilityModifier', SyntaxAt(3, 1)
+  AssertEqual 'typescriptAccessibilityModifier', SyntaxAt(4, 1)
+  AssertEqual 'typescriptAccessibilityModifier', SyntaxAt(6, 1)
+  AssertEqual 'typescriptAccessibilityModifier', SyntaxAt(8, 1)
+  AssertEqual 'typescriptAccessibilityModifier', SyntaxAt(9, 1)
+
+
+Given typescript (type cast as expression):
+  var a = <number>123
+Execute:
+  AssertEqual 'typescriptPredefinedType', SyntaxAt(1, 14)
+
+Given typescript (await keyword):
+  await { test: 123}
+Execute:
+  AssertEqual 'typescriptObjectLabel', SyntaxAt(1, 9)
+
+Given typescript (template tag string):
+  var a = test`teweww`
+Execute:
+  AssertEqual 'typescriptTemplate', SyntaxAt(1, 16)
+
+Given typescript (multi line arrow func):
+  filter((test
+  ) => {
+      const name = 33
+  })
+Execute:
+  AssertEqual 'typescriptBlock', SyntaxAt(3, 1)
+
+Given typescript (generic arrow func call):
+  []
+  .map(x => foo<number>(a))
+  var a
+Execute:
+  AssertEqual 'typescriptPredefinedType', SyntaxAt(2, 15)
+  AssertEqual 'typescriptVariable', SyntaxAt(3, 1)
+
+Given typescript (nested generic method call):
+  {
+    this._addAfter(new IterableChangeRecord_<V>(item, itemTrackBy), previousRecord, index);
+    return this.isDirty;
+  }
+Execute:
+  AssertEqual 'typescriptStatementKeyword', SyntaxAt(3, 3)
+
+Given typescript (generic call and arithmetic):
+  foo<string>(2)
+  foo < string > (2)
+Execute:
+  AssertEqual 'typescriptTypeBrackets', SyntaxAt(1, 4)
+  AssertEqual 'typescriptPredefinedType', SyntaxAt(1, 5)
+  AssertEqual 'typescriptBinaryOp', SyntaxAt(2, 5)
+
+Given typescript (object label):
+  var a = { test: { }}
+Execute:
+  AssertEqual 'typescriptObjectLiteral', SyntaxAt(1, 18)
+
+Given typescript (abstract getter):
+  class B {
+    abstract get parent(): Injector|null;
+  }
+Execute:
+  AssertEqual 'typescriptMember', SyntaxAt(2, 20)
+
+Given typescript (class method overload):
+  class A {
+    test(): void
+    test(s: string): void
+    test(s?: string): void { }
+  }
+Execute:
+  AssertEqual 'typescriptMember', SyntaxAt(2, 3)
+  AssertEqual 'typescriptMember', SyntaxAt(3, 3)
+  AssertEqual 'typescriptMember', SyntaxAt(4, 3)
+  AssertEqual 'typescriptBlock', SyntaxAt(4, 27)
+
+Given typescript (object literal method):
+  var a = {
+    test(a) {}
+  }
+Execute:
+  AssertEqual 'typescriptObjectLabel', SyntaxAt(2, 3)
+  AssertEqual 'typescriptParamImpl', SyntaxAt(2, 8)
+
+Given typescript (object literal getter):
+  var a = {
+    get test() {}
+  }
+Execute:
+  AssertEqual 'typescriptObjectLabel', SyntaxAt(2, 7)
+  " TODO
+  " AssertEqual 'typescriptMethodAccessor', SyntaxAt(2, 3)
+
+Given typescript (object literal generic method):
+  var a = {
+    test<T>() {}
+  }
+Execute:
+  AssertEqual 'typescriptObjectLabel', SyntaxAt(2, 3)
+  AssertEqual 'typescriptTypeParameter', SyntaxAt(2, 8)
+
+Given typescript (string literal type):
+  interface a {
+    test: 'test' | number
+  }
+Execute:
+  AssertEqual 'typescriptPredefinedType', SyntaxAt(2, 23)
+
+Given typescript (array return type):
+  function prop<T>(t: T): T[] {
+    let a = 123
+  }
+Execute:
+  AssertEqual 'typescriptBlock', SyntaxAt(2, 1)
+
+Given typescript (user defined type):
+  function isError(e: any): e is Error { }
+Execute:
+  AssertEqual 'typescriptTypeReference', SyntaxAt(1, 35)
+  AssertEqual 'typescriptBlock', SyntaxAt(1, 39)
+
+Given typescript (type alias with default generic):
+  type D<A, B=string> = string
+Execute:
+  AssertEqual 'typescriptPredefinedType', SyntaxAt(1, 16)
+  AssertEqual 'typescriptPredefinedType', SyntaxAt(1, 28)
+
+Given typescript (weird identifier):
+  function buildTimelines(style: ɵStyleData) {}
+Execute:
+  AssertEqual 'typescriptCall', SyntaxAt(1, 27)
+
+Given typescript (computed class member):
+  class A {
+      'test': string;
+      ['computed'](): string {}
+  }
+Execute:
+  AssertEqual 'typescriptPredefinedType', SyntaxAt(2, 16)
+  AssertEqual 'typescriptString', SyntaxAt(3, 10)
+  AssertEqual 'typescriptPredefinedType', SyntaxAt(3, 22)
+
+Given typescript (computed class member with optionality):
+  class A {
+      'test'?: string;
+      ['computed']!(): string {}
+  }
+Execute:
+  AssertEqual 'typescriptPredefinedType', SyntaxAt(2, 16)
+  AssertEqual 'typescriptString', SyntaxAt(3, 10)
+  AssertEqual 'typescriptPredefinedType', SyntaxAt(3, 22)
+
+Given typescript (readonly modifier):
+  class A {
+    readonly photos!: Array<string>
+    abstract readonly photos?: Array<string>
+  }
+Execute:
+  AssertEqual 'typescriptMember', SyntaxAt(2, 16)
+  AssertEqual 'typescriptPredefinedType', SyntaxAt(2, 30)
+  AssertEqual 'typescriptMember', SyntaxAt(3, 21)
+  AssertEqual 'typescriptPredefinedType', SyntaxAt(3, 37)
+
+Given typescript (basic switch case):
+  switch (a) {
+    case 123: break
+  }
+Execute:
+  AssertEqual 'typescriptCase', SyntaxAt(2, 3)
+
+Given typescript (object string property):
+  var a = {
+  'wewew-eee': 333,
+  'tesees'(arg) { }
+  }
+Execute:
+  AssertEqual 'typescriptStringProperty', SyntaxAt(2, 3)
+  AssertEqual 'typescriptStringProperty', SyntaxAt(3, 3)
+  AssertEqual 'typescriptParamImpl', SyntaxAt(3, 12)
+  AssertEqual 'typescriptBlock', SyntaxAt(3, 16)
+
+Given typescript (object computed property):
+  var a = {
+  [test]: 1222,
+  [teee](arg): string { },
+  }
+Execute:
+  AssertEqual 'typescriptNumber', SyntaxAt(2, 10)
+  AssertEqual 'typescriptParamImpl', SyntaxAt(3, 10)
+  AssertEqual 'typescriptPredefinedType', SyntaxAt(3, 19)
+  AssertEqual 'typescriptBlock', SyntaxAt(3, 22)
+
+Given typescript (object computed property):
+  var a = {
+  [test]: 1222,
+  [teee](arg): string { },
+  }
+Execute:
+  AssertEqual 'typescriptNumber', SyntaxAt(2, 10)
+  AssertEqual 'typescriptParamImpl', SyntaxAt(3, 10)
+  AssertEqual 'typescriptPredefinedType', SyntaxAt(3, 19)
+  AssertEqual 'typescriptBlock', SyntaxAt(3, 22)
+
+Given typescript (object with tpyed function return type):
+  var a = {
+    test: function (): string { }
+  }
+Execute:
+  AssertEqual 'typescriptPredefinedType', SyntaxAt(2, 24)
+  AssertEqual 'typescriptBlock', SyntaxAt(2, 30)
+
+Given typescript (get as method name):
+  class A {
+    get(a: string) {}
+    get get(a: string) {}
+  }
+Execute:
+  AssertEqual 'typescriptPredefinedType', SyntaxAt(2, 11)
+  AssertEqual 'typescriptPredefinedType', SyntaxAt(3, 17)
+  AssertEqual 'typescriptMethodAccessor', SyntaxAt(3, 3)
+
+Given typescript (string array):
+  function test(a: string[]) {}
+Execute:
+  AssertEqual 'typescriptTypeBracket', SyntaxAt(1, 24)
+
+Given typescript (high order arrow func in class):
+  class A {
+    a = (a: () => void) => { }
+  }
+Execute:
+  AssertEqual 'typescriptArrowFunc', SyntaxAt(2, 23)
+
+
+Given typescript (line break after interface):
+  interface A
+  {
+    a: number
+  }
+Execute:
+  AssertEqual 'typescriptPredefinedType', SyntaxAt(3, 6)
+
+Given typescript (nested namespace):
+  declare namespace Outer {
+    namespace Inner {}}
+Execute:
+  AssertEqual 'typescriptModule', SyntaxAt(2, 3)
+
+Given typescript (const enum):
+  const enum Outer {}
+Execute:
+  AssertEqual 'typescriptEnumKeyword', SyntaxAt(1, 7)

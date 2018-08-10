@@ -6,6 +6,7 @@
 [subrepo]
 	remote = git@github.com:HerringtonDarkholme/yats.vim.git
 	branch = master
-	commit = 3bb50d3f12620fa6c8ca670d9b5927d9021f9336
-	parent = b12341d1540324545b970d59cbbaff60a3a60a9e
-	cmdver = 0.3.1
+	commit = 957a351b6ec33b06307c14a25195c73f28770959
+	parent = bebb563ca80fc2f90b4baeb45aa1908af89c2737
+	cmdver = 0.4.0
+	method = merge

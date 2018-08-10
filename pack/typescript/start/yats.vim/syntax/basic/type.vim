@@ -1,37 +1,46 @@
 " Types
+syntax match typescriptOptionalMark /?/ contained
+
 syntax region typescriptTypeParameters matchgroup=typescriptTypeBrackets
-  \ start=/</ end=/>/ skip=/\s*,\s*/
+  \ start=/</ end=/>/
   \ contains=typescriptTypeParameter
   \ contained
 
-syntax match typescriptTypeParameter /[A-Za-z_$]\w*/
-  \ nextgroup=typescriptConstraint
+syntax match typescriptTypeParameter /\K\k*/
+  \ nextgroup=typescriptConstraint,typescriptGenericDefault
   \ contained skipwhite skipnl
 
 syntax keyword typescriptConstraint extends
   \ nextgroup=@typescriptType
   \ contained skipwhite skipnl
 
-syntax region typescriptTypeArguments matchgroup=typescriptTypeBrackets
-  \ start=/</ end=/>/ skip=/\s*,\s*/
-  \ contains=@typescriptType
-  \ nextgroup=typescriptUnionOrArrayType,typescriptArgumentList
+syntax match typescriptGenericDefault /=/
+  \ nextgroup=@typescriptType
   \ contained skipwhite
 
-syntax region typescriptTypeCast matchgroup=typescriptTypeBrackets
-  \ start=/< \@!/ end=/>/ skip=/\s*,\s*/
+"><
+" class A extend B<T> {} // ClassBlock
+" func<T>() // FuncCallArg
+syntax region typescriptTypeArguments matchgroup=typescriptTypeBrackets
+  \ start=/\></ end=/>/
   \ contains=@typescriptType
-  \ nextgroup=@typescriptExpression
-  \ contained skipwhite oneline
+  \ nextgroup=typescriptFuncCallArg,@typescriptTypeOperator
+  \ contained skipwhite
+
 
 syntax cluster typescriptType contains=
-  \ @typescriptCompoundType,
+  \ @typescriptPrimaryType,
+  \ typescriptUnion,
   \ @typescriptFunctionType,
   \ typescriptConstructorType
 
-syntax cluster typescriptCompoundType contains=
-  \ @typescriptPrimaryType,
-  \ typescriptUnionOrArrayType
+" array type: A[]
+" type indexing A['key']
+syntax region typescriptTypeBracket contained
+  \ start=/\[/ end=/\]/
+  \ contains=typescriptString,typescriptNumber
+  \ nextgroup=@typescriptTypeOperator
+  \ skipwhite skipempty
 
 syntax cluster typescriptPrimaryType contains=
   \ typescriptParenthesizedType,
@@ -40,58 +49,59 @@ syntax cluster typescriptPrimaryType contains=
   \ typescriptObjectType,
   \ typescriptTupleType,
   \ typescriptTypeQuery,
-  \ typescriptString
+  \ typescriptStringLiteralType
+
+syntax region  typescriptStringLiteralType contained
+  \ start=/\z(["']\)/  skip=/\\\\\|\\\z1\|\\\n/  end=/\z1\|$/
+  \ nextgroup=typescriptUnion
+  \ skipwhite skipempty
 
 syntax region typescriptParenthesizedType matchgroup=typescriptParens
   \ start=/(/ end=/)/
   \ contains=@typescriptType
-  \ nextgroup=typescriptUnionOrArrayType
+  \ nextgroup=@typescriptTypeOperator
   \ contained skipwhite skipempty
 
 syntax keyword typescriptPredefinedType any number boolean string void never undefined null object
-  \ nextgroup=typescriptUnionOrArrayType
+  \ nextgroup=@typescriptTypeOperator
   \ contained skipwhite skipempty
 
-syntax match typescriptTypeReference /[A-Za-z_$]\w*\(\.[A-Za-z_$]\w*\)*/
-  \ nextgroup=typescriptTypeArguments,typescriptUnionOrArrayType
+syntax match typescriptTypeReference /\K\k*\(\.\K\k*\)*/
+  \ nextgroup=typescriptTypeArguments,@typescriptTypeOperator,typescriptUserDefinedType
   \ skipwhite contained skipempty
 
 syntax region typescriptObjectType matchgroup=typescriptBraces
   \ start=/{/ end=/}/
-  \ contains=@typescriptTypeMember,@typescriptComments
-  \ nextgroup=typescriptUnionOrArrayType
+  \ contains=@typescriptTypeMember,@typescriptComments,typescriptAccessibilityModifier
+  \ nextgroup=@typescriptTypeOperator
   \ contained skipwhite fold
 
 syntax cluster typescriptTypeMember contains=
-  \ typescriptPropertySignature,
   \ @typescriptCallSignature,
   \ typescriptConstructSignature,
   \ typescriptIndexSignature,
-  \ typescriptMethodSignature,
-  \ typescripEndColons
+  \ @typescriptMembers
 
 syntax region typescriptTupleType matchgroup=typescriptBraces
   \ start=/\[/ end=/\]/
   \ contains=@typescriptType
   \ contained skipwhite oneline
 
-syntax match typescriptUnionOrArrayType /\[\]\||\|&/
-  \ nextgroup=@typescriptCompoundType
-  \ contains=typescriptUnion
-  \ contained skipwhite
+syntax cluster typescriptTypeOperator
+  \ contains=typescriptUnion,typescriptTypeBracket
 
-syntax match typescriptUnion /|\|&/ containedin=typescriptUnionOrArrayType
+syntax match typescriptUnion /|\|&/ contained nextgroup=@typescriptPrimaryType skipwhite skipempty
 
 syntax cluster typescriptFunctionType contains=typescriptGenericFunc,typescriptFuncType
 syntax region typescriptGenericFunc matchgroup=typescriptTypeBrackets
-  \ start=/</ end=/>/ skip=/\s*,\s*/
+  \ start=/</ end=/>/
   \ contains=typescriptTypeParameter
   \ nextgroup=typescriptFuncType
   \ containedin=typescriptFunctionType
   \ contained skipwhite skipnl
 
 syntax region typescriptFuncType matchgroup=typescriptParens
-  \ start=/(/ end=/)\ze\s*=>/
+  \ start=/(/ end=/)\s*=>/me=e-2
   \ contains=@typescriptParameterList
   \ nextgroup=typescriptFuncTypeArrow
   \ contained skipwhite skipnl oneline
@@ -106,57 +116,41 @@ syntax keyword typescriptConstructorType new
   \ nextgroup=@typescriptFunctionType
   \ contained skipwhite skipnl
 
-syntax match typescriptUserDefinedType /[a-zA-Z_$]\w*\s\+is\s\+.*\ze\($\|{\)/
-  \ contained
-  \ contains=@typescriptType,typescriptUserDefinedKeyword
-
-syntax keyword typescriptUserDefinedKeyword is contained
+syntax keyword typescriptUserDefinedType is
+  \ contained nextgroup=@typescriptType skipwhite skipempty
 
 syntax keyword typescriptTypeQuery typeof keyof
   \ nextgroup=typescriptTypeReference
   \ contained skipwhite skipnl
 
-syntax region typescriptPropertySignature
-  \ start=/[A-Za-z_$'"]\|\d/ end=/\k\@!/
-  \ contains=typescriptString,typescriptOptionalMark
-  \ nextgroup=typescriptTypeAnnotation
-  \ containedin=typescriptTypeMember
-  \ contained skipwhite oneline
-
-syntax match typescriptMethodSignature /[A-Za-z_$]\w*\ze<\|(/
-  \ nextgroup=@typescriptCallSignature
-  \ containedin=typescriptTypeMember
-  \ contained skipwhite oneline
-
 syntax cluster typescriptCallSignature contains=typescriptGenericCall,typescriptCall
 syntax region typescriptGenericCall matchgroup=typescriptTypeBrackets
-  \ start=/</ end=/>/ skip=/\s*,\s*/
+  \ start=/</ end=/>/
   \ contains=typescriptTypeParameter
   \ nextgroup=typescriptCall
-  \ containedin=typescriptCallSignature
   \ contained skipwhite skipnl
 syntax region typescriptCall matchgroup=typescriptParens
   \ start=/(/ end=/)/
   \ contains=typescriptDecorator,@typescriptParameterList,@typescriptComments
-  \ nextgroup=typescriptTypeAnnotation
+  \ nextgroup=typescriptTypeAnnotation,typescriptBlock
   \ contained skipwhite skipnl
 
-syntax match typescriptTypeAnnotation /?\?:/
-  \ nextgroup=typescriptUserDefinedType,@typescriptType
+syntax match typescriptTypeAnnotation /:/
+  \ nextgroup=@typescriptType
   \ contained skipwhite skipnl
 
 syntax cluster typescriptParameterList contains=
-  \ typescriptFuncComma,
   \ typescriptTypeAnnotation,
   \ typescriptAccessibilityModifier,
   \ typescriptOptionalMark,
   \ typescriptRestOrSpread,
+  \ typescriptFuncComma,
   \ typescriptDefaultParam
 
-syntax keyword typescriptAccessibilityModifier public private protected readonly contained
+syntax match typescriptFuncComma /,/ contained
 
 syntax match typescriptDefaultParam /=/
-  \ nextgroup=@typescriptExpression
+  \ nextgroup=@typescriptValue
   \ contained skipwhite
 
 syntax keyword typescriptConstructSignature new
@@ -165,7 +159,7 @@ syntax keyword typescriptConstructSignature new
 
 syntax region typescriptIndexSignature matchgroup=typescriptBraces
   \ start=/\[/ end=/\]/
-  \ contains=typescriptTypeAnnotation,typescriptMappedIn
+  \ contains=typescriptPredefinedType,typescriptMappedIn,typescriptString
   \ nextgroup=typescriptTypeAnnotation
   \ contained skipwhite oneline
 
@@ -177,9 +171,9 @@ syntax keyword typescriptAliasKeyword type
   \ nextgroup=typescriptAliasDeclaration
   \ skipwhite skipnl skipempty
 
-syntax region typescriptAliasDeclaration matchgroup=typescriptOpSymbols
+syntax region typescriptAliasDeclaration matchgroup=typescriptUnion
   \ start=/ / end=/=/
   \ nextgroup=@typescriptType
-  \ contains=typescriptConstraint
-  \ contained skipwhite skipnl skipempty
+  \ contains=typescriptConstraint,typescriptTypeParameters
+  \ contained skipwhite skipempty
 

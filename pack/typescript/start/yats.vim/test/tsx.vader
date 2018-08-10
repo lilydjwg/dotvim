@@ -1,0 +1,52 @@
+Given typescriptreact (basic usage):
+  var a = <div></div>
+  var b = 123
+
+Execute:
+  AssertEqual 'tsxTag', SyntaxAt(1, 9)
+  AssertEqual 'tsxIntrinsicTagName', SyntaxAt(1, 10)
+  AssertEqual 'typescriptVariable', SyntaxAt(2, 1)
+
+Given typescriptreact (basic void):
+  var a = <img/>
+  var b = 123
+
+Execute:
+  AssertEqual 'tsxTag', SyntaxAt(1, 9)
+  AssertEqual 'tsxIntrinsicTagName', SyntaxAt(1, 10)
+  AssertEqual 'typescriptVariable', SyntaxAt(2, 1)
+
+Given typescriptreact (interpolation):
+  var a = <Option key={item}></Option>;
+  var b = 123
+
+Execute:
+  AssertEqual 'tsxTagName', SyntaxAt(1, 10)
+  AssertEqual 'tsxTagName', SyntaxAt(1, 30)
+  AssertEqual 'typescriptVariable', SyntaxAt(2, 1)
+
+Given typescriptreact (custom component):
+  var a = <ion-gesture></ion-gesture>;
+  var b = 123
+
+Execute:
+  AssertEqual 'tsxTag', SyntaxAt(1, 9)
+  AssertEqual 'tsxIntrinsicTagName', SyntaxAt(1, 30)
+  AssertEqual 'typescriptVariable', SyntaxAt(2, 1)
+
+Given typescriptreact (digit in tagname):
+  var a = <h1></h1>;
+  var b = 123
+
+Execute:
+  AssertEqual 'tsxTag', SyntaxAt(1, 9)
+  AssertEqual 'tsxIntrinsicTagName', SyntaxAt(1, 16)
+  AssertEqual 'typescriptVariable', SyntaxAt(2, 1)
+
+Given typescriptreact (paren + render props):
+  var d =  (
+    <Route component={() => <Home/>}/>
+  )
+
+Execute:
+  AssertEqual 'tsxTagName', SyntaxAt(2, 4)

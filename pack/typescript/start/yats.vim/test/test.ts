@@ -1,60 +1,79 @@
-interface Promise<T> {
-  /*comment in interface*/
-}
-
 var p: Promise<void>
 
-[/*comment in array*/]
-
-function commentInFuncParam(/*test*/ a) {
+var a = { template: /*eee*/ this.template
 }
 
 const COMPILER_PROVIDERS: Array<any[]> = null
 
-class Foo {
-
-  bar() {
-    return this
-  }
-}
-
-var b = (123) && 123
-var k =  new K<Array<number>>()
-var d = 33<333
-
-class K<T> {
-  private m: Map<string, Promimse<string>> = new Map<string, Promise<string>>()
-	private a = new K<Array<number>>()
-	private b: K<Array<number>> =
-    new K<Array<number>>()
-	private c: K<Array<number>> =
-    <K<Array<number>>> new K()
-	private d = 123
-  private e: () => number = 123
-
-  method() {
-      var a = this.e!
-      var b
-  }
-
-}
-
-function prop<T, K extends keyof T>(t: T, k: K): T[K] {
-}
-
-interface A {
+var a = {
+  get method<T>(a) {
+  },
 }
 
 var a = [/\/\//, 123]
 
-class A extends B implements C
-{
-	private a = 123
-    b
+
+if (a < (<number>b))
+    a
+}
+
+var a: T[K] = 1213
+
+switch (eww) {
+  case 1222
+}
+
+var a = 123
+
+class MyClass<string> extends Mixin({test: 123}) {
+    noed // ewewe
+    a = '3' // ewew
+    get(arg: string) {
+    }
+}
+
+var a = test[333]
+
+function test({a = process.stdout}) {}
+
+// test
+var a = 1/3
+/* test*/
+type A = 42
+
+
+test({
+  a: test ? // test
+  test: ee
+})
+
+getSymbolIterator(3) in obj;
+
+
+list.reduce((flat: any[], item: T | T[]): T[] => {
+  const flatItem = Array.isArray(item) ? flatten(item) : item;
+  return (<T[]>flat).concat(flatItem);
+}, []);
+
+export function noProviderError(injector: ReflectiveInjector, key: ReflectiveKey): InjectionError {
+  return injectionError(injector, key, function(keys: ReflectiveKey[]) {
+    const first = stringify(keys[0].token);
+    return `No provider for ${first}!${constructResolvingPath(keys)}`;
+  });
 }
 
 
+export class QueryList<T>/* implements Iterable<T> */ {
+  public readonly dirty = true;
+}
 
-if (a < (<number>b)) {
-    a
+
+class A {
+    a = (a: () => void) => { }
+}
+
+var a = ({a: () => 123})
+
+enum A {
+
 }
