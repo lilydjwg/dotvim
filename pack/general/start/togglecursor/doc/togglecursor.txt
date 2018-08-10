@@ -20,9 +20,10 @@ SUPPORTED TERMINALS                              *togglecursor-supported*
 Currently supported terminals are iTerm2 for the Mac (version 1.0.0.20130602
 beta or better is required), Mac's native Terminal (2.7 or better, starting in
 Sierra), rxvt-unicode (version 9.21 or better), VTE3 based terminals (including
-gnome-terminal), and KDE's Konsole.  XTerm 252 or better is supported as well.
-XTerms younger than 282 don't support the line cursor, so this plugin currently
-sets the cursor to an underline instead for insert mode.
+gnome-terminal), kitty (version 0.6 or better), and KDE's Konsole.  XTerm 252 or
+better is supported as well.  XTerms younger than 282 don't support the line
+cursor, so this plugin currently sets the cursor to an underline instead for
+insert mode.
 
 Older versions of VTE3 based terminals (before v0.39) do not support changing 
 the cursor via escape sequences and are not supported.  On unsupported 

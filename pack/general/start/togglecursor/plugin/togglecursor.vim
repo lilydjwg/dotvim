@@ -81,6 +81,8 @@ if s:supported_terminal == ""
         let s:supported_terminal = 'xterm'
     elseif $TERM_PROGRAM == "Apple_Terminal" && str2nr($TERM_PROGRAM_VERSION) >= 388
         let s:supported_terminal = 'xterm'
+    elseif $TERM == "xterm-kitty"
+        let s:supported_terminal = 'xterm'
     elseif $TERM == "rxvt-unicode" || $TERM == "rxvt-unicode-256color"
         let s:supported_terminal = 'xterm'
     elseif str2nr($VTE_VERSION) >= 3900

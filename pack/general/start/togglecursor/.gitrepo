@@ -6,7 +6,7 @@
 [subrepo]
 	remote = git@github.com:jszakmeister/vim-togglecursor.git
 	branch = master
-	commit = c93dab11878780ddc31a00488534aa81dfbd7f2f
+	commit = b1acd53f158e759a768b556c360107706bf34e5c
 	parent = daedbcbd802b091e2608ee32617f1ce4d7d708d0
-	cmdver = 0.3.1
+	cmdver = 0.4.0
 	method = merge
