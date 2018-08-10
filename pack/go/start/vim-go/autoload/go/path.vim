@@ -4,14 +4,14 @@
 " :GoPath is used
 let s:initial_go_path = ""
 
-" GoPath sets or returns the current GOPATH. If no arguments are passed it
+" GoPath sets or echos the current GOPATH. If no arguments are passed it
 " echoes the current GOPATH, if an argument is passed it replaces the current
 " GOPATH with it. If two double quotes are passed (the empty string in go),
 " it'll clear the GOPATH and will restore to the initial GOPATH.
 function! go#path#GoPath(...) abort
   " no argument, show GOPATH
   if len(a:000) == 0
-    echo go#path#Detect()
+    echo go#path#Default()
     return
   endif
 
@@ -45,9 +45,9 @@ function! go#path#Default() abort
   return $GOPATH
 endfunction
 
-" HasPath checks whether the given path exists in GOPATH environment variable
+" s:HasPath checks whether the given path exists in GOPATH environment variable
 " or not
-function! go#path#HasPath(path) abort
+function! s:HasPath(path) abort
   let go_paths = split(go#path#Default(), go#util#PathListSep())
   let last_char = strlen(a:path) - 1
 
@@ -72,11 +72,6 @@ endfunction
 function! go#path#Detect() abort
   let gopath = go#path#Default()
 
-  " don't lookup for godeps if autodetect is disabled.
-  if !get(g:, "go_autodetect_gopath", 0)
-    return gopath
-  endif
-
   let current_dir = fnameescape(expand('%:p:h'))
 
   " TODO(arslan): this should be changed so folders or files should be
@@ -99,11 +94,11 @@ function! go#path#Detect() abort
     " gb vendor plugin
     " (https://github.com/constabulary/gb/tree/master/cmd/gb-vendor)
     let gb_vendor_root = src_path . "vendor" . go#util#PathSep()
-    if isdirectory(gb_vendor_root) && !go#path#HasPath(gb_vendor_root)
+    if isdirectory(gb_vendor_root) && !s:HasPath(gb_vendor_root)
       let gopath = gb_vendor_root . go#util#PathListSep() . gopath
     endif
 
-    if !go#path#HasPath(src_path)
+    if !s:HasPath(src_path)
       let gopath =  src_path . go#util#PathListSep() . gopath
     endif
   endif
@@ -113,7 +108,7 @@ function! go#path#Detect() abort
   if !empty(godeps_root)
     let godeps_path = join([fnamemodify(godeps_root, ':p:h:h'), "Godeps", "_workspace" ], go#util#PathSep())
 
-    if !go#path#HasPath(godeps_path)
+    if !s:HasPath(godeps_path)
       let gopath =  godeps_path . go#util#PathListSep() . gopath
     endif
   endif
@@ -124,16 +119,16 @@ function! go#path#Detect() abort
   return gopath
 endfunction
 
-
 " BinPath returns the binary path of installed go tools.
 function! go#path#BinPath() abort
-  let bin_path = ""
+  let bin_path = go#config#BinPath()
+  if bin_path != ""
+    return bin_path
+  endif
 
   " check if our global custom path is set, if not check if $GOBIN is set so
   " we can use it, otherwise use default GOPATH
-  if exists("g:go_bin_path")
-    let bin_path = g:go_bin_path
-  elseif $GOBIN != ""
+  if $GOBIN != ""
     let bin_path = $GOBIN
   else
     let go_paths = split(go#path#Default(), go#util#PathListSep())
@@ -151,7 +146,8 @@ endfunction
 function! go#path#CheckBinPath(binpath) abort
   " remove whitespaces if user applied something like 'goimports   '
   let binpath = substitute(a:binpath, '^\s*\(.\{-}\)\s*$', '\1', '')
-  " save off original path
+
+  " save original path
   let old_path = $PATH
 
   " check if we have an appropriate bin_path
@@ -170,7 +166,7 @@ function! go#path#CheckBinPath(binpath) abort
     let $PATH = old_path
 
     if go#util#IsUsingCygwinShell() == 1
-      return go#path#CygwinPath(binpath)
+      return s:CygwinPath(binpath)
     endif
 
     return binpath
@@ -189,13 +185,13 @@ function! go#path#CheckBinPath(binpath) abort
   let $PATH = old_path
 
   if go#util#IsUsingCygwinShell() == 1
-    return go#path#CygwinPath(a:binpath)
+    return s:CygwinPath(a:binpath)
   endif
 
   return go_bin_path . go#util#PathSep() . basename
 endfunction
 
-function! go#path#CygwinPath(path)
+function! s:CygwinPath(path)
    return substitute(a:path, '\\', '/', "g")
 endfunction
 

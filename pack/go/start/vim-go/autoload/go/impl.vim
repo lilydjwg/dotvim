@@ -1,16 +1,11 @@
 function! go#impl#Impl(...) abort
-  let binpath = go#path#CheckBinPath('impl')
-  if empty(binpath)
-    return
-  endif
-
   let recv = ""
   let iface = ""
   let interactive = 0
 
   let pos = getpos('.')
 
-  if a:0 == 0
+  if a:0 is 0
     " Interactive mode if user didn't pass any arguments.
     let recv = s:getReceiver()
     let iface = input("vim-go: generating method stubs for interface: ")
@@ -19,7 +14,7 @@ function! go#impl#Impl(...) abort
       call go#util#EchoError('usage: interface type is not provided')
       return
     endif
-  elseif a:0 == 1
+  elseif a:0 is 1
     " we assume the user only passed the interface type,
     " i.e: ':GoImpl io.Writer'
     let recv = s:getReceiver()
@@ -41,19 +36,19 @@ function! go#impl#Impl(...) abort
 
   try
     let dirname = fnameescape(expand('%:p:h'))
-    let result = go#util#System(join(go#util#Shelllist([binpath, '-dir', dirname, recv, iface], ' ')))
+    let [result, err] = go#util#Exec(['impl', '-dir', dirname, recv, iface])
     let result = substitute(result, "\n*$", "", "")
-    if go#util#ShellError() != 0
+    if err
       call go#util#EchoError(result)
       return
     endif
 
-    if result ==# ''
+    if result is# ''
       return
     end
 
     put =''
-    put =result
+    silent put =result
   finally
     call setpos('.', pos)
   endtry
@@ -99,10 +94,6 @@ function! s:root_dirs() abort
   endif
 
   let paths = map(split(go#util#env("gopath"), go#util#PathListSep()), "substitute(v:val, '\\\\', '/', 'g')")
-  if go#util#ShellError()
-    return []
-  endif
-
   if !empty(filter(paths, 'isdirectory(v:val)'))
     call extend(dirs, paths)
   endif
@@ -110,21 +101,38 @@ function! s:root_dirs() abort
   return dirs
 endfunction
 
-function! s:go_packages(dirs) abort
+function! s:go_packages(dirs, arglead) abort
   let pkgs = []
-  for d in a:dirs
-    let pkg_root = expand(d . '/pkg/' . go#util#osarch())
-    call extend(pkgs, split(globpath(pkg_root, '**/*.a', 1), "\n"))
+  for dir in a:dirs
+      " this may expand to multiple lines
+      let scr_root = expand(dir . '/src/')
+      for pkg in split(globpath(scr_root, a:arglead.'*'), "\n")
+          if isdirectory(pkg)
+              let pkg .= '/'
+          elseif pkg !~ '\.a$'
+              continue
+          endif
+
+          " without this the result can have duplicates in form of
+          " 'encoding/json' and '/encoding/json/'
+          let pkg = go#util#StripPathSep(pkg)
+
+          " remove the scr root and keep the package in tact
+          let pkg = substitute(pkg, scr_root, "", "")
+          call add(pkgs, pkg)
+      endfor
   endfor
-  return map(pkgs, "fnamemodify(v:val, ':t:r')")
+
+  return pkgs
 endfunction
 
 function! s:interface_list(pkg) abort
-  let contents = split(go#util#System('go doc ' . a:pkg), "\n")
-  if go#util#ShellError()
+  let [contents, err] = go#util#Exec(['go', 'doc', a:pkg])
+  if err
     return []
   endif
 
+  let contents = split(contents, "\n")
   call filter(contents, 'v:val =~# ''^type\s\+\h\w*\s\+interface''')
   return map(contents, 'a:pkg . "." . matchstr(v:val, ''^type\s\+\zs\h\w*\ze\s\+interface'')')
 endfunction
@@ -132,13 +140,24 @@ endfunction
 " Complete package and interface for {interface}
 function! go#impl#Complete(arglead, cmdline, cursorpos) abort
   let words = split(a:cmdline, '\s\+', 1)
+
   if words[-1] ==# ''
-    return s:uniq(sort(s:go_packages(s:root_dirs())))
-  elseif words[-1] =~# '^\h\w*$'
-    return s:uniq(sort(filter(s:go_packages(s:root_dirs()), 'stridx(v:val, words[-1]) == 0')))
-  elseif words[-1] =~# '^\h\w*\.\%(\h\w*\)\=$'
-    let [pkg, interface] = split(words[-1], '\.', 1)
-    echomsg pkg
+    " if no words are given, just start completing the first package we found
+    return s:uniq(sort(s:go_packages(s:root_dirs(), a:arglead)))
+  elseif words[-1] =~# '^\(\h\w.*\.\%(\h\w*\)\=$\)\@!\S*$'
+    " start matching go packages. It's negate match of the below match
+    return s:uniq(sort(s:go_packages(s:root_dirs(), a:arglead)))
+  elseif words[-1] =~# '^\h\w.*\.\%(\h\w*\)\=$'
+    " match the following, anything that could indicate an interface candidate
+    " 
+    "  io.
+    "  io.Wr
+    "  github.com/fatih/color.
+    "  github.com/fatih/color.U
+    "  github.com/fatih/color.Un
+    let splitted = split(words[-1], '\.', 1)
+    let pkg = join(splitted[:-2], '.')
+    let interface = splitted[-1]
     return s:uniq(sort(filter(s:interface_list(pkg), 'v:val =~? words[-1]')))
   else
     return []

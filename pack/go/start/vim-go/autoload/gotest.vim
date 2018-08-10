@@ -15,15 +15,15 @@ fun! gotest#write_file(path, contents) abort
   call mkdir(fnamemodify(l:full_path, ':h'), 'p')
   call writefile(a:contents, l:full_path)
   exe 'cd ' . l:dir . '/src'
-  silent exe 'e ' . a:path
+  silent exe 'e! ' . a:path
 
   " Set cursor.
   let l:lnum = 1
   for l:line in a:contents
-    let l:m = match(l:line, '')
+    let l:m = match(l:line, "\x1f")
     if l:m > -1
       call setpos('.', [0, l:lnum, l:m, 0])
-      call setline('.', substitute(getline('.'), '', '', ''))
+      call setline('.', substitute(getline('.'), "\x1f", '', ''))
       break
     endif
 
@@ -102,5 +102,29 @@ fun! gotest#assert_fixture(path) abort
   call gotest#assert_buffer(0, l:want)
 endfun
 
+func! gotest#assert_quickfix(got, want) abort
+  call assert_equal(len(a:want), len(a:got), "number of errors")
+  if len(a:want) != len(a:got)
+    call assert_equal(a:want, a:got)
+    return
+  endif
+
+  let i = 0
+  while i < len(a:want)
+    let want_item = a:want[i]
+    let got_item = a:got[i]
+    let i += 1
+
+    call assert_equal(want_item.bufnr, got_item.bufnr, "bufnr")
+    call assert_equal(want_item.lnum, got_item.lnum, "lnum")
+    call assert_equal(want_item.col, got_item.col, "col")
+    call assert_equal(want_item.vcol, got_item.vcol, "vcol")
+    call assert_equal(want_item.nr, got_item.nr, "nr")
+    call assert_equal(want_item.pattern, got_item.pattern, "pattern")
+    call assert_equal(want_item.text, got_item.text, "text")
+    call assert_equal(want_item.type, got_item.type, "type")
+    call assert_equal(want_item.valid, got_item.valid, "valid")
+  endwhile
+endfunc
 
 " vim: sw=2 ts=2 et

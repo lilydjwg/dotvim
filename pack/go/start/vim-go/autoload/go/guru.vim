@@ -16,12 +16,6 @@ function! s:guru_cmd(args) range abort
   let selected = a:args.selected
 
   let result = {}
-  let pkg = go#package#ImportPath()
-
-  " this is important, check it!
-  if pkg == -1 && needs_scope
-    return {'err': "current directory is not inside of a valid GOPATH"}
-  endif
 
   "return with a warning if the binary doesn't exist
   let bin_path = go#path#CheckBinPath("guru")
@@ -30,9 +24,8 @@ function! s:guru_cmd(args) range abort
   endif
 
   " start constructing the command
-  let cmd = [bin_path]
+  let cmd = [bin_path, '-tags', go#config#BuildTags()]
 
-  let filename = fnamemodify(expand("%"), ':p:gs?\\?/?')
   if &modified
     let result.stdin_content = go#util#archive()
     call add(cmd, "-modified")
@@ -43,44 +36,22 @@ function! s:guru_cmd(args) range abort
     call add(cmd, "-json")
   endif
 
-  " check for any tags
-  if exists('g:go_build_tags')
-    let tags = get(g:, 'go_build_tags')
-    call extend(cmd, ["-tags", tags])
-    let result.tags = tags
-  endif
-
-  " some modes require scope to be defined (such as callers). For these we
-  " choose a sensible setting, which is using the current file's package
-  let scopes = []
-  if needs_scope
-    let scopes = [pkg]
-  endif
-
-  " check for any user defined scope setting. users can define the scope,
-  " in package pattern form. examples:
-  "  golang.org/x/tools/cmd/guru # a single package
-  "  golang.org/x/tools/...      # all packages beneath dir
-  "  ...                         # the entire workspace.
-  if exists('g:go_guru_scope')
-    " check that the setting is of type list
-    if type(get(g:, 'go_guru_scope')) != type([])
-      return {'err' : "go_guru_scope should of type list"}
+  let scopes = go#config#GuruScope()
+  if empty(scopes)
+    " some modes require scope to be defined (such as callers). For these we
+    " choose a sensible setting, which is using the current file's package
+    if needs_scope
+      let pkg = go#package#ImportPath()
+      if pkg == -1
+        return {'err': "current directory is not inside of a valid GOPATH"}
+      endif
+      let scopes = [pkg]
     endif
-
-    let scopes = get(g:, 'go_guru_scope')
   endif
 
-  " now add the scope to our command if there is any
+  " Add the scope.
   if !empty(scopes)
-    " strip trailing slashes for each path in scoped. bug:
-    " https://github.com/golang/go/issues/14584
-    let scopes = go#util#StripTrailingSlash(scopes)
-
-    " create shell-safe entries of the list
-    if !go#util#has_job() | let scopes = go#util#Shelllist(scopes) | endif
-
-    " guru expect a comma-separated list of patterns, construct it
+    " guru expect a comma-separated list of patterns.
     let l:scope = join(scopes, ",")
     let result.scope = l:scope
     call extend(cmd, ["-scope", l:scope])
@@ -94,8 +65,8 @@ function! s:guru_cmd(args) range abort
     let pos = printf("#%s,#%s", pos1, pos2)
   endif
 
-  let filename .= ':'.pos
-  call extend(cmd, [mode, filename])
+  let l:filename = fnamemodify(expand("%"), ':p:gs?\\?/?') . ':' . pos
+  call extend(cmd, [mode, l:filename])
 
   let result.cmd = cmd
   return result
@@ -119,23 +90,79 @@ function! s:sync_guru(args) abort
     endif
   endif
 
-
   " run, forrest run!!!
-  let command = join(result.cmd, " ")
-  if has_key(result, 'stdin_content')
-    let out = go#util#System(command, result.stdin_content)
+  if has_key(l:result, 'stdin_content')
+    let [l:out, l:err] = go#util#Exec(l:result.cmd, l:result.stdin_content)
   else
-    let out = go#util#System(command)
+    let [l:out, l:err] = go#util#Exec(l:result.cmd)
   endif
 
   if has_key(a:args, 'custom_parse')
-    call a:args.custom_parse(go#util#ShellError(), out)
+    call a:args.custom_parse(l:err, l:out, a:args.mode)
   else
-    call s:parse_guru_output(go#util#ShellError(), out, a:args.mode)
+    call s:parse_guru_output(l:err, l:out, a:args.mode)
   endif
 
-  return out
+  return l:out
 endfunc
+
+" use vim or neovim job api as appropriate
+function! s:job_start(cmd, start_options) abort
+  if go#util#has_job()
+    return job_start(a:cmd, a:start_options)
+  endif
+
+  let opts = {'stdout_buffered': v:true, 'stderr_buffered': v:true}
+
+  let stdout_buf = ""
+  function opts.on_stdout(job_id, data, event) closure
+    let l:data = a:data
+    let l:data[0] = stdout_buf . l:data[0]
+    let stdout_buf = ""
+
+    if l:data[-1] != ""
+      let stdout_buf = l:data[-1]
+    endif
+
+    let l:data = l:data[:-2]
+    if len(l:data) == 0
+      return
+    endif
+
+    call a:start_options.callback(a:job_id, join(l:data, "\n"))
+  endfunction
+
+  let stderr_buf = ""
+  function opts.on_stderr(job_id, data, event) closure
+    let l:data = a:data
+    let l:data[0] = stderr_buf . l:data[0]
+    let stderr_buf = ""
+
+    if l:data[-1] != ""
+      let stderr_buf = l:data[-1]
+    endif
+
+    let l:data = l:data[:-2]
+    if len(l:data) == 0
+      return
+    endif
+
+    call a:start_options.callback(a:job_id, join(l:data, "\n"))
+  endfunction
+
+  function opts.on_exit(job_id, exit_code, event) closure
+    call a:start_options.exit_cb(a:job_id, a:exit_code)
+    call a:start_options.close_cb(a:job_id)
+  endfunction
+
+  " use a shell for input redirection if needed
+  let cmd = a:cmd
+  if has_key(a:start_options, 'in_io') && a:start_options.in_io ==# 'file' && !empty(a:start_options.in_name)
+    let cmd = ['/bin/sh', '-c', go#util#Shelljoin(a:cmd) . ' <' . a:start_options.in_name]
+  endif
+
+  return jobstart(cmd, opts)
+endfunction
 
 " async_guru runs guru in async mode with the given arguments
 function! s:async_guru(args) abort
@@ -145,9 +172,6 @@ function! s:async_guru(args) abort
     return
   endif
 
-  let status_dir =  expand('%:p:h')
-  let statusline_type = printf("%s", a:args.mode)
-
   if !has_key(a:args, 'disable_progress')
     if a:args.needs_scope
       call go#util#EchoProgress("analysing with scope " . result.scope .
@@ -155,44 +179,64 @@ function! s:async_guru(args) abort
     endif
   endif
 
-  let messages = []
-  function! s:callback(chan, msg) closure
-    call add(messages, a:msg)
+  let state = {
+        \ 'status_dir': expand('%:p:h'),
+        \ 'statusline_type': printf("%s", a:args.mode),
+        \ 'mode': a:args.mode,
+        \ 'status': {},
+        \ 'exitval': 0,
+        \ 'closed': 0,
+        \ 'exited': 0,
+        \ 'messages': [],
+        \ 'parse' : get(a:args, 'custom_parse', funcref("s:parse_guru_output"))
+      \ }
+
+  function! s:callback(chan, msg) dict
+    call add(self.messages, a:msg)
   endfunction
 
-  let status = {}
-  let exitval = 0
+  function! s:exit_cb(job, exitval) dict
+    let self.exited = 1
 
-  function! s:exit_cb(job, exitval) closure
     let status = {
           \ 'desc': 'last status',
-          \ 'type': statusline_type,
+          \ 'type': self.statusline_type,
           \ 'state': "finished",
           \ }
 
     if a:exitval
-      let exitval = a:exitval
+      let self.exitval = a:exitval
       let status.state = "failed"
     endif
 
-    call go#statusline#Update(status_dir, status)
-  endfunction
+    call go#statusline#Update(self.status_dir, status)
 
-  function! s:close_cb(ch) closure
-    let out = join(messages, "\n")
-
-    if has_key(a:args, 'custom_parse')
-      call a:args.custom_parse(exitval, out)
-    else
-      call s:parse_guru_output(exitval, out, a:args.mode)
+    if self.closed
+      call self.complete()
     endif
   endfunction
 
+  function! s:close_cb(ch) dict
+    let self.closed = 1
+
+    if self.exited
+      call self.complete()
+    endif
+  endfunction
+
+  function state.complete() dict
+    let out = join(self.messages, "\n")
+
+    call self.parse(self.exitval, out, self.mode)
+  endfunction
+
+  " explicitly bind the callbacks to state so that self within them always
+  " refers to state. See :help Partial for more information.
   let start_options = {
-        \ 'callback': funcref("s:callback"),
-        \ 'exit_cb': funcref("s:exit_cb"),
-        \ 'close_cb': funcref("s:close_cb"),
-        \ }
+        \ 'callback': function('s:callback', [], state),
+        \ 'exit_cb': function('s:exit_cb', [], state),
+        \ 'close_cb': function('s:close_cb', [], state)
+       \ }
 
   if has_key(result, 'stdin_content')
     let l:tmpname = tempname()
@@ -201,26 +245,22 @@ function! s:async_guru(args) abort
     let l:start_options.in_name = l:tmpname
   endif
 
-  call go#statusline#Update(status_dir, {
+  call go#statusline#Update(state.status_dir, {
         \ 'desc': "current status",
-        \ 'type': statusline_type,
+        \ 'type': state.statusline_type,
         \ 'state': "analysing",
         \})
 
-  return job_start(result.cmd, start_options)
+  return s:job_start(result.cmd, start_options)
 endfunc
 
 " run_guru runs the given guru argument
 function! s:run_guru(args) abort
-  let old_gopath = $GOPATH
-  let $GOPATH = go#path#Detect()
-  if go#util#has_job()
+  if has('nvim') || go#util#has_job()
     let res = s:async_guru(a:args)
   else
     let res = s:sync_guru(a:args)
   endif
-
-  let $GOPATH = old_gopath
 
   return res
 endfunction
@@ -235,6 +275,18 @@ function! go#guru#Implements(selected) abort
         \ }
 
   call s:run_guru(args)
+endfunction
+
+" Shows the set of possible objects to which a pointer may point.
+function! go#guru#PointsTo(selected) abort
+  let l:args = {
+        \ 'mode': 'pointsto',
+        \ 'format': 'plain',
+        \ 'selected': a:selected,
+        \ 'needs_scope': 1,
+        \ }
+
+  call s:run_guru(l:args)
 endfunction
 
 " Report the possible constants, global variables, and concrete types that may
@@ -277,7 +329,7 @@ function! go#guru#DescribeInfo() abort
     return
   endif
 
-  function! s:info(exit_val, output)
+  function! s:info(exit_val, output, mode)
     if a:exit_val != 0
       return
     endif
@@ -366,7 +418,7 @@ function! go#guru#DescribeInfo() abort
         \ 'mode': 'describe',
         \ 'format': 'json',
         \ 'selected': -1,
-        \ 'needs_scope': 1,
+        \ 'needs_scope': 0,
         \ 'custom_parse': function('s:info'),
         \ 'disable_progress': 1,
         \ }
@@ -452,10 +504,6 @@ function! go#guru#Referrers(selected) abort
   call s:run_guru(args)
 endfunction
 
-function! go#guru#SameIdsTimer() abort
-  call timer_start(200, function('go#guru#SameIds'), {'repeat': -1})
-endfunction
-
 function! go#guru#SameIds() abort
   " we use matchaddpos() which was introduce with 7.4.330, be sure we have
   " it: http://ftp.vim.org/vim/patches/7.4/7.4.330
@@ -483,24 +531,24 @@ function! go#guru#SameIds() abort
   call s:run_guru(args)
 endfunction
 
-function! s:same_ids_highlight(exit_val, output) abort
+function! s:same_ids_highlight(exit_val, output, mode) abort
   call go#guru#ClearSameIds() " run after calling guru to reduce flicker.
 
   if a:output[0] !=# '{'
-    if !get(g:, 'go_auto_sameids', 0)
+    if !go#config#AutoSameids()
       call go#util#EchoError(a:output)
     endif
     return
   endif
 
   let result = json_decode(a:output)
-  if type(result) != type({}) && !get(g:, 'go_auto_sameids', 0)
+  if type(result) != type({}) && !go#config#AutoSameids()
     call go#util#EchoError("malformed output from guru")
     return
   endif
 
   if !has_key(result, 'sameids')
-    if !get(g:, 'go_auto_sameids', 0)
+    if !go#config#AutoSameids()
       call go#util#EchoError("no same_ids founds for the given identifier")
     endif
     return
@@ -526,7 +574,7 @@ function! s:same_ids_highlight(exit_val, output) abort
     call matchaddpos('goSameId', [[str2nr(pos[-2]), str2nr(pos[-1]), str2nr(poslen)]])
   endfor
 
-  if get(g:, "go_auto_sameids", 0)
+  if go#config#AutoSameids()
     " re-apply SameIds at the current cursor position at the time the buffer
     " is redisplayed: e.g. :edit, :GoRename, etc.
     augroup vim-go-sameids
@@ -568,15 +616,15 @@ function! go#guru#ToggleSameIds() abort
 endfunction
 
 function! go#guru#AutoToogleSameIds() abort
-  if get(g:, "go_auto_sameids", 0)
+  if go#config#AutoSameids()
     call go#util#EchoProgress("sameids auto highlighting disabled")
     call go#guru#ClearSameIds()
-    let g:go_auto_sameids = 0
+    call go#config#SetAutoSameids(0)
     return
   endif
 
   call go#util#EchoSuccess("sameids auto highlighting enabled")
-  let g:go_auto_sameids = 1
+  call go#config#SetAutoSameids(1)
 endfunction
 
 
@@ -601,11 +649,9 @@ function! s:parse_guru_output(exit_val, output, title) abort
     return
   endif
 
-  let old_errorformat = &errorformat
   let errformat = "%f:%l.%c-%[%^:]%#:\ %m,%f:%l:%c:\ %m"
   let l:listtype = go#list#Type("_guru")
   call go#list#ParseFormat(l:listtype, errformat, a:output, a:title)
-  let &errorformat = old_errorformat
 
   let errors = go#list#Get(l:listtype)
   call go#list#Window(l:listtype, len(errors))
@@ -613,21 +659,26 @@ endfun
 
 function! go#guru#Scope(...) abort
   if a:0
+    let scope = a:000
     if a:0 == 1 && a:1 == '""'
-      unlet g:go_guru_scope
+      let scope = []
+    endif
+
+    call go#config#SetGuruScope(scope)
+    if empty(scope)
       call go#util#EchoSuccess("guru scope is cleared")
     else
-      let g:go_guru_scope = a:000
       call go#util#EchoSuccess("guru scope changed to: ". join(a:000, ","))
     endif
 
     return
   endif
 
-  if !exists('g:go_guru_scope')
+  let scope = go#config#GuruScope()
+  if empty(scope)
     call go#util#EchoError("guru scope is not set")
   else
-    call go#util#EchoSuccess("current guru scope: ". join(g:go_guru_scope, ","))
+    call go#util#EchoSuccess("current guru scope: ". join(scope, ","))
   endif
 endfunction
 

@@ -46,7 +46,7 @@ function! go#package#Paths() abort
     let dirs += [s:goroot]
   endif
 
-  let workspaces = split(go#path#Detect(), go#util#PathListSep())
+  let workspaces = split(go#path#Default(), go#util#PathListSep())
   if workspaces != []
     let dirs += workspaces
   endif
@@ -54,10 +54,16 @@ function! go#package#Paths() abort
   return dirs
 endfunction
 
+let s:import_paths = {}
 " ImportPath returns the import path in the current directory it was executed
 function! go#package#ImportPath() abort
-  let out = go#tool#ExecuteInDir("go list")
-  if go#util#ShellError() != 0
+  let dir = expand("%:p:h")
+  if has_key(s:import_paths, dir)
+    return s:import_paths[dir]
+  endif
+
+  let [l:out, l:err] = go#tool#ExecuteInDir(['go', 'list'])
+  if l:err != 0
     return -1
   endif
 
@@ -68,6 +74,8 @@ function! go#package#ImportPath() abort
   if import_path[0] ==# '_'
     return -1
   endif
+
+  let s:import_paths[dir] = import_path
 
   return import_path
 endfunction
@@ -99,10 +107,11 @@ function! go#package#FromPath(arg) abort
 endfunction
 
 function! go#package#CompleteMembers(package, member) abort
-  silent! let content = go#util#System('godoc ' . a:package)
-  if go#util#ShellError() || !len(content)
+  let [l:content, l:err] = go#util#Exec(['godoc', a:package])
+  if l:err || !len(content)
     return []
   endif
+
   let lines = filter(split(content, "\n"),"v:val !~ '^\\s\\+$'")
   try
     let mx1 = '^\s\+\(\S+\)\s\+=\s\+.*'

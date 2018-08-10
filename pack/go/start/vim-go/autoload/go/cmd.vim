@@ -1,6 +1,17 @@
 function! go#cmd#autowrite() abort
-  if &autowrite == 1
+  if &autowrite == 1 || &autowriteall == 1
     silent! wall
+  else
+    for l:nr in range(0, bufnr('$'))
+      if buflisted(l:nr) && getbufvar(l:nr, '&modified')
+        " Sleep one second to make sure people see the message. Otherwise it is
+        " often immediacy overwritten by the async messages (which also don't
+        " invoke the "hit ENTER" prompt).
+        call go#util#EchoWarning('[No write since last change]')
+        sleep 1
+        return
+      endif
+    endfor
   endif
 endfunction
 
@@ -14,14 +25,14 @@ function! go#cmd#Build(bang, ...) abort
   " placeholder with the current folder (indicated with '.'). We also pass -i
   " that tries to install the dependencies, this has the side effect that it
   " caches the build results, so every other build is faster.
-  let args =
-        \ ["build"] +
+  let l:args =
+        \ ['build', '-tags', go#config#BuildTags()] +
         \ map(copy(a:000), "expand(v:val)") +
-        \ ["-i", ".", "errors"]
+        \ [".", "errors"]
 
-  " Vim async.
-  if go#util#has_job()
-    if get(g:, 'go_echo_command_info', 1)
+  " Vim and Neovim async.
+  if go#util#has_job() || has('nvim')
+    if go#config#EchoCommandInfo()
       call go#util#EchoProgress("building dispatched ...")
     endif
 
@@ -31,18 +42,8 @@ function! go#cmd#Build(bang, ...) abort
           \ 'for': 'GoBuild',
           \})
 
-  " Nvim async.
-  elseif has('nvim')
-    if get(g:, 'go_echo_command_info', 1)
-      call go#util#EchoProgress("building dispatched ...")
-    endif
-
-    call go#jobcontrol#Spawn(a:bang, "build", "GoBuild", args)
-
   " Vim 7.4 without async
   else
-    let old_gopath = $GOPATH
-    let $GOPATH = go#path#Detect()
     let default_makeprg = &makeprg
     let &makeprg = "go " . join(go#util#Shelllist(args), ' ')
 
@@ -72,7 +73,6 @@ function! go#cmd#Build(bang, ...) abort
     endif
 
     let &makeprg = default_makeprg
-    let $GOPATH = old_gopath
   endif
 endfunction
 
@@ -80,31 +80,42 @@ endfunction
 " BuildTags sets or shows the current build tags used for tools
 function! go#cmd#BuildTags(bang, ...) abort
   if a:0
-    if a:0 == 1 && a:1 == '""'
-      unlet g:go_build_tags
+    let v = a:1
+    if v == '""' || v == "''"
+      let v = ""
+    endif
+    call go#config#SetBuildTags(v)
+    let tags = go#config#BuildTags()
+    if empty(tags)
       call go#util#EchoSuccess("build tags are cleared")
     else
-      let g:go_build_tags = a:1
-      call go#util#EchoSuccess("build tags are changed to: ". a:1)
+      call go#util#EchoSuccess("build tags are changed to: " . tags)
     endif
 
     return
   endif
 
-  if !exists('g:go_build_tags')
+  let tags = go#config#BuildTags()
+  if empty(tags)
     call go#util#EchoSuccess("build tags are not set")
   else
-    call go#util#EchoSuccess("current build tags: ". g:go_build_tags)
+    call go#util#EchoSuccess("current build tags: " . tags)
   endif
 endfunction
 
 
 " Run runs the current file (and their dependencies if any) in a new terminal.
 function! go#cmd#RunTerm(bang, mode, files) abort
+  let cmd = "go run "
+  let tags = go#config#BuildTags()
+  if len(tags) > 0
+    let cmd .= "-tags " . go#util#Shellescape(tags) . " "
+  endif
+
   if empty(a:files)
-    let cmd = "go run ".  go#util#Shelljoin(go#tool#Files())
+    let cmd .= go#util#Shelljoin(go#tool#Files())
   else
-    let cmd = "go run ".  go#util#Shelljoin(map(copy(a:files), "expand(v:val)"), 1)
+    let cmd .= go#util#Shelljoin(map(copy(a:files), "expand(v:val)"), 1)
   endif
   call go#term#newmode(a:bang, cmd, a:mode)
 endfunction
@@ -125,27 +136,34 @@ function! go#cmd#Run(bang, ...) abort
     " anything. Once this is implemented we're going to make :GoRun async
   endif
 
-  let old_gopath = $GOPATH
-  let $GOPATH = go#path#Detect()
+  let cmd = "go run "
+  let tags = go#config#BuildTags()
+  if len(tags) > 0
+    let cmd .= "-tags " . go#util#Shellescape(tags) . " "
+  endif
 
   if go#util#IsWin()
-    exec '!go run ' . go#util#Shelljoin(go#tool#Files())
+    if a:0 == 0
+      exec '!' . cmd . go#util#Shelljoin(go#tool#Files(), 1)
+    else
+      exec '!' . cmd . go#util#Shelljoin(map(copy(a:000), "expand(v:val)"), 1)
+    endif
+
     if v:shell_error
       redraws! | echon "vim-go: [run] " | echohl ErrorMsg | echon "FAILED"| echohl None
     else
       redraws! | echon "vim-go: [run] " | echohl Function | echon "SUCCESS"| echohl None
     endif
 
-    let $GOPATH = old_gopath
     return
   endif
 
   " :make expands '%' and '#' wildcards, so they must also be escaped
   let default_makeprg = &makeprg
   if a:0 == 0
-    let &makeprg = 'go run ' . go#util#Shelljoin(go#tool#Files(), 1)
+    let &makeprg = cmd . go#util#Shelljoin(go#tool#Files(), 1)
   else
-    let &makeprg = "go run " . go#util#Shelljoin(map(copy(a:000), "expand(v:val)"), 1)
+    let &makeprg = cmd . go#util#Shelljoin(map(copy(a:000), "expand(v:val)"), 1)
   endif
 
   let l:listtype = go#list#Type("GoRun")
@@ -165,7 +183,6 @@ function! go#cmd#Run(bang, ...) abort
     call go#list#JumpToFirst(l:listtype)
   endif
 
-  let $GOPATH = old_gopath
   let &makeprg = default_makeprg
 endfunction
 
@@ -178,20 +195,18 @@ function! go#cmd#Install(bang, ...) abort
     " expand all wildcards(i.e: '%' to the current file name)
     let goargs = map(copy(a:000), "expand(v:val)")
 
-    if get(g:, 'go_echo_command_info', 1)
+    if go#config#EchoCommandInfo()
       call go#util#EchoProgress("installing dispatched ...")
     endif
 
     call s:cmd_job({
-          \ 'cmd': ['go', 'install'] + goargs,
+          \ 'cmd': ['go', 'install', '-tags', go#config#BuildTags()] + goargs,
           \ 'bang': a:bang,
           \ 'for': 'GoInstall',
           \})
     return
   endif
 
-  let old_gopath = $GOPATH
-  let $GOPATH = go#path#Detect()
   let default_makeprg = &makeprg
 
   " :make expands '%' and '#' wildcards, so they must also be escaped
@@ -220,19 +235,15 @@ function! go#cmd#Install(bang, ...) abort
   if !empty(errors) && !a:bang
     call go#list#JumpToFirst(l:listtype)
   else
-    call go#util#EchoSuccess("installed to ". go#path#Detect())
+    call go#util#EchoSuccess("installed to ". go#path#Default())
   endif
 
-  let $GOPATH = old_gopath
   let &makeprg = default_makeprg
 endfunction
 
 " Generate runs 'go generate' in similar fashion to go#cmd#Build()
 function! go#cmd#Generate(bang, ...) abort
   let default_makeprg = &makeprg
-
-  let old_gopath = $GOPATH
-  let $GOPATH = go#path#Detect()
 
   " :make expands '%' and '#' wildcards, so they must also be escaped
   let goargs = go#util#Shelljoin(map(copy(a:000), "expand(v:val)"), 1)
@@ -264,7 +275,6 @@ function! go#cmd#Generate(bang, ...) abort
   endif
 
   let &makeprg = default_makeprg
-  let $GOPATH = old_gopath
 endfunction
 
 " ---------------------
@@ -284,48 +294,7 @@ function s:cmd_job(args) abort
   " autowrite is not enabled for jobs
   call go#cmd#autowrite()
 
-  function! s:error_info_cb(job, exit_status, data) closure abort
-    let status = {
-          \ 'desc': 'last status',
-          \ 'type': a:args.cmd[1],
-          \ 'state': "success",
-          \ }
-
-    if a:exit_status
-      let status.state = "failed"
-    endif
-
-    let elapsed_time = reltimestr(reltime(started_at))
-    " strip whitespace
-    let elapsed_time = substitute(elapsed_time, '^\s*\(.\{-}\)\s*$', '\1', '')
-    let status.state .= printf(" (%ss)", elapsed_time)
-
-    call go#statusline#Update(status_dir, status)
-  endfunction
-
-  let a:args.error_info_cb = funcref('s:error_info_cb')
-  let callbacks = go#job#Spawn(a:args)
-
-  let start_options = {
-        \ 'callback': callbacks.callback,
-        \ 'exit_cb': callbacks.exit_cb,
-        \ }
-
-  " modify GOPATH if needed
-  let old_gopath = $GOPATH
-  let $GOPATH = go#path#Detect()
-
-  " pre start
-  let dir = getcwd()
-  let cd = exists('*haslocaldir') && haslocaldir() ? 'lcd ' : 'cd '
-  let jobdir = fnameescape(expand("%:p:h"))
-  execute cd . jobdir
-
-  call job_start(a:args.cmd, start_options)
-
-  " post start
-  execute cd . fnameescape(dir)
-  let $GOPATH = old_gopath
+  call go#job#Spawn(a:args.cmd, a:args)
 endfunction
 
 " vim: sw=2 ts=2 et

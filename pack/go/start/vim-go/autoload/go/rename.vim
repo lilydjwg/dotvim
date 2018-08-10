@@ -1,26 +1,10 @@
-if !exists("g:go_gorename_bin")
-  let g:go_gorename_bin = "gorename"
-endif
-
-" Set the default value. A value of "1" is a shortcut for this, for
-" compatibility reasons.
-function! s:default() abort
-  if !exists("g:go_gorename_prefill") || g:go_gorename_prefill == 1
-    let g:go_gorename_prefill = 'expand("<cword>") =~# "^[A-Z]"' .
-          \ '? go#util#pascalcase(expand("<cword>"))' .
-          \ ': go#util#camelcase(expand("<cword>"))'
-  endif
-endfunction
-call s:default()
-
 function! go#rename#Rename(bang, ...) abort
-  call s:default()
-
   let to_identifier = ""
   if a:0 == 0
     let ask = printf("vim-go: rename '%s' to: ", expand("<cword>"))
-    if g:go_gorename_prefill != ''
-      let to_identifier = input(ask, eval(g:go_gorename_prefill))
+    let prefill = go#config#GorenamePrefill()
+    if prefill != ''
+      let to_identifier = input(ask, eval(prefill))
     else
       let to_identifier = input(ask)
     endif
@@ -33,7 +17,7 @@ function! go#rename#Rename(bang, ...) abort
   endif
 
   " return with a warning if the bin doesn't exist
-  let bin_path = go#path#CheckBinPath(g:go_gorename_bin)
+  let bin_path = go#path#CheckBinPath(go#config#GorenameBin())
   if empty(bin_path)
     return
   endif
@@ -41,21 +25,9 @@ function! go#rename#Rename(bang, ...) abort
   let fname = expand('%:p')
   let pos = go#util#OffsetCursor()
   let offset = printf('%s:#%d', fname, pos)
+  let cmd = [bin_path, "-offset", offset, "-to", to_identifier, '-tags', go#config#BuildTags()]
 
-  " no need to escape for job call
-  let bin_path = go#util#has_job() ? bin_path : shellescape(bin_path)
-  let offset = go#util#has_job() ? offset : shellescape(offset)
-  let to_identifier = go#util#has_job() ? to_identifier : shellescape(to_identifier)
-
-  let cmd = [bin_path, "-offset", offset, "-to", to_identifier]
-
-  " check for any tags
-  if exists('g:go_build_tags')
-    let tags = get(g:, 'go_build_tags')
-    call extend(cmd, ["-tags", tags])
-  endif
-
-  if go#util#has_job()
+  if go#util#has_job() || has('nvim')
     call go#util#EchoProgress(printf("renaming to '%s' ...", to_identifier))
     call s:rename_job({
           \ 'cmd': cmd,
@@ -64,55 +36,42 @@ function! go#rename#Rename(bang, ...) abort
     return
   endif
 
-  let command = join(cmd, " ")
-  let out = go#tool#ExecuteInDir(command)
-
-  let splitted = split(out, '\n')
-  call s:parse_errors(go#util#ShellError(), a:bang, splitted)
+  let [l:out, l:err] = go#tool#ExecuteInDir(l:cmd)
+  call s:parse_errors(l:err, a:bang, split(l:out, '\n'))
 endfunction
 
 function s:rename_job(args)
-  let messages = []
-  function! s:callback(chan, msg) closure
-    call add(messages, a:msg)
-  endfunction
-
-  let status_dir =  expand('%:p:h')
-
-  function! s:exit_cb(job, exitval) closure
-    let status = {
-          \ 'desc': 'last status',
-          \ 'type': "gorename",
-          \ 'state': "finished",
-          \ }
-
-    if a:exitval
-      let status.state = "failed"
-    endif
-
-    call go#statusline#Update(status_dir, status)
-
-    call s:parse_errors(a:exitval, a:args.bang, messages)
-  endfunction
-
-  let start_options = {
-        \ 'callback': funcref("s:callback"),
-        \ 'exit_cb': funcref("s:exit_cb"),
+  let l:job_opts = {
+        \ 'bang': a:args.bang,
+        \ 'for': 'GoRename',
+        \ 'statustype': 'gorename',
         \ }
 
-  " modify GOPATH if needed
-  let old_gopath = $GOPATH
-  let $GOPATH = go#path#Detect()
+  " autowrite is not enabled for jobs
+  call go#cmd#autowrite()
+  let l:cbs = go#job#Options(l:job_opts)
 
-  call go#statusline#Update(status_dir, {
-        \ 'desc': "current status",
-        \ 'type': "gorename",
-        \ 'state': "started",
-        \})
+  " wrap l:cbs.exit_cb in s:exit_cb.
+  let l:cbs.exit_cb = funcref('s:exit_cb', [l:cbs.exit_cb])
 
-  call job_start(a:args.cmd, start_options)
+  call go#job#Start(a:args.cmd, l:cbs)
+endfunction
 
-  let $GOPATH = old_gopath
+function! s:reload_changed() abort
+  " reload all files to reflect the new changes. We explicitly call
+  " checktime to trigger a reload of all files. See
+  " http://www.mail-archive.com/vim@vim.org/msg05900.html for more info
+  " about the autoread bug
+  let current_autoread = &autoread
+  set autoread
+  silent! checktime
+  let &autoread = current_autoread
+endfunction
+
+" s:exit_cb reloads any changed buffers and then calls next.
+function! s:exit_cb(next, job, exitval) abort
+  call s:reload_changed()
+  call call(a:next, [a:job, a:exitval])
 endfunction
 
 function s:parse_errors(exit_val, bang, out)
@@ -144,13 +103,9 @@ function s:parse_errors(exit_val, bang, out)
   " strip out newline on the end that gorename puts. If we don't remove, it
   " will trigger the 'Hit ENTER to continue' prompt
   call go#list#Clean(l:listtype)
-  call go#list#Window(l:listtype)
   call go#util#EchoSuccess(a:out[0])
 
   " refresh the buffer so we can see the new content
-  " TODO(arslan): also find all other buffers and refresh them too. For this
-  " we need a way to get the list of changes from gorename upon an success
-  " change.
   silent execute ":e"
 endfunction
 

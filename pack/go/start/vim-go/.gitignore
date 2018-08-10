@@ -1,1 +1,4 @@
 .DS_Store
+/.coverage.covimerage
+/coverage.xml
+*.pyc

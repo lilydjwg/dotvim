@@ -169,7 +169,7 @@ endsnippet
 # error multiple return
 snippet errn, "Error return with two return values" !b
 if err != nil {
-	return ${1:nil}, err
+	return ${1:nil}, ${2:err}
 }
 ${0}
 endsnippet
@@ -250,6 +250,11 @@ endsnippet
 # Fmt Println debug
 snippet fn "fmt.Println(...)"
 fmt.Println("${1:${VISUAL}}")
+endsnippet
+
+# Fmt Errorf debug
+snippet fe "fmt.Errorf(...)"
+fmt.Errorf("${1:${VISUAL}}")
 endsnippet
 
 # log printf

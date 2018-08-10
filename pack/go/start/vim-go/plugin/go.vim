@@ -4,23 +4,24 @@ if exists("g:go_loaded_install")
 endif
 let g:go_loaded_install = 1
 
-" Not using the has('patch-7.4.1689') syntax because that wasn't added until
+" Not using the has('patch-7.4.2009') syntax because that wasn't added until
 " 7.4.237, and we want to be sure this works for everyone (this is also why
 " we're not using utils#EchoError()).
 "
-" Version 7.4.1689 was chosen because that's what the most recent Ubuntu LTS
-" release (16.04) uses.
+" Version 7.4.2009 was chosen because that's greater than what the most recent Ubuntu LTS
+" release (16.04) uses and has a couple of features we need (e.g. execute()
+" and :message clear).
 if
-      \ get(g:, 'go_version_warning', 1) != 0 &&
-      \ (v:version < 704 || (v:version == 704 && !has('patch1689')))
+      \ go#config#VersionWarning() != 0 &&
+      \ (v:version < 704 || (v:version == 704 && !has('patch2009')))
       \ && !has('nvim')
   echohl Error
-  echom "vim-go requires Vim 7.4.1689 or Neovim, but you're using an older version."
+  echom "vim-go requires Vim 7.4.2009 or Neovim, but you're using an older version."
   echom "Please update your Vim for the best vim-go experience."
   echom "If you really want to continue you can set this to make the error go away:"
   echom "    let g:go_version_warning = 0"
   echom "Note that some features may error out or behave incorrectly."
-  echom "Please do not report bugs unless you're using Vim 7.4.1689 or newer."
+  echom "Please do not report bugs unless you're using Vim 7.4.2009 or newer."
   echohl None
 
   " Make sure people see this.
@@ -31,9 +32,10 @@ endif
 " needed by the user with GoInstallBinaries
 let s:packages = {
       \ 'asmfmt':        ['github.com/klauspost/asmfmt/cmd/asmfmt'],
+      \ 'dlv':           ['github.com/derekparker/delve/cmd/dlv'],
       \ 'errcheck':      ['github.com/kisielk/errcheck'],
       \ 'fillstruct':    ['github.com/davidrjenni/reftools/cmd/fillstruct'],
-      \ 'gocode':        ['github.com/nsf/gocode', {'windows': '-ldflags -H=windowsgui'}],
+      \ 'gocode':        ['github.com/nsf/gocode', {'windows': ['-ldflags', '-H=windowsgui']}],
       \ 'godef':         ['github.com/rogpeppe/godef'],
       \ 'gogetdoc':      ['github.com/zmb3/gogetdoc'],
       \ 'goimports':     ['golang.org/x/tools/cmd/goimports'],
@@ -46,6 +48,7 @@ let s:packages = {
       \ 'impl':          ['github.com/josharian/impl'],
       \ 'keyify':        ['github.com/dominikh/go-tools/cmd/keyify'],
       \ 'motion':        ['github.com/fatih/motion'],
+      \ 'iferr':         ['github.com/koron/iferr'],
 \ }
 
 " These commands are available on any filetypes
@@ -96,16 +99,9 @@ function! s:GoInstallBinaries(updateBinaries, ...)
     set noshellslash
   endif
 
-  let cmd = "go get -v "
+  let l:cmd = ['go', 'get', '-v']
   if get(g:, "go_get_update", 1) != 0
-    let cmd .= "-u "
-  endif
-
-  let s:go_version = matchstr(go#util#System("go version"), '\d.\d.\d')
-
-  " https://github.com/golang/go/issues/10791
-  if s:go_version > "1.4.0" && s:go_version < "1.5.0"
-    let cmd .= "-f "
+    let l:cmd += ['-u']
   endif
 
   " Filter packages from arguments (if any).
@@ -130,7 +126,11 @@ function! s:GoInstallBinaries(updateBinaries, ...)
 
   for [binary, pkg] in items(l:packages)
     let l:importPath = pkg[0]
-    let l:goGetFlags = len(pkg) > 1 ? get(pkg[1], l:platform, '') : ''
+
+    let l:run_cmd = copy(l:cmd)
+    if len(l:pkg) > 1 && get(l:pkg[1], l:platform, '') isnot ''
+      let l:run_cmd += get(l:pkg[1], l:platform, '')
+    endif
 
     let binname = "go_" . binary . "_bin"
 
@@ -146,9 +146,9 @@ function! s:GoInstallBinaries(updateBinaries, ...)
         echo "vim-go: ". binary ." not found. Installing ". importPath . " to folder " . go_bin_path
       endif
 
-      let out = go#util#System(cmd . l:goGetFlags . shellescape(importPath))
-      if go#util#ShellError() != 0
-        echom "Error installing " . importPath . ": " . out
+      let [l:out, l:err] = go#util#Exec(l:run_cmd + [l:importPath])
+      if l:err
+        echom "Error installing " . l:importPath . ": " . l:out
       endif
     endif
   endfor
@@ -260,6 +260,19 @@ augroup vim-go
   " in the same window doesn't highlight the most recently matched
   " identifier's positions.
   autocmd BufWinEnter *.go call go#guru#ClearSameIds()
-augroup END
+
+  autocmd BufEnter *.go
+        \  if go#config#AutodetectGopath() && !exists('b:old_gopath')
+        \|   let b:old_gopath = exists('$GOPATH') ? $GOPATH : -1
+        \|   let $GOPATH = go#path#Detect()
+        \| endif
+  autocmd BufLeave *.go
+        \  if exists('b:old_gopath')
+        \|   if b:old_gopath isnot -1
+        \|     let $GOPATH = b:old_gopath
+        \|   endif
+        \|   unlet b:old_gopath
+        \| endif
+augroup end
 
 " vim: sw=2 ts=2 et
