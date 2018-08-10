@@ -1,5 +1,5 @@
 " Name:    gnupg.vim
-" Last Change: 2018 Jan 23
+" Last Change: 2018 Aug 06
 " Maintainer:  James McCoy <jamessan@jamessan.com>
 " Original Author:  Markus Braun <markus.braun@krawel.de>
 " Summary: Vim plugin for transparent editing of gpg encrypted files.
@@ -175,7 +175,7 @@
 if (exists("g:loaded_gnupg") || &cp || exists("#GnuPG"))
   finish
 endif
-let g:loaded_gnupg = '2.6.1-dev'
+let g:loaded_gnupg = '2.7.0-dev'
 let s:GPGInitRun = 0
 
 " check for correct vim version {{{2
@@ -590,7 +590,7 @@ function s:GPGDecrypt(bufread)
 
   if b:GPGEncrypted
     " check if the message is armored
-    if (match(output, "gpg: armor header") >= 0)
+    if readfile(filename, '', 1)[0] =~# '^-\{5}BEGIN PGP\%( SIGNED\)\= MESSAGE-\{5}$'
       call s:GPGDebug(1, "this file is armored")
       let b:GPGOptions += ["armor"]
     endif
@@ -803,24 +803,17 @@ function s:GPGViewRecipients()
   let recipients = s:GPGCheckRecipients(b:GPGRecipients)
 
   echo 'This file has following recipients (Unknown recipients have a prepended "!"):'
-  " echo the recipients
-  for name in recipients.valid
-    let name = s:GPGIDToName(name)
-    echo name
-  endfor
-
-  " echo the unknown recipients
-  echohl GPGWarning
-  for name in recipients.unknown
-    let name = "!" . name
-    echo name
-  endfor
-  echohl None
-
-  " check if there is any known recipient
   if empty(recipients.valid)
     echohl GPGError
-    echom 'There are no known recipients!'
+    echo 'There are no known recipients!'
+    echohl None
+  else
+    echo join(map(recipients.valid, 's:GPGIDToName(v:val)'), "\n")
+  endif
+
+  if !empty(recipients.unknown)
+    echohl GPGWarning
+    echo join(map(recipients.unknown, '"!".v:val'), "\n")
     echohl None
   endif
 
@@ -843,7 +836,7 @@ function s:GPGEditRecipients()
   if (!exists('b:GPGCorrespondingTo'))
 
     " save buffer name
-    let buffername = bufname("%")
+    let buffername = bufnr("%")
     let editbuffername = "GPGRecipients_" . buffername
 
     " check if this buffer exists
@@ -1033,10 +1026,7 @@ function s:GPGViewOptions()
 
   if (exists("b:GPGOptions"))
     echo 'This file has following options:'
-    " echo the options
-    for option in b:GPGOptions
-      echo option
-    endfor
+    echo join(b:GPGOptions, "\n")
   endif
 
   call s:GPGDebug(3, "<<<<<<<< Leaving s:GPGViewOptions()")
@@ -1058,7 +1048,7 @@ function s:GPGEditOptions()
   if (!exists('b:GPGCorrespondingTo'))
 
     " save buffer name
-    let buffername = bufname("%")
+    let buffername = bufnr("%")
     let editbuffername = "GPGOptions_" . buffername
 
     " check if this buffer exists
