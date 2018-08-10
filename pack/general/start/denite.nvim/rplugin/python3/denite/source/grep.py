@@ -61,10 +61,10 @@ class Source(Base):
             'recursive_opts': ['-r'],
             'pattern_opt': ['-e'],
             'separator': ['--'],
-            'final_opts': ['.'],
+            'final_opts': [],
             'min_interactive_pattern': 3,
         }
-        self.matchers = ['matcher_ignore_globs', 'matcher_regexp']
+        self.matchers = ['matcher/ignore_globs', 'matcher/regexp']
 
     def on_init(self, context):
         context['__proc'] = None
@@ -84,7 +84,7 @@ class Source(Base):
                 arg = [arg]
             elif not isinstance(arg, list):
                 raise AttributeError('`args[0]` needs to be a `str` or `list`')
-        else:
+        elif context['path']:
             arg = [context['path']]
         context['__paths'] = [util.abspath(self.vim, x) for x in arg]
 
@@ -92,6 +92,8 @@ class Source(Base):
         arg = args.get(1, [])
         if arg:
             if isinstance(arg, str):
+                if arg == '!':
+                    arg = util.input(self.vim, context, 'Argument: ')
                 arg = shlex.split(arg)
             elif not isinstance(arg, list):
                 raise AttributeError('`args[1]` needs to be a `str` or `list`')
@@ -104,7 +106,7 @@ class Source(Base):
                 if arg == '!':
                     # Interactive mode
                     context['is_interactive'] = True
-                    arg = ''
+                    arg = [context['input']] if context['input'] else []
                 else:
                     arg = [arg]
             elif not isinstance(arg, list):
@@ -154,7 +156,7 @@ class Source(Base):
                 '.*'.join(util.split_input(context['input']))]
 
         if context['__proc']:
-            return self.__async_gather_candidates(
+            return self._async_gather_candidates(
                 context, context['async_timeout'])
 
         if not context['__patterns'] or not self.vars['command']:
@@ -165,23 +167,26 @@ class Source(Base):
         args += self.vars['default_opts']
         args += self.vars['recursive_opts']
         args += context['__arguments']
-        for pattern in context['__patterns']:
-            args += self.vars['pattern_opt'] + [pattern]
-        args += self.vars['separator']
+        if self.vars['pattern_opt']:
+            for pattern in context['__patterns']:
+                args += self.vars['pattern_opt'] + [pattern]
+            args += self.vars['separator']
+        else:
+            args += self.vars['separator']
+            args += context['__patterns']
         if context['__paths']:
             args += context['__paths']
-        else:
-            args += self.vars['final_opts']
+        args += self.vars['final_opts']
 
         self.print_message(context, args)
 
         context['__proc'] = process.Process(args, context, context['path'])
-        return self.__async_gather_candidates(context, 0.5)
+        return self._async_gather_candidates(context, 0.5)
 
-    def __async_gather_candidates(self, context, timeout):
+    def _async_gather_candidates(self, context, timeout):
         outs, errs = context['__proc'].communicate(timeout=timeout)
         if errs:
-            self.error_message(errs)
+            self.error_message(context, errs)
         context['is_async'] = not context['__proc'].eof()
         if context['__proc'].eof():
             context['__proc'] = None

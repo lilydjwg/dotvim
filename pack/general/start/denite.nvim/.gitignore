@@ -1,2 +1,3 @@
 *.py[cod]
 .cache
+.mypy_cache

@@ -55,12 +55,46 @@ function! denite#init#_initialize() abort
   endtry
 endfunction
 
-function! denite#init#_context() abort
+function! denite#init#_context(user_context) abort
+  let buffer_name = get(a:user_context, 'buffer_name', 'default')
+  let context = s:internal_options()
+  call extend(context, denite#init#_user_options())
+  let context.custom = denite#custom#_get()
+  if has_key(context.custom.option, '_')
+    call extend(context, context.custom.option['_'])
+  endif
+  if has_key(context.custom.option, buffer_name)
+    call extend(context, context.custom.option[buffer_name])
+  endif
+  call extend(context, a:user_context)
+
+  " For compatibility(deprecated variables)
+  for [old_option, new_option] in filter(items(
+        \ denite#init#_deprecated_options()),
+        \ "has_key(context, v:val[0]) && v:val[1] !=# ''")
+    let context[new_option] = context[old_option]
+  endfor
+  if get(context, 'short_source_names', v:false)
+    let context['source_names'] = 'short'
+  endif
+  if has_key(context, 'quit') && !context['quit']
+    let context['post_action'] = 'open'
+  endif
+  if get(context, 'force_quit', v:false)
+    let context['post_action'] = 'quit'
+  endif
+
+  return context
+endfunction
+function! s:internal_options() abort
   return {
         \ 'encoding': &encoding,
+        \ 'error_messages': [],
         \ 'is_windows': ((has('win32') || has('win64')) ? v:true : v:false),
         \ 'messages': [],
         \ 'prev_winid': win_getid(),
+        \ 'has_preview_window': len(filter(range(1, winnr('$')),
+        \   'getwinvar(v:val, ''&previewwindow'')')) > 0,
         \ 'quick_move_table': {
         \   'a' : 0, 's' : 1, 'd' : 2, 'f' : 3, 'g' : 4,
         \   'h' : 5, 'j' : 6, 'k' : 7, 'l' : 8, ';' : 9,
@@ -87,6 +121,7 @@ function! denite#init#_user_options() abort
         \ 'cursorline': v:true,
         \ 'default_action': 'default',
         \ 'direction': 'botright',
+        \ 'do': '',
         \ 'empty': v:true,
         \ 'highlight_cursor': 'Cursor',
         \ 'highlight_matched_range': 'Underlined',
@@ -105,8 +140,7 @@ function! denite#init#_user_options() abort
         \ 'previewheight': &previewheight,
         \ 'prompt': '#',
         \ 'prompt_highlight': 'Statement',
-        \ 'quit': v:true,
-        \ 'force_quit': v:false,
+        \ 'post_action': 'none',
         \ 'refresh': v:false,
         \ 'resume': v:false,
         \ 'reversed': v:false,
@@ -118,6 +152,7 @@ function! denite#init#_user_options() abort
         \ 'source_names': '',
         \ 'statusline': v:true,
         \ 'updatetime': 100,
+        \ 'skiptime': 500,
         \ 'unique': v:false,
         \ 'use_default_mappings': v:true,
         \ 'vertical_preview': v:false,
@@ -129,5 +164,7 @@ endfunction
 function! denite#init#_deprecated_options() abort
   return {
         \ 'select': 'cursor_pos',
+        \ 'force_quit': '',
+        \ 'quit': '',
         \}
 endfunction

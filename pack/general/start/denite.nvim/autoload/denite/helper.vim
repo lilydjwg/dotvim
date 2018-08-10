@@ -22,10 +22,7 @@ function! denite#helper#complete(arglead, cmdline, cursorpos) abort
     let _ += map(copy(bool_options), "'-no-' . tr(v:val, '_', '-')")
   else
     " Source name completion.
-    let _ += filter(map(globpath(&runtimepath,
-          \             'rplugin/python3/denite/source/*.py', 1, 1),
-          \             "fnamemodify(v:val, ':t:r')"),
-          \         "v:val !=# 'base' && v:val !=# '__init__'")
+    let _ += denite#helper#_get_available_sources()
   endif
 
   return uniq(sort(filter(_, 'stridx(v:val, a:arglead) == 0')))
@@ -46,7 +43,7 @@ function! denite#helper#call_denite(command, args, line1, line2) abort
   elseif a:command ==# 'DeniteBufferDir'
     let context.path = fnamemodify(bufname('%'), ':p:h')
   elseif a:command ==# 'DeniteProjectDir'
-    let context.path = denite#util#path2project_directory(
+    let context.path = denite#project#path2project_directory(
           \ get(context, 'path', getcwd()),
           \ get(context, 'root_markers', ''))
   endif
@@ -57,7 +54,8 @@ endfunction
 function! denite#helper#preview_file(context, filename) abort
   if a:context.vertical_preview
     let denite_winwidth = &columns
-    call denite#util#execute_path('silent vertical pedit!', a:filename)
+    call denite#util#execute_path(
+          \ 'silent rightbelow vertical pedit!', a:filename)
     wincmd P
     execute 'vert resize ' . (denite_winwidth / 2)
   else
@@ -86,17 +84,7 @@ function! denite#helper#_parse_options_args(cmdline) abort
     let source_args = []
     if source_arg !=# ''
       for s in split(source_arg, s:re_unquoted_match('\\\@<!:'), 1)
-        let s = substitute(s, '\\\(.\)', "\\1", 'g')
-
-        " remove leading/ending quote pairs
-        if s[0] ==# '"' && s[len(s) - 1] ==# '"'
-          let s = s[1: len(s) - 2]
-        endif
-        if s[0] ==# "'" && s[len(s) - 1] ==# "'"
-          let s = s[1: len(s) - 2]
-        endif
-
-        call add(source_args, s)
+        call add(source_args, s:remove_quote_pairs(s))
       endfor
     endif
     call add(_, { 'name': source_name, 'args': source_args })
@@ -111,6 +99,18 @@ function! s:re_unquoted_match(match) abort
         \ . "'" . '([^' . "'" . '\\]*\\.)*[^' . "'" . '\\]*' . "'" . '))*[^"'
         \ . "'" . ']*$'
 endfunction
+function! s:remove_quote_pairs(s) abort
+  " remove leading/ending quote pairs
+  let s = a:s
+  if s[0] ==# '"' && s[len(s) - 1] ==# '"'
+    let s = s[1: len(s) - 2]
+  elseif s[0] ==# "'" && s[len(s) - 1] ==# "'"
+    let s = s[1: len(s) - 2]
+  else
+    let s = substitute(a:s, '\\\(.\)', "\\1", 'g')
+  endif
+  return s
+endfunction
 function! s:parse_options(cmdline) abort
   let args = []
   let options = {}
@@ -119,16 +119,17 @@ function! s:parse_options(cmdline) abort
   let cmdline = (a:cmdline =~# '\\\@<!`.*\\\@<!`') ?
         \ s:eval_cmdline(a:cmdline) : a:cmdline
 
-  for arg in split(cmdline, s:re_unquoted_match('\%(\\\@<!\s\)\+'))
-    let arg = substitute(arg, '\\\( \)', '\1', 'g')
+  for s in split(cmdline, s:re_unquoted_match('\%(\\\@<!\s\)\+'))
+    let arg = substitute(s, '\\\( \)', '\1', 'g')
     let arg_key = substitute(arg, '=\zs.*$', '', '')
 
     let name = substitute(tr(arg_key, '-', '_'), '=$', '', '')[1:]
     if name =~# '^no_'
       let name = name[3:]
-      let value = 0
+      let value = v:false
     else
-      let value = (arg_key =~# '=$') ? arg[len(arg_key) :] : 1
+      let value = (arg_key =~# '=$') ?
+            \ s:remove_quote_pairs(arg[len(arg_key) :]) : v:true
     endif
 
     if index(keys(denite#init#_user_options())
@@ -144,16 +145,16 @@ endfunction
 function! s:eval_cmdline(cmdline) abort
   let cmdline = ''
   let prev_match = 0
-  let match = match(a:cmdline, '\\\@<!`.\{-}\\\@<!`')
-  while match >= 0
-    if match - prev_match > 0
-      let cmdline .= a:cmdline[prev_match : match - 1]
+  let eval_pos = match(a:cmdline, '\\\@<!`.\{-}\\\@<!`')
+  while eval_pos >= 0
+    if eval_pos - prev_match > 0
+      let cmdline .= a:cmdline[prev_match : eval_pos - 1]
     endif
     let prev_match = matchend(a:cmdline,
-          \ '\\\@<!`.\{-}\\\@<!`', match)
-    let cmdline .= escape(eval(a:cmdline[match+1 : prev_match - 2]), '\ ')
+          \ '\\\@<!`.\{-}\\\@<!`', eval_pos)
+    let cmdline .= escape(eval(a:cmdline[eval_pos+1 : prev_match - 2]), '\ ')
 
-    let match = match(a:cmdline, '\\\@<!`.\{-}\\\@<!`', prev_match)
+    let eval_pos = match(a:cmdline, '\\\@<!`.\{-}\\\@<!`', prev_match)
   endwhile
   if prev_match >= 0
     let cmdline .= a:cmdline[prev_match :]
@@ -179,4 +180,45 @@ endfunction
 
 function! denite#helper#_set_oldfiles(oldfiles) abort
   let v:oldfiles = a:oldfiles
+endfunction
+function! denite#helper#_get_oldfiles() abort
+  return filter(copy(v:oldfiles), 'filereadable(v:val) || buflisted(v:val)')
+endfunction
+
+
+function! denite#helper#_get_available_sources() abort
+  if exists('s:source_names')
+    return copy(s:source_names)
+  endif
+  let s:source_names = map(
+        \ globpath(&runtimepath, 'rplugin/python3/denite/source/**/*.py', 1, 1),
+        \ 's:_get_source_name(v:val)',
+        \)
+  return copy(filter(s:source_names, '!empty(v:val)'))
+endfunction
+function! denite#helper#_set_available_sources(source_names) abort
+  " Called from rplugin/python3/denite/denite.py#load_sources
+  let s:source_names = a:source_names
+endfunction
+function! s:_get_source_name(path) abort
+  if a:path ==# '__init__.py' || a:path ==# 'base.py'
+    return ''
+  elseif a:path[-12:] ==# '/__init__.py'
+    if getfsize(a:path) == 0
+      " Probably the file exists for making a namespace so ignore
+      return ''
+    endif
+    return fnamemodify(a:path, ':h:s?.*/rplugin/python3/denite/source/??:r')
+  endif
+  return fnamemodify(a:path, ':s?.*/rplugin/python3/denite/source/??:r')
+endfunction
+
+function! denite#helper#_get_wininfo() abort
+  let wininfo = getwininfo(win_getid())[0]
+  return {
+        \ 'bufnr': wininfo['bufnr'],
+        \ 'winnr': wininfo['winnr'],
+        \ 'winid': wininfo['winid'],
+        \ 'tabnr': wininfo['tabnr'],
+        \}
 endfunction

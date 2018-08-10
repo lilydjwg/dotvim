@@ -20,24 +20,26 @@ class Source(Base):
         self.kind = 'file'
 
     def on_init(self, context):
-        self.__tags = self.__get_tagfiles(context)
+        self._tags = self._get_tagfiles(context)
 
     def gather_candidates(self, context):
         candidates = []
-        for f in self.__tags:
+        for f in self._tags:
             with open(f, 'r', encoding=context['encoding'],
                       errors='replace') as ins:
                 for line in ins:
                     if re.match('!', line) or not line:
                         continue
                     info = parse_tagline(line.rstrip(), f)
-                    if not info:
-                        continue
                     candidate = {
                         'word': info['name'],
-                        'abbr': '{name} [{type}] {file} {ref}'.format(**info),
                         'action__path': info['file'],
                     }
+                    if info['type']:
+                        fmt = '{name} [{type}] {file} {ref}'
+                    else:
+                        fmt = '{name} {file} {ref}'
+                    candidate['abbr'] = fmt.format(**info)
                     if info['line']:
                         candidate['action__line'] = info['line']
                     else:
@@ -46,7 +48,7 @@ class Source(Base):
 
         return sorted(candidates, key=lambda value: value['word'])
 
-    def __get_tagfiles(self, context):
+    def _get_tagfiles(self, context):
         if (context['args'] and context['args'][0] == 'include' and
                 self.vim.call('exists', '*neoinclude#include#get_tag_files')):
             tagfiles = self.vim.call('neoinclude#include#get_tag_files')

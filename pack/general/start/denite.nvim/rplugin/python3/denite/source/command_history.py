@@ -1,7 +1,9 @@
-# -*- coding: utf-8 -*-
+# ============================================================================
 # FILE: command_history.py
 # AUTHOR: pocari <caffelattenonsugar at gmail.com>
 # License: MIT license
+# ============================================================================
+
 import re
 
 from denite import util
@@ -26,7 +28,8 @@ class Source(Base):
             return []
 
         max_len = len(histories[0][0])
-        return [self._convert(r, max_len) for r in histories if len(r) > 1]
+        return [self._convert(r, max_len) for r in histories
+                if len(r) > 1 and r[1]]
 
     def _get_histories(self):
         histories = [
@@ -63,8 +66,9 @@ class Source(Base):
 
     def _convert(self, history, size):
         return {
-            'word': '%*s %s' % (size, history[0], history[1]),
-            'action__command': history[1]
+            'word': ':' + history[1],
+            'action__command': history[1],
+            'action__is_pause': True,
         }
 
 
@@ -77,9 +81,8 @@ class Kind(Command):
 
     def action_edit_and_execute(self, context):
         target = context['targets'][0]
-        edited = util.input(self.vim, context,
-                            "command > ",
-                            target['action__command'],
-                            'command')
-        if edited:
-            self.vim.call('denite#util#execute_command', edited)
+        command = util.input(self.vim, context,
+                             "command > ",
+                             target['action__command'],
+                             'command')
+        self._execute(command)

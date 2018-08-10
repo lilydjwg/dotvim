@@ -1,4 +1,4 @@
-**Warning:  I will close the bug issue without the minimal init.vim and the reproduce ways.**
+**Warning:  I will close the issue without the minimal init.vim and the reproduction instructions.**
 
 # Problems summary
 
@@ -8,7 +8,7 @@
 
 ## Environment Information (Required!)
 
- * denite version(SHA1):
+ * denite version (SHA1):
 
  * OS:
 
@@ -24,15 +24,23 @@ set runtimepath+=~/path/to/denite.nvim/
 ```
 
 
-## The reproduce ways from neovim starting (Required!)
+## How to reproduce problems from neovim startup (Required!)
 
  1. foo
  2. bar
  3. baz
 
 
+## Generate a logfile if appropriate
 
-## Screen shot (if possible)
+ 1. export NVIM_PYTHON_LOG_FILE=/tmp/log
+ 2. export NVIM_PYTHON_LOG_LEVEL=DEBUG
+ 3. nvim -u minimal.vimrc
+ 4. some works
+ 5. cat /tmp/log_{PID}
+
+
+## Screenshot (if possible)
 
 
 ## Upload the log file

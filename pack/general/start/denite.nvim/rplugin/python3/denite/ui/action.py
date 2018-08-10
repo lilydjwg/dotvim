@@ -2,6 +2,7 @@ import re
 from datetime import timedelta, datetime
 
 from denite.util import debug
+from os.path import dirname
 from denite.prompt.util import build_keyword_pattern_set
 
 
@@ -117,11 +118,11 @@ def _jump_to_previous_by(prompt, params):
 
 
 def _jump_to_next_source(prompt, params):
-    return prompt.denite.jump_to_next_by('source')
+    return prompt.denite.jump_to_next_by('source_name')
 
 
 def _jump_to_previous_source(prompt, params):
-    return prompt.denite.jump_to_prev_by('source')
+    return prompt.denite.jump_to_prev_by('source_name')
 
 
 def _input_command_line(prompt, params):
@@ -157,6 +158,7 @@ def _wincmd(prompt, params):
             't': 'wincmd t',
             'b': 'wincmd b',
             'p': 'wincmd p',
+            'P': 'wincmd P',
             }
     if params not in mapping:
         return
@@ -210,7 +212,7 @@ def _toggle_matchers(prompt, params):
     return prompt.denite.redraw()
 
 
-def _toggle_sorters(prompt, params):
+def _change_sorters(prompt, params):
     sorters = ''.join(params)
     context = prompt.denite._context
     if context['sorters'] != sorters:
@@ -223,12 +225,18 @@ def _toggle_sorters(prompt, params):
 def _print_messages(prompt, params):
     for mes in prompt.denite._context['messages']:
         debug(prompt.nvim, mes)
+    prompt.nvim.call('getchar')
 
 
 def _change_path(prompt, params):
     path = prompt.nvim.call('input', 'Path: ',
                             prompt.denite._context['path'], 'dir')
     prompt.denite._context['path'] = path
+    return prompt.denite.restart()
+
+
+def _move_up_path(prompt, params):
+    prompt.denite._context['path'] = dirname(prompt.denite._context['path'])
     return prompt.denite.restart()
 
 
@@ -345,57 +353,84 @@ def _quick_move(prompt, params):
     prompt.denite.update_cursor()
 
 
+def _multiple_mappings(prompt, params):
+    ret = None
+    for mapping in params.split(','):
+        ret = prompt.action.call(prompt, mapping)
+    return ret
+
+
+def _smart_delete_char_before_caret(prompt, params):
+    text = ''.join([
+        prompt.caret.get_backward_text(),
+        prompt.caret.get_forward_text(),
+    ])
+    if text:
+        return prompt.action.call(prompt, 'denite:delete_char_before_caret')
+    else:
+        return _quit(prompt, params)
+
+
+def _nop(prompt, params):
+    pass
+
+
 DEFAULT_ACTION_RULES = [
+    ('denite:append', _append),
+    ('denite:append_to_line', _append_to_line),
+    ('denite:change_char', _change_char),
+    ('denite:change_line', _change_line),
     ('denite:change_path', _change_path),
+    ('denite:change_sorters', _change_sorters),
+    ('denite:change_word', _change_word),
     ('denite:choose_action', _choose_action),
     ('denite:do_action', _do_action),
     ('denite:enter_mode', _enter_mode),
     ('denite:input_command_line', _input_command_line),
+    ('denite:insert_to_head', _insert_to_head),
     ('denite:insert_word', _insert_word),
     ('denite:jump_to_next_by', _jump_to_next_by),
-    ('denite:jump_to_previous_by', _jump_to_previous_by),
     ('denite:jump_to_next_source', _jump_to_next_source),
+    ('denite:jump_to_previous_by', _jump_to_previous_by),
     ('denite:jump_to_previous_source', _jump_to_previous_source),
     ('denite:leave_mode', _leave_mode),
-    ('denite:wincmd', _wincmd),
+    ('denite:move_caret_to_end_of_word', _move_caret_to_end_of_word),
+    ('denite:move_caret_to_next_word', _move_caret_to_next_word),
+    ('denite:move_to_bottom', _move_to_bottom),
     ('denite:move_to_first_line', _move_to_first_line),
     ('denite:move_to_last_line', _move_to_last_line),
+    ('denite:move_to_middle', _move_to_middle),
     ('denite:move_to_next_line', _move_to_next_line),
     ('denite:move_to_previous_line', _move_to_previous_line),
     ('denite:move_to_top', _move_to_top),
-    ('denite:move_to_middle', _move_to_middle),
-    ('denite:move_to_bottom', _move_to_bottom),
+    ('denite:move_up_path', _move_up_path),
+    ('denite:multiple_mappings', _multiple_mappings),
+    ('denite:nop', _nop),
+    ('denite:print_messages', _print_messages),
+    ('denite:quick_move', _quick_move),
     ('denite:quit', _quit),
     ('denite:redraw', _redraw),
     ('denite:restart', _restart),
+    ('denite:scroll_cursor_to_bottom', _scroll_cursor_to_bottom),
+    ('denite:scroll_cursor_to_middle', _scroll_cursor_to_middle),
+    ('denite:scroll_cursor_to_top', _scroll_cursor_to_top),
     ('denite:scroll_down', _scroll_down),
     ('denite:scroll_page_backwards', _scroll_page_backwards),
     ('denite:scroll_page_forwards', _scroll_page_forwards),
     ('denite:scroll_up', _scroll_up),
-    ('denite:scroll_window_downwards', _scroll_window_downwards),
     ('denite:scroll_window_down_one_line', _scroll_window_down_one_line),
-    ('denite:scroll_window_upwards', _scroll_window_upwards),
+    ('denite:scroll_window_downwards', _scroll_window_downwards),
     ('denite:scroll_window_up_one_line', _scroll_window_up_one_line),
-    ('denite:scroll_cursor_to_top', _scroll_cursor_to_top),
-    ('denite:scroll_cursor_to_middle', _scroll_cursor_to_middle),
-    ('denite:scroll_cursor_to_bottom', _scroll_cursor_to_bottom),
+    ('denite:scroll_window_upwards', _scroll_window_upwards),
+    ('denite:smart_delete_char_before_caret',
+     _smart_delete_char_before_caret),
     ('denite:suspend', _suspend),
-    ('denite:print_messages', _print_messages),
+    ('denite:toggle_matchers', _toggle_matchers),
     ('denite:toggle_select', _toggle_select),
+    ('denite:toggle_select_all', _toggle_select_all),
     ('denite:toggle_select_down', _toggle_select_down),
     ('denite:toggle_select_up', _toggle_select_up),
-    ('denite:toggle_select_all', _toggle_select_all),
-    ('denite:toggle_matchers', _toggle_matchers),
-    ('denite:toggle_sorters', _toggle_sorters),
-    ('denite:move_caret_to_next_word', _move_caret_to_next_word),
-    ('denite:move_caret_to_end_of_word', _move_caret_to_end_of_word),
-    ('denite:change_word', _change_word),
-    ('denite:change_line', _change_line),
-    ('denite:change_char', _change_char),
-    ('denite:append', _append),
-    ('denite:append_to_line', _append_to_line),
-    ('denite:insert_to_head', _insert_to_head),
-    ('denite:quick_move', _quick_move),
+    ('denite:wincmd', _wincmd),
 ]
 
 DEFAULT_ACTION_KEYMAP = {
@@ -467,9 +502,9 @@ DEFAULT_ACTION_KEYMAP = {
         ('*', '<denite:toggle_select_all>', 'noremap'),
         ('M', '<denite:print_messages>', 'noremap'),
         ('P', '<denite:change_path>', 'noremap'),
+        ('U', '<denite:move_up_path>', 'noremap'),
         ('b', '<denite:move_caret_to_one_word_left>', 'noremap'),
         ('w', '<denite:move_caret_to_next_word>', 'noremap'),
-        ('e', '<denite:move_caret_to_end_of_word>', 'noremap'),
         ('0', '<denite:move_caret_to_head>', 'noremap'),
         ('$', '<denite:move_caret_to_tail>', 'noremap'),
         ('cc', '<denite:change_line>', 'noremap'),
@@ -478,13 +513,16 @@ DEFAULT_ACTION_KEYMAP = {
         ('S', '<denite:change_line>', 'noremap'),
         ('s', '<denite:change_char>', 'noremap'),
         ('x', '<denite:delete_char_under_caret>', 'noremap'),
-        ('dd', '<denite:delete_entire_text>', 'noremap'),
         ('h', '<denite:move_caret_to_left>', 'noremap'),
         ('l', '<denite:move_caret_to_right>', 'noremap'),
         ('a', '<denite:append>', 'noremap'),
         ('A', '<denite:append_to_line>', 'noremap'),
         ('I', '<denite:insert_to_head>', 'noremap'),
         ('X', '<denite:quick_move>', 'noremap'),
+        ('<ScrollWheelUp>', '<denite:scroll_window_up_one_line>', 'noremap'),
+        ('<ScrollWheelDown>', '<denite:scroll_window_downwards>', 'noremap'),
+        ('<TScrollWheelUp>', '<denite:scroll_window_up_one_line>', 'noremap'),
+        ('<TScrollWheelDown>', '<denite:scroll_window_downwards>', 'noremap'),
 
         # Denite specific actions
         ('e', '<denite:do_action:edit>', 'noremap'),
@@ -502,5 +540,6 @@ DEFAULT_ACTION_KEYMAP = {
         ('<C-w>t', '<denite:wincmd:t>', 'noremap'),
         ('<C-w>b', '<denite:wincmd:b>', 'noremap'),
         ('<C-w>p', '<denite:wincmd:p>', 'noremap'),
+        ('<C-w>P', '<denite:wincmd:P>', 'noremap'),
     ],
 }

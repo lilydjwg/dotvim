@@ -4,31 +4,36 @@
 " License: MIT license
 "=============================================================================
 
-function! denite#custom#get() abort
+function! denite#custom#_get() abort
   if !exists('s:custom')
-    let s:custom = {}
-    let s:custom.source = {}
-    let s:custom.source._ = {}
-    let s:custom.map = {}
-    let s:custom.map._ = []
-    let s:custom.alias_source = {}
-    let s:custom.alias_filter = {}
-    let s:custom.option = {}
-    let s:custom.filter = {}
-    let s:custom.action = {}
+    call denite#custom#_init()
   endif
 
   return s:custom
 endfunction
 
+function! denite#custom#_init() abort
+  let s:custom = {}
+  let s:custom.source = {}
+  let s:custom.source._ = {}
+  let s:custom.map = {}
+  let s:custom.map._ = []
+  let s:custom.alias_source = {}
+  let s:custom.alias_filter = {}
+  let s:custom.option = {}
+  let s:custom.filter = {}
+  let s:custom.action = {}
+endfunction
+
 function! denite#custom#source(source_name, option_name, value) abort
-  if index(['matchers', 'sorters', 'converters', 'vars', 'args'],
+  if index(['matchers', 'sorters', 'converters',
+        \   'vars', 'args', 'max_candidates'],
         \ a:option_name) < 0
     call denite#util#print_error('Invalid option_name: ' . a:option_name)
     return
   endif
 
-  let custom = denite#custom#get().source
+  let custom = denite#custom#_get().source
 
   for key in denite#util#split(a:source_name)
     if !has_key(custom, key)
@@ -39,7 +44,7 @@ function! denite#custom#source(source_name, option_name, value) abort
 endfunction
 
 function! denite#custom#filter(filter_name, var_name, value) abort
-  let custom = denite#custom#get().filter
+  let custom = denite#custom#_get().filter
 
   for key in denite#util#split(a:filter_name)
     if !has_key(custom, key)
@@ -50,7 +55,7 @@ function! denite#custom#filter(filter_name, var_name, value) abort
 endfunction
 
 function! denite#custom#var(source_name, var_name, value) abort
-  let custom = denite#custom#get().source
+  let custom = denite#custom#_get().source
 
   for key in denite#util#split(a:source_name)
     if !has_key(custom, key)
@@ -64,7 +69,7 @@ function! denite#custom#var(source_name, var_name, value) abort
 endfunction
 
 function! denite#custom#map(mode, key, mapping, ...) abort
-  let custom = denite#custom#get().map
+  let custom = denite#custom#_get().map
   let params = get(a:000, 0, '')
 
   for mode in denite#util#split(a:mode)
@@ -75,9 +80,9 @@ endfunction
 
 function! denite#custom#alias(type, name, base) abort
   if a:type ==# 'source'
-    let custom = denite#custom#get().alias_source
+    let custom = denite#custom#_get().alias_source
   elseif a:type ==# 'filter'
-    let custom = denite#custom#get().alias_filter
+    let custom = denite#custom#_get().alias_filter
   else
     return denite#util#print_error('Invalid alias type: ' . a:type)
   endif
@@ -89,7 +94,7 @@ function! denite#custom#alias(type, name, base) abort
 endfunction
 
 function! denite#custom#option(buffer_name, name_or_dict, ...) abort
-  let custom = denite#custom#get().option
+  let custom = denite#custom#_get().option
 
   for key in denite#util#split(a:buffer_name)
     if !has_key(custom, key)
@@ -101,7 +106,7 @@ function! denite#custom#option(buffer_name, name_or_dict, ...) abort
 endfunction
 
 function! denite#custom#action(kind, name, func, ...) abort
-  let custom = denite#custom#get().action
+  let custom = denite#custom#_get().action
 
   for key in denite#util#split(a:kind)
     if !has_key(custom, key)
@@ -110,8 +115,8 @@ function! denite#custom#action(kind, name, func, ...) abort
     let custom[key][a:name] = [a:func, a:0 ? a:1 : {}]
   endfor
 endfunction
-function! denite#custom#call_action(kind, name, context) abort
-  let custom = denite#custom#get().action
+function! denite#custom#_call_action(kind, name, context) abort
+  let custom = denite#custom#_get().action
 
   for key in denite#util#split(a:kind)
     if has_key(custom, key) && has_key(custom[key], a:name)
@@ -121,7 +126,7 @@ function! denite#custom#call_action(kind, name, context) abort
 endfunction
 
 function! s:set_custom(dest, name_or_dict, value) abort
-  if type(a:name_or_dict) == type({})
+  if type(a:name_or_dict) == v:t_dict
     call extend(a:dest, a:name_or_dict)
   else
     let a:dest[a:name_or_dict] = a:value
