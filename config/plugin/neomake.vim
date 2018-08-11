@@ -19,6 +19,7 @@ function! MyNeomakeStatus()
         \ 'format_loclist_type_E': '{{type}}:{{count}}',
         \ 'format_loclist_type_W': '{{type}}:{{count}}',
         \ 'format_loclist_type_I': '{{type}}:{{count}}',
+        \ 'format_quickfix_issues': '',
         \ })
   if neomake_status_str == '?'
     return ''
