@@ -16,9 +16,7 @@ function! MyNeomakeStatus()
   let neomake_status_str = neomake#statusline#get(bufnr('%'), {
         \ 'format_running': '…({{running_job_names}})',
         \ 'format_loclist_ok': '✓',
-        \ 'format_loclist_type_E': '{{type}}:{{count}}',
-        \ 'format_loclist_type_W': '{{type}}:{{count}}',
-        \ 'format_loclist_type_I': '{{type}}:{{count}}',
+        \ 'format_loclist_type_default': '{{type}}:{{count}}',
         \ 'format_loclist_issues': '%s',
         \ 'format_quickfix_issues': '%s',
         \ })
