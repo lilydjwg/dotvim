@@ -42,7 +42,7 @@ function! s:log(level, msg, ...) abort
                     \ get(context, 'make_id', '-'),
                     \ get(context, 'id', '-'),
                     \ get(context, 'bufnr', get(context, 'file_mode', 0) ? '?' : '-'),
-                    \ winnr(),
+                    \ get(context, 'winnr', winnr()),
                     \ a:msg)
     else
         let msg = a:msg
@@ -152,6 +152,7 @@ function! neomake#log#warn_once(msg, key) abort
         echohl WarningMsg
         redraw | echom 'Neomake: ' . a:msg
         echohl None
-        let v:warningmsg = a:msg
+        let v:warningmsg = 'Neomake: '.a:msg
+        call neomake#log#debug('Neomake warning: '.a:msg)
     endif
 endfunction

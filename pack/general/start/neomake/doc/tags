@@ -90,7 +90,6 @@ neomake-makers-properties	neomake.txt	/*neomake-makers-properties*
 neomake-makers-remove_invalid_entries	neomake.txt	/*neomake-makers-remove_invalid_entries*
 neomake-makers-supports_stdin	neomake.txt	/*neomake-makers-supports_stdin*
 neomake-makers-tempfile_enabled	neomake.txt	/*neomake-makers-tempfile_enabled*
-neomake-makers-uses_stdin	neomake.txt	/*neomake-makers-uses_stdin*
 neomake-object-jobinfo	neomake.txt	/*neomake-object-jobinfo*
 neomake-object-maker	neomake.txt	/*neomake-object-maker*
 neomake-objects	neomake.txt	/*neomake-objects*

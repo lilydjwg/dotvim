@@ -273,9 +273,14 @@ Execute (_get_fname_for_buffer handles modified buffer with disabled tempfiles):
   set modified
   let maker = neomake#GetMaker({})
   let jobinfo = NeomakeTestsFakeJobinfo()
-  let fname = maker._get_fname_for_buffer(jobinfo)
-  AssertEqual fname, bufname
-  AssertNeomakeMessage 'warning: buffer is modified. You might want to enable tempfiles.'
+  let caught = 0
+  try
+    call maker._get_fname_for_buffer(jobinfo)
+  catch
+    let caught = 1
+    AssertEqual v:exception, 'Neomake: skip_job: buffer is modified, but temporary files are disabled.'
+  endtry
+  AssertEqual caught, 1
   bwipe!
 
 Execute (_get_fname_for_buffer does not add trailing newline):
@@ -343,7 +348,7 @@ Execute (same tempfile contents is used for all jobs):
 
     Save g:maker2_tempfile
     let g:maker2_tempfile = tempname()
-    function! maker2.fn(jobinfo)
+    function! maker2.InitForJob(jobinfo)
       let self.tempfile_name = g:maker2_tempfile
     endfunction
 
@@ -603,17 +608,19 @@ Execute (Expands % in cwd according to actual file):
   AssertEqual map(getloclist(0), 'v:val.text'), [tmpdir]
   bwipe!
 
-Execute (Expands % in args according to actual file (list)):
+Execute (Expands % in args according to actual file, and replaces %t with tempfile (list)):
   let tmpdir = tempname()
   call mkdir(tmpdir, 'p', 0550)
   new
   exe 'file '.tmpdir.'/file'
   let b:neomake_tempfile_enabled = 1
   norm! iline1
-  let maker = {'exe': 'printf', 'args': ['%s', '%:h'], 'uses_filename': 1, 'append_file': 0}
+  let maker = {'exe': 'printf', 'args': ['%s\n', '%:h', '%t'], 'uses_filename': 1, 'append_file': 0}
   CallNeomake 1, [maker]
   AssertNeomakeMessage 'Using temporary directory for non-writable parent directory.', 3
-  AssertEqual map(getloclist(0), 'v:val.text'), [tmpdir]
+  AssertNeomakeMessage '\v^Using tempfile for modified buffer: "(.*)"', 3
+  let tempfile_name = g:neomake_test_matchlist[1]
+  AssertEqual map(getloclist(0), 'v:val.text'), [tmpdir, tempfile_name]
   bwipe!
 
 Execute (Does not expand % in args as string):
@@ -638,8 +645,23 @@ Execute (Warns when removal of tempfiles fails):
     let tempfile_name = g:neomake_test_matchlist[1]
     call delete(tempfile_name)
     NeomakeTestsWaitForFinishedJobs
-    AssertNeomakeMessage printf('Failed to remove temporary file: "%s".', tempfile_name), 1
+    AssertNeomakeMessage printf('Failed to remove temporary file: "%s" (-1).', tempfile_name), 1
     bwipe
   else
     NeomakeTestsSkip 'no async support.'
   endif
+
+Execute (Filemode maker with tempfile_enabled=0 gets not run on modified buffer):
+  call g:NeomakeSetupAutocmdWrappers()
+
+  new
+  file fname
+  set modified
+  let maker1 = {'name': 'maker1', 'exe': 'true', 'tempfile_enabled': 0}
+  let maker2 = {'name': 'maker2', 'exe': 'true'}
+  CallNeomake 1, [maker1, maker2]
+  AssertEqual len(g:neomake_test_finished), 1
+  AssertEqual len(g:neomake_test_jobfinished), 1
+
+  AssertNeomakeMessage 'Skipping job: buffer is modified, but temporary files are disabled.', 3
+  bwipe!

@@ -222,6 +222,27 @@ Execute (neomake#utils#GetSetting does not create a partial for dict funcs):
   AssertEqual type(Func), type(function('tr'))
   AssertEqual Func, get(maker, 'func')
 
+Execute (neomake#utils#GetSetting (old-style) can ignore buffer):
+  new
+  let bufnr = bufnr('%')
+  noautocmd set filetype=neomake_tests
+  let b:neomake_foo = 42
+  let b:neomake_neomake_tests_foo = 43
+
+  AssertEqual neomake#utils#GetSetting('foo', {}, 'default', '', bufnr), 42
+  AssertEqual neomake#utils#GetSetting('foo', {}, 'default', &ft, bufnr), 43
+
+  " 0 is the alternate buffer for the current window.
+  new
+  AssertEqual neomake#utils#GetSetting('foo', {}, 'default', '', 0), 42
+  AssertEqual neomake#utils#GetSetting('foo', {}, 'default', 'neomake_tests', 0), 43
+
+  " Empty string ignores the buffer.
+  AssertEqual neomake#utils#GetSetting('foo', {}, 'default', '', ''), 'default'
+  AssertEqual neomake#utils#GetSetting('foo', {}, 'default', 'neomake_tests', ''), 'default'
+  bwipe
+  bwipe
+
 Execute(neomake#utils#redir):
   command! NeomakeTestCommand echo 1 | echo 2
   command! NeomakeTestErrorCommand echoerr 'error'
@@ -269,6 +290,7 @@ Execute (neomake#utils#ExpandArgs):
   \ '%z',
   \ '\%',
   \ '%%',
+  \ '%%NEOMAKE_FILE%%',
   \ '%:r.o',
   \ '%:r%',
   \ '%:r% %',
@@ -290,12 +312,13 @@ Execute (neomake#utils#ExpandArgs):
   \ 'file1.ext',
   \ '.',
   \ 'file1',
-  \ 'file1',
+  \ 'file1t',
   \ '--foo=.',
   \ '%s',
   \ '%z',
   \ '\%',
   \ '%',
+  \ '%NEOMAKE_FILE%',
   \ 'file1.o',
   \ 'file1file1.ext',
   \ 'file1file1.ext file1.ext',
@@ -314,8 +337,34 @@ Execute (neomake#utils#ExpandArgs):
   \ 'file1.ext:,',
   \ ]
 
-  AssertEqual expected_args, neomake#utils#ExpandArgs(args)
+  let jobinfo = {'bufnr': bufnr('%')}
+  AssertEqual expected_args, neomake#utils#ExpandArgs(args, jobinfo)
   AssertEqual isk, &iskeyword
+  bwipe
+
+Execute (neomake#utils#ExpandArgs: :S):
+  if !has('patch-7.4.191')
+    NeomakeTestsSkip 'Only with 7.4.191+'
+  else
+    new
+    file file1.ext
+    let jobinfo = {'bufnr': bufnr('%')}
+    AssertEqual neomake#utils#ExpandArgs(['%:S'], jobinfo), ["'file1.ext'"]
+    bwipe
+  endif
+
+Execute (neomake#utils#ExpandArgs: %t for temporary file):
+  new
+  let jobinfo = {'bufnr': bufnr('%')}
+  AssertEqual neomake#utils#ExpandArgs(['%t'], jobinfo), ['']
+
+  file fname.ext
+  AssertEqual neomake#utils#ExpandArgs(['%t'], jobinfo), [fnamemodify('fname.ext', ':p')]
+
+  let jobinfo.tempfile = '/some/temp.file'
+  AssertEqual neomake#utils#ExpandArgs(['%t'], jobinfo), ['/some/temp.file']
+  " Does not get fnamemodified.
+  AssertEqual neomake#utils#ExpandArgs(['%t:h'], jobinfo), ['/some/temp.file:h']
   bwipe
 
 Execute (neomake#utils#diff_dict):
@@ -607,6 +656,9 @@ Execute (neomake#utils#fnamemodify handles fugitive buffer):
   AssertEqual neomake#utils#fnamemodify(bufnr('%'), ':p:h'), fnamemodify(bufname, ':p:h')
   bwipe
   bwipe autoload/neomake/debug.vim
+  if exists('*VimFtpluginUndo')
+    delfunction VimFtpluginUndo
+  endif
 
 Execute (neomake#utils#fnamemodify handles empty bufname):
   new
@@ -833,3 +885,25 @@ Execute (neomake#utils#get_buf_line_count: unloaded buffer):
   bp
   bwipe
   exe unlisted_bufnr.'bwipe'
+
+Execute (neomake#utils#temp_cd):
+  let cwd = getcwd()
+  try
+    AssertEqual neomake#utils#temp_cd('.'), ['', '']
+    AssertEqual neomake#utils#temp_cd(cwd), ['', '']
+
+    " If cur_wd gets passed in the caller is responsible if cd'ing should not get done.
+    AssertEqual neomake#utils#temp_cd(cwd, cwd), ['', 'cd '.fnameescape(cwd)]
+
+    let tempdir = tempname()
+    AssertEqual neomake#utils#temp_cd(cwd, tempdir), ['', 'cd '.fnameescape(tempdir)]
+    let [cd_error, cd_back_cmd] = neomake#utils#temp_cd(tempdir, cwd)
+    Assert !empty(cd_error)
+    AssertEqual cd_back_cmd, ''
+
+    call mkdir(tempdir)
+    AssertEqual neomake#utils#temp_cd(cwd, tempdir), ['', 'cd '.fnameescape(tempdir)]
+    AssertEqual neomake#utils#temp_cd(tempdir, cwd), ['', 'cd '.fnameescape(cwd)]
+  finally
+    exe 'cd '.fnameescape(cwd)
+  endtry

@@ -95,7 +95,7 @@ function! s:neomake_do_automake(context) abort
         let timer = timer_start(a:context.delay, function('s:automake_delayed_cb'))
         let s:timer_info[timer] = a:context
         if !has_key(a:context, 'pos')
-            let s:timer_info[timer].pos = [getpos('.'), neomake#compat#get_mode()]
+            let s:timer_info[timer].pos = s:get_position_context()
         endif
         let s:timer_by_bufnr[bufnr] = timer
         call s:debug_log(printf('started timer (%dms): %d', a:context.delay, timer),
@@ -125,6 +125,11 @@ function! s:neomake_do_automake(context) abort
         call setbufvar(bufnr, 'neomake_automake_make_ids',
               \ neomake#compat#getbufvar(bufnr, 'neomake_automake_make_ids', []) + make_ids)
     endif
+endfunction
+
+function! s:get_position_context() abort
+    let w = exists('*win_getid') ? win_getid() : winnr()
+    return [w, getpos('.'), neomake#compat#get_mode()]
 endfunction
 
 function! s:automake_delayed_cb(timer) abort
@@ -159,11 +164,12 @@ function! s:automake_delayed_cb(timer) abort
         if has_key(timer_info, 'pos')
             unlet timer_info.pos
         endif
-        let b:_neomake_postponed_automake_context = timer_info
+        let b:_neomake_postponed_automake_context = [0, timer_info]
 
         augroup neomake_automake_retry
           au! * <buffer>
-          autocmd CompleteDone <buffer> call s:do_postponed_automake()
+          autocmd CompleteDone <buffer> call s:do_postponed_automake(1)
+          autocmd InsertLeave <buffer> call s:do_postponed_automake(2)
         augroup END
         return
     endif
@@ -173,16 +179,10 @@ function! s:automake_delayed_cb(timer) abort
     "       BufWritePost/BufWinEnter?!
     " if timer_info.event !=# 'BufWritePost'
     if !empty(timer_info.pos)
-        let mode = neomake#compat#get_mode()
-        let current_context = [getpos('.'), mode]
+        let current_context = s:get_position_context()
         if current_context != timer_info.pos
             call s:debug_log(printf('context/position changed: %s => %s',
                         \ string(timer_info.pos), string(current_context)))
-            " Restart timer.
-            if !empty(timer_info.pos)
-                let timer_info.pos = [getpos('.'), mode]
-            endif
-            call s:neomake_do_automake(timer_info)
             return
         endif
     endif
@@ -193,15 +193,29 @@ function! s:automake_delayed_cb(timer) abort
     call s:neomake_do_automake(context)
 endfunction
 
-function! s:do_postponed_automake() abort
+function! s:do_postponed_automake(step) abort
     if exists('b:_neomake_postponed_automake_context')
-        call s:debug_log('re-starting postponed automake')
         let context = b:_neomake_postponed_automake_context
-        unlet b:_neomake_postponed_automake_context
-        call s:neomake_do_automake(context)
+
+        if context[0] == a:step - 1
+            if a:step == 2
+                call s:debug_log('re-starting postponed automake')
+                let context[1].pos = s:get_position_context()
+                call s:neomake_do_automake(context[1])
+            else
+                let context[0] = a:step
+                return
+            endif
+        else
+            call s:debug_log('postponed automake: unexpected step '.a:step.', cleaning up')
+        endif
+
+        " Cleanup.
         augroup neomake_automake_retry
           autocmd! CompleteDone <buffer>
+          autocmd! InsertLeave <buffer>
         augroup END
+        unlet b:_neomake_postponed_automake_context
     endif
 endfunction
 
@@ -438,7 +452,7 @@ function! s:neomake_automake(event, bufnr) abort
         return
     endif
 
-    if a:event ==# 'TextChanged' && has('patch-8.0.1494') && !has('patch-8.0.1633')
+    if a:event ==# 'TextChanged' && !has('nvim-0.3.2') && has('patch-8.0.1494') && !has('patch-8.0.1633')
       " TextChanged gets triggered in this case when loading a buffer (Vim
       " issue #2742).
       if !getbufvar(bufnr, '_neomake_seen_TextChanged', 0)

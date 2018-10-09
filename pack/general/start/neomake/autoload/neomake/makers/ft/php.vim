@@ -20,7 +20,7 @@ function! neomake#makers#ft#php#php() abort
 endfunction
 
 function! neomake#makers#ft#php#phpcs() abort
-    let l:args = ['--report=csv']
+    let l:args = ['--report=csv', '-q']
 
     "Add standard argument if one is set.
     if exists('g:neomake_php_phpcs_args_standard')
@@ -37,7 +37,8 @@ endfunction
 
 function! neomake#makers#ft#php#phpmd() abort
     return {
-        \ 'args': ['%:p', 'text', 'codesize,design,unusedcode,naming'],
+        \ 'args': ['%t', 'text', 'codesize,design,unusedcode,naming'],
+        \ 'append_file': 0,
         \ 'errorformat': '%W%f:%l%\s%\s%#%m'
         \ }
 endfunction
@@ -57,5 +58,15 @@ function! neomake#makers#ft#php#phpstan() abort
     if !empty(phpStanConfigFilePath)
         call extend(maker.args, ['-c', phpStanConfigFilePath])
     endif
+    return maker
+endfunction
+
+function! neomake#makers#ft#php#psalm() abort
+    let maker = {
+        \ 'args': [
+            \ '--output-format=pylint'
+        \ ],
+        \ 'errorformat': '%E%f:%l:%m',
+        \ }
     return maker
 endfunction
