@@ -1,0 +1,16 @@
+g:traces_enabled	traces.txt	/*g:traces_enabled*
+g:traces_preserve_view_state	traces.txt	/*g:traces_preserve_view_state*
+g:traces_skip_modifiers	traces.txt	/*g:traces_skip_modifiers*
+g:traces_substitute_preview	traces.txt	/*g:traces_substitute_preview*
+hl-TracesSearch	traces.txt	/*hl-TracesSearch*
+traces-bugs	traces.txt	/*traces-bugs*
+traces-changelog	traces.txt	/*traces-changelog*
+traces-changelog-0.0.0	traces.txt	/*traces-changelog-0.0.0*
+traces-changelog-0.1.0	traces.txt	/*traces-changelog-0.1.0*
+traces-changelog-1.0.0	traces.txt	/*traces-changelog-1.0.0*
+traces-contents	traces.txt	/*traces-contents*
+traces-highlights	traces.txt	/*traces-highlights*
+traces-introduction	traces.txt	/*traces-introduction*
+traces-requirements	traces.txt	/*traces-requirements*
+traces-settings	traces.txt	/*traces-settings*
+traces.txt	traces.txt	/*traces.txt*
