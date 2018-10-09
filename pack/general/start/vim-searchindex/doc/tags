@@ -1,0 +1,13 @@
+:SearchIndex	searchindex.txt	/*:SearchIndex*
+<Plug>SearchIndex	searchindex.txt	/*<Plug>SearchIndex*
+g/	searchindex.txt	/*g\/*
+g:searchindex_improved_star	searchindex.txt	/*g:searchindex_improved_star*
+g:searchindex_line_limit	searchindex.txt	/*g:searchindex_line_limit*
+g:searchindex_star_case	searchindex.txt	/*g:searchindex_star_case*
+searchindex	searchindex.txt	/*searchindex*
+searchindex#MatchCounts()	searchindex.txt	/*searchindex#MatchCounts()*
+searchindex-issues	searchindex.txt	/*searchindex-issues*
+searchindex-mappings	searchindex.txt	/*searchindex-mappings*
+searchindex-options	searchindex.txt	/*searchindex-options*
+searchindex-star	searchindex.txt	/*searchindex-star*
+searchindex.txt	searchindex.txt	/*searchindex.txt*
