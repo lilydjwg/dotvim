@@ -6,7 +6,7 @@
 [subrepo]
 	remote = git@github.com:cespare/vim-toml.git
 	branch = master
-	commit = 624f02475080ea26d9430b8d31d7c3199b0ec939
-	parent = 39bd6770303e2e8de9fa24d7946648c04bf6e88f
+	commit = 2069e7413d8eaab567fa320723c4af24bb437f3a
+	parent = de9481f4da79e889a6000b51cca02031f3454b20
 	method = merge
 	cmdver = 0.4.0
