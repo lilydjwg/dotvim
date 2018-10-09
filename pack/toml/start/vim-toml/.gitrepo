@@ -7,6 +7,6 @@
 	remote = git@github.com:cespare/vim-toml.git
 	branch = master
 	commit = 624f02475080ea26d9430b8d31d7c3199b0ec939
-	parent = 4644ee2d6679bd0bf920f39a4ce3e6972f5137b7
+	parent = 39bd6770303e2e8de9fa24d7946648c04bf6e88f
 	method = merge
 	cmdver = 0.4.0
