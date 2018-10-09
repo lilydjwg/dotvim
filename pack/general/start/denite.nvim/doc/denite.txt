@@ -13,6 +13,7 @@ Configuration Examples	|denite-examples|
 Interface		|denite-interface|
   Commands		  |denite-commands|
   Key mappings		  |denite-key-mappings|
+  Default key mappings	  |denite-default-key-mappings|
   Functions		  |denite-functions|
   Options		  |denite-options|
 Sources			|denite-sources|
@@ -716,7 +717,7 @@ are on the neovim-prompt's builtin actions/mappings.
 		Yank a text into a default register (|v:register|).
 		Note: this is a neovim-prompt's builtin action.
 
-						*denite_default_key_mappings*
+						*denite-default-key-mappings*
 Following keymappings are the default keymappings.
 
 Note: when user hit <C-c>, denite stop any operations and close its window.
@@ -1397,6 +1398,7 @@ command_history	Gather command histories and run it.
 directory_rec	Gather directories recursive and nominates all directory names
 		under the search directory (argument 0) or the current directory
 		(if argument is omitted) as candidates.
+		Note: Windows environment is not supported.
 
 		Source args:
 			0. the search directory
@@ -2191,8 +2193,9 @@ https://github.com/Shougo/neomru.vim
 
 Q: Vimfiler will support denite?
 
-A: Denite file explorer interface should be implemented by another de-***
-plugin.  It is not vimfiler work.
+A: Denite file explorer interface should be implemented by defx.nvim plugin.
+It is not vimfiler work.
+https://github.com/Shougo/defx.nvim
 
 Q: ":UniteNext"/":UnitePrevious" like commands are available?
 
@@ -2298,6 +2301,11 @@ A:
 	call denite#custom#source(
 	\ 'buffer', 'matchers', ['matcher/fuzzy', 'matcher/project_files'])
 <
+Q: Where is bookmark source?
+
+A: You can use denite-dirmark instead.
+https://github.com/kmnk/denite-dirmark
+
 ==============================================================================
 COMPATIBILITY						*denite-compatibility*
 
