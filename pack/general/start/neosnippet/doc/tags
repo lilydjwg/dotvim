@@ -21,6 +21,7 @@ i_<Plug>(neosnippet_jump_or_expand)	neosnippet.txt	/*i_<Plug>(neosnippet_jump_or
 i_<Plug>(neosnippet_start_unite_snippet)	neosnippet.txt	/*i_<Plug>(neosnippet_start_unite_snippet)*
 neosnippet	neosnippet.txt	/*neosnippet*
 neosnippet#anonymous()	neosnippet.txt	/*neosnippet#anonymous()*
+neosnippet#complete_done()	neosnippet.txt	/*neosnippet#complete_done()*
 neosnippet#expand()	neosnippet.txt	/*neosnippet#expand()*
 neosnippet#expandable()	neosnippet.txt	/*neosnippet#expandable()*
 neosnippet#expandable_or_jumpable()	neosnippet.txt	/*neosnippet#expandable_or_jumpable()*
