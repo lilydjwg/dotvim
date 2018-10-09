@@ -1,116 +1,76 @@
-" highlight object - managing highlight on a buffer
+let s:Schedule = vital#highlightedyank#new().import('Schedule')
+                  \.augroup('highlightedyank-highlight')
 let s:NULLPOS = [0, 0, 0, 0]
 let s:MAXCOL = 2147483647
 let s:ON = 1
 let s:OFF = 0
 
 
-
-function! highlightedyank#highlight#new(region) abort  "{{{
-  let highlight = deepcopy(s:highlight)
-  if a:region.wise ==# 'char' || a:region.wise ==# 'v'
-    let highlight.order_list = s:highlight_order_charwise(a:region)
-  elseif a:region.wise ==# 'line' || a:region.wise ==# 'V'
-    let highlight.order_list = s:highlight_order_linewise(a:region)
-  elseif a:region.wise ==# 'block' || a:region.wise[0] ==# "\<C-v>"
-    let highlight.order_list = s:highlight_order_blockwise(a:region)
+" Return a new highlight object
+" Return a empty dictionary if the assigned region is empty
+function! highlightedyank#highlight#new(hi_group, start, end, type) abort  "{{{
+  let order_list = []
+  if a:type is# 'char' || a:type is# 'v'
+    let order_list += s:get_order_charwise(a:start, a:end)
+  elseif a:type is# 'line' || a:type is# 'V'
+    let order_list += s:get_order_linewise(a:start, a:end)
+  elseif a:type is# 'block' || a:type[0] is# "\<C-v>"
+    let blockwidth = s:get_blockwidth(a:start, a:end, a:type)
+    let order_list += s:get_order_blockwise(a:start, a:end, blockwidth)
   endif
+  if empty(order_list)
+    return {}
+  endif
+
+  let highlight = deepcopy(s:highlight)
+  let highlight.group = a:hi_group
+  let highlight.order_list = order_list
+  let highlight.quenchtask = s:Schedule.Task()
+  let highlight.switchtask = s:Schedule.Task()
   return highlight
 endfunction "}}}
 
 
-" Highlight class {{{
-let s:highlight = {
-  \   'status': s:OFF,
-  \   'group': '',
-  \   'id': [],
-  \   'order_list': [],
-  \   'bufnr': 0,
-  \   'winid': 0,
-  \ }
-
-
-function! s:highlight.show(...) dict abort "{{{
-  if empty(self.order_list)
-    return 0
-  endif
-
-  if a:0 < 1
-    if empty(self.group)
-      return 0
-    else
-      let hi_group = self.group
-    endif
-  else
-    let hi_group = a:1
-  endif
-
-  if self.status is s:ON
-    if hi_group ==# self.group
-      return 0
-    else
-      call self.quench()
-    endif
-  endif
-
-  for order in self.order_list
-    let self.id += [matchaddpos(hi_group, order)]
-  endfor
-  call filter(self.id, 'v:val > 0')
-  let self.status = s:ON
-  let self.group = hi_group
-  let self.bufnr = bufnr('%')
-  let self.winid = win_getid()
-  return 1
-endfunction "}}}
-
-
-function! s:highlight.quench() dict abort "{{{
-  if self.status is s:OFF
-    return 0
-  endif
-  call map(self.id, 'matchdelete(v:val)')
-  call filter(self.id, 'v:val > 0')
-  return 1
-endfunction "}}}
-
-
-function! s:highlight.switch() abort "{{{
-  if win_getid() != self.winid
+" Add a highlight on the current buffer
+function! highlightedyank#highlight#add(hi_group, start, end, type, duration) abort "{{{
+  let new_highlight = highlightedyank#highlight#new(a:hi_group, a:start,
+                                                  \ a:end, a:type)
+  if empty(new_highlight)
     return
   endif
 
-  if bufnr('%') == self.bufnr
-    call self.show()
-  else
-    call self.quench()
+  call s:current_highlight.delete()
+  call new_highlight.add(a:duration)
+  if new_highlight.status is s:OFF
+    return
   endif
+  let s:current_highlight = new_highlight
 endfunction "}}}
 
 
-function! s:highlight.empty() abort "{{{
-  return empty(self.order_list)
+" Delete the current highlight
+function! highlightedyank#highlight#delete() abort "{{{
+  call s:current_highlight.delete()
 endfunction "}}}
-"}}}
 
 
-function! s:highlight_order_charwise(region) abort  "{{{
-  if a:region.head == s:NULLPOS || a:region.tail == s:NULLPOS || s:is_ahead(a:region.head, a:region.tail)
+function! s:get_order_charwise(start, end) abort  "{{{
+  if a:start == s:NULLPOS || a:end == s:NULLPOS || s:is_ahead(a:start, a:end)
     return []
   endif
-  if a:region.head[1] == a:region.tail[1]
-    let order = [a:region.head[1:2] + [a:region.tail[2] - a:region.head[2] + 1]]
+  if a:start[1] == a:end[1]
+    let order = [a:start[1:2] + [a:end[2] - a:start[2] + 1]]
     return [order]
   endif
 
   let order = []
   let order_list = []
   let n = 0
-  for lnum in range(a:region.head[1], a:region.tail[1])
-    if lnum == a:region.head[1]
-      let order += [a:region.head[1:2] + [col([a:region.head[1], '$']) - a:region.head[2] + 1]]
-    elseif lnum == a:region.tail[1]
-      let order += [[a:region.tail[1], 1] + [a:region.tail[2]]]
+  for lnum in range(a:start[1], a:end[1])
+    if lnum == a:start[1]
+      let order += [a:start[1:2] + [col([a:start[1], '$']) - a:start[2] + 1]]
+    elseif lnum == a:end[1]
+      let order += [[a:end[1], 1] + [a:end[2]]]
     else
       let order += [[lnum]]
     endif
@@ -130,15 +90,15 @@ function! s:highlight_order_charwise(region) abort  "{{{
 endfunction "}}}
 
 
-function! s:highlight_order_linewise(region) abort  "{{{
-  if a:region.head == s:NULLPOS || a:region.tail == s:NULLPOS || a:region.head[1] > a:region.tail[1]
+function! s:get_order_linewise(start, end) abort  "{{{
+  if a:start == s:NULLPOS || a:end == s:NULLPOS || a:start[1] > a:end[1]
     return []
   endif
 
   let order = []
   let order_list = []
   let n = 0
-  for lnum in range(a:region.head[1], a:region.tail[1])
+  for lnum in range(a:start[1], a:end[1])
     let order += [lnum]
     if n == 7
       let order_list += [order]
@@ -155,22 +115,22 @@ function! s:highlight_order_linewise(region) abort  "{{{
 endfunction "}}}
 
 
-function! s:highlight_order_blockwise(region) abort "{{{
-  if a:region.head == s:NULLPOS || a:region.tail == s:NULLPOS || s:is_ahead(a:region.head, a:region.tail)
+function! s:get_order_blockwise(start, end, blockwidth) abort "{{{
+  if a:start == s:NULLPOS || a:end == s:NULLPOS || s:is_ahead(a:start, a:end)
     return []
   endif
 
   let view = winsaveview()
-  let vcol_head = virtcol(a:region.head[1:2])
-  if a:region.blockwidth == s:MAXCOL
-    let vcol_tail = a:region.blockwidth
+  let vcol_head = virtcol(a:start[1:2])
+  if a:blockwidth == s:MAXCOL
+    let vcol_tail = a:blockwidth
   else
-    let vcol_tail = vcol_head + a:region.blockwidth - 1
+    let vcol_tail = vcol_head + a:blockwidth - 1
   endif
   let order = []
   let order_list = []
   let n = 0
-  for lnum in range(a:region.head[1], a:region.tail[1])
+  for lnum in range(a:start[1], a:end[1])
     call cursor(lnum, 1)
     execute printf('normal! %s|', vcol_head)
     let head = getpos('.')
@@ -196,9 +156,154 @@ function! s:highlight_order_blockwise(region) abort "{{{
 endfunction "}}}
 
 
+function! s:get_blockwidth(start, end, type) abort "{{{
+  if a:type[0] is# "\<C-v>" && a:type[1:] =~# '\d\+'
+    return str2nr(a:type[1:])
+  endif
+  return virtcol(a:end[1:2]) - virtcol(a:start[1:2]) + 1
+endfunction "}}}
+
+
 function! s:is_ahead(pos1, pos2) abort  "{{{
   return a:pos1[1] > a:pos2[1] || (a:pos1[1] == a:pos2[1] && a:pos1[2] > a:pos2[2])
 endfunction "}}}
+
+
+" Highlight object {{{
+let s:highlight = {
+  \   'status': s:OFF,
+  \   'group': '',
+  \   'id': [],
+  \   'order_list': [],
+  \   'bufnr': 0,
+  \   'winid': 0,
+  \   'quenchtask': {},
+  \   'switchtask': {},
+  \ }
+
+
+" Start to show the highlight
+function! s:highlight.add(...) dict abort "{{{
+  let duration = get(a:000, 0, -1)
+  if duration == 0
+    return
+  end
+  if empty(self.order_list)
+    return
+  endif
+
+  call self.delete()
+  for order in self.order_list
+    let self.id += [matchaddpos(self.group, order)]
+  endfor
+  call filter(self.id, 'v:val > 0')
+  let self.status = s:ON
+  let self.bufnr = bufnr('%')
+  let self.winid = win_getid()
+  call self.switchtask.call(self.switch, [], self)
+                     \.repeat(-1)
+                     \.waitfor(['BufEnter'])
+  let triggers = [['TextChanged', '<buffer>'], ['InsertEnter', '<buffer>'],
+               \  ['BufUnload', '<buffer>'], ['CmdwinLeave', '<buffer>'],
+               \  ['TabLeave', '*']]
+  if duration > 0
+    call add(triggers, duration)
+  endif
+  call self.quenchtask.call(self.delete, [], self)
+                     \.repeat(1)
+                     \.waitfor(triggers)
+
+  if !has('patch-8.0.1476') && has('patch-8.0.1449')
+    redraw
+  endif
+endfunction "}}}
+
+
+" Delete the highlight
+function! s:highlight.delete() dict abort "{{{
+  if self.status is s:OFF
+    return 0
+  endif
+  if s:is_in_cmdline_window() && !self.is_in_highlight_window()
+    " NOTE: cannot move out from commandline-window
+    call self._quench_by_CmdWinLeave()
+    return 0
+  endif
+
+  call self._quench_now()
+  let self.status = s:OFF
+  let self.bufnr = 0
+  let self.winid = 0
+  call self.switchtask.cancel()
+  call self.quenchtask.cancel()
+  if !has('patch-8.0.1476') && has('patch-8.0.1449')
+    redraw
+  endif
+  return 1
+endfunction "}}}
+
+
+function! s:highlight.is_in_highlight_window() abort "{{{
+  return win_getid() == self.winid
+endfunction "}}}
+
+
+function! s:highlight._quench_now() abort "{{{
+  if self.is_in_highlight_window()
+    " current window
+    call map(self.id, 'matchdelete(v:val)')
+    call filter(self.id, 'v:val > 0')
+  else
+    " move to another window
+    let original_winid = win_getid()
+    let view = winsaveview()
+
+    noautocmd let reached = win_gotoid(self.winid)
+    if reached
+      " reached to the highlighted buffer
+      call map(self.id, 'matchdelete(v:val)')
+      call filter(self.id, 'v:val > 0')
+    else
+      " highlighted buffer does not exist
+      call filter(self.id, 0)
+    endif
+    noautocmd call win_gotoid(original_winid)
+    call winrestview(view)
+  endif
+endfunction "}}}
+
+
+function! s:highlight._quench_by_CmdWinLeave() abort "{{{
+  let quenchtask = s:Schedule.TaskChain()
+  call quenchtask.hook(['CmdWinLeave'])
+  call quenchtask.hook([1]).call(self.delete, [], self)
+  call quenchtask.waitfor()
+endfunction "}}}
+
+
+function! s:is_in_cmdline_window() abort "{{{
+  return getcmdwintype() isnot# ''
+endfunction "}}}
+
+
+" Toggle on/off when the displayed buffer is changed in the highlighting window
+function! s:highlight.switch() abort "{{{
+  if win_getid() != self.winid
+    return
+  endif
+
+  if bufnr('%') == self.bufnr
+    call self.add()
+  else
+    call self.delete()
+  endif
+endfunction "}}}
+"}}}
+
+
+let s:current_highlight = highlightedyank#highlight#new('None', [0, 1, 1, 0],
+                                                      \ [0, 1, 1, 0], 'V')
+
 
 " vim:set foldmethod=marker:
 " vim:set commentstring="%s:

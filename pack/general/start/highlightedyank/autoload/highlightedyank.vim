@@ -1,13 +1,8 @@
 " highlighted-yank: Make the yanked region apparent!
 " FIXME: Highlight region is incorrect when an input ^V[count]l ranges
 "        multiple lines.
-let s:Schedule = vital#highlightedyank#new().import('Schedule')
-                  \.augroup('highlightedyank-highlight')
 let s:NULLPOS = [0, 0, 0, 0]
-let s:NULLREGION = {
-  \ 'wise': '', 'blockwidth': 0,
-  \ 'head': copy(s:NULLPOS), 'tail': copy(s:NULLPOS),
-  \ }
+let s:NULLREGION = [s:NULLPOS, s:NULLPOS, '']
 let s:MAXCOL = 2147483647
 let s:ON = 1
 let s:OFF = 0
@@ -17,6 +12,7 @@ let s:HIGROUP = 'HighlightedyankRegion'
 
 let s:timer = -1
 
+" Highlight the yanked region
 function! highlightedyank#debounce() abort "{{{
   if s:state is s:OFF
     return
@@ -30,11 +26,10 @@ function! highlightedyank#debounce() abort "{{{
     call timer_stop(s:timer)
   endif
 
-  " NOTE: The timer callback would not be called while vim is busy, thus the
-  "       highlight procedure starts after the control has been returned to
-  "       user.
+  " NOTE: The timer callback is not called while vim is busy, thus the
+  "       highlight procedure starts after the control is returned to the user.
   "       This makes complex-repeat faster because the highlight doesn't
-  "       performed in a macro execution.
+  "       performed during a macro execution.
   let s:timer = timer_start(1, {-> s:highlight(operator, regtype, regcontents, marks)})
 endfunction "}}}
 
@@ -62,197 +57,131 @@ endfunction "}}}
 
 function! s:highlight(operator, regtype, regcontents, marks) abort "{{{
   let s:timer = -1
+  if a:operator isnot# 'y' || a:regtype is# ''
+    return
+  endif
   if a:marks !=#  [line("'["), line("']"), col("'["), col("']")]
     return
   endif
-  if a:operator !=# 'y' || a:regtype ==# ''
+
+  let [start, end, type] = s:get_region(a:regtype, a:regcontents)
+  if empty(type)
     return
   endif
 
-  let view = winsaveview()
-  let region = s:derive_region(a:regtype, a:regcontents)
   let maxlinenumber = s:get('max_lines', 10000)
-  if region.tail[1] - region.head[1] + 1 <= maxlinenumber
-    let hi_duration = s:get('highlight_duration', 1000)
-    if hi_duration != 0
-      call s:glow(region, s:HIGROUP, hi_duration)
-    endif
+  if end[1] - start[1] + 1 > maxlinenumber
+    return
   endif
-  call winrestview(view)
+
+  let hi_duration = s:get('highlight_duration', 1000)
+  if hi_duration == 0
+    return
+  endif
+
+  call highlightedyank#highlight#add(s:HIGROUP, start, end, type, hi_duration)
 endfunction "}}}
 
 
-function! s:derive_region(regtype, regcontents) abort "{{{
-  if a:regtype ==# 'v'
-    let region = s:derive_region_char(a:regcontents)
-  elseif a:regtype ==# 'V'
-    let region = s:derive_region_line(a:regcontents)
-  elseif a:regtype[0] ==# "\<C-v>"
+function! s:get_region(regtype, regcontents) abort "{{{
+  if a:regtype is# 'v'
+    return s:get_region_char(a:regcontents)
+  elseif a:regtype is# 'V'
+    return s:get_region_line(a:regcontents)
+  elseif a:regtype[0] is# "\<C-v>"
     " NOTE: the width from v:event.regtype is not correct if 'clipboard' is
     "       unnamed or unnamedplus in windows
     " let width = str2nr(a:regtype[1:])
-    let region = s:derive_region_block(a:regcontents)
-  else
-    let region = deepcopy(s:NULLREGION)
+    return s:get_region_block(a:regcontents)
   endif
-  return region
+  return s:NULLREGION
 endfunction "}}}
 
 
-function! s:derive_region_char(regcontents) abort "{{{
+function! s:get_region_char(regcontents) abort "{{{
   let len = len(a:regcontents)
-  let region = {}
-  let region.wise = 'char'
-  let region.head = getpos("'[")
-  let region.tail = copy(region.head)
+  let start = getpos("'[")
+  let end = copy(start)
   if len == 0
-    let region = deepcopy(s:NULLREGION)
+    return s:NULLREGION
   elseif len == 1
-    let region.tail[2] += strlen(a:regcontents[0]) - 1
+    let end[2] += strlen(a:regcontents[0]) - 1
   elseif len == 2 && empty(a:regcontents[1])
-    let region.tail[2] += strlen(a:regcontents[0])
+    let end[2] += strlen(a:regcontents[0])
   else
     if empty(a:regcontents[-1])
-      let region.tail[1] += len - 2
-      let region.tail[2] = strlen(a:regcontents[-2])
+      let end[1] += len - 2
+      let end[2] = strlen(a:regcontents[-2])
     else
-      let region.tail[1] += len - 1
-      let region.tail[2] = strlen(a:regcontents[-1])
+      let end[1] += len - 1
+      let end[2] = strlen(a:regcontents[-1])
     endif
   endif
-  return s:modify_region(region)
+  let end = s:modify_end(end)
+  return [start, end, 'v']
 endfunction "}}}
 
 
-function! s:derive_region_line(regcontents) abort "{{{
-  let region = {}
-  let region.wise = 'line'
-  let region.head = getpos("'[")
-  let region.tail = getpos("']")
-  if region.tail[2] == s:MAXCOL
-    let region.tail[2] = col([region.tail[1], '$'])
+function! s:get_region_line(regcontents) abort "{{{
+  let start = getpos("'[")
+  let end = getpos("']")
+  if end[2] == s:MAXCOL
+    let end[2] = col([end[1], '$'])
   endif
-  return region
+  return [start, end, 'V']
 endfunction "}}}
 
 
-function! s:derive_region_block(regcontents) abort "{{{
+function! s:get_region_block(regcontents) abort "{{{
   let len = len(a:regcontents)
   if len == 0
-    return deepcopy(s:NULLREGION)
+    return s:NULLREGION
   endif
 
-  let curpos = getpos('.')
-  let curcol = curpos[2]
+  let view = winsaveview()
+  let curcol = col('.')
   let width = max(map(copy(a:regcontents), 'strdisplaywidth(v:val, curcol)'))
-  let region = deepcopy(s:NULLREGION)
-  let region.wise = 'block'
-  let region.head = getpos("'[")
-  call setpos('.', region.head)
+  let start = getpos("'[")
+  call setpos('.', start)
   if len > 1
     execute printf('normal! %sj', len - 1)
   endif
   execute printf('normal! %s|', virtcol('.') + width - 1)
-  let region.tail = getpos('.')
-  let region.blockwidth = width
+  let end = s:modify_end(getpos('.'))
+  call winrestview(view)
+
+  let blockwidth = width
   if strdisplaywidth(getline('.')) < width
-    let region.blockwidth = s:MAXCOL
+    let blockwidth = s:MAXCOL
   endif
-  call setpos('.', curpos)
-  return s:modify_region(region)
+  let type = "\<C-v>" . blockwidth
+  return [start, end, type]
 endfunction "}}}
 
 
-function! s:modify_region(region) abort "{{{
+function! s:modify_end(end) abort "{{{
   " for multibyte characters
-  if a:region.tail[2] != col([a:region.tail[1], '$']) && a:region.tail[3] == 0
-    let cursor = getpos('.')
-    call setpos('.', a:region.tail)
-    call search('\%(^\|.\)', 'bc')
-    let a:region.tail = getpos('.')
-    call setpos('.', cursor)
-  endif
-  return a:region
-endfunction "}}}
-
-
-let s:quenchtask = {}
-
-function! s:glow(region, hi_group, duration) abort "{{{
-  let highlight = highlightedyank#highlight#new(a:region)
-  if highlight.empty()
-    return
+  if a:end[2] == col([a:end[1], '$']) || a:end[3] != 0
+    return a:end
   endif
 
-  if !empty(s:quenchtask) && !s:quenchtask.hasdone()
-    call s:quenchtask.trigger()
+  let cursor = getpos('.')
+  call setpos('.', a:end)
+  let letterhead = searchpos('\zs', 'bcn', line('.'))
+  if letterhead[1] > a:end[2]
+    " try again without 'c' flag if letterhead is behind the original
+    " position. It may look strange but it happens with &enc ==# 'cp932'
+    let letterhead = searchpos('\zs', 'bn', line('.'))
   endif
-  if !highlight.show(a:hi_group)
-    return
-  endif
-  if !has('patch-8.0.1476') && has('patch-8.0.1449')
-    redraw
-  endif
-
-  let switchtask = s:Schedule.Task()
-  call switchtask.repeat(-1)
-  call switchtask.call(highlight.switch, [], highlight)
-  call switchtask.waitfor(['BufEnter'])
-
-  let s:quenchtask = s:Schedule.Task()
-  call s:quenchtask.call(funcref('s:quench'), [highlight])
-  call s:quenchtask.call(switchtask.cancel, [], switchtask)
-  call s:quenchtask.waitfor([a:duration,
-    \ ['TextChanged', '<buffer>'], ['InsertEnter', '<buffer>'],
-    \ ['BufUnload', '<buffer>'], ['CmdwinLeave', '<buffer>'],
-    \ ['TabLeave', '*']])
-endfunction "}}}
-
-
-function! s:quench(highlight) abort "{{{
-  if win_getid() == a:highlight.winid
-    " current window
-    call a:highlight.quench()
-  else
-    " move to another window
-    let original_winid = win_getid()
-    let view = winsaveview()
-
-    if s:is_in_cmdline_window()
-      " cannot move out from commandline-window
-      " quench later
-      let quenchtask = s:Schedule.TaskChain()
-      call quenchtask.hook(['CmdWinLeave'])
-      call quenchtask.hook([1]).call(a:highlight.quench, [], a:highlight)
-      call quenchtask.waitfor()
-    else
-      noautocmd let reached = win_gotoid(a:highlight.winid)
-      if reached
-        " reached to the highlighted buffer
-        call a:highlight.quench()
-      else
-        " highlighted buffer does not exist
-        call filter(a:highlight.id, 0)
-      endif
-      noautocmd call win_gotoid(original_winid)
-      call winrestview(view)
-    endif
-  endif
-
-  if !has('patch-8.0.1476') && has('patch-8.0.1449')
-    redraw
-  endif
+  let a:end[1:2] = letterhead
+  call setpos('.', cursor)
+  return a:end
 endfunction "}}}
 
 
 function! s:get(name, default) abort  "{{{
   let identifier = 'highlightedyank_' . a:name
   return get(b:, identifier, get(g:, identifier, a:default))
-endfunction "}}}
-
-
-function! s:is_in_cmdline_window() abort "{{{
-  return getcmdwintype() !=# ''
 endfunction "}}}
 
 " vim:set foldmethod=marker:
