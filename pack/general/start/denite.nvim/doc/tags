@@ -27,6 +27,7 @@ denite-contents	denite.txt	/*denite-contents*
 denite-create-filter	denite.txt	/*denite-create-filter*
 denite-create-kind	denite.txt	/*denite-create-kind*
 denite-create-source	denite.txt	/*denite-create-source*
+denite-default-key-mappings	denite.txt	/*denite-default-key-mappings*
 denite-examples	denite.txt	/*denite-examples*
 denite-external-sources	denite.txt	/*denite-external-sources*
 denite-faq	denite.txt	/*denite-faq*
@@ -262,4 +263,3 @@ denite-sources	denite.txt	/*denite-sources*
 denite-usage	denite.txt	/*denite-usage*
 denite.txt	denite.txt	/*denite.txt*
 denite.vim	denite.txt	/*denite.vim*
-denite_default_key_mappings	denite.txt	/*denite_default_key_mappings*
