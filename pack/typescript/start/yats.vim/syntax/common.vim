@@ -7,7 +7,7 @@ command -nargs=+ HiLink hi def link <args>
 
 "Dollar sign is permitted anywhere in an identifier
 setlocal iskeyword-=$
-if main_syntax == 'typescript' || main_syntax == 'typescriptreact'
+if main_syntax == 'typescript' || main_syntax == 'typescript.tsx'
   setlocal iskeyword+=$
   " syntax cluster htmlJavaScript                 contains=TOP
 endif
@@ -30,7 +30,9 @@ runtime syntax/basic/doc.vim
 runtime syntax/basic/type.vim
 
 " extension
-runtime syntax/yats.vim
+if get(g:, 'yats_host_keyword', 1)
+  runtime syntax/yats.vim
+endif
 
 " patch
 runtime syntax/basic/patch.vim

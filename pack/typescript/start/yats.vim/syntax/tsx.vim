@@ -1,8 +1,8 @@
 if !exists("main_syntax")
-  if exists("b:current_syntax")
+  if exists("b:current_syntax") && b:current_syntax != 'typescript'
     finish
   endif
-  let main_syntax = 'typescriptreact'
+  let main_syntax = 'typescript.tsx'
 endif
 
 syntax region tsxTag
@@ -11,7 +11,7 @@ syntax region tsxTag
       \ end=+/\@<!>+
       \ end=+\(/>\)\@=+
       \ contained
-      \ contains=tsxTagName,tsxIntrinsicTagName,tsxAttrib,tsxEscapeJs,
+      \ contains=tsxTagName,tsxIntrinsicTagName,tsxAttrib,tsxEscJs,
                 \tsxCloseString
 
 syntax match tsxTag /<>/ contained
@@ -29,7 +29,7 @@ syntax region tsxRegion
       \ end=+</\_s*\z1>+
       \ matchgroup=tsxCloseString end=+/>+
       \ fold
-      \ contains=tsxRegion,tsxCloseString,tsxCloseTag,tsxTag,tsxComment,tsxFragment,tsxEscapeJs,@Spell
+      \ contains=tsxRegion,tsxCloseString,tsxCloseTag,tsxTag,tsxComment,tsxFragment,tsxEscJs,@Spell
       \ keepend
       \ extend
 
@@ -41,7 +41,7 @@ syntax region tsxFragment
       \ skip=+<!--\_.\{-}-->+
       \ end=+</>+
       \ fold
-      \ contains=tsxRegion,tsxCloseString,tsxCloseTag,tsxTag,tsxComment,tsxFragment,tsxEscapeJs,@Spell
+      \ contains=tsxRegion,tsxCloseString,tsxCloseTag,tsxTag,tsxComment,tsxFragment,tsxEscJs,@Spell
       \ keepend
       \ extend
 
@@ -70,16 +70,20 @@ syntax match tsxEntityPunct contained "[&.;]"
 syntax match tsxTagName
     \ +[</]\_s*[^/!?<>"' ]\++hs=s+1
     \ contained
+    \ nextgroup=tsxAttrib
+    \ skipwhite
     \ display
 syntax match tsxIntrinsicTagName
     \ +[</]\_s*[a-z1-9-]\++hs=s+1
     \ contained
+    \ nextgroup=tsxAttrib
+    \ skipwhite
     \ display
 
 " <tag key={this.props.key}>
 "      ~~~
 syntax match tsxAttrib
-    \ +\(\(<\_s*\)\@<!\_s\)\@<=\<[a-zA-Z_][-0-9a-zA-Z_]*\>\(\_s\+\|\_s*[=/>]\)\@=+
+    \ +[a-zA-Z_][-0-9a-zA-Z_]*+
     \ nextgroup=tsxEqual skipwhite
     \ contained
     \ display
@@ -93,21 +97,15 @@ syntax match tsxEqual +=+ display contained
 "         s~~~~~~e
 syntax region tsxString contained start=+"+ end=+"+ contains=tsxEntity,@Spell display
 
-" <tag id='sample'>
-"         s~~~~~~e
-syntax region tsxString contained start=+'+ end=+'+ contains=tsxEntity,@Spell display
-
 " <tag key={this.props.key}>
 "          s~~~~~~~~~~~~~~e
-syntax region tsxEscapeJs
+syntax region tsxEscJs
     \ contained
-    \ contains=@typescriptExpression
+    \ contains=@typescriptValue
+    \ matchgroup=typescriptBraces
     \ start=+{+
     \ end=+}+
     \ extend
-
-
-runtime syntax/common.vim
 
 syntax cluster typescriptExpression add=tsxRegion,tsxFragment
 
@@ -119,10 +117,11 @@ highlight def link tsxNameSpace Function
 highlight def link tsxComment Error
 highlight def link tsxAttrib Type
 highlight def link tsxEscapeJs tsxEscapeJs
+highlight def link tsxEscJs tsxEscapeJs
 highlight def link tsxCloseTag htmlTag
 highlight def link tsxCloseString Identifier
 
-let b:current_syntax = "typescriptreact"
-if main_syntax == 'typescriptreact'
+let b:current_syntax = "typescript.tsx"
+if main_syntax == 'typescript.tsx'
   unlet main_syntax
 endif

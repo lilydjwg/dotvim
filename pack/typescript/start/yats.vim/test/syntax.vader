@@ -436,3 +436,31 @@ Given typescript (const enum):
   const enum Outer {}
 Execute:
   AssertEqual 'typescriptEnumKeyword', SyntaxAt(1, 7)
+
+Given typescript (comment in if):
+  if (/*rete*/123) {}
+Execute:
+  AssertEqual 'typescriptComment', SyntaxAt(1, 5)
+
+Given typescript (comment in while):
+  while (/*test*/ss) {}
+Execute:
+  AssertEqual 'typescriptComment', SyntaxAt(1, 10)
+
+Given typescript (class expression):
+  var a = class extends Object<any> implements TestInterface {}
+Execute:
+  AssertEqual 'typescriptClassKeyword', SyntaxAt(1, 9)
+  AssertEqual 'typescriptClassExtends', SyntaxAt(1, 15)
+  AssertEqual 'typescriptClassExtends', SyntaxAt(1, 35)
+
+Given typescript (export interface):
+  export default interface A {}
+Execute:
+  AssertEqual 'typescriptInterfaceKeyword', SyntaxAt(1, 16)
+
+Given typescript (interface extends with newline):
+  interface SomeRandomLongName<Parameter1, Parameter2, Parameter3>
+      extends SomeOtherInterface {}
+Execute:
+  AssertEqual 'typescriptInterfaceExtends', SyntaxAt(2, 5)

@@ -56,7 +56,7 @@ syntax keyword typescriptRepeat                do while for nextgroup=typescript
 syntax keyword typescriptRepeat                for nextgroup=typescriptLoopParen,typescriptAsyncFor skipwhite skipempty
 syntax keyword typescriptBranch                break continue containedin=typescriptBlock
 syntax keyword typescriptCase                  case nextgroup=@typescriptPrimitive skipwhite containedin=typescriptBlock
-syntax keyword typescriptDefault               default containedin=typescriptBlock nextgroup=@typescriptValue,typescriptClassKeyword skipwhite oneline
+syntax keyword typescriptDefault               default containedin=typescriptBlock nextgroup=@typescriptValue,typescriptClassKeyword,typescriptInterfaceKeyword skipwhite oneline
 syntax keyword typescriptStatementKeyword      with
 syntax keyword typescriptStatementKeyword      yield skipwhite nextgroup=@typescriptValue containedin=typescriptBlock
 syntax keyword typescriptStatementKeyword      return skipwhite contained nextgroup=@typescriptValue containedin=typescriptBlock
@@ -69,15 +69,15 @@ syntax keyword typescriptAsyncFor              await nextgroup=typescriptLoopPar
 
 syntax region  typescriptLoopParen             contained matchgroup=typescriptParens
   \ start=/(/ end=/)/
-  \ contains=typescriptVariable,typescriptForOperator,typescriptEndColons,@typescriptValue
+  \ contains=typescriptVariable,typescriptForOperator,typescriptEndColons,@typescriptValue,@typescriptComments
   \ nextgroup=typescriptBlock
   \ skipwhite skipempty
 syntax region  typescriptConditionalParen             contained matchgroup=typescriptParens
   \ start=/(/ end=/)/
-  \ contains=@typescriptValue
+  \ contains=@typescriptValue,@typescriptComments
   \ nextgroup=typescriptBlock
   \ skipwhite skipempty
-syntax match   typescriptEndColons             /[;,]/
+syntax match   typescriptEndColons             /[;,]/ contained
 
 syntax keyword typescriptAmbientDeclaration declare nextgroup=@typescriptAmbients
   \ skipwhite skipempty

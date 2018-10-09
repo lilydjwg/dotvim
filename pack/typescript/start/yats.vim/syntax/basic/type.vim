@@ -62,7 +62,7 @@ syntax region typescriptParenthesizedType matchgroup=typescriptParens
   \ nextgroup=@typescriptTypeOperator
   \ contained skipwhite skipempty
 
-syntax keyword typescriptPredefinedType any number boolean string void never undefined null object
+syntax keyword typescriptPredefinedType any number boolean string void never undefined null object unknown
   \ nextgroup=@typescriptTypeOperator
   \ contained skipwhite skipempty
 
@@ -72,7 +72,7 @@ syntax match typescriptTypeReference /\K\k*\(\.\K\k*\)*/
 
 syntax region typescriptObjectType matchgroup=typescriptBraces
   \ start=/{/ end=/}/
-  \ contains=@typescriptTypeMember,@typescriptComments,typescriptAccessibilityModifier
+  \ contains=@typescriptTypeMember,typescriptEndColons,@typescriptComments,typescriptAccessibilityModifier
   \ nextgroup=@typescriptTypeOperator
   \ contained skipwhite fold
 
