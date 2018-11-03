@@ -107,6 +107,9 @@ function! GetBlockIndent(lnum)
         " skip empty and comment lines
         if line =~ '^$\|^\s*#'
             continue
+        " skip closing part as it may be dedented (e.g. in a multiline def)
+        elseif line =~ '^\s*)'
+            continue
         " zero-level regular line
         elseif lineind == 0
             return 0
