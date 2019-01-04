@@ -433,6 +433,9 @@ set wildmode=longest:full,full
 set ambiwidth=double
 set shiftround
 set diffopt+=vertical,context:3,foldcolumn:0
+if &diffopt =~ 'internal'
+  set diffopt+=indent-heuristic,algorithm:patience
+endif
 set fileencodings=ucs-bom,utf-8,gb18030,cp936,latin1
 set fileformats=unix,dos,mac
 set formatoptions=croqn2mB1
