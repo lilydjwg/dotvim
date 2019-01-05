@@ -6,9 +6,10 @@ let g:loaded_traces_plugin = 1
 let s:cpo_save = &cpo
 set cpo-=C
 
-let g:traces_enabled = get(g:, 'traces_enabled', 1)
+let g:traces_enabled             = get(g:, 'traces_enabled', 1)
 let g:traces_preserve_view_state = get(g:, 'traces_preserve_view_state')
 let g:traces_substitute_preview  = get(g:, 'traces_substitute_preview', 1)
+let g:traces_num_range_preview   = get(g:, 'traces_num_range_preview', 0)
 let g:traces_skip_modifiers      = get(g:, 'traces_skip_modifiers', 1)
 let s:view                       = {}
 
@@ -38,7 +39,7 @@ function! s:create_cmdl_changed_au(...) abort
 endfunction
 
 function! s:t_start() abort
-  if !g:traces_enabled
+  if !g:traces_enabled || mode(1) =~# '^c.'
     return
   endif
   if exists('##CmdlineChanged')
@@ -84,7 +85,7 @@ augroup traces_augroup
   autocmd!
   autocmd CmdlineEnter,CmdwinLeave : call s:t_start()
   autocmd CmdlineLeave,CmdwinEnter : call s:t_stop()
-  autocmd CmdlineLeave : call traces#cmdl_leave()
+  autocmd CmdlineLeave : if mode(1) is 'c' | call traces#cmdl_leave() | endif
   " s:view is used to restore correct view when entering command line from
   " visual mode
   autocmd CursorMoved * let s:view = extend(winsaveview(), {'mode': mode()})

@@ -6,7 +6,7 @@
 [subrepo]
 	remote = git@github.com:markonm/traces.vim.git
 	branch = master
-	commit = baa35881bce12d611e8840dffca14b9df8a031e3
+	commit = 22c2a15651c2b77883947e5cdbfddc434da23288
 	parent = bdecd870955ced665fca3bf09b56bbed0c97bc3a
 	method = merge
 	cmdver = 0.4.0

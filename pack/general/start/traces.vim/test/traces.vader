@@ -4,6 +4,7 @@ Execute (Setup):
   let g:traces_preserve_view_state = 0
   let g:traces_substitute_preview  = 1
   let g:traces_skip_modifiers = 1
+  let g:traces_num_range_preview = 0
 
   function! Group(group) abort
     let matches = filter(getmatches(), {idx, val -> val.group == a:group})
@@ -22,6 +23,7 @@ Before:
   let g:traces_preserve_view_state = 0
   let g:traces_substitute_preview  = 1
   let g:traces_skip_modifiers = 1
+  let g:traces_num_range_preview = 0
   call clearmatches()
 
 #######################
@@ -45,12 +47,50 @@ Given (Ten lines):
 
 Execute (Range):
   1
-  call traces#init('10;5g', winsaveview())
+  call traces#init('5;10', winsaveview())
+  Assert line('.') == 1
+
+Execute (Range):
+  let g:traces_num_range_preview = 1
+  1
+  call traces#init('5;10', winsaveview())
+  Assert line('.') == 10
+
+Execute (Range):
+  let g:traces_num_range_preview = 1
+  1
+  call traces#init('5;', winsaveview())
+  Assert line('.') == 5
+
+Execute (Range):
+  let g:traces_num_range_preview = 1
+  1
+  call traces#init('5,', winsaveview())
+  Assert line('.') == 1
+
+Execute (Range):
+  1
+  call traces#init('5,', winsaveview())
+  Assert line('.') == 1
+
+Execute (Range):
+  1
+  call traces#init('5;', winsaveview())
+  Assert line('.') == 1
+
+Execute (Range):
+  1
+  call traces#init('5', winsaveview())
+  Assert line('.') == 1
+
+Execute (Range):
+  1
+  call traces#init('10;5g/', winsaveview())
   Assert line('.') == 5
 
 Execute (Range):
   1
-  call traces#init('5;10g', winsaveview())
+  call traces#init('5;10g/', winsaveview())
   Assert line('.') == 10
 
 Execute (Range):
@@ -307,7 +347,7 @@ Execute (Range):
 
 
 Execute (Range):
-  call traces#init(';+++s', {})
+  call traces#init(';+++s/', {})
   AssertEqual '\%>0l\%<5l\_.', Group('Visual')
   call traces#init('', {})
   Assert empty(getmatches())
@@ -396,6 +436,18 @@ Execute (Substitute):
 Execute (Substitute):
   let g:traces_skip_modifiers = 0
   call traces#init('silent! 0;$windo silent! 3;5s/\w\+/\r', {})
+  AssertEqual 0, Group('Visual')
+
+Execute (Substitute):
+  call traces#init('3;5s/\w\+/foobar', {})
+  AssertEqual '\%>2l\%<6l\_.', Group('Visual')
+  call traces#init('3;5s', {})
+  AssertEqual 0, Group('Visual')
+
+Execute (Substitute):
+  call traces#init('3;5s/\w\+/foobar', {})
+  AssertEqual '\%>2l\%<6l\_.', Group('Visual')
+  call traces#init('3;5sgibberish', {})
   AssertEqual 0, Group('Visual')
 
 Given (Three paragraphs):
