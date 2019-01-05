@@ -33,11 +33,9 @@ function! denite#init#_initialize() abort
     return 1
   endif
 
-  if !exists('*execute')
+  if has('nvim') && !has('nvim-0.3.0')
     call denite#util#print_error(
-          \ 'denite.nvim does not work with this version.')
-    call denite#util#print_error(
-          \ 'It requires Neovim +v0.1.5.')
+          \ 'denite.nvim requires nvim +v0.3.0.')
     return 1
   endif
 
@@ -88,8 +86,12 @@ function! denite#init#_context(user_context) abort
 endfunction
 function! s:internal_options() abort
   return {
+        \ 'bufnr': bufnr('%'),
         \ 'encoding': &encoding,
         \ 'error_messages': [],
+        \ 'firstline': 0,
+        \ 'filetype': &l:filetype,
+        \ 'lastline': 0,
         \ 'is_windows': ((has('win32') || has('win64')) ? v:true : v:false),
         \ 'messages': [],
         \ 'prev_winid': win_getid(),

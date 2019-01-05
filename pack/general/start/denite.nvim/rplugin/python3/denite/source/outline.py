@@ -4,16 +4,18 @@
 # License: MIT license
 # ============================================================================
 
-from .base import Base
 from subprocess import check_output, CalledProcessError
-from denite.util import parse_tagline
 import re
 import tempfile
 
+from denite.source.base import Base
+from denite.util import parse_tagline
+
+
 OUTLINE_HIGHLIGHT_SYNTAX = [
-    {'name': 'Name', 'link': 'Identifier', 're': '\S\+\%(\s\+\[\)\@='},
-    {'name': 'Type', 'link': 'Type',       're': '\[.\{-}\]'},
-    {'name': 'Ref',  'link': 'Comment',    're': '\s\s.\+'}
+    {'name': 'Name', 'link': 'Identifier', 're': r'\S\+\%(\s\+\[\)\@='},
+    {'name': 'Type', 'link': 'Type',       're': r'\[.\{-}\]'},
+    {'name': 'Ref',  'link': 'Comment',    're': r'\s\s.\+'}
 ]
 
 

@@ -3,7 +3,7 @@
 # AUTHOR: Shougo Matsushita <Shougo.Matsu at gmail.com>
 # License: MIT license
 # ============================================================================
-import os
+
 import re
 import weakref
 from itertools import groupby, takewhile
@@ -14,7 +14,6 @@ from denite.util import (
 from .action import DEFAULT_ACTION_KEYMAP
 from .prompt import DenitePrompt
 from .. import denite
-from copy import copy
 from ..prompt.prompt import STATUS_ACCEPT, STATUS_INTERRUPT
 
 
@@ -79,19 +78,21 @@ class Default(object):
     def _start(self, sources, context):
         self._vim.command('silent! autocmd! denite')
 
-        if re.search('\[Command Line\]$', self._vim.current.buffer.name):
+        if re.search(r'\[Command Line\]$', self._vim.current.buffer.name):
             # Ignore command line window.
             return
 
         if self._initialized and context['resume']:
             # Skip the initialization
-            if context['mode']:
-                self._current_mode = context['mode']
 
-            update = ('immediately', 'immediately_1',
-                      'cursor_wrap', 'cursor_pos', 'prev_winid')
-            for key in update:
-                self._context[key] = context[key]
+            if not self._is_suspend:
+                if context['mode']:
+                    self._current_mode = context['mode']
+
+                update = ('immediately', 'immediately_1',
+                          'cursor_wrap', 'cursor_pos', 'prev_winid')
+                for key in update:
+                    self._context[key] = context[key]
 
             if self.check_empty():
                 return
@@ -169,17 +170,14 @@ class Default(object):
             # Create new buffer
             if self._context['split'] == 'tab':
                 self._vim.command('tabnew')
+            elif self._context['split'] != 'no':
+                vertical = ('vertical'
+                            if self._context['split'] == 'vertical' else '')
+                self._vim.command('{} {} new'.format(
+                    self._get_direction(), vertical))
             self._vim.call(
                 'denite#util#execute_path',
-                'silent keepalt %s %s %s ' % (
-                    self._get_direction(),
-                    ('vertical'
-                     if self._context['split'] == 'vertical' else ''),
-                    ('edit'
-                     if self._context['split'] == 'no' or
-                     self._context['split'] == 'tab' else 'new'),
-                ),
-                '[denite]')
+                'silent keepalt edit', '[denite]')
         self.resize_buffer()
 
         self._winheight = self._vim.current.window.height
@@ -305,47 +303,13 @@ class Default(object):
             self.move_to_last_line()
 
     def update_candidates(self):
-        pattern = ''
-        statuses = []
-        self._candidates = []
-        for status, partial, patterns in (
-                self._denite.filter_candidates(self._context)):
-            self._candidates += partial
-            statuses.append(status)
-
-            if pattern == '' and patterns:
-                pattern = next(patterns, '')
-
-        if self._context['sorters']:
-            for sorter in self._context['sorters'].split(','):
-                ctx = copy(self._context)
-                ctx['candidates'] = self._candidates
-                self._candidates = self._denite._filters[sorter].filter(ctx)
-
-        if self._context['unique']:
-            unique_candidates = []
-            unique_words = set()
-            for candidate in self._candidates:
-                # Normalize file paths
-                word = candidate['word']
-                if word.startswith('~') and os.path.exists(
-                        os.path.expanduser(word)):
-                    word = os.path.expanduser(word)
-                if os.path.exists(word):
-                    word = os.path.abspath(word)
-                if word not in unique_words:
-                    unique_words.add(word)
-                    unique_candidates.append(candidate)
-            self._candidates = unique_candidates
-        if self._context['reversed']:
-            self._candidates.reverse()
+        (pattern, statuses,
+         self._candidates) = self._denite.filter_candidates(self._context)
 
         prev_matched_pattern = self._matched_pattern
         self._matched_pattern = pattern
         self._candidates_len = len(self._candidates)
 
-        if self._denite.is_async():
-            statuses.append('[async]')
         self._statusline_sources = ' '.join(statuses)
 
         prev_displayed_texts = self._displayed_texts
@@ -388,9 +352,8 @@ class Default(object):
             self._vim.command('silent! syntax clear deniteMatchedChar')
         if self._matched_pattern != '':
             self._vim.command(
-                'silent! syntax match deniteMatchedRange /\c%s/ contained' % (
-                    regex_convert_py_vim(self._matched_pattern),
-                )
+                r'silent! syntax match deniteMatchedRange /\c%s/ contained' %
+                (regex_convert_py_vim(self._matched_pattern))
             )
             self._vim.command((
                 'silent! syntax match deniteMatchedChar /[%s]/ '
@@ -595,10 +558,6 @@ class Default(object):
             # Redraw to clear prompt
             self._vim.command('redraw | echo ""')
         self._vim.command('highlight! link CursorLine CursorLine')
-        if self._vim.call('exists', '#ColorScheme'):
-            self._vim.command('silent doautocmd ColorScheme')
-            if self._vim.call('mode') == 'n':
-                self._vim.command('normal! zv')
         if self._context['cursor_shape']:
             self._vim.command('set guicursor&')
             self._vim.options['guicursor'] = self._guicursor
@@ -669,6 +628,7 @@ class Default(object):
         self.update_buffer()
 
     def init_denite(self):
+        self._prompt.history.reset()
         self._denite.start(self._context)
         self._denite.on_init(self._context)
         self._initialized = True

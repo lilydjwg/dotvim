@@ -5,7 +5,7 @@
 
 import re
 
-from .base import Base
+from denite.source.base import Base
 
 
 class Source(Base):
@@ -17,6 +17,8 @@ class Source(Base):
         self.default_action = 'yank'
 
     def define_syntax(self):
+        if not self.context['args']:
+            return
         cmd = self.context['args'][0]
         if re.fullmatch(r'hi(ghlight)?(!)?', cmd):
             self.define_syntax_for_highlight(cmd)

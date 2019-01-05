@@ -4,9 +4,10 @@
 # License: MIT license
 # ============================================================================
 
-from ..base import Base
 import glob
 import os
+
+from denite.source.base import Base
 from denite.util import abspath, expand
 
 
@@ -40,7 +41,8 @@ class Source(Base):
             for f in glob.glob(glb):
                 candidates.append({
                     'word': f,
-                    'abbr': f + ('/' if os.path.isdir(f) else ''),
+                    'abbr': os.path.relpath(
+                        f + ('/' if os.path.isdir(f) else ''), path),
                     'kind': ('directory' if os.path.isdir(f) else 'file'),
                     'action__path': abspath(self.vim, f),
                 })

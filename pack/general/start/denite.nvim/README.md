@@ -49,17 +49,17 @@ not fixed anymore
 
 ## Requirements
 
-Denite requires Neovim or Vim8.0+ with `if_python3`.
+Denite requires Neovim 0.3.0+ or Vim 8.0+ with `if_python3`.
 If `:echo has("python3")` returns `1`, then you're done; otherwise, see below.
 
 You can enable Python3 interface with `pip`:
 
-    pip3 install neovim
+    pip3 install --user pynvim
 
 If you want to read the Neovim-python/python3 interface install documentation,
 you should read `:help provider-python`.
 
-Note: You need to install Python3.5+ or `pip3 install typing`.
+Note: You need to install Python3.5+.
 
 ### For Windows users
 

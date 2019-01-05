@@ -1,11 +1,8 @@
 # ============================================================================
-# FILE: matcher/hide_hidden_files.py
+# FILE: matcher/ignore_current_buffer.py
 # AUTHOR: Shougo Matsushita <Shougo.Matsu at gmail.com>
 # License: MIT license
 # ============================================================================
-
-from os.path import basename
-from re import match
 
 from denite.filter.base import Base
 
@@ -15,12 +12,12 @@ class Filter(Base):
     def __init__(self, vim):
         super().__init__(vim)
 
-        self.name = 'matcher/hide_hidden_files'
-        self.description = 'hide the hidden files'
+        self.name = 'matcher/ignore_current_buffer'
+        self.description = 'ignore the current buffer path'
 
     def filter(self, context):
-        if '.' in context['input']:
-            return context['candidates']
-
+        current_buffer = self.vim.call(
+            'fnamemodify', self.vim.buffers[int(context['bufnr'])].name, ':p')
         return [x for x in context['candidates']
-                if not match(r'\.', basename(x['action__path']))]
+                if 'action__path' not in x or
+                x['action__path'] != current_buffer]

@@ -1,6 +1,6 @@
 *denite.txt*	Dark powered asynchronous unite all interfaces for NeoVim/Vim.
 
-Version: 1.0
+Version: 1.1
 Author:  Shougo <Shougo.Matsu at gmail.com>
 License: MIT license
 
@@ -85,10 +85,9 @@ USAGE							*denite-usage*
 ==============================================================================
 INSTALL							*denite-install*
 
-Note: denite requires Neovim(the latest is recommended) or Vim8.0+ with
-|:python3| enabled.
+Note: denite requires Neovim 0.3.0+ or Vim 8.0+ with |:python3| enabled.
 
-Note: You need to install Python3.5+ or `pip3 install typing`.
+Note: You need to install Python3.5+.
 
 For neovim install:
 
@@ -100,7 +99,7 @@ If ":echo has('python3')" returns `1`, then you're done; otherwise, see below.
 
 You can enable Python3 interface with pip: >
 
-    sudo pip3 install neovim
+    pip3 install --user pynvim
 
 If you want to read for Neovim-python/python3 interface install documentation,
 you should read |nvim-python| and the Wiki.
@@ -173,6 +172,7 @@ EXAMPLES						*denite-examples*
 	let s:menus.my_commands.command_candidates = [
 		\ ['Split the window', 'vnew'],
 		\ ['Open zsh menu', 'Denite menu:zsh'],
+		\ ['Format code', 'FormatCode', 'go,python'],
 		\ ]
 
 	call denite#custom#var('menu', 'menus', s:menus)
@@ -189,7 +189,7 @@ EXAMPLES						*denite-examples*
 	" Ack command on grep source
 	call denite#custom#var('grep', 'command', ['ack'])
 	call denite#custom#var('grep', 'default_opts',
-			\ ['--ackrc', $HOME.'/.ackrc', '-H',
+			\ ['--ackrc', $HOME.'/.ackrc', '-H', '-i',
 			\  '--nopager', '--nocolor', '--nogroup', '--column'])
 	call denite#custom#var('grep', 'recursive_opts', [])
 	call denite#custom#var('grep', 'pattern_opt', ['--match'])
@@ -199,7 +199,7 @@ EXAMPLES						*denite-examples*
 	" Ripgrep command on grep source
 	call denite#custom#var('grep', 'command', ['rg'])
 	call denite#custom#var('grep', 'default_opts',
-			\ ['--vimgrep', '--no-heading'])
+			\ ['-i', '--vimgrep', '--no-heading'])
 	call denite#custom#var('grep', 'recursive_opts', [])
 	call denite#custom#var('grep', 'pattern_opt', ['--regexp'])
 	call denite#custom#var('grep', 'separator', ['--'])
@@ -208,7 +208,7 @@ EXAMPLES						*denite-examples*
 	" Pt command on grep source
 	call denite#custom#var('grep', 'command', ['pt'])
 	call denite#custom#var('grep', 'default_opts',
-			\ ['--nogroup', '--nocolor', '--smart-case'])
+			\ ['-i', '--nogroup', '--nocolor', '--smart-case'])
 	call denite#custom#var('grep', 'recursive_opts', [])
 	call denite#custom#var('grep', 'pattern_opt', [])
 	call denite#custom#var('grep', 'separator', ['--'])
@@ -216,7 +216,7 @@ EXAMPLES						*denite-examples*
 
 	" jvgrep command on grep source
 	call denite#custom#var('grep', 'command', ['jvgrep'])
-	call denite#custom#var('grep', 'default_opts', [])
+	call denite#custom#var('grep', 'default_opts', ['-i'])
 	call denite#custom#var('grep', 'recursive_opts', ['-R'])
 	call denite#custom#var('grep', 'pattern_opt', [])
 	call denite#custom#var('grep', 'separator', [])
@@ -1505,6 +1505,12 @@ file/rec (file_rec)
 				Note: The patterns are based on fnmatch python
 				module.
 
+		cache_threshold
+				The cache feature is disabled if the number of
+				files is less than this value or this value is
+				0.
+				(default: 10000)
+
 						*denite-source-filetype*
 filetype	Gather filetypes and change the filetype of the current
 		buffer.
@@ -1796,6 +1802,10 @@ matcher/hide_hidden_files (matcher_hide_hidden_files)
 matcher/project_files (matcher_project_files)
 		A matcher which removes removes non project files.
 
+				*denite-filter-matcher/ignore_current_buffer*
+matcher/current_buffer
+		A matcher which ignores the current buffer path.
+
 					*denite-filter-matcher/ignore_globs*
 					*denite-filter-matcher_ignore_globs*
 matcher/ignore_globs (matcher_ignore_globs)
@@ -2032,7 +2042,7 @@ rplugin/python3/denite/kind/**/*.py
 Instead of create new kind from scratch, you can extend one of the existing
 Kind class, let's take "openable" for example: >
 
-    from ..kind.openable import Kind as Openable
+    from denite.kind.openable import Kind as Openable
 
     class Kind(Openable):
         def __init__(self, vim):
@@ -2306,8 +2316,16 @@ Q: Where is bookmark source?
 A: You can use denite-dirmark instead.
 https://github.com/kmnk/denite-dirmark
 
+Q: I want to use better matcher.
+
+A: You can use fruzzy matcher instead.
+https://github.com/raghur/fruzzy
+
 ==============================================================================
 COMPATIBILITY						*denite-compatibility*
+
+2018.10.20
+* Python 3.5+ is required.
 
 2018.04.01
 * Remove "-force-quit" and "-no-quit" options.  Please use "post-action"

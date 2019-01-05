@@ -4,13 +4,13 @@
 # License: MIT license
 # ============================================================================
 
+import importlib.util
 import re
 import os
 import sys
 
 from glob import glob
 from os.path import normpath, normcase, join, dirname, exists
-from importlib.machinery import SourceFileLoader
 
 
 def set_default(vim, var, val):
@@ -83,8 +83,8 @@ def get_custom_source(custom, source_name, key, default):
         return default
 
 
-def load_external_module(file, module):
-    current = os.path.dirname(os.path.abspath(file))
+def load_external_module(base, module):
+    current = os.path.dirname(os.path.abspath(base))
     module_dir = join(os.path.dirname(current), module)
     sys.path.insert(0, module_dir)
 
@@ -247,9 +247,10 @@ def import_rplugins(name, context, source, loaded_paths):
     which may exist only for making a module namespace.
     """
     for path, module_path in find_rplugins(context, source, loaded_paths):
-        loader = SourceFileLoader('denite.%s.%s' % (source, module_path), path)
-        # XXX: load_module is deprecated since Python 3.4
-        module = loader.load_module()
+        module_name = 'denite.%s.%s' % (source, module_path)
+        spec = importlib.util.spec_from_file_location(module_name, path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
         if not hasattr(module, name):
             continue
         yield (getattr(module, name), path, module_path)
@@ -272,12 +273,18 @@ def parse_tagline(line, tagpath):
     rest = '\t'.join(elem[2:])
     m = re.search(r'.*;"', rest)
     if not m:
+        # Old format
         if len(elem) >= 3:
-            info['line'] = elem[2]
+            if re.match(r'\d+$', elem[2]):
+                info['line'] = elem[2]
+            else:
+                info['pattern'] = re.sub(
+                    r'([~.*\[\]\\])', r'\\\1',
+                    re.sub(r'^/|/;"$', '', elem[2]))
         return info
 
     pattern = m.group(0)
-    if re.match('\d+;"$', pattern):
+    if re.match(r'\d+;"$', pattern):
         info['line'] = re.sub(r';"$', '', pattern)
     else:
         info['pattern'] = re.sub(r'([~.*\[\]\\])', r'\\\1',

@@ -6,10 +6,11 @@
 
 import argparse
 import shutil
-from ..base import Base
-from denite.process import Process
 from os import path, pardir
 from os.path import relpath, isabs, isdir, join, normpath
+
+from denite.source.base import Base
+from denite.process import Process
 from denite.util import parse_command, abspath
 
 
@@ -22,7 +23,9 @@ class Source(Base):
         self.kind = 'file'
         self.vars = {
             'command': [],
+            'cache_threshold': 10000,
         }
+        self._cache = {}
 
     def on_init(self, context):
         """scantree.py command has special meaning, using the internal
@@ -56,13 +59,18 @@ class Source(Base):
         if not self.vars['command']:
             return []
 
-        if context['__proc']:
-            return self._async_gather_candidates(
-                context, context['async_timeout'])
-
         directory = context['__directory']
         if not isdir(directory):
             return []
+
+        if context['is_redraw'] and directory in self._cache:
+            self._cache.pop(directory)
+        if directory in self._cache:
+            return self._cache[directory]
+
+        if context['__proc']:
+            return self._async_gather_candidates(
+                context, context['async_timeout'])
 
         if ':directory' in self.vars['command']:
             args = parse_command(
@@ -86,17 +94,24 @@ class Source(Base):
             context['__proc'] = None
         if not outs:
             return []
+        directory = context['__directory']
         if isabs(outs[0]):
             candidates = [{
-                'word': relpath(x, start=context['__directory']),
+                'word': relpath(x, start=directory),
                 'action__path': x,
                 } for x in outs if x != '']
         else:
             candidates = [{
                 'word': x,
-                'action__path': join(context['__directory'], x),
+                'action__path': join(directory, x),
                 } for x in outs if x != '']
         context['__current_candidates'] += candidates
+
+        threshold = int(self.vars['cache_threshold'])
+        if (not context['__proc'] and threshold > 0 and
+                len(context['__current_candidates']) > threshold):
+            self._cache[directory] = context['__current_candidates']
+
         return candidates
 
     def parse_command_for_scantree(self, cmd):
