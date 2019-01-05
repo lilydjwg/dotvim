@@ -1,5 +1,6 @@
 let s:jobinfo_base = {
             \ 'cd_back_cmd': '',
+            \ 'pending_output': [],
             \ }
 function! s:jobinfo_base.get_pid() abort
     if has_key(self, 'vim_job')
@@ -81,3 +82,4 @@ function! s:jobinfo_base.cd(...) abort
 endfunction
 
 let g:neomake#jobinfo#base = s:jobinfo_base
+" vim: ts=4 sw=4 et

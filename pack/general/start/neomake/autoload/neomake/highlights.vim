@@ -51,11 +51,18 @@ else
         endif
     endfunction
 endif
+
 function! neomake#highlights#ResetFile(buf) abort
     call s:reset('file', a:buf)
 endfunction
-function! neomake#highlights#ResetProject(buf) abort
-    call s:reset('project', a:buf)
+function! neomake#highlights#ResetProject(...) abort
+    if a:0  " deprecated a:buf
+        call neomake#log#warn_once('neomake#highlights#ResetProject does not use a:buf anymore.',
+                    \ 'deprecated-highlight-resetproject')
+    endif
+    for buf in keys(s:highlights['project'])
+        call s:reset('project', +buf)
+    endfor
 endfunction
 
 function! neomake#highlights#AddHighlight(entry, type) abort
@@ -68,19 +75,20 @@ function! neomake#highlights#AddHighlight(entry, type) abort
     if !has_key(s:highlights[a:type], a:entry.bufnr)
         call s:InitBufHighlights(a:type, a:entry.bufnr)
     endif
-    let l:hi = get(s:highlight_types, toupper(a:entry.type), 'NeomakeError')
-    if get(g:, 'neomake_highlight_lines', 0)
+    let hi = get(s:highlight_types, toupper(a:entry.type), 'NeomakeError')
+
+    if a:entry.col > 0 && get(g:, 'neomake_highlight_columns', 1)
+        let length = get(a:entry, 'length', 1)
         if s:nvim_api
-            call nvim_buf_add_highlight(a:entry.bufnr, s:highlights[a:type][a:entry.bufnr], l:hi, a:entry.lnum - 1, 0, -1)
+            call nvim_buf_add_highlight(a:entry.bufnr, s:highlights[a:type][a:entry.bufnr], hi, a:entry.lnum - 1, a:entry.col - 1, a:entry.col + length - 1)
         else
-            call add(s:highlights[a:type][a:entry.bufnr][l:hi], a:entry.lnum)
+            call add(s:highlights[a:type][a:entry.bufnr][hi], [a:entry.lnum, a:entry.col, length])
         endif
-    elseif a:entry.col > 0
-        let l:length = get(a:entry, 'length', 1)
+    elseif get(g:, 'neomake_highlight_lines', 0)
         if s:nvim_api
-            call nvim_buf_add_highlight(a:entry.bufnr, s:highlights[a:type][a:entry.bufnr], l:hi, a:entry.lnum - 1, a:entry.col - 1, a:entry.col + l:length - 1)
+            call nvim_buf_add_highlight(a:entry.bufnr, s:highlights[a:type][a:entry.bufnr], hi, a:entry.lnum - 1, 0, -1)
         else
-            call add(s:highlights[a:type][a:entry.bufnr][l:hi], [a:entry.lnum, a:entry.col, l:length])
+            call add(s:highlights[a:type][a:entry.bufnr][hi], a:entry.lnum)
         endif
     endif
 endfunction
@@ -91,26 +99,26 @@ if s:nvim_api
 else
     function! neomake#highlights#ShowHighlights() abort
         if exists('w:neomake_highlights')
-            for l:highlight in w:neomake_highlights
+            for highlight in w:neomake_highlights
                 try
-                    call matchdelete(l:highlight)
+                    call matchdelete(highlight)
                 catch /^Vim\%((\a\+)\)\=:E803/
                 endtry
             endfor
         endif
         let w:neomake_highlights = []
 
-        let l:buf = bufnr('%')
-        for l:type in ['file', 'project']
-            for [l:hi, l:locs] in items(filter(copy(get(s:highlights[l:type], l:buf, {})), '!empty(v:val)'))
+        let buf = bufnr('%')
+        for type in ['file', 'project']
+            for [hi, locs] in items(filter(copy(get(s:highlights[type], buf, {})), '!empty(v:val)'))
                 if exists('*matchaddpos')
-                    call add(w:neomake_highlights, matchaddpos(l:hi, l:locs))
+                    call add(w:neomake_highlights, matchaddpos(hi, locs))
                 else
-                    for l:loc in l:locs
-                        if len(l:loc) == 1
-                            call add(w:neomake_highlights, matchadd(l:hi, '\%' . l:loc[0] . 'l'))
+                    for loc in locs
+                        if len(loc) == 1
+                            call add(w:neomake_highlights, matchadd(hi, '\%' . loc[0] . 'l'))
                         else
-                            call add(w:neomake_highlights, matchadd(l:hi, '\%' . l:loc[0] . 'l\%' . l:loc[1] . 'c.\{' . l:loc[2] . '}'))
+                            call add(w:neomake_highlights, matchadd(hi, '\%' . loc[0] . 'l\%' . loc[1] . 'c.\{' . loc[2] . '}'))
                         endif
                     endfor
                 endif

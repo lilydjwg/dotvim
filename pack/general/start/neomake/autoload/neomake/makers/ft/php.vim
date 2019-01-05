@@ -20,11 +20,11 @@ function! neomake#makers#ft#php#php() abort
 endfunction
 
 function! neomake#makers#ft#php#phpcs() abort
-    let l:args = ['--report=csv', '-q']
+    let args = ['--report=csv', '-q']
 
     "Add standard argument if one is set.
     if exists('g:neomake_php_phpcs_args_standard')
-        call add(l:args, '--standard=' . expand(g:neomake_php_phpcs_args_standard))
+        call add(args, '--standard=' . expand(g:neomake_php_phpcs_args_standard))
     endif
 
     return {
@@ -46,7 +46,7 @@ endfunction
 function! neomake#makers#ft#php#phpstan() abort
     " PHPStan normally considers 0 to be the default level, so that is used here as the default:
     let maker = {
-        \ 'args': ['analyse', '--errorFormat', 'raw', '--no-progress', '--level', get(g:, 'neomake_phpstan_level', 0)],
+        \ 'args': ['analyse', '--error-format', 'raw', '--no-progress', '--level', get(g:, 'neomake_phpstan_level', 0)],
         \ 'errorformat': '%E%f:%l:%m',
         \ }
     " Check for the existence of a default PHPStan project configuration file.

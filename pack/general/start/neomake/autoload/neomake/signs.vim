@@ -13,39 +13,25 @@ let s:last_placed_signs = {'project': {}, 'file': {}}
 exe 'sign define neomake_invisible'
 
 " Reset signs placed by a :Neomake! call
-" (resetting signs means the current signs will be deleted on the next call to ResetProject)
 function! neomake#signs#ResetProject() abort
     for buf in keys(s:placed_signs.project)
-        call neomake#signs#CleanOldSigns(buf, 'project')
         call neomake#signs#Reset(buf, 'project')
+        call neomake#signs#CleanOldSigns(buf, 'project')
     endfor
 endfunction
 
 " Reset signs placed by a :Neomake call in a buffer
 function! neomake#signs#ResetFile(bufnr) abort
-    call neomake#signs#CleanOldSigns(a:bufnr, 'file')
     call neomake#signs#Reset(a:bufnr, 'file')
+    call neomake#signs#CleanOldSigns(a:bufnr, 'file')
 endfunction
 
 function! neomake#signs#Reset(bufnr, type) abort
     if has_key(s:placed_signs[a:type], a:bufnr)
+        " Clean any lingering, already retired signs.
+        call neomake#signs#CleanOldSigns(a:bufnr, a:type)
         let s:last_placed_signs[a:type][a:bufnr] = s:placed_signs[a:type][a:bufnr]
         unlet s:placed_signs[a:type][a:bufnr]
-    endif
-endfunction
-
-" Remove and clean all signs in a buffer.
-function! neomake#signs#Clean(bufnr, type) abort
-    if has_key(s:placed_signs[a:type], a:bufnr)
-        for sign_id in keys(s:placed_signs[a:type][a:bufnr])
-            let cmd = 'sign unplace '.sign_id.' buffer='.a:bufnr
-            call neomake#log#debug('Unplacing sign: '.cmd.'.')
-            exe cmd
-        endfor
-        unlet s:placed_signs[a:type][a:bufnr]
-    endif
-    if has_key(s:last_placed_signs[a:type], a:bufnr)
-        unlet s:last_placed_signs[a:type][a:bufnr]
     endif
 endfunction
 
@@ -59,9 +45,22 @@ let s:sign_order = {'neomake_file_err': 0, 'neomake_file_warn': 1,
 " If there are multiple entries for a line only the first (visible) entry is
 " returned.
 function! neomake#signs#by_lnum(bufnr) abort
-    if !bufexists(a:bufnr + 0)
+    let bufnr = a:bufnr + 0
+    if !bufexists(bufnr)
         return {}
     endif
+
+    let r = {}
+    if exists('*sign_getplaced')  " patch-8.1.0614
+        for sign in sign_getplaced(bufnr)[0].signs
+            if has_key(r, sign.lnum)
+                continue
+            endif
+            let r[sign.lnum] = [sign.id, sign.name]
+        endfor
+        return r
+    endif
+
     let signs_output = split(neomake#utils#redir('sign place buffer='.a:bufnr), '\n')
 
     " Originally via ALE.
@@ -71,19 +70,20 @@ function! neomake#signs#by_lnum(bufnr) abort
     " 行=1  識別子=1000001  名前=neomake_err
     " línea=12 id=1000001 nombre=neomake_err
     " riga=1 id=1000001, nome=neomake_err
-    let d = {}
     for line in reverse(signs_output[2:])
+        " XXX: does not really match "name="
+        "      (broken by patch-8.1.0614, but handled above)
         let sign_type = line[strridx(line, '=')+1:]
         if sign_type[0:7] ==# 'neomake_'
             let lnum_idx = stridx(line, '=')
             let lnum = line[lnum_idx+1:] + 0
             if lnum
                 let sign_id = line[stridx(line, '=', lnum_idx+1)+1:] + 0
-                let d[lnum] = [sign_id, sign_type]
+                let r[lnum] = [sign_id, sign_type]
             endif
         endif
     endfor
-    return d
+    return r
 endfunction
 
 let s:entry_to_sign_type = {'W': 'warn', 'I': 'info', 'M': 'msg'}
@@ -110,6 +110,7 @@ function! neomake#signs#PlaceSigns(bufnr, entries, type) abort
 
     let place_new = []
     let log_context = {'bufnr': a:bufnr}
+    let count_reused = 0
     for [lnum, sign_type] in items(entries_by_linenr)
         let existing_sign = get(placed_signs, lnum, [])
         if empty(existing_sign) || existing_sign[1] !~# '^neomake_'.a:type.'_'
@@ -118,9 +119,10 @@ function! neomake#signs#PlaceSigns(bufnr, entries, type) abort
         endif
         if existing_sign[1] == sign_type
             let sign_id = existing_sign[0]
-            call neomake#log#debug(printf(
-                        \ 'Reusing sign: id=%d, type=%s, lnum=%d.',
-                        \ sign_id, existing_sign[1], lnum), log_context)
+            let count_reused += 1
+            " call neomake#log#debug(printf(
+            "             \ 'Reusing sign: id=%d, type=%s, lnum=%d.',
+            "             \ sign_id, existing_sign[1], lnum), log_context)
 
             " Keep this sign from being cleaned.
             if exists('s:last_placed_signs[a:type][a:bufnr][sign_id]')
@@ -132,6 +134,9 @@ function! neomake#signs#PlaceSigns(bufnr, entries, type) abort
             exe cmd
         endif
     endfor
+    if count_reused
+        call neomake#log#debug(printf('Reused %d signs.', count_reused), log_context)
+    endif
 
     for [lnum, sign_type] in place_new
         if !exists('next_sign_id')
@@ -172,11 +177,9 @@ function! neomake#signs#CleanOldSigns(bufnr, type) abort
     let placed_signs = s:last_placed_signs[a:type][a:bufnr]
     unlet s:last_placed_signs[a:type][a:bufnr]
     if bufexists(+a:bufnr)
-        call neomake#log#debug_obj('Cleaning old signs in buffer '.a:bufnr, placed_signs)
+        call neomake#log#debug(printf('Cleaning %d old signs.', len(placed_signs)), {'bufnr': a:bufnr})
         for sign_id in keys(placed_signs)
-            let cmd = 'sign unplace '.sign_id.' buffer='.a:bufnr
-            call neomake#log#debug('Unplacing sign: '.cmd.'.')
-            exe cmd
+            exe 'sign unplace '.sign_id.' buffer='.a:bufnr
             if has_key(s:placed_signs[a:type], a:bufnr)
                 if has_key(s:placed_signs[a:type][a:bufnr], sign_id)
                     unlet s:placed_signs[a:type][a:bufnr][sign_id]

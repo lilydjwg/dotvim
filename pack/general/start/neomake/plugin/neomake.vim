@@ -22,8 +22,10 @@ command! -bang NeomakeCancelJobs call neomake#CancelJobs(<bang>0)
 command! -bang -bar -nargs=? -complete=customlist,neomake#cmd#complete_makers
             \ NeomakeInfo call neomake#debug#display_info(<bang>0, <f-args>)
 
+command! -bang -bar NeomakeClean call neomake#cmd#clean(<bang>1)
+
 " Enable/disable/toggle commands.  {{{
-function! s:handle_disabled_status(scope, disabled, verbose) abort
+function! s:handle_disabled_status(scope, disabled) abort
     if a:scope is# g:
         if a:disabled
             if exists('#neomake')
@@ -35,7 +37,6 @@ function! s:handle_disabled_status(scope, disabled, verbose) abort
             call s:setup_autocmds()
         endif
     elseif a:scope is# t:
-        let tab = tabpagenr()
         let buffers = neomake#compat#uniq(sort(tabpagebuflist()))
         if a:disabled
             for b in buffers
@@ -65,7 +66,7 @@ function! s:disable(scope) abort
         return
     endif
     call neomake#config#set_dict(a:scope, 'neomake.disabled', 1)
-    call s:handle_disabled_status(a:scope, 1, &verbose)
+    call s:handle_disabled_status(a:scope, 1)
 endfunction
 
 function! s:enable(scope) abort
@@ -74,17 +75,17 @@ function! s:enable(scope) abort
         return
     endif
     call neomake#config#set_dict(a:scope, 'neomake.disabled', 0)
-    call s:handle_disabled_status(a:scope, 0, &verbose)
+    call s:handle_disabled_status(a:scope, 0)
 endfunction
 
 function! s:toggle(scope) abort
     let new = !get(get(a:scope, 'neomake', {}), 'disabled', 0)
     if new
         call neomake#config#set_dict(a:scope, 'neomake.disabled', 1)
-        call s:handle_disabled_status(a:scope, 1, 1)
+        call s:handle_disabled_status(a:scope, 1)
     else
         call neomake#config#unset_dict(a:scope, 'neomake.disabled')
-        call s:handle_disabled_status(a:scope, 0, 1)
+        call s:handle_disabled_status(a:scope, 0)
     endif
 endfunction
 
@@ -124,6 +125,14 @@ command! -bar NeomakeEnableTab call s:enable(t:)
 command! NeomakeStatus call s:display_status()
 " }}}
 
+" NOTE: experimental, no default mappings.
+" NOTE: uses -addr=lines (default), and therefore negative counts do not work
+"       (see https://github.com/vim/vim/issues/3654).
+command! -bar -count=1 NeomakeNextLoclist call neomake#list#next(<count>, 1)
+command! -bar -count=1 NeomakePrevLoclist call neomake#list#prev(<count>, 1)
+command! -bar -count=1 NeomakeNextQuickfix call neomake#list#next(<count>, 0)
+command! -bar -count=1 NeomakePrevQuickfix call neomake#list#prev(<count>, 0)
+
 function! s:define_highlights() abort
     if g:neomake_place_signs
         call neomake#signs#DefineHighlights()
@@ -146,7 +155,7 @@ function! s:setup_autocmds() abort
             " to clear the previously echoed error.
             autocmd VimResized * call timer_start(100, function('neomake#EchoCurrentError'))
         else
-            autocmd CursorMoved * call neomake#CursorMoved()
+            autocmd CursorHold,CursorHoldI * call neomake#CursorMoved()
         endif
         autocmd VimLeave * call neomake#VimLeave()
         autocmd ColorScheme * call s:define_highlights()
@@ -163,3 +172,4 @@ endif
 call s:setup_autocmds()
 
 " vim: sw=4 et
+" vim: ts=4 sw=4 et

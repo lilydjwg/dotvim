@@ -2,14 +2,13 @@ let s:level_to_name = {0: 'error  ', 1: 'warning', 2: 'verbose', 3: 'debug  '}
 let s:name_to_level = {'error': 0, 'warning': 1, 'verbose': 2, 'debug': 3}
 let s:short_level_to_name = {0: 'E', 1: 'W', 2: 'V', 3: 'D'}
 let s:is_testing = exists('g:neomake_test_messages')
+let s:pid = getpid()
+
+let s:last_msg_ts = neomake#compat#reltimefloat()
 
 function! s:reltime_lastmsg() abort
-    if exists('s:last_msg_ts')
-        let cur = neomake#compat#reltimefloat()
-        let diff = (cur - s:last_msg_ts)
-    else
-        let diff = 0
-    endif
+    let cur = neomake#compat#reltimefloat()
+    let diff = (cur - s:last_msg_ts)
     let s:last_msg_ts = neomake#compat#reltimefloat()
 
     if diff < 0.01
@@ -38,6 +37,12 @@ function! s:log(level, msg, ...) abort
     endif
 
     if a:0
+        if has_key(a:1, 'options')
+            let context = copy(a:1.options)
+            let context.make_id = a:1.make_id
+        else
+            let context = copy(a:1)
+        endif
         let msg = printf('[%s.%s:%s:%d] %s',
                     \ get(context, 'make_id', '-'),
                     \ get(context, 'id', '-'),
@@ -58,10 +63,14 @@ function! s:log(level, msg, ...) abort
             let test_msg = '['.s:level_to_name[a:level].']: '.msg
         endif
 
-        call vader#log(test_msg)
+        if exists('*vader#log')
+            " Might not exist with rpcrequest-based nvim test, or throw errors
+            " if called too early.
+            call vader#log(test_msg)
+        endif
         " Only keep context entries that are relevant for / used in the message.
         let context = a:0
-                    \ ? filter(copy(context), "index(['id', 'make_id', 'bufnr'], v:key) != -1")
+                    \ ? extend(filter(copy(context), "index(['id', 'make_id', 'bufnr', 'winnr'], v:key) != -1"), {'winnr': winnr()}, 'keep')
                     \ : {}
         call add(g:neomake_test_messages, [a:level, a:msg, context])
         if index(['.', '!', ')', ']'], a:msg[-1:-1]) == -1
@@ -84,28 +93,29 @@ function! s:log(level, msg, ...) abort
             echohl None
         endif
     endif
-    if !empty(logfile) && type(logfile) ==# type('')
+    if !empty(logfile)
         if !exists('s:logfile_writefile_opts')
             " Use 'append' with writefile, but only if it is available.  Otherwise, just
             " overwrite the file.  'S' is used to disable fsync in Neovim
             " (https://github.com/neovim/neovim/pull/6427).
-            let s:can_append_to_logfile = v:version > 704 || (v:version == 704 && has('patch503'))
-            if !s:can_append_to_logfile
+            if has('patch-7.4.503')
+                let s:logfile_writefile_opts = 'aS'
+            else
+                let s:logfile_writefile_opts = ''
                 redraw
                 echohl WarningMsg
                 echom 'Neomake: appending to the logfile is not supported in your Vim version.'
                 echohl NONE
             endif
-            let s:logfile_writefile_opts = s:can_append_to_logfile ? 'aS' : ''
         endif
 
-        let date = strftime('%H:%M:%S')
+        let time = strftime('%H:%M:%S')
         if !exists('timediff')
             let timediff = s:reltime_lastmsg()
         endif
         try
-            call writefile([printf('%s [%s %s] %s',
-                        \ date, s:short_level_to_name[a:level], timediff, msg)],
+            call writefile([printf('%s %s [%s %s] %s',
+                        \ time, s:pid, s:short_level_to_name[a:level], timediff, msg)],
                         \ logfile, s:logfile_writefile_opts)
         catch
             unlet g:neomake_logfile
@@ -156,3 +166,8 @@ function! neomake#log#warn_once(msg, key) abort
         call neomake#log#debug('Neomake warning: '.a:msg)
     endif
 endfunction
+
+function! neomake#log#reset_warnings() abort
+    let s:warned = {}
+endfunction
+" vim: ts=4 sw=4 et

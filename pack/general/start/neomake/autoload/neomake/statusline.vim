@@ -59,13 +59,13 @@ function! neomake#statusline#ResetCountsForBuf(...) abort
     let bufnr = a:0 ? +a:1 : bufnr('%')
     call s:clear_cache(bufnr)
     if has_key(s:counts, bufnr)
-      let r = s:counts[bufnr] != {}
-      unlet s:counts[bufnr]
-      if r
-          call neomake#utils#hook('NeomakeCountsChanged', {
-                \ 'reset': 1, 'file_mode': 1, 'bufnr': bufnr})
-      endif
-      return r
+        let r = s:counts[bufnr] != {}
+        unlet s:counts[bufnr]
+        if r
+            call neomake#utils#hook('NeomakeCountsChanged', {
+                        \ 'reset': 1, 'file_mode': 1, 'bufnr': bufnr})
+        endif
+        return r
     endif
     return 0
 endfunction
@@ -80,7 +80,7 @@ function! neomake#statusline#ResetCountsForProject(...) abort
     unlet s:counts['project']
     if r
         call neomake#utils#hook('NeomakeCountsChanged', {
-              \ 'reset': 1, 'file_mode': 0, 'bufnr': bufnr})
+                    \ 'reset': 1, 'file_mode': 0, 'bufnr': bufnr})
     endif
     return r
 endfunction
@@ -211,32 +211,49 @@ function! s:running_jobs(bufnr) abort
                 \ "v:val.bufnr == a:bufnr && !get(v:val, 'canceled', 0)")
 endfunction
 
-function! neomake#statusline#get_status(bufnr, options) abort
-    let r = ''
+function! s:format_running(format_running, options, bufnr, running_jobs) abort
+    let args = {'bufnr': a:bufnr, 'running_jobs': a:running_jobs}
+    for opt in ['running_jobs_separator', 'format_running_job_project', 'format_running_job_file']
+        if has_key(a:options, opt)
+            let args[opt] = a:options[opt]
+        endif
+    endfor
+    return s:formatter.format(a:format_running, args)
+endfunction
 
-    let running_jobs = s:running_jobs(a:bufnr)
-    if !empty(running_jobs)
-        let format_running = get(a:options, 'format_running', '… ({{running_job_names}})')
-        if format_running isnot 0
-            let args = {'bufnr': a:bufnr, 'running_jobs': running_jobs}
-            for opt in ['running_jobs_separator', 'format_running_job_project', 'format_running_job_file']
-                if has_key(a:options, opt)
-                    let args[opt] = a:options[opt]
+function! neomake#statusline#get_status(bufnr, options) abort
+    let filemode_jobs = []
+    let project_jobs = []
+    let format_running = get(a:options, 'format_running', '… ({{running_job_names}})')
+    if format_running isnot 0
+        let running_jobs = s:running_jobs(a:bufnr)
+        if !empty(running_jobs)
+            for j in running_jobs
+                if j.file_mode
+                    let filemode_jobs += [j]
+                else
+                    let project_jobs += [j]
                 endif
             endfor
-            return s:formatter.format(format_running, args)
         endif
     endif
 
+    let r_loclist = ''
+    let r_quickfix = ''
+
     let use_highlights_with_defaults = get(a:options, 'use_highlights_with_defaults', 1)
+
+    " Location list counts.
     let loclist_counts = get(s:counts, a:bufnr, s:unknown_counts)
-    if empty(loclist_counts)
+    if !empty(filemode_jobs)
+        let r_loclist = s:format_running(format_running, a:options, a:bufnr, filemode_jobs)
+    elseif empty(loclist_counts)
         if loclist_counts is s:unknown_counts
             let format_unknown = get(a:options, 'format_loclist_unknown', '?')
-            let r .= s:formatter.format(format_unknown, {'bufnr': a:bufnr})
+            let r_loclist = s:formatter.format(format_unknown, {'bufnr': a:bufnr})
         else
-            let format_ok = get(a:options, 'format_loclist_ok', use_highlights_with_defaults ? '%#NeomakeStatusGood#✓' : '✓')
-            let r .= s:formatter.format(format_ok, {'bufnr': a:bufnr})
+            let format_ok = get(a:options, 'format_loclist_ok', use_highlights_with_defaults ? '%#NeomakeStatusGood#✓%#NeomakeStatReset#' : '✓')
+            let r_loclist = s:formatter.format(format_ok, {'bufnr': a:bufnr})
         endif
     else
         let format_loclist = get(a:options, 'format_loclist_issues',
@@ -264,16 +281,18 @@ function! neomake#statusline#get_status(bufnr, options) abort
                             \ 'count': c,
                             \ 'type': type})
             endfor
-            let r = printf(format_loclist, loclist)
+            let r_loclist = printf(format_loclist, loclist)
         endif
     endif
 
     " Quickfix counts.
     let qflist_counts = get(s:counts, 'project', s:unknown_counts)
-    if empty(qflist_counts)
+    if !empty(project_jobs)
+        let r_quickfix = s:format_running(format_running, a:options, a:bufnr, project_jobs)
+    elseif empty(qflist_counts)
         let format_ok = get(a:options, 'format_quickfix_ok', '')
         if !empty(format_ok)
-            let r .= s:formatter.format(format_ok, {'bufnr': a:bufnr})
+            let r_quickfix = s:formatter.format(format_ok, {'bufnr': a:bufnr})
         endif
     else
         let format_quickfix = get(a:options, 'format_quickfix_issues',
@@ -303,10 +322,17 @@ function! neomake#statusline#get_status(bufnr, options) abort
                                 \ 'type': type})
                 endif
             endfor
-            let r = printf(format_quickfix, quickfix)
+            let r_quickfix = printf(format_quickfix, quickfix)
         endif
     endif
-    return r
+
+    let format_lists = get(a:options, 'format_lists', '{{loclist}}{{lists_sep}}{{quickfix}}')
+    if empty(r_loclist) || empty(r_quickfix)
+        let lists_sep = ''
+    else
+        let lists_sep = get(a:options, 'lists_sep', ' ')
+    endif
+    return s:formatter.format(format_lists, {'loclist': r_loclist, 'quickfix': r_quickfix, 'lists_sep': lists_sep})
 endfunction
 
 function! neomake#statusline#get(bufnr, ...) abort
@@ -332,7 +358,7 @@ function! neomake#statusline#get(bufnr, ...) abort
                 " Automake Disabled
                 let format_disabled_info = get(options, 'format_disabled_info', '{{disabled_scope}}-')
                 let disabled_info = s:formatter.format(format_disabled_info,
-                      \ {'disabled_scope': disabled_scope})
+                            \ {'disabled_scope': disabled_scope})
                 " Defaults to showing the disabled information (i.e. scope)
                 let format_disabled = get(options, 'format_status_disabled', '{{disabled_info}} %s')
                 let outer_format = s:formatter.format(format_disabled, {'disabled_info': disabled_info})
@@ -356,23 +382,23 @@ endfunction
 " XXX: TODO: cleanup/doc?!
 function! neomake#statusline#DefineHighlights() abort
     for suffix in ['', 'NC']
-      let hl = 'StatusLine'.suffix
+        let hl = 'StatusLine'.suffix
 
-      " Highlight used for resetting color (used after counts).
-      exe 'hi default link NeomakeStatReset'.suffix.' StatusLine'.suffix
+        " Highlight used for resetting color (used after counts).
+        exe 'hi default link NeomakeStatReset'.suffix.' StatusLine'.suffix
 
-      " Uses "green" for NeomakeStatusGood, but the default with
-      " NeomakeStatusGoodNC (since it might be underlined there, and should
-      " not stand out in general there).
-      exe 'hi default NeomakeStatusGood'.suffix
-            \ . ' ctermfg=' . (suffix ? neomake#utils#GetHighlight(hl, 'fg') : 'green')
-            \ . ' guifg=' . (suffix ? neomake#utils#GetHighlight(hl, 'fg#') : 'green')
-            \ . ' ctermbg='.neomake#utils#GetHighlight(hl, 'bg')
-            \ . ' guifg='.neomake#utils#GetHighlight(hl, 'bg#')
-            \ . (neomake#utils#GetHighlight(hl, 'underline') ? ' cterm=underline' : '')
-            \ . (neomake#utils#GetHighlight(hl, 'underline#') ? ' gui=underline' : '')
-            \ . (neomake#utils#GetHighlight(hl, 'reverse') ? ' cterm=reverse' : '')
-            \ . (neomake#utils#GetHighlight(hl, 'reverse#') ? ' gui=reverse' : '')
+        " Uses "green" for NeomakeStatusGood, but the default with
+        " NeomakeStatusGoodNC (since it might be underlined there, and should
+        " not stand out in general there).
+        exe 'hi default NeomakeStatusGood'.suffix
+                    \ . ' ctermfg=' . (suffix ? neomake#utils#GetHighlight(hl, 'fg') : 'green')
+                    \ . ' guifg=' . (suffix ? neomake#utils#GetHighlight(hl, 'fg#') : 'green')
+                    \ . ' ctermbg='.neomake#utils#GetHighlight(hl, 'bg')
+                    \ . ' guifg='.neomake#utils#GetHighlight(hl, 'bg#')
+                    \ . (neomake#utils#GetHighlight(hl, 'underline') ? ' cterm=underline' : '')
+                    \ . (neomake#utils#GetHighlight(hl, 'underline#') ? ' gui=underline' : '')
+                    \ . (neomake#utils#GetHighlight(hl, 'reverse') ? ' cterm=reverse' : '')
+                    \ . (neomake#utils#GetHighlight(hl, 'reverse#') ? ' gui=reverse' : '')
     endfor
 
     " Default highlight for type counts.
@@ -394,3 +420,4 @@ augroup neomake_statusline
     autocmd ColorScheme * call neomake#statusline#DefineHighlights()
 augroup END
 call neomake#statusline#DefineHighlights()
+" vim: ts=4 sw=4 et

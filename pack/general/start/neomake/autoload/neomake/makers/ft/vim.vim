@@ -1,21 +1,39 @@
-" vim: ts=4 sw=4 et
+function! neomake#makers#ft#vim#EnabledMakers(options) abort
+    let makers = ['vint']
 
-function! neomake#makers#ft#vim#EnabledMakers() abort
-    return ['vint']
+    " Add neomake_checks for Neomake's own files.
+    let bufpath = fnamemodify(bufname(a:options.bufnr), ':p')
+    if bufpath[:len(s:neomake_root)-1] == s:neomake_root
+        call add(makers, 'neomake_checks')
+    endif
+
+    return makers
 endfunction
+
+let s:slash = neomake#utils#Slash()
+let s:neomake_root = expand('<sfile>:p:h:h:h:h:h', 1)
 
 let s:vint_supports_stdin = {}
 
+function! neomake#makers#ft#vim#neomake_checks() abort
+    let maker = {
+                \ 'exe': join([s:neomake_root, 'contrib', 'vim-checks'], s:slash),
+                \ 'errorformat': '%f:%l: %m',
+                \ }
+
+    return maker
+endfunction
+
 function! neomake#makers#ft#vim#vint() abort
-    let l:args = ['--style-problem', '--no-color',
+    let args = ['--style-problem', '--no-color',
         \ '-f', '{file_path}:{line_number}:{column_number}:{severity}:{description} ({policy_name})']
 
     if has('nvim')
-        call add(l:args, '--enable-neovim')
+        call add(args, '--enable-neovim')
     endif
 
     let maker = {
-        \ 'args': l:args,
+        \ 'args': args,
         \ 'errorformat': '%I%f:%l:%c:style_problem:%m,'
         \   .'%f:%l:%c:%t%*[^:]:E%n: %m,'
         \   .'%f:%l:%c:%t%*[^:]:%m',
@@ -74,3 +92,4 @@ function! neomake#makers#ft#vim#PostprocessVimlint(entry) abort
         let a:entry.length = l - 2
     endif
 endfunction
+" vim: ts=4 sw=4 et

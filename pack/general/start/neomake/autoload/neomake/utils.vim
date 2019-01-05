@@ -191,7 +191,18 @@ function! neomake#utils#GetSetting(key, maker, default, ft, bufnr, ...) abort
     " Check new-style config.
     if exists('g:neomake') || !empty(getbufvar(a:bufnr, 'neomake'))
         let context = {'ft': a:ft, 'maker': a:maker, 'bufnr': a:bufnr, 'maker_only': maker_only}
-        let Ret = neomake#config#get(a:key, g:neomake#config#undefined, context)
+        let [Ret, source] = neomake#config#get_with_source(a:key, g:neomake#config#undefined, context)
+        " Check old-style setting when source is the maker.
+        if source ==# 'maker' && !maker_only
+            let tmpmaker = {}
+            if has_key(a:maker, 'name')
+                let tmpmaker.name = a:maker.name
+            endif
+            let RetOld = s:get_oldstyle_setting(a:key, tmpmaker, s:unset, a:ft, a:bufnr, 1)
+            if RetOld isnot# s:unset
+                return RetOld
+            endif
+        endif
         if Ret isnot g:neomake#config#undefined
             return Ret
         endif
@@ -209,31 +220,28 @@ function! s:get_oldstyle_setting(key, maker, default, ft, bufnr, maker_only) abo
         return a:default
     endif
 
-    if a:bufnr isnot# ''
-        if !empty(a:ft)
-            let fts = neomake#utils#get_config_fts(a:ft) + ['']
-        else
-            let fts = ['']
+    if !empty(a:ft)
+        let fts = neomake#utils#get_config_fts(a:ft) + ['']
+    else
+        let fts = ['']
+    endif
+    for ft in fts
+        let part = join(filter([ft, maker_name], '!empty(v:val)'), '_')
+        if empty(part)
+            break
         endif
-        for ft in fts
-            " Look through the override vars for a filetype maker, like
-            " neomake_scss_sasslint_exe (should be a string), and
-            " neomake_scss_sasslint_args (should be a list).
-            let part = join(filter([ft, maker_name], '!empty(v:val)'), '_')
-            if empty(part)
-                break
-            endif
-            let config_var = 'neomake_'.part.'_'.a:key
-            unlet! Bufcfgvar  " vim73
+        let config_var = 'neomake_'.part.'_'.a:key
+        if a:bufnr isnot# ''
             let Bufcfgvar = neomake#compat#getbufvar(a:bufnr, config_var, s:unset)
             if Bufcfgvar isnot s:unset
                 return copy(Bufcfgvar)
             endif
-            if has_key(g:, config_var)
-                return copy(get(g:, config_var))
-            endif
-        endfor
-    endif
+        endif
+        if has_key(g:, config_var)
+            return copy(get(g:, config_var))
+        endif
+        unlet! Bufcfgvar  " vim73
+    endfor
 
     if has_key(a:maker, a:key)
         return get(a:maker, a:key)
@@ -338,7 +346,7 @@ function! neomake#utils#ExpandArgs(args, jobinfo) abort
     " % must be followed with an expansion keyword
     let ret = map(ret,
                 \ 'substitute(v:val, '
-                \ . '''\(\%(\\\@<!\\\)\@<!%\%(%\|\%(:[phtreS8.~]\)\+\|\ze\w\@!\)\)'', '
+                \ . '''\(\%(\\\@<!\\\)\@<!%\%(%\|<\|\%(:[phtreS8.~]\)\+\|\ze\w\@!\)\)'', '
                 \ . '''\=(submatch(1) == "%%" ? "%" : expand(submatch(1)))'', '
                 \ . '''g'')')
     let ret = map(ret, 'substitute(v:val, ''\v^\~\ze%(/|$)'', expand(''~''), ''g'')')
@@ -352,17 +360,19 @@ if has('patch-7.3.1058')
 else
     " Older Vim does not handle s: function references across files.
     function! s:function(name) abort
-      return function(substitute(a:name,'^s:',matchstr(expand('<sfile>'), '.*\zs<SNR>\d\+_'),''))
+        return function(substitute(a:name,'^s:',matchstr(expand('<sfile>'), '.*\zs<SNR>\d\+_'),''))
     endfunction
 endif
 
 function! s:handle_hook(jobinfo, event, context) abort
     let context_str = string(map(copy(a:context),
-                \ "v:key ==# 'jobinfo' ? v:val.as_string()"
-                \ .": (v:key ==# 'finished_jobs' ? map(copy(v:val), 'v:val.as_string()') : v:val)"))
+                \ "v:key ==# 'make_info' ? 'make_info #'.get(v:val, 'make_id')"
+                \ .": (v:key ==# 'options' && has_key(v:val, 'jobs') ? extend(copy(v:val), {'jobs': map(copy(v:val.jobs), 'v:val.maker.name')}, 'force')"
+                \ .": (v:key ==# 'jobinfo' ? v:val.as_string()"
+                \ .": (v:key ==# 'finished_jobs' ? map(copy(v:val), 'v:val.as_string()') : v:val)))"))
 
     if exists('g:neomake_hook_context')
-        call neomake#log#debug(printf('Queueing User autocmd %s for nested invocation (%s).', a:event, context_str),
+        call neomake#log#debug(printf('Queuing User autocmd %s for nested invocation (%s).', a:event, context_str),
                     \ a:jobinfo)
         return neomake#action_queue#add(
                     \ ['Timer', 'BufEnter', 'WinEnter', 'InsertLeave', 'CursorHold', 'CursorHoldI'],
@@ -380,11 +390,7 @@ function! s:handle_hook(jobinfo, event, context) abort
     let g:neomake_hook_context = a:context
     lockvar 1 g:neomake_hook_context
     try
-        if v:version >= 704 || (v:version == 703 && has('patch442'))
-            exec 'doautocmd <nomodeline> User ' . a:event
-        else
-            exec 'doautocmd User ' . a:event
-        endif
+        call neomake#compat#doautocmd('User '.a:event)
     catch
         let error = v:exception
         if error[-1:] !=# '.'
@@ -508,8 +514,15 @@ endfunction
 function! neomake#utils#fnamemodify(bufnr, modifier) abort
     let bufnr = +a:bufnr
     if !empty(getbufvar(bufnr, 'fugitive_type'))
-        let fug_buffer = fugitive#buffer(bufnr)
-        let path = fnamemodify(fug_buffer.repo().translate(fug_buffer.path()), ':.')
+        if exists('*FugitivePath')
+            let path = FugitivePath(bufname(bufnr))
+        else
+            let fug_buffer = fugitive#buffer(bufnr)
+            let path = fug_buffer.repo().translate(fug_buffer.path())
+        endif
+        if empty(a:modifier)
+            let path = fnamemodify(path, ':.')
+        endif
     else
         let path = bufname(bufnr)
     endif
@@ -518,6 +531,9 @@ endfunction
 
 function! neomake#utils#fix_self_ref(obj, ...) abort
     if type(a:obj) != type({})
+        if type(a:obj) == type([])
+            return map(copy(a:obj), 'neomake#utils#fix_self_ref(v:val)')
+        endif
         return a:obj
     endif
     let obj = copy(a:obj)
@@ -556,6 +572,11 @@ function! neomake#utils#highlight_is_defined(group) abort
     return neomake#utils#parse_highlight(a:group) !=# 'cleared'
 endfunction
 
+" Get the root directory of the current project.
+" This is determined by looking for specific files (e.g. `.git` and
+" `Makefile`), and `g:neomake#makers#ft#X#project_root_files` (if defined for
+" filetype "X").
+" a:1 buffer number (defaults to current)
 function! neomake#utils#get_project_root(...) abort
     let bufnr = a:0 ? a:1 : bufnr('%')
     let ft = getbufvar(bufnr, '&filetype')
@@ -622,4 +643,94 @@ function! neomake#utils#temp_cd(dir, ...) abort
         return [v:exception, '']
     endtry
     return ['', cd.' '.fnameescape(cur_wd)]
+endfunction
+
+if exists('*nvim_buf_get_lines')
+    function! neomake#utils#buf_get_lines(bufnr, start, end) abort
+        if a:start < 1
+            throw 'neomake#utils#buf_get_lines: start is lower than 1'
+        endif
+        try
+            return nvim_buf_get_lines(a:bufnr, a:start-1, a:end-1, 1)
+        catch
+            throw 'neomake#utils#buf_get_lines: '.substitute(v:exception, '\v^[^:]+:', '', '')
+        endtry
+    endfunction
+else
+    function! neomake#utils#buf_get_lines(bufnr, start, end) abort
+        if a:bufnr != bufnr('%')
+            throw 'Neomake: neomake#utils#buf_get_lines: used for non-current buffer'
+        endif
+        if a:start < 1
+            throw 'neomake#utils#buf_get_lines: start is lower than 1'
+        endif
+        if a:end-1 > line('$')
+            throw 'neomake#utils#buf_get_lines: end is higher than number of lines'
+        endif
+        let r = []
+        let i = a:start
+        while i < a:end
+            let r += [getline(i)]
+            let i += 1
+        endwhile
+        return r
+    endfunction
+endif
+
+if exists('*nvim_buf_set_lines')
+    function! neomake#utils#buf_set_lines(bufnr, start, end, replacement) abort
+        if a:start < 1
+            return 'neomake#utils#buf_set_lines: start is lower than 1'
+        endif
+        try
+            call nvim_buf_set_lines(a:bufnr, a:start-1, a:end-1, 1, a:replacement)
+        catch
+            " call neomake#log#error('Fixing entry failed (out of bounds)')
+            return 'neomake#utils#buf_set_lines: '.substitute(v:exception, '\v^[^:]+:', '', '')
+        endtry
+        return ''
+    endfunction
+else
+    function! neomake#utils#buf_set_lines(bufnr, start, end, replacement) abort
+        if a:bufnr != bufnr('%')
+            return 'neomake#utils#buf_set_lines: used for non-current buffer'
+        endif
+
+        if a:start < 1
+            return 'neomake#utils#buf_set_lines: start is lower than 1'
+        endif
+        if a:end > line('$')+1
+            return 'neomake#utils#buf_set_lines: end is higher than number of lines'
+        endif
+
+        if a:start == a:end
+            let lnum = a:start < 0 ? line('$') - a:start : a:start
+            if append(lnum-1, a:replacement) == 1
+                call neomake#log#error(printf('Failed to append line(s): %d (%d).', a:start, lnum), {'bufnr': a:bufnr})
+            endif
+
+        else
+            let range = a:end - a:start
+            if range > len(a:replacement)
+                let end = min([a:end, line('$')])
+                silent execute a:start.','.end.'d_'
+                call setline(a:start, a:replacement)
+            else
+                let i = 0
+                let n = len(a:replacement)
+                while i < n
+                    call setline(a:start + i, a:replacement[i])
+                    let i += 1
+                endwhile
+            endif
+        endif
+        return ''
+    endfunction
+endif
+
+function! neomake#utils#shorten_list_for_log(l, max) abort
+    if len(a:l) > a:max
+        return a:l[:a:max-1] + ['... ('.len(a:l).' total)']
+    endif
+    return a:l
 endfunction

@@ -74,6 +74,12 @@ dispatch.
 :NeomakeCancelJobs
                         Terminate all jobs.
 
+                                                               *:NeomakeClean*
+                                                              *:NeomakeClean!*
+:NeomakeClean[!]
+                        Clean signs, highlights etc. for file-mode, or
+                        project-mode (with bang).
+
 ==============================================================================
 2.1. Toggle commands                                          *neomake-toggle*
 
@@ -162,6 +168,25 @@ battery: >
     call neomake#configure#automake('nrw', 1000)
   endif
 <
+                                              *neomake-automake-dynamic-delay*
+The automake delay gets adjusted dynamically when timers or make runs get
+aborted.  This is meant to support the use case where you are doing multiple
+changes in succession (e.g. |undo|).
+This can be controlled with the experimental `automake.cancelation_delay`
+setting, which has to be a list: >
+  call neomake#configure('automake.cancelation_delay', [0.2, 0.5, 3000])
+>
+The first value gets multiplied with the number of restarted timers (before a
+make was triggered).
+The second value gets multiplied with canceled/restarted make runs.
+The sum of those values plus 1 gets multiplied with the original/configured
+delay.  The third value is used as a maximum.
+With the default settings from above this means that given a default delay of
+500ms, 7 restarted timer, and 1 restarted make run, it would use a delay of
+`(7*0.2 + 1*0.5 + 1) * 500 = 1450`.
+The counts for restarted timers and make runs gets reset once a make run
+finishes.
+
 Makers                                                        *neomake-makers*
 A maker is an object that tells Neomake how to run a job for you.
 
@@ -210,7 +235,8 @@ This can also be configured as setting: >
     endfunction
     call neomake#config#set('ft.python.InitForJob', function('CustomExe'))
 <
-
+                                                          *neomake-makers-exe*
+                                                         *neomake-makers-args*
 `exe` has to be a string, while `args` can be a list or a string.
 If `args` is a list, entries like '%' and '%:p' will be |expand()|ed, and
 quoting/escaping is applied automatically.  If you want to handle escaping
@@ -465,8 +491,10 @@ Define a new filetype or project-level maker. See |neomake-makers|.
 *b:neomake_<name>_<property>*
 *b:neomake_<ft>_<name>_<property>*
 Configure properties for a maker where <property> is one of `exe`, `args`,
-`errorformat`, `buffer_output`, `remove_invalid_entries` or `append_file`.
-This can be set per buffer, too. Example: >
+`errorformat`, `buffer_output`, `remove_invalid_entries`, `append_file`,
+or `supports_stdin`.
+
+This can also be set per buffer, e.g.: >
     let g:neomake_javascript_jshint_exe = './myjshint'
     let b:neomake_javascript_jshint_exe = './myotherjshint'
 <
@@ -515,19 +543,38 @@ the current buffer. This effectively defaults to: >
     let g:neomake_enabled_makers = ['makeprg']
 <
 *g:neomake_open_list*
+*b:neomake_open_list*
 This setting will open the |location-list| or |quickfix| list (depending on
 whether it is operating on a file) when adding entries. A value of 2 will
 preserve the cursor position when the |location-list| or |quickfix| window is
 opened. Defaults to 0.
 
 *g:neomake_list_height*
+*b:neomake_list_height*
 The maximum height of the |location-list| or |quickfix| list window opened by
 Neomake.  If there are fewer entries it will use that instead.
 Defaults to 10.
 
 *g:neomake_echo_current_error*
-This setting will echo the error for the line your cursor is on, if any.
+This setting will |:echo| the error for the line your cursor is on, if any.
+It uses a timer (if |timers| are available), and |CursorHold|/|CursorHoldI|
+otherwise.
 Defaults to 1.
+
+*g:neomake_virtualtext_current_error*
+Use Neovim's virtualtext API to display error for the current line next
+to the text.  This is experimental, and uses the same mechanism (timer)
+as |g:neomake_echo_current_error|.
+Defaults to 1 (only available on Neovim 0.3.2+).
+
+*g:neomake_virtualtext_prefix*
+The prefix used with |g:neomake_virtualtext_current_error|.
+Defaults to "❯ ".
+
+*g:neomake_cursormoved_delay*
+Delay (in ms) for the timer used to echo the current error with
+|g:neomake_echo_current_error|.
+Defaults to 100.
 
 *g:neomake_serialize*
 Setting this to 1 tells Neomake to run each enabled maker one after the other.
@@ -619,8 +666,10 @@ quickfix list. Defaults to 1.
 
 *g:neomake_highlight_lines*
 This setting enables highlighting of lines for items from the location and
-quickfix list. This overrides |g:neomake_highlight_columns|, since it
-highlights the whole line already. Defaults to 0.
+quickfix list. Defaults to 0.
+
+If both |g:neomake_highlight_columns| and |g:neomake_highlight_lines| are
+enabled, items with column information are highlighted using the column.
 
 The following highlighting groups are used:
  - NeomakeError: links to "SpellBad" (|hl-SpellBad|)
@@ -745,13 +794,14 @@ A simpler example: >
           \ })
 <
 You can use the following options:
+
 For location list items:~
   - format_loclist_unknown: format for when the status for location list
     issues is unknown, i.e. Neomake was not run on the current buffer.
     Default: `'?'`
   - format_loclist_ok: format for when there are no location list issues.
-    Default: `'%#NeomakeStatusGood#✓'` (a checkmark using the
-    NeomakeStatusGood highlight group).
+    Default: `'%#NeomakeStatusGood#✓%#NeomakeStatReset#'` (a checkmark using
+    the NeomakeStatusGood highlight group).
   - format_loclist_type_X: format for location list issues of type X
     (E, W, I, …).
     Default: looks up "format_loclist_type_default" first, and then uses
@@ -776,6 +826,7 @@ For quickfix list items:~
     be useful for non-current windows.
     Default: `'%s%%#NeomakeStatReset'` (used with |printf()|).
 
+Status related:~
   - format_status: used to wrap the whole status.
     This is a |printf()| format string, where `%s` gets replaced with the
     whole status (and any literal/non-printf `%` needs to be escaped as `%%`).
@@ -791,6 +842,19 @@ For quickfix list items:~
     This is a |printf()| format string, where `%s` gets replaced with the
     whole status (and any literal/non-printf `%` needs to be escaped as `%%`).
     Default: not used / `'%s'`
+
+General:~
+  - format_lists: used to format the overall location list and quickfix list
+    sections (before format_status).
+    `{{lists_sep}}` is empty ("") with only a single list section,
+    and defaults to " " if both are not empty.
+    Default: `'{{loclist}}{{lists_sep}}{{quickfix}}'`
+
+Running jobs:~
+  If any jobs are currently running in file or project mode, those get
+  displayed by default in the loclist or quickfix section.  The following
+  options control its appearance:
+
   - format_running: used in case there are jobs running.  Use 0 (as a number)
     to disable this, but fall through to the last known status.
     Default: `… ({{running_job_names}})`
@@ -801,7 +865,7 @@ For quickfix list items:~
   - running_jobs_separator: Separator for formatted running job names.
     Default: `', '`.
 
-Advanced options:
+Advanced options:~
 
   - use_highlights_with_defaults: include highlight attributes with default
     options (e.g. "%#NeomakeStatusGood#" with "format_loclist_ok").
@@ -895,6 +959,8 @@ have finished.
 You can use this to e.g. close an empty location or quickfix window.
 Context:
  - `g:neomake_hook_context`: a dictionary with the following keys:
+   - `make_info`: make info, which contains all of the entries from below,
+     plus some more.  (The object itself is not documented yet)
    - `make_id`: the numeric ID of the make run.
    - `options`: a dictionary (related to |neomake-object-jobinfo|):
      - `file_mode`
