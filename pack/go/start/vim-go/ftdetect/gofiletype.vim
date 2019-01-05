@@ -1,5 +1,9 @@
 " vint: -ProhibitAutocmdWithNoGroup
 
+" don't spam the user when Vim is started in Vi compatibility mode
+let s:cpo_save = &cpo
+set cpo&vim
+
 " We take care to preserve the user's fileencodings and fileformats,
 " because those settings are global (not buffer local), yet we want
 " to override them for loading Go files, which are defined to be UTF-8.
@@ -21,16 +25,21 @@ function! s:gofiletype_post()
 endfunction
 
 " Note: should not use augroup in ftdetect (see :help ftdetect)
-au BufNewFile *.go setfiletype go | setlocal fileencoding=utf-8 fileformat=unix
+au BufNewFile *.go setfiletype go | if &modifiable | setlocal fileencoding=utf-8 fileformat=unix | endif
 au BufRead *.go call s:gofiletype_pre("go")
 au BufReadPost *.go call s:gofiletype_post()
 
-au BufNewFile *.s setfiletype asm | setlocal fileencoding=utf-8 fileformat=unix
+au BufNewFile *.s setfiletype asm | if &modifiable | setlocal fileencoding=utf-8 fileformat=unix | endif
 au BufRead *.s call s:gofiletype_pre("asm")
 au BufReadPost *.s call s:gofiletype_post()
 
 au BufRead,BufNewFile *.tmpl set filetype=gohtmltmpl
 
+" remove the autocommands for modsim3, and lprolog files so that their
+" highlight groups, syntax, etc. will not be loaded. *.MOD is included, so
+" that on case insensitive file systems the module2 autocmds will not be
+" executed.
+au! BufNewFile,BufRead *.mod,*.MOD
 " Set the filetype if the first non-comment and non-blank line starts with
 " 'module <path>'.
 au BufNewFile,BufRead go.mod call s:gomod()
@@ -49,5 +58,9 @@ fun! s:gomod()
     break
   endfor
 endfun
+
+" restore Vi compatibility settings
+let &cpo = s:cpo_save
+unlet s:cpo_save
 
 " vim: sw=2 ts=2 et

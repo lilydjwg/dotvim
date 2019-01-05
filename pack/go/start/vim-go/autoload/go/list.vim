@@ -1,3 +1,7 @@
+" don't spam the user when Vim is started in Vi compatibility mode
+let s:cpo_save = &cpo
+set cpo&vim
+
 " Window opens the list with the given height up to 10 lines maximum.
 " Otherwise g:go_loclist_height is used.
 "
@@ -134,6 +138,7 @@ endfunction
 " in g:go_list_type_commands.
 let s:default_list_type_commands = {
       \ "GoBuild":              "quickfix",
+      \ "GoDebug":              "quickfix",
       \ "GoErrCheck":           "quickfix",
       \ "GoFmt":                "locationlist",
       \ "GoGenerate":           "quickfix",
@@ -163,5 +168,9 @@ function! go#list#Type(for) abort
 
   return get(go#config#ListTypeCommands(), a:for, l:listtype)
 endfunction
+
+" restore Vi compatibility settings
+let &cpo = s:cpo_save
+unlet s:cpo_save
 
 " vim: sw=2 ts=2 et

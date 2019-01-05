@@ -1,3 +1,7 @@
+" don't spam the user when Vim is started in Vi compatibility mode
+let s:cpo_save = &cpo
+set cpo&vim
+
 " Spawn starts an asynchronous job. See the description of go#job#Options to
 " understand the args parameter.
 "
@@ -88,7 +92,6 @@ function! go#job#Options(args)
     let state.errorformat = a:args.errorformat
   endif
 
-  " do nothing in state.complete by default.
   function state.complete(job, exit_status, data)
     if has_key(self, 'custom_complete')
       let l:winid = win_getid(winnr())
@@ -293,6 +296,10 @@ function! go#job#Start(cmd, options)
     unlet l:options._start
   endif
 
+  if go#util#HasDebug('shell-commands')
+    call go#util#EchoInfo('job command: ' . string(a:cmd))
+  endif
+
   if has('nvim')
     let l:input = []
     if has_key(a:options, 'in_io') && a:options.in_io ==# 'file' && !empty(a:options.in_name)
@@ -307,7 +314,12 @@ function! go#job#Start(cmd, options)
       call chanclose(job, 'stdin')
     endif
   else
-    let job = job_start(a:cmd, l:options)
+    let l:cmd = a:cmd
+    if go#util#IsWin()
+      let l:cmd = join(map(copy(a:cmd), function('s:winjobarg')), " ")
+    endif
+
+    let job = job_start(l:cmd, l:options)
   endif
 
   if !has_key(l:options, 'cwd')
@@ -331,77 +343,19 @@ function! s:neooptions(options)
         continue
       endif
 
-      " dealing with the channel lines of Neovim sucks. The docs (:help
-      " channel-lines) say:
-      " stream event handlers may receive partial (incomplete) lines. For a
-      " given invocation of on_stdout etc, `a:data` is not guaranteed to end
-      " with a newline.
-      "   - `abcdefg` may arrive as `['abc']`, `['defg']`.
-      "   - `abc\nefg` may arrive as `['abc', '']`, `['efg']` or `['abc']`,
-      "     `['','efg']`, or even `['ab']`, `['c','efg']`.
       if key == 'callback'
         let l:options['callback'] = a:options['callback']
 
         if !has_key(a:options, 'out_cb')
           function! s:callback2on_stdout(ch, data, event) dict
-            " a single empty string means EOF was reached.
-            if len(a:data) == 1 && a:data[0] == ''
-              " when there's nothing buffered, return early so that an
-              " erroneous message will not be added.
-              if self.stdout_buf == ''
-                return
-              endif
-
-              let l:data = [self.stdout_buf]
-              let self.stdout_buf = ''
-            else
-              let l:data = copy(a:data)
-              let l:data[0] = self.stdout_buf . l:data[0]
-
-              " The last element may be a partial line; save it for next time.
-              let self.stdout_buf = l:data[-1]
-
-              let l:data = l:data[:-2]
-
-              if len(l:data) == 0
-                return
-              endif
-            endif
-
-            for l:msg in l:data
-              call self.callback(a:ch, l:msg)
-            endfor
+            let self.stdout_buf = s:neocb(a:ch, self.stdout_buf, a:data, self.callback)
           endfunction
           let l:options['on_stdout'] = function('s:callback2on_stdout', [], l:options)
         endif
 
         if !has_key(a:options, 'err_cb')
           function! s:callback2on_stderr(ch, data, event) dict
-            " a single empty string means EOF was reached.
-            if len(a:data) == 1 && a:data[0] == ''
-              " when there's nothing buffered, return early so that an
-              " erroneous message will not be added.
-              if self.stderr_buf == ''
-                return
-              endif
-              let l:data = [self.stderr_buf]
-              let self.stderr_buf = ''
-            else
-              let l:data = copy(a:data)
-              let l:data[0] = self.stderr_buf . l:data[0]
-
-              " The last element may be a partial line; save it for next time.
-              let self.stderr_buf = l:data[-1]
-
-              let l:data = l:data[:-2]
-              if len(l:data) == 0
-                return
-              endif
-            endif
-
-            for l:msg in l:data
-              call self.callback(a:ch, l:msg)
-            endfor
+            let self.stderr_buf = s:neocb(a:ch, self.stderr_buf, a:data, self.callback)
           endfunction
           let l:options['on_stderr'] = function('s:callback2on_stderr', [], l:options)
         endif
@@ -412,31 +366,7 @@ function! s:neooptions(options)
       if key == 'out_cb'
         let l:options['out_cb'] = a:options['out_cb']
         function! s:on_stdout(ch, data, event) dict
-          " a single empty string means EOF was reached.
-          if len(a:data) == 1 && a:data[0] == ''
-            " when there's nothing buffered, return early so that an
-            " erroneous message will not be added.
-            if self.stdout_buf == ''
-              return
-            endif
-            let l:data = [self.stdout_buf]
-            let self.stdout_buf = ''
-          else
-            let l:data = copy(a:data)
-            let l:data[0] = self.stdout_buf . l:data[0]
-
-            " The last element may be a partial line; save it for next time.
-            let self.stdout_buf = l:data[-1]
-
-            let l:data = l:data[:-2]
-            if len(l:data) == 0
-              return
-            endif
-          endif
-
-            for l:msg in l:data
-              call self.out_cb(a:ch, l:msg)
-            endfor
+          let self.stdout_buf = s:neocb(a:ch, self.stdout_buf, a:data, self.out_cb)
         endfunction
         let l:options['on_stdout'] = function('s:on_stdout', [], l:options)
 
@@ -446,31 +376,7 @@ function! s:neooptions(options)
       if key == 'err_cb'
         let l:options['err_cb'] = a:options['err_cb']
         function! s:on_stderr(ch, data, event) dict
-          " a single empty string means EOF was reached.
-          if len(a:data) == 1 && a:data[0] == ''
-            " when there's nothing buffered, return early so that an
-            " erroneous message will not be added.
-            if self.stderr_buf == ''
-              return
-            endif
-            let l:data = [self.stderr_buf]
-            let self.stderr_buf = ''
-          else
-            let l:data = copy(a:data)
-            let l:data[0] = self.stderr_buf . l:data[0]
-
-            " The last element may be a partial line; save it for next time.
-            let self.stderr_buf = l:data[-1]
-
-            let l:data = l:data[:-2]
-            if len(l:data) == 0
-              return
-            endif
-          endif
-
-          for l:msg in l:data
-            call self.err_cb(a:ch, l:msg)
-          endfor
+          let self.stderr_buf = s:neocb(a:ch, self.stderr_buf, a:data, self.err_cb )
         endfunction
         let l:options['on_stderr'] = function('s:on_stderr', [], l:options)
 
@@ -500,5 +406,75 @@ function! s:neooptions(options)
   endfor
   return l:options
 endfunction
+
+function! go#job#Stop(job) abort
+  if has('nvim')
+    call jobstop(a:job)
+    return
+  endif
+
+  call job_stop(a:job)
+  call go#job#Wait(a:job)
+  return
+endfunction
+
+function! go#job#Wait(job) abort
+  if has('nvim')
+    call jobwait(a:job)
+    return
+  endif
+
+  while job_status(a:job) is# 'run'
+    sleep 50m
+  endwhile
+endfunction
+
+function! s:winjobarg(idx, val) abort
+  if empty(a:val)
+    return '""'
+  endif
+  return a:val
+endfunction
+
+function! s:neocb(ch, buf, data, callback)
+  " dealing with the channel lines of Neovim is awful. The docs (:help
+  " channel-lines) say:
+  " stream event handlers may receive partial (incomplete) lines. For a
+  " given invocation of on_stdout etc, `a:data` is not guaranteed to end
+  " with a newline.
+  "   - `abcdefg` may arrive as `['abc']`, `['defg']`.
+  "   - `abc\nefg` may arrive as `['abc', '']`, `['efg']` or `['abc']`,
+  "     `['','efg']`, or even `['ab']`, `['c','efg']`.
+
+  " a single empty string means EOF was reached.
+  if len(a:data) == 1 && a:data[0] == ''
+    " when there's nothing buffered, return early so that an
+    " erroneous message will not be added.
+    if a:buf == ''
+      return ''
+    endif
+
+    let l:data = [a:buf]
+    let l:buf = ''
+  else
+    let l:data = copy(a:data)
+    let l:data[0] = a:buf . l:data[0]
+
+    " The last element may be a partial line; save it for next time.
+    let l:buf = l:data[-1]
+
+    let l:data = l:data[:-2]
+  endif
+
+  for l:msg in l:data
+    call a:callback(a:ch, l:msg)
+  endfor
+
+  return l:buf
+endfunction
+
+" restore Vi compatibility settings
+let &cpo = s:cpo_save
+unlet s:cpo_save
 
 " vim: sw=2 ts=2 et

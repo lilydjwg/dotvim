@@ -1,9 +1,13 @@
+" don't spam the user when Vim is started in Vi compatibility mode
+let s:cpo_save = &cpo
+set cpo&vim
+
 let s:go_major_version = ""
 
 function! go#mod#Format() abort
   " go mod only exists in `v1.11`
   if empty(s:go_major_version)
-    let tokens = matchlist(go#util#System("go version"), '\d\+.\(\d\+\) ')
+    let tokens = matchlist(go#util#System("go version"), '\d\+.\(\d\+\)\(\.\d\+\)\? ')
     let s:go_major_version = str2nr(tokens[1])
   endif
 
@@ -138,3 +142,9 @@ function! go#mod#ToggleModFmtAutoSave() abort
   call go#config#SetModFmtAutosave(1)
   call go#util#EchoProgress("auto mod fmt enabled")
 endfunction
+
+" restore Vi compatibility settings
+let &cpo = s:cpo_save
+unlet s:cpo_save
+
+" vim: sw=2 ts=2 et

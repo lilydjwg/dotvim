@@ -14,7 +14,6 @@
 'g:go_def_mapping_enabled'	vim-go.txt	/*'g:go_def_mapping_enabled'*
 'g:go_def_mode'	vim-go.txt	/*'g:go_def_mode'*
 'g:go_def_reuse_buffer'	vim-go.txt	/*'g:go_def_reuse_buffer'*
-'g:go_doc_command'	vim-go.txt	/*'g:go_doc_command'*
 'g:go_doc_height'	vim-go.txt	/*'g:go_doc_height'*
 'g:go_doc_keywordprg_enabled'	vim-go.txt	/*'g:go_doc_keywordprg_enabled'*
 'g:go_doc_url'	vim-go.txt	/*'g:go_doc_url'*
@@ -30,11 +29,13 @@
 'g:go_gocode_propose_builtins'	vim-go.txt	/*'g:go_gocode_propose_builtins'*
 'g:go_gocode_propose_source'	vim-go.txt	/*'g:go_gocode_propose_source'*
 'g:go_gocode_socket_type'	vim-go.txt	/*'g:go_gocode_socket_type'*
+'g:go_gocode_unimported_packages'	vim-go.txt	/*'g:go_gocode_unimported_packages'*
 'g:go_gorename_prefill'	vim-go.txt	/*'g:go_gorename_prefill'*
 'g:go_guru_scope'	vim-go.txt	/*'g:go_guru_scope'*
 'g:go_highlight_array_whitespace_error'	vim-go.txt	/*'g:go_highlight_array_whitespace_error'*
 'g:go_highlight_build_constraints'	vim-go.txt	/*'g:go_highlight_build_constraints'*
 'g:go_highlight_chan_whitespace_error'	vim-go.txt	/*'g:go_highlight_chan_whitespace_error'*
+'g:go_highlight_debug'	vim-go.txt	/*'g:go_highlight_debug'*
 'g:go_highlight_extra_types'	vim-go.txt	/*'g:go_highlight_extra_types'*
 'g:go_highlight_fields'	vim-go.txt	/*'g:go_highlight_fields'*
 'g:go_highlight_format_strings'	vim-go.txt	/*'g:go_highlight_format_strings'*
@@ -64,6 +65,7 @@
 'g:go_mod_fmt_autosave'	vim-go.txt	/*'g:go_mod_fmt_autosave'*
 'g:go_play_browser_command'	vim-go.txt	/*'g:go_play_browser_command'*
 'g:go_play_open_browser'	vim-go.txt	/*'g:go_play_open_browser'*
+'g:go_search_bin_path_first'	vim-go.txt	/*'g:go_search_bin_path_first'*
 'g:go_snippet_engine'	vim-go.txt	/*'g:go_snippet_engine'*
 'g:go_statusline_duration'	vim-go.txt	/*'g:go_statusline_duration'*
 'g:go_template_autocreate'	vim-go.txt	/*'g:go_template_autocreate'*

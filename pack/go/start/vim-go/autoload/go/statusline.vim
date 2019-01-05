@@ -1,3 +1,7 @@
+" don't spam the user when Vim is started in Vi compatibility mode
+let s:cpo_save = &cpo
+set cpo&vim
+
 " Statusline
 """"""""""""""""""""""""""""""""
 
@@ -54,11 +58,11 @@ function! go#statusline#Show() abort
   " only update highlight if status has changed.
   if status_text != s:last_status
     if status.state =~ "success" || status.state =~ "finished" || status.state =~ "pass"
-      hi goStatusLineColor cterm=bold ctermbg=76 ctermfg=22
+      hi goStatusLineColor cterm=bold ctermbg=76 ctermfg=22 guibg=#5fd700 guifg=#005f00
     elseif status.state =~ "started" || status.state =~ "analysing" || status.state =~ "compiling"
-      hi goStatusLineColor cterm=bold ctermbg=208 ctermfg=88
+      hi goStatusLineColor cterm=bold ctermbg=208 ctermfg=88 guibg=#ff8700 guifg=#870000
     elseif status.state =~ "failed"
-      hi goStatusLineColor cterm=bold ctermbg=196 ctermfg=52
+      hi goStatusLineColor cterm=bold ctermbg=196 ctermfg=52 guibg=#ff0000 guifg=#5f0000
     endif
   endif
 
@@ -108,5 +112,9 @@ function! go#statusline#Clear(timer_id) abort
   " cursor
   exe 'let &ro = &ro'
 endfunction
+
+" restore Vi compatibility settings
+let &cpo = s:cpo_save
+unlet s:cpo_save
 
 " vim: sw=2 ts=2 et

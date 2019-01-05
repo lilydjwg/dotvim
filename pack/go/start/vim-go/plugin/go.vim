@@ -4,6 +4,10 @@ if exists("g:go_loaded_install")
 endif
 let g:go_loaded_install = 1
 
+" don't spam the user when Vim is started in Vi compatibility mode
+let s:cpo_save = &cpo
+set cpo&vim
+
 function! s:checkVersion() abort
   " Not using the has('patch-7.4.2009') syntax because that wasn't added until
   " 7.4.237, and we want to be sure this works for everyone (this is also why
@@ -47,10 +51,11 @@ let s:packages = {
       \ 'errcheck':      ['github.com/kisielk/errcheck'],
       \ 'fillstruct':    ['github.com/davidrjenni/reftools/cmd/fillstruct'],
       \ 'gocode':        ['github.com/mdempsky/gocode', {'windows': ['-ldflags', '-H=windowsgui']}],
+      \ 'gocode-gomod':  ['github.com/stamblerre/gocode'],
       \ 'godef':         ['github.com/rogpeppe/godef'],
       \ 'gogetdoc':      ['github.com/zmb3/gogetdoc'],
       \ 'goimports':     ['golang.org/x/tools/cmd/goimports'],
-      \ 'golint':        ['github.com/golang/lint/golint'],
+      \ 'golint':        ['golang.org/x/lint/golint'],
       \ 'gometalinter':  ['github.com/alecthomas/gometalinter'],
       \ 'gomodifytags':  ['github.com/fatih/gomodifytags'],
       \ 'gorename':      ['golang.org/x/tools/cmd/gorename'],
@@ -170,7 +175,7 @@ function! s:GoInstallBinaries(updateBinaries, ...)
 
       " and then build and install it
       let l:build_cmd = ['go', 'build', '-o', go_bin_path . go#util#PathSep() . bin, l:importPath]
-      let [l:out, l:err] = go#util#Exec(l:build_cmd + [l:importPath])
+      let [l:out, l:err] = go#util#Exec(l:build_cmd)
       if l:err
         echom "Error installing " . l:importPath . ": " . l:out
       endif
@@ -266,13 +271,13 @@ endfunction
 function! s:metalinter_autosave()
   " run gometalinter on save
   if get(g:, "go_metalinter_autosave", 0)
-    call go#lint#Gometa(1)
+    call go#lint#Gometa(0, 1)
   endif
 endfunction
 
 function! s:template_autocreate()
   " create new template from scratch
-  if get(g:, "go_template_autocreate", 1)
+  if get(g:, "go_template_autocreate", 1) && &modifiable
     call go#template#create()
   endif
 endfunction
@@ -312,5 +317,9 @@ augroup vim-go
         \|   unlet b:old_gopath
         \| endif
 augroup end
+
+" restore Vi compatibility settings
+let &cpo = s:cpo_save
+unlet s:cpo_save
 
 " vim: sw=2 ts=2 et

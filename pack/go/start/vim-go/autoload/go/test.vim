@@ -1,3 +1,7 @@
+" don't spam the user when Vim is started in Vi compatibility mode
+let s:cpo_save = &cpo
+set cpo&vim
+
 " Test runs `go test` in the current directory. If compile is true, it'll
 " compile the tests instead of running them (useful to catch errors in the
 " test files). Any other argument is appended to the final `go test` command.
@@ -80,7 +84,6 @@ function! go#test#Test(bang, compile, ...) abort
       " failed to parse errors, output the original content
       call go#util#EchoError(out)
     endif
-    call go#util#EchoError("[test] FAIL")
   else
     call go#list#Clean(l:listtype)
 
@@ -301,5 +304,9 @@ function! s:errorformat() abort
 
   return s:efm
 endfunction
+
+" restore Vi compatibility settings
+let &cpo = s:cpo_save
+unlet s:cpo_save
 
 " vim: sw=2 ts=2 et

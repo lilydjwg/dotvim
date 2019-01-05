@@ -1,3 +1,7 @@
+" don't spam the user when Vim is started in Vi compatibility mode
+let s:cpo_save = &cpo
+set cpo&vim
+
 " From "go list -h".
 function! go#tool#ValidFiles(...)
   let l:list = ["GoFiles", "CgoFiles", "IgnoredGoFiles", "CFiles", "CXXFiles",
@@ -126,8 +130,8 @@ function! go#tool#ParseErrors(lines) abort
   return errors
 endfunction
 
-"FilterValids filters the given items with only items that have a valid
-"filename. Any non valid filename is filtered out.
+" FilterValids filters the given items with only items that have a valid
+" filename. Any non valid filename is filtered out.
 function! go#tool#FilterValids(items) abort
   " Remove any nonvalid filename from the location list to avoid opening an
   " empty buffer. See https://github.com/fatih/vim-go/issues/287 for
@@ -212,5 +216,9 @@ function! go#tool#OpenBrowser(url) abort
         call go#util#System(l:cmd)
     endif
 endfunction
+
+" restore Vi compatibility settings
+let &cpo = s:cpo_save
+unlet s:cpo_save
 
 " vim: sw=2 ts=2 et
