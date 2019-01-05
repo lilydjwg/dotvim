@@ -24,21 +24,49 @@ this plugin will exactly show the changed and added units:
 ![example2](example2.png)
 
 This plugin will synchronously show/reset the highlights of the exact
-differences as soon as the diff mode starts/ends since a `g:DiffModeSync` is
-enabled as a default. It synchronously works as well on your custom diff tool
-(e.g. git-diff) when you have specified it to the `diffexpr` option.
+differences as soon as the diff mode begins/ends since a `g:DiffModeSync` is
+enabled as a default. And the exact differences will be kept updated while
+editing.  
 
-In non-diff mode or when the `g:DiffModeSync` is disabled, you can toggle to
-show/reset the diff highlights by pressing `<F7>` or `<F8>` or using `:TDChar`
-command. To show or reset them, use `:SDChar` or `:RDChar` command.
+You can use `:SDChar` and `:RDChar` commands to manually show and reset the
+highlights on all or some of lines. To toggle the highlights, use `:TDChar` 
+command.
+
+This plugin shows the differences based on a `g:DiffUnit`. Its default is
+'Word1' and it handles a \w\+ word and a \W character as a difference unit.
+There are other types of word provided and you can also set 'Char' to compare
+character by character.
 
 In diff mode, the corresponding changed lines are compared between two
-windows. In non-diff mode, the same lines are compared among them. You can
-set a matching color to a `g:DiffColors` to make it easy to recognize the
-corresponding changed units between two windows. As a default, all the
-changed units are highlighted with `DiffText`. In addition, `DiffAdd` is always
+windows. You can set a matching color to a `g:DiffColors` to make it easy to
+find the corresponding units between two windows. As a default, all the
+changed units are highlighted with DiffText. In addition, DiffAdd is always
 used for the added units and both the previous and next character of the
 deleted units are shown in bold/underline.
+
+When the diff mode begins, this plugin detects the limited number of the
+DiffChange lines, specified by a `g:DiffMaxLines`, in the current visible and
+upper/lower lines of the window. And whenever a cursor is moved onto another
+line, it detects the DiffChange lines again. It is useful for a large file
+because, independently of the file size, the number of lines to be detected
+and then the time consumed are always constant. Its default is 300 lines (100
+lines if an external diff command is not available for performance reason).
+The height of the current window is used instead if the value is less than it.
+If 0 is specified, it disables and detects all DiffChange lines only when the
+diff mode begins.
+
+While showing the exact differences, when cursor is moved on a difference
+unit, you can see its corresponding unit with cursor-like highlight in another
+window, and also its whole string with the assigned color as a message,
+based on `g:DiffPairVisible`.
+
+You can use `]b` or `]e` to jump cursor to start or end position of the next
+difference unit, and `[b` or `[e` to the start or end position of the previous
+unit. Those keymaps are configurable in your vimrc and so on.
+
+Like line-based `:diffget`/`:diffput` and `do`/`dp` vim commands, you can use
+<Leader>g and <Leader>p commands in normal mode to get and put each difference
+unit, where the cursor is on, between 2 buffers and undo its difference.
 
 In order to check the actual differences in a line, you can use `:EDChar`
 command and echo the lines for range. A changed, added, and deleted unit is
@@ -49,26 +77,6 @@ terminal, the deleted unit is highlighted with the strike instead and `[+`, `+]`
 and show `...` instead, if the line is too long to fit on the command line.
 The line number is shown if `number` or `relativenumber` option is set in the
 window. When [!] is used, nothing is shorten and all lines are displayed.
-
-This plugin traces the differences based on a `g:DiffUnit`. Its default is
-'Word1' and it handles a \w\\+ word and a \W character as a difference unit.
-There are other types of word provided and you can also set 'Char' to compare
-character by character.
-
-While showing the exact differences, when cursor is moved on a difference
-unit, you can see its corresponding unit with cursor-like highlight in another
-window, and also its whole string with the assigned color as a message,
-based on `g:DiffPairVisible`.
-
-You can use `]b` or `]e` to jump cursor to the start or end position of the next
-difference unit, and `[b` or `[e` to the start or end position of the previous
-unit. Those keymaps, `<F7>` and `<F8>` are configurable in your vimrc and so on.
-
-This plugin always keeps the exact differences updated while editing if a
-`g:DiffUpdate` is enabled and TextChanged/InsertLeave events are available.
-Like line-based `diffget`/`diffput` and `do`/`dp` vim commands, you can use
-`<Leader>g` and `<Leader>p` commands in normal mode to get and put each difference
-unit, where the cursor is on, between 2 buffers and undo its difference.
 
 This plugin has been using "An O(NP) Sequence Comparison Algorithm" developed
 by S.Wu, et al., which always finds an optimum sequence quickly. But for
@@ -82,11 +90,6 @@ diff command effectively optimizes between them. Its default is 100 ms, which
 would be useful for smaller files. If prefer to always apply the internal
 algorithm for accuracy (or the diff command for performance), set some large
 value (or 0) to it.
-
-This plugin sets the `DiffCharExpr()` to the `diffexpr` option, if it is empty.
-It also uses the `g:DiffSplitTime` and splits the tracing between the
-internal algorithm and the external diff command. If prefer to leave the
-`diffexpr` option as empty, set 0 to a `g:DiffExpr`.
 
 This plugin works on each tab page individually. You can use a tab page
 variable (t:), instead of a global one (g:), to specify different options on
@@ -111,10 +114,6 @@ This plugin has been always positively supporting mulltibyte characters.
 
 #### Keymaps
 
-* `<Plug>ToggleDiffCharAllLines` (default: `<F7>`)
-  * Toggle to show/reset the highlights for all/selected lines
-* `<Plug>ToggleDiffCharCurrentLine` (default: `<F8>`)
-  * Toggle to show/reset the highlights for current/selected lines
 * `<Plug>JumpDiffCharPrevStart` (default: `[b`)
   * Jump cursor to the start position of the previous difference unit
 * `<Plug>JumpDiffCharNextStart` (default: `]b`)
@@ -142,21 +141,18 @@ This plugin has been always positively supporting mulltibyte characters.
   * 2   : 8 colors in fixed order
   * 3   : 16 colors in fixed order
   * 100 : all colors defined in highlight option in dynamic random order
+* `g:DiffModeSync`, `t:DiffModeSync`- Synchronously show/reset/update with diff mode
+  * 1 : enable (default)
+  * 0 : disable
+* `g:DiffMaxLines`, `t:DiffMaxLines` - A maximum number of DiffChange lines to be dynamically detected
+  * 1 ~ : (300 as default, 100 if diff commend not available)
+  * 0 : disable (detect all DiffChange lines only when a diff mode begins)
 * `g:DiffPairVisible`, `t:DiffPairVisible` - Make a corresponding unit visible when cursor is moved on a difference unit
   * 2 : highlight with cursor-like color plus echo as a message (default)
   * 1 : highlight with cursor-like color
   * 0 : nothing visible
-* `g:DiffUpdate`, `t:DiffUpdate` - Interactively updating the diff highlights while editing (available on vim 7.4)
-  * 1 : enable (default)
-  * 0 : disable
 * `g:DiffSplitTime`, `t:DiffSplitTime` - A time length (ms) to apply the internal algorithm first
   * 0 ~ : (100 as default)
-* `g:DiffModeSync`, `t:DiffModeSync`- Synchronously show/reset with diff mode
-  * 1 : enable (default)
-  * 0 : disable
-* `g:DiffExpr`- Set `DiffCharExpr()` to the `diffexpr` option
-  * 1 : enable (default)
-  * 0 : disable
 
 #### Demo
 
