@@ -253,11 +253,7 @@ function! neosnippet#parser#_initialize_snippet(dict, path, line, pattern, name)
 
   if !has_key(a:dict, 'abbr') || a:dict.abbr == ''
     " Set default abbr.
-    let abbr = substitute(a:dict.word,
-        \   neosnippet#get_placeholder_marker_pattern(). '\|'.
-        \   neosnippet#get_mirror_placeholder_marker_pattern().
-        \   '\|\s\+\|\n\|TARGET', ' ', 'g')
-    let abbr = substitute(abbr, '\\\(\\\|`\|\$\)', '\1', 'g')
+    let abbr = ''
     let a:dict.abbr = a:dict.name
   else
     let abbr = a:dict.abbr
@@ -449,9 +445,9 @@ function! s:include_snippets(globs) abort
   for glob in a:globs
     let snippets_dir = neosnippet#helpers#get_snippets_directory(
           \ fnamemodify(glob, ':r'))
-      for file in split(globpath(join(snippets_dir, ','), glob), '\n')
-        call extend(snippets, neosnippet#parser#_parse_snippets(file))
-      endfor
+    for file in split(globpath(join(snippets_dir, ','), glob), '\n')
+      call extend(snippets, neosnippet#parser#_parse_snippets(file))
+    endfor
   endfor
 
   return snippets

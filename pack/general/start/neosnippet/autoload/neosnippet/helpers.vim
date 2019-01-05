@@ -59,11 +59,12 @@ endfunction
 
 function! neosnippet#helpers#get_snippets_directory(...) abort
   let filetype = get(a:000, 0, neosnippet#helpers#get_filetype())
-  let snippets_dir = copy(neosnippet#variables#snippets_dir())
+  let snippets_dir = []
   if !get(g:neosnippet#disable_runtime_snippets, filetype,
         \ get(g:neosnippet#disable_runtime_snippets, '_', 0))
     let snippets_dir += neosnippet#variables#runtime_dir()
   endif
+  let snippets_dir += copy(neosnippet#variables#snippets_dir())
 
   return snippets_dir
 endfunction
@@ -179,4 +180,38 @@ function! s:get_sources_filetypes(filetype) abort
         \   context_filetype#get_filetypes(a:filetype) :
         \ split(((a:filetype == '') ? 'nothing' : a:filetype), '\.')
   return neosnippet#util#uniq(['_'] + filetypes + [a:filetype])
+endfunction
+
+function! s:get_list() abort
+  if !exists('s:List')
+    let s:List = vital#of('neosnippet').import('Data.List')
+  endif
+  return s:List
+endfunction
+
+function! neosnippet#helpers#get_snippets_files(filetype) abort
+  let path = join(neosnippet#helpers#get_snippets_directory(), ',')
+  let snippets_files = []
+  for glob in s:get_list().flatten(
+        \ map(split(get(g:neosnippet#scope_aliases,
+        \   a:filetype, a:filetype), '\s*,\s*'), "
+        \   [v:val.'.snip', v:val.'.snippets',
+        \    v:val.'/**/*.snip', v:val.'/**/*.snippets']
+        \ + (a:filetype != '_' &&
+        \    !has_key(g:neosnippet#scope_aliases, a:filetype) ?
+        \    [v:val . '_*.snip', v:val . '_*.snippets'] : [])"))
+    let snippets_files += split(globpath(path, glob), '\n')
+  endfor
+  return s:get_list().uniq(snippets_files)
+endfunction
+function! neosnippet#helpers#get_snippet_files(filetype) abort
+  let path = join(neosnippet#helpers#get_snippets_directory(), ',')
+  let snippet_files = []
+  for glob in s:get_list().flatten(
+        \ map(split(get(g:neosnippet#scope_aliases,
+        \   a:filetype, a:filetype), '\s*,\s*'), "
+        \   [v:val.'/*.snippet']"))
+    let snippet_files += split(globpath(path, glob), '\n')
+  endfor
+  return s:get_list().uniq(snippet_files)
 endfunction
