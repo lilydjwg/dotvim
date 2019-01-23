@@ -1,7 +1,6 @@
 " Vim script file
 " FileType:     vimwiki
 " Author:       lilydjwg <lilydjwg@gmail.com>
-" Last Change:  2010年8月21日
 
 nmap <buffer> <Space> <C-Space>
 nmap <buffer> t8 I  * <ESC>
@@ -20,7 +19,7 @@ setlocal fo+=B
 " 不能设置在 .vimrc 里，因为那里 wiki 变量还未被建立
 " 直接打开文件时无效
 " 如果 {{{ 不在行首亦无效
-let wiki.nested_syntaxes = {'sh': 'sh', 'c': 'c', 'rust': 'rust'}
+let wiki.nested_syntaxes = {'sh': 'sh', 'c': 'c', 'rust': 'rust', 'sql': 'sql'}
 
 imap <buffer> <BS> <C-R>=Lilydjwg_checklist_bs('\v^\s*[*-]( \[.\])? $')<CR>
 
