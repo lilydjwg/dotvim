@@ -1,0 +1,18 @@
+post.pl
+vim_passfile
+doc/tags
+.*.un~
+.*.sw*
+# ignore csv files for tests
+*.csv
+*.txt
+# ignore vimballs
+*.vba
+*-*.vmb
+# ignore *.orig files
+*.orig
+*.*~
+# various testfiles
+file*.*
+testfile*
+doc/tags

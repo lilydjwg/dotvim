@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:chrisbra/csv.vim.git
+	branch = master
+	commit = ea2685eb1c522dc7ea51ca0a1f215d4107d9978d
+	parent = 8adbbb0b4bb16e07a5875c9d1ac3528f9b358a89
+	method = merge
+	cmdver = 0.4.0
