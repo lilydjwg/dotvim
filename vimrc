@@ -13,7 +13,7 @@ scriptencoding utf-8
 " ========================================================================
 " 其他文件[[[1
 try
-  packadd matchit
+  packadd! matchit
 catch /.*/
   runtime macros/matchit.vim
 endtry
