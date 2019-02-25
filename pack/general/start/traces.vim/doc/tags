@@ -1,4 +1,5 @@
 g:traces_enabled	traces.txt	/*g:traces_enabled*
+g:traces_num_range_preview	traces.txt	/*g:traces_num_range_preview*
 g:traces_preserve_view_state	traces.txt	/*g:traces_preserve_view_state*
 g:traces_skip_modifiers	traces.txt	/*g:traces_skip_modifiers*
 g:traces_substitute_preview	traces.txt	/*g:traces_substitute_preview*

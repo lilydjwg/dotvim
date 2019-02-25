@@ -9,6 +9,7 @@ MundoLicense	mundo.txt	/*MundoLicense*
 MundoUsage	mundo.txt	/*MundoUsage*
 mundo.txt	mundo.txt	/*mundo.txt*
 mundo_auto_preview	mundo.txt	/*mundo_auto_preview*
+mundo_auto_preview_delay	mundo.txt	/*mundo_auto_preview_delay*
 mundo_close_on_revert	mundo.txt	/*mundo_close_on_revert*
 mundo_disable	mundo.txt	/*mundo_disable*
 mundo_help	mundo.txt	/*mundo_help*

@@ -44,6 +44,7 @@ denite-filter-converter_relative_word	denite.txt	/*denite-filter-converter_relat
 denite-filter-matcher/cpsm	denite.txt	/*denite-filter-matcher\/cpsm*
 denite-filter-matcher/fuzzy	denite.txt	/*denite-filter-matcher\/fuzzy*
 denite-filter-matcher/hide_hidden_files	denite.txt	/*denite-filter-matcher\/hide_hidden_files*
+denite-filter-matcher/ignore_current_buffer	denite.txt	/*denite-filter-matcher\/ignore_current_buffer*
 denite-filter-matcher/ignore_globs	denite.txt	/*denite-filter-matcher\/ignore_globs*
 denite-filter-matcher/project_files	denite.txt	/*denite-filter-matcher\/project_files*
 denite-filter-matcher/regexp	denite.txt	/*denite-filter-matcher\/regexp*
