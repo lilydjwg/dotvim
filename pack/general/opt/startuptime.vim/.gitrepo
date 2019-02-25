@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:tweekmonster/startuptime.vim.git
+	branch = master
+	commit = dfa57f522d6f61793fe5fea65bca7484751b8ca2
+	parent = 032f3486efe44ee833150f6369783c4866feb71e
+	method = merge
+	cmdver = 0.4.0
