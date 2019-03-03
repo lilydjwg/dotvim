@@ -458,7 +458,7 @@ set sessionoptions=blank,buffers,curdir,folds,help,options,tabpages,winsize,slas
 set shiftwidth=2
 set winaltkeys=no
 set noequalalways
-set listchars=eol:$,tab:>-,nbsp:~
+set listchars=eol:$,tab:>-,nbsp:␣
 set display=lastline
 set completeopt+=longest
 set maxcombine=4
