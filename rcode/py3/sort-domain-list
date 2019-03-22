@@ -1,0 +1,1 @@
+b[:] = sorted(b, key=lambda x: x.split('.')[::-1])
