@@ -1,13 +1,6 @@
 if &cp
   set nocompatible " openSUSE needs this because its /etc/vimrc calls syntax on too early
 endif
-" More ignored extensions (modified from the standard one)
-if exists("*fnameescape")
-  au BufNewFile,BufRead ?\+.pacsave,?\+.pacnew
-	\ exe "doau filetypedetect BufRead " . fnameescape(expand("<afile>:r"))
-elseif &verbose > 0
-  echomsg "Warning: some filetypes will not be recognized because this version of Vim does not have fnameescape()"
-endif
 
 augroup filetypedetect
   au BufNewFile,BufRead *.rj				setf rj
