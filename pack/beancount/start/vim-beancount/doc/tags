@@ -1,0 +1,15 @@
+b:beancount_root	beancount.txt	/*b:beancount_root*
+beancount	beancount.txt	/*beancount*
+beancount-:AlignCommodity	beancount.txt	/*beancount-:AlignCommodity*
+beancount-:GetContext	beancount.txt	/*beancount-:GetContext*
+beancount-commands	beancount.txt	/*beancount-commands*
+beancount-compiler	beancount.txt	/*beancount-compiler*
+beancount-complete-accounts	beancount.txt	/*beancount-complete-accounts*
+beancount-complete-deoplete	beancount.txt	/*beancount-complete-deoplete*
+beancount-completion	beancount.txt	/*beancount-completion*
+beancount-ftdetect	beancount.txt	/*beancount-ftdetect*
+beancount-options	beancount.txt	/*beancount-options*
+beancount-syntax	beancount.txt	/*beancount-syntax*
+g:beancount_account_completion	beancount.txt	/*g:beancount_account_completion*
+g:beancount_detailed_first	beancount.txt	/*g:beancount_detailed_first*
+g:beancount_separator_col	beancount.txt	/*g:beancount_separator_col*
