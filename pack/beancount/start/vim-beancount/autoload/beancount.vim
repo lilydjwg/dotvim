@@ -26,9 +26,9 @@ function! beancount#align_commodity(line1, line2) abort
         "  - A price directive, i.e., the line starts with a date followed by
         "    the 'price' keyword and a currency.
         let l:end_account = matchend(l:line, '^\v' .
-            \ '[\-/[:digit:]]+\s+balance\s+([A-Z][A-Za-z0-9\-]+)(:[A-Z][A-Za-z0-9\-]*)+ ' .
+            \ '[\-/[:digit:]]+\s+balance\s+([A-Z][A-Za-z0-9\-]+)(:\S*)+ ' .
             \ '|[\-/[:digit:]]+\s+price\s+\S+ ' .
-            \ '|\s+([!&#?%PSTCURM]\s+)?([A-Z][A-Za-z0-9\-]+)(:[A-Z][A-Za-z0-9\-]*)+ '
+            \ '|\s+([!&#?%PSTCURM]\s+)?([A-Z][A-Za-z0-9\-]+)(:\S*)+ '
             \ )
         if l:end_account < 0
             continue
@@ -41,7 +41,7 @@ function! beancount#align_commodity(line1, line2) abort
         " align on the next column.
         let l:separator = matchend(l:line, '^\v([-+])?[,[:digit:]]+', l:begin_number) + 1
         if l:separator < 0 | continue | endif
-        let l:has_spaces = l:begin_number - l:end_account
+        let l:has_spaces = l:begin_number - strwidth(l:line[0 : l:end_account]) + 1
         let l:need_spaces = g:beancount_separator_col - l:separator + l:has_spaces
         if l:need_spaces < 0 | continue | endif
         call setline(l:current_line, l:line[0 : l:end_account - 1] . repeat(' ', l:need_spaces) . l:line[ l:begin_number : -1])
