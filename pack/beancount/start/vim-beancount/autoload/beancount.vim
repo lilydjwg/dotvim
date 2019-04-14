@@ -47,7 +47,7 @@ function! beancount#align_commodity(line1, line2) abort
         call setline(l:current_line, l:line[0 : l:end_account - 1] . repeat(' ', l:need_spaces) . l:line[ l:begin_number : -1])
         if l:current_line == l:cursor_line && l:cursor_col >= l:end_account
             " Adjust cursor position for continuity.
-            call cursor(0, l:cursor_col + l:need_spaces - l:has_spaces)
+            call cursor(0, l:cursor_col + l:need_spaces - (l:begin_number - l:end_account))
         endif
     endwhile
 endfunction
