@@ -6,6 +6,7 @@ function! neomake#makers#ft#beancount#beancheck() abort
     return {
                 \ 'exe': 'bean-check',
                 \ 'args': [b:beancount_root],
+                \ 'append_file': 0,
                 \ }
 endfunction
 
