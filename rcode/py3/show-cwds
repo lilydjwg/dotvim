@@ -1,0 +1,9 @@
+import vim
+
+def run():
+  for tab in vim.tabpages:
+    for win in tab.windows:
+      b.append(f'getcwd({win.number}, {tab.number}) = %s' %
+               vim.eval(f'getcwd({win.number}, {tab.number})'))
+
+run()
