@@ -255,10 +255,7 @@ function! s:check_source() abort "{{{
   " Check new buffer.
   call map(filter(range(1, bufnr('$')), "
         \ (v:val != bufnr('%') || neocomplete#has_vimproc())
-        \ && (!has_key(s:buffer_sources, v:val) && buflisted(v:val)
-        \   || (has_key(s:buffer_sources, v:val) &&
-        \     s:buffer_sources[v:val].cached_time
-        \         < getftime(s:buffer_sources[v:val].path)))
+        \ && (!has_key(s:buffer_sources, v:val) && buflisted(v:val))
         \ && (!neocomplete#is_locked(v:val) ||
         \    g:neocomplete#disable_auto_complete)
         \ && s:should_create_cache(v:val)
