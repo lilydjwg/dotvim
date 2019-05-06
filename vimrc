@@ -479,6 +479,7 @@ set shortmess-=S
 if !has("patch-8.1.1270")
   try
     packadd! vim-searchindex
+  catch /.*/
   endtry
 endif
 " Linux 与 Windows 等 [[[2
