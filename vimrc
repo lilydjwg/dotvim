@@ -475,6 +475,12 @@ if has('arabic')
   set noarabicshape
 endif
 set wildignore+=*~,*.py[co],__pycache__,.*.swp
+set shortmess-=S
+if !has("patch-8.1.1270")
+  try
+    packadd! vim-searchindex
+  endtry
+endif
 " Linux 与 Windows 等 [[[2
 if has("gui_macvim")
   set macmeta
