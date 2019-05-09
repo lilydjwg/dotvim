@@ -28,16 +28,13 @@ function! Python_err(chan, out)
   echoerr a:out
 endfunction
 
-if !exists('b:python_did_once')
-  let pyfile = fnameescape(globpath(&runtimepath, 'after/ftplugin/python.py'))
-  if has("python3")
-    exe 'py3file ' . pyfile
-  endif
-  if exists('*job_start')
-    let pyfile = fnameescape(globpath(&runtimepath, 'after/ftplugin/python_getsw.py'))
-    call job_start([pyfile, expand('%')], {"out_cb": "Python_setsw", "err_cb": "Python_err"})
-  endif
-  let b:python_did_once = 1
+let pyfile = fnameescape(globpath(&runtimepath, 'after/ftplugin/python.py'))
+if has("python3")
+  exe 'py3file ' . pyfile
+endif
+if exists('*job_start')
+  let pyfile = fnameescape(globpath(&runtimepath, 'after/ftplugin/python_getsw.py'))
+  call job_start([pyfile, expand('%')], {"out_cb": "Python_setsw", "err_cb": "Python_err"})
 endif
 " ---------------------------------------------------------------------
 " Vim Modeline:
