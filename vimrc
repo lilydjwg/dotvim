@@ -611,6 +611,9 @@ if &term =~ '^screen\|^tmux' && exists('&t_BE')
   exec "set t_PS=" . "\033[200~"
   exec "set t_PE=" . "\033[201~"
 endif
+if &term =~ '^screen\|^tmux'
+  set t_RV=Ptmux;[>c\
+endif
 " 不同的 Vim 版本 [[[2
 if has("conceal")
   " 'i' is for neosnippet
