@@ -768,7 +768,7 @@ vmap <silent> <C-S> <ESC>:update<CR>
 nmap <F12> :tabnew<CR>
 imap <F12> <ESC>:tabnew<CR>
 vmap <F12> <ESC>:tabnew<CR>
-"     Shift+鼠标滚动[[[2
+"     mouse mapping[[[2
 if v:version < 703
   nmap <silent> <S-MouseDown> zhzhzh
   nmap <silent> <S-MouseUp> zlzlzl
@@ -780,9 +780,10 @@ else
   imap <S-ScrollWheelDown> <ScrollWheelRight>
   imap <S-ScrollWheelUp> <ScrollWheelLeft>
 endif
-"     Shift+鼠标中键[[[2
-nnoremap <silent> <S-MiddleMouse> "+P
-inoremap <silent> <S-MiddleMouse> <C-R>+
+nnoremap <silent> <S-MiddleMouse> <LeftMouse>"+P
+inoremap <silent> <S-MiddleMouse> <LeftMouse><C-r>+
+"     Default behaviour doesn't position the cursor first
+inoremap <silent> <MiddleMouse> <LeftMouse><C-r>*
 "     上下移动一行文字[[[2
 nmap <C-j> mz:m+<cr>`z
 nmap <C-k> mz:m-2<cr>`z
