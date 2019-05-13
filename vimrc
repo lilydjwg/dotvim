@@ -612,7 +612,9 @@ if &term =~ '^screen\|^tmux' && exists('&t_BE')
   exec "set t_PE=" . "\033[201~"
 endif
 if &term =~ '^screen\|^tmux'
-  set t_RV=Ptmux;[>c\
+  " This may leave mouse in use by terminall application
+  " set t_RV=Ptmux;[>c\
+  set ttymouse=sgr
 endif
 " 不同的 Vim 版本 [[[2
 if has("conceal")
