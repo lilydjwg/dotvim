@@ -783,9 +783,7 @@ else
   imap <S-ScrollWheelUp> <ScrollWheelLeft>
 endif
 nnoremap <silent> <S-MiddleMouse> <LeftMouse>"+P
-inoremap <silent> <S-MiddleMouse> <LeftMouse><C-r>+
-"     Default behaviour doesn't position the cursor first
-inoremap <silent> <MiddleMouse> <LeftMouse><C-r>*
+inoremap <silent> <S-MiddleMouse> <C-r>+
 "     上下移动一行文字[[[2
 nmap <C-j> mz:m+<cr>`z
 nmap <C-k> mz:m-2<cr>`z
