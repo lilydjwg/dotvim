@@ -482,6 +482,9 @@ if !has("patch-8.1.1270")
   catch /.*/
   endtry
 endif
+if exists('&balloonevalterm')
+  set balloonevalterm
+endif
 " Linux 与 Windows 等 [[[2
 if has("gui_macvim")
   set macmeta
