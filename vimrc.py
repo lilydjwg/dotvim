@@ -1,14 +1,16 @@
 import vim
-import sys
 import subprocess
 import shlex
+import enum
 
-def echon(text):
-  vim.command('echon %r' % text)
+class EchoKind(enum.Enum):
+  normal = 'echo'
+  echon = 'echon'
+  msg = 'echomsg'
 
 def LilyPaste():
   msg = 'Pasting...'
-  echon(msg)
+  vimprint(msg)
   vim.command('redraw')
   curl = subprocess.Popen(
     ['curl', '--compressed', '-m', '60', '-Ss', '-F', 'vimcn=<-', 'https://cfp.vim-cn.com'],
@@ -28,11 +30,12 @@ def LilyPaste():
   except vim.error:
     # clipboard not supported
     pass
-  echon(msg + url)
+  vimprint(msg, kind=EchoKind.echon)
+  vimprint(url, style='Underlined', kind=EchoKind.echon)
   curl.wait()
 
-def vimprint(style, text, ismsg=False):
-  echo = 'echomsg' if ismsg else 'echo'
+def vimprint(text, *, style='Normal', kind=EchoKind.normal):
+  echo = kind.value
   vim.command("echohl {style} | {echo} '{text}' | echohl None".format(
     style = style,
     text = text.replace("'", "''"),
@@ -45,6 +48,6 @@ def LilyQw(s):
   try:
     return repr(shlex.split(s))[1:-1]
   except ValueError as e:
-    vimprint('ErrorMsg', str(e))
+    vimprint(str(e), style='ErrorMsg')
     vim.command('call getchar()')
   return ''
