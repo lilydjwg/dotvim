@@ -11,7 +11,6 @@ class EchoKind(enum.Enum):
 def LilyPaste():
   msg = 'Pasting...'
   vimprint(msg)
-  vim.command('redraw')
   curl = subprocess.Popen(
     ['curl', '--compressed', '-m', '60', '-Ss', '-F', 'vimcn=<-', 'https://cfp.vim-cn.com'],
     stdin=subprocess.PIPE, stdout=subprocess.PIPE,
@@ -21,7 +20,7 @@ def LilyPaste():
   curl.stdin.close()
   url = curl.stdout.read().decode('utf-8').strip()
   if not url:
-    vimprint('ErrorMsg', 'Failed to paste code.')
+    vimprint('Failed to paste code.', style='ErrorMsg', kind=EchoKind.echon)
   ft = vim.eval('&ft')
   if ft:
     url = '%s/%s' % (url, ft)
@@ -30,7 +29,6 @@ def LilyPaste():
   except vim.error:
     # clipboard not supported
     pass
-  vimprint(msg, kind=EchoKind.echon)
   vimprint(url, style='Underlined', kind=EchoKind.echon)
   curl.wait()
 
