@@ -741,13 +741,20 @@ call s:command("-bar -bang -nargs=? -complete=customlist,s:DirComplete Glcd :lcd
 " Section: Gstatus
 
 call s:command("-bar Gstatus :execute s:Status()")
-augroup fugitive_status
-  autocmd!
-  if !has('win32')
-    autocmd FocusGained,ShellCmdPost * call fugitive#reload_status()
-    autocmd BufDelete term://* call fugitive#reload_status()
-  endif
-augroup END
+function s:setup_autocmds(t)
+  augroup fugitive_status
+    autocmd!
+    if !has('win32')
+      autocmd FocusGained,ShellCmdPost * call fugitive#reload_status()
+      autocmd BufDelete term://* call fugitive#reload_status()
+    endif
+  augroup END
+endfunction
+if has('timers')
+  call timer_start(1000, function('s:setup_autocmds'))
+else
+  call s:setup_autocmds(1)
+endif
 
 function! s:Status() abort
   try
