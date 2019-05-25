@@ -23,7 +23,7 @@ function! s:Eink(bang)
 endfunction
 command! -bang Eink call s:Eink('<bang>')
 
-function! s:AutoEink(t)
+function! s:AutoEink()
   if exists('*getwinpos')
     let x = getwinpos(1000)[0]
   else
@@ -34,6 +34,4 @@ function! s:AutoEink(t)
     call s:Eink('')
   endif
 endfunction
-if exists('*timer_start')
-  autocmd VimEnter * call timer_start(100, function('s:AutoEink'))
-endif
+autocmd VimEnter * call s:AutoEink()

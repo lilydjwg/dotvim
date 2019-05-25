@@ -555,14 +555,13 @@ endif
 let g:undodir = g:mytmpdir . "/.vimundo"
 let &errorfile= g:mytmpdir . "/.error"
 " 图形与终端 [[[2
-let colorscheme = 'lilypink'
+let g:colors_name = 'lilypink'
 if has("gui_running")
   set mousemodel=popup
   " 有些终端不能改变大小
   set columns=88
   set lines=38
   set cursorline
-  exe 'colorscheme' colorscheme
 elseif has("unix")
   set ambiwidth=single
   " 防止退出时终端乱码
@@ -571,7 +570,6 @@ elseif has("unix")
   set t_IE=(B
   if &term =~ '256color\|nvim'
     set cursorline
-    exe 'colorscheme' colorscheme
   else
     " 在Linux文本终端下非插入模式显示块状光标
     if &term == "linux" || &term == "fbterm"
@@ -582,14 +580,12 @@ elseif has("unix")
     endif
     if &term == "fbterm"
       set cursorline
-      exe 'colorscheme' colorscheme
     elseif $TERMCAP =~ 'Co#256'
       set t_Co=256
       set cursorline
-      exe 'colorscheme' colorscheme
     else
       " 暂时只有这个配色比较适合了
-      colorscheme default
+      let g:colors_name = 'default'
       " 在终端下，如果码表存在，则自动加载vimim输入法
       if len(split(globpath(&rtp, 'so/vimim.wubi.txt'), '\n')) > 0
 	autocmd VimEnter * runtime so/vimim.vim
@@ -603,9 +599,16 @@ elseif has('win32') && exists('$CONEMUBUILD')
   let &t_AB="\e[48;5;%dm"
   let &t_AF="\e[38;5;%dm"
   set cursorline
-  exe 'colorscheme' colorscheme
 endif
-unlet colorscheme
+" delay colorschem command for eink.vim
+if exists('*timer_start')
+  function s:Colorscheme(t)
+    exe "colorscheme" g:colors_name
+  endfunction
+  autocmd VimEnter * call timer_start(10, function('s:Colorscheme'))
+else
+  exe "colorscheme" g:colors_name
+endif
 " bracketed paste mode support for tmux
 if &term =~ '^screen\|^tmux' && exists('&t_BE')
   let &t_BE = "\033[?2004h"
