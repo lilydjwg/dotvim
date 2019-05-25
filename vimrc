@@ -605,6 +605,7 @@ if exists('*timer_start')
   function s:Colorscheme(t)
     exe "colorscheme" g:colors_name
   endfunction
+  " XXX: This will cause a redraw on startup
   autocmd VimEnter * call timer_start(1, function('s:Colorscheme'))
 else
   exe "colorscheme" g:colors_name
@@ -630,6 +631,7 @@ endif
 if has("conceal")
   " 'i' is for neosnippet
   set concealcursor=nci
+  " XXX: This will cause a redraw on startup
   set conceallevel=2
 endif
 if has("persistent_undo")
