@@ -618,6 +618,10 @@ if &term =~ '^screen\|^tmux'
   " This may leave mouse in use by terminall application
   " set t_RV=Ptmux;[>c\
   set ttymouse=sgr
+  if &t_GP == ''
+    " for getwinpos
+    set t_GP=Ptmux;[13t\
+  endif
 endif
 " 不同的 Vim 版本 [[[2
 if has("conceal")
