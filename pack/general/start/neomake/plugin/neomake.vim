@@ -143,7 +143,7 @@ function! s:define_highlights() abort
     endif
 endfunction
 
-function! s:setup_autocmds() abort
+function! s:setup_autocmds(t) abort
     augroup neomake
         au!
         if !exists('*nvim_buf_add_highlight')
@@ -169,7 +169,11 @@ else
     lockvar g:neomake_place_signs
 endif
 
-call s:setup_autocmds()
+if has('timers')
+    call timer_start(100, function('s:setup_autocmds'))
+else
+    call s:setup_autocmds(1)
+endif
 
 " vim: sw=4 et
 " vim: ts=4 sw=4 et

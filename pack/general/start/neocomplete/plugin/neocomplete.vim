@@ -52,8 +52,7 @@ let g:neocomplete#enable_debug =
 if get(g:, 'neocomplete#enable_at_startup', 0)
   augroup neocomplete
     " Enable startup.
-    autocmd CursorHold,InsertEnter
-          \ * call neocomplete#init#enable()
+    autocmd InsertEnter * call neocomplete#init#enable()
   augroup END
 endif"}}}
 
