@@ -605,7 +605,7 @@ if exists('*timer_start')
   function s:Colorscheme(t)
     exe "colorscheme" g:colors_name
   endfunction
-  autocmd VimEnter * call timer_start(10, function('s:Colorscheme'))
+  autocmd VimEnter * call timer_start(1, function('s:Colorscheme'))
 else
   exe "colorscheme" g:colors_name
 endif
