@@ -685,7 +685,6 @@ choosewin-todo	choosewin.txt	/*choosewin-todo*
 choosewin-variables	choosewin.txt	/*choosewin-variables*
 choosewin.txt	choosewin.txt	/*choosewin.txt*
 cr	abolish.txt	/*cr*
-cs	surround.txt	/*cs*
 cx	exchange.txt	/*cx*
 cxc	exchange.txt	/*cxc*
 cxx	exchange.txt	/*cxx*
@@ -710,7 +709,6 @@ cycle-introduction	cycle.txt	/*cycle-introduction*
 cycle-limitations	cycle.txt	/*cycle-limitations*
 cycle-usage	cycle.txt	/*cycle-usage*
 cycle.txt	cycle.txt	/*cycle.txt*
-ds	surround.txt	/*ds*
 easymotion	easymotion.txt	/*easymotion*
 easymotion-command-line	easymotion.txt	/*easymotion-command-line*
 easymotion-configuration	easymotion.txt	/*easymotion-configuration*
@@ -1011,8 +1009,6 @@ histwin-ut	histwin.txt	/*histwin-ut*
 histwin-var	histwin.txt	/*histwin-var*
 histwin.txt	histwin.txt	/*histwin.txt*
 i=	ConflictMotions.txt	/*i=*
-i_CTRL-G_S	surround.txt	/*i_CTRL-G_S*
-i_CTRL-G_s	surround.txt	/*i_CTRL-G_s*
 indent-guides	indent_guides.txt	/*indent-guides*
 indent-guides-about	indent_guides.txt	/*indent-guides-about*
 indent-guides-changelog	indent_guides.txt	/*indent-guides-changelog*
@@ -1255,13 +1251,6 @@ splitjoin-usage	splitjoin.txt	/*splitjoin-usage*
 splitjoin-vimscript	splitjoin.txt	/*splitjoin-vimscript*
 splitjoin-yaml	splitjoin.txt	/*splitjoin-yaml*
 splitjoin.txt	splitjoin.txt	/*splitjoin.txt*
-surround	surround.txt	/*surround*
-surround-customizing	surround.txt	/*surround-customizing*
-surround-issues	surround.txt	/*surround-issues*
-surround-mappings	surround.txt	/*surround-mappings*
-surround-replacements	surround.txt	/*surround-replacements*
-surround-targets	surround.txt	/*surround-targets*
-surround.txt	surround.txt	/*surround.txt*
 t,	easymotion.txt	/*t,*
 tagbar	tagbar.txt	/*tagbar*
 tagbar-autoopen	tagbar.txt	/*tagbar-autoopen*
@@ -1302,7 +1291,6 @@ taglist-session	taglist.txt	/*taglist-session*
 taglist-todo	taglist.txt	/*taglist-todo*
 taglist-using	taglist.txt	/*taglist-using*
 taglist.txt	taglist.txt	/*taglist.txt*
-vS	surround.txt	/*vS*
 v_:B	vis.txt	/*v_:B*
 v_<Leader>m	mark.txt	/*v_<Leader>m*
 v_<Leader>r	mark.txt	/*v_<Leader>r*
@@ -1330,7 +1318,6 @@ v_ay	SameSyntaxMotion.txt	/*v_ay*
 v_g%	matchit.txt	/*v_g%*
 v_i=	ConflictMotions.txt	/*v_i=*
 v_iy	SameSyntaxMotion.txt	/*v_iy*
-vgS	surround.txt	/*vgS*
 vimwiki	vimwiki.txt	/*vimwiki*
 vimwiki-calendar	vimwiki.txt	/*vimwiki-calendar*
 vimwiki-changelog	vimwiki.txt	/*vimwiki-changelog*
@@ -1469,7 +1456,3 @@ xml-plugin-html	xml-plugin.txt	/*xml-plugin-html*
 xml-plugin-mappings	xml-plugin.txt	/*xml-plugin-mappings*
 xml-plugin-settings	xml-plugin.txt	/*xml-plugin-settings*
 xml-plugin.txt	xml-plugin.txt	/*xml-plugin.txt*
-yS	surround.txt	/*yS*
-ySS	surround.txt	/*ySS*
-ys	surround.txt	/*ys*
-yss	surround.txt	/*yss*
