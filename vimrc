@@ -886,25 +886,6 @@ let g:signify_disable_by_default = 1
 "   ConflictMotions [[[2
 " 禁用 \x 开头的映射；它们与 EnhancedCommentify 冲突了
 let g:ConflictMotions_TakeMappingPrefix = ''
-"   surround [[[2
-"      比起 c，我更喜欢用 s
-let g:surround_no_mappings = 1
-" original
-nmap ds  <Plug>Dsurround
-nmap ys  <Plug>Ysurround
-nmap yS  <Plug>YSurround
-nmap yss <Plug>Yssurround
-nmap ySs <Plug>YSsurround
-nmap ySS <Plug>YSsurround
-xmap S   <Plug>VSurround
-xmap gS  <Plug>VgSurround
-imap <C-G>s <Plug>Isurround
-imap <C-G>S <Plug>ISurround
-" mine
-xmap c <Plug>VSurround
-xmap C <Plug>VSurround
-" cs is for cscope
-nmap cS <Plug>Csurround
 "   NrrRgn[[[2
 let g:nrrw_rgn_vert = 1
 let g:nrrw_rgn_wdth = 80
