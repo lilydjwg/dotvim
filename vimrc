@@ -619,7 +619,7 @@ if &term =~ '^screen\|^tmux' && exists('&t_BE')
   exec "set t_PE=" . "\033[201~"
 endif
 if &term =~ '^screen\|^tmux'
-  " This may leave mouse in use by terminall application
+  " This may leave mouse in use by terminal application
   " set t_RV=Ptmux;[>c\
   set ttymouse=sgr
   if &t_GP == ''
