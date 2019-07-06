@@ -485,6 +485,10 @@ endif
 if exists('&balloonevalterm')
   set balloonevalterm
 endif
+try
+  set signcolumn=number
+catch /.*/
+endtry
 " Linux 与 Windows 等 [[[2
 if has("gui_macvim")
   set macmeta
