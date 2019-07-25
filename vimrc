@@ -636,7 +636,7 @@ if has("conceal")
   " 'i' is for neosnippet
   set concealcursor=nci
   " XXX: This will cause a redraw on startup
-  set conceallevel=2
+  set conceallevel=0
 endif
 if has("persistent_undo")
   let &undodir=g:undodir
