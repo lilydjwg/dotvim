@@ -30,6 +30,13 @@ options head
             ::std::process::exit(1);
 	  }
 	}
+snippet main
+options head
+	fn main() -> Result<(),Error> {
+	  ${1}
+	
+	  Ok(())
+	}
 snippet uni
         unimplemented!()
 snippet c
