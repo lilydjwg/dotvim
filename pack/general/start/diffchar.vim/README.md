@@ -20,7 +20,7 @@ character by character - so called *DiffChar*.
 For example, in diff mode:  
 ![example1](example1.png)
 
-this plugin will exactly show the changed and added units:  
+This plugin will exactly show the changed and added units:  
 ![example2](example2.png)
 
 This plugin will synchronously show/reset the highlights of the exact
@@ -46,14 +46,16 @@ deleted units are shown in bold/underline.
 
 When the diff mode begins, this plugin detects the limited number of the
 DiffChange lines, specified by a `g:DiffMaxLines`, in the current visible and
-upper/lower lines of the window. And whenever a cursor is moved onto another
-line, it detects the DiffChange lines again. It is useful for a large file
-because, independently of the file size, the number of lines to be detected
-and then the time consumed are always constant. Its default is 300 lines (100
-lines if an external diff command is not available for performance reason).
-The height of the current window is used instead if the value is less than it.
-If 0 is specified, it disables and detects all DiffChange lines only when the
-diff mode begins.
+upper/lower lines of the window. Whenever a cursor is moved onto another line
+and then the window is scrolled up or down, it dynamically detects the
+DiffChange lines again. Which means, independently of the file size, the
+number of lines to be detected and then the time consumed are always constant.
+You can specify a positive value as the actual number of DiffChange lines.
+The height of the current window is used instead if its value is less than it.
+A negative value is also allowed as multiples of the window height. If 0 is
+specified, it disables and statically detects all DiffChange lines once the
+diff mode begins. Its default is -3 and detects three times as many lines as
+the window height.
 
 While showing the exact differences, when cursor is moved on a difference
 unit, you can see its corresponding unit with cursor-like highlight in another
@@ -65,8 +67,9 @@ difference unit, and `[b` or `[e` to the start or end position of the previous
 unit. Those keymaps are configurable in your vimrc and so on.
 
 Like line-based `:diffget`/`:diffput` and `do`/`dp` vim commands, you can use
-<Leader>g and <Leader>p commands in normal mode to get and put each difference
-unit, where the cursor is on, between 2 buffers and undo its difference.
+`<Leader>g` and `<Leader>p` commands in normal mode to get and put each
+difference unit, where the cursor is on, between 2 buffers and undo its
+difference.
 
 In order to check the actual differences in a line, you can use `:EDChar`
 command and echo the lines for range. A changed, added, and deleted unit is
@@ -79,21 +82,16 @@ The line number is shown if `number` or `relativenumber` option is set in the
 window. When [!] is used, nothing is shorten and all lines are displayed.
 
 This plugin has been using "An O(NP) Sequence Comparison Algorithm" developed
-by S.Wu, et al., which always finds an optimum sequence quickly. But for
-longer lines and less-similar files, it takes time to complete the diff
-tracing. To make it more efficient, this plugin splits the tracing with the
-external diff command. Firstly applies the internal O(NP) algorithm. If not
-completed within the time specified by a `g:DiffSplitTime`, continuously
-switches to the diff command at that point, and then joins both results. This
-approach provides a stable performance and reasonable accuracy, because the
-diff command effectively optimizes between them. Its default is 100 ms, which
-would be useful for smaller files. If prefer to always apply the internal
-algorithm for accuracy (or the diff command for performance), set some large
-value (or 0) to it.
+by S.Wu, et al., which always finds an optimum sequence. But if there are many
+lines to be detected, it takes time to complete the diff tracing. To make it
+more efficient, this plugin tries to use the external diff command if
+available.
 
 This plugin works on each tab page individually. You can use a tab page
 variable (t:), instead of a global one (g:), to specify different options on
-each tab page.
+each tab page. Note that this plugin can not handle more than two diff mode
+windows in a tab page. If it would happen, to prevent any trouble, all
+highlighted DiffChar units are to be reset in the tab page.
 
 This plugin has been always positively supporting mulltibyte characters.
 
@@ -141,18 +139,17 @@ This plugin has been always positively supporting mulltibyte characters.
   * 2   : 8 colors in fixed order
   * 3   : 16 colors in fixed order
   * 100 : all colors defined in highlight option in dynamic random order
+* `g:DiffPairVisible`, `t:DiffPairVisible` - Make a corresponding unit visible when cursor is moved on a difference unit
+  * 2 : highlight with cursor-like color plus echo as a message (default)
+  * 1 : highlight with cursor-like color
+  * 0 : disable
 * `g:DiffModeSync`, `t:DiffModeSync`- Synchronously show/reset/update with diff mode
   * 1 : enable (default)
   * 0 : disable
 * `g:DiffMaxLines`, `t:DiffMaxLines` - A maximum number of DiffChange lines to be dynamically detected
-  * 1 ~ : (300 as default, 100 if diff commend not available)
-  * 0 : disable (detect all DiffChange lines only when a diff mode begins)
-* `g:DiffPairVisible`, `t:DiffPairVisible` - Make a corresponding unit visible when cursor is moved on a difference unit
-  * 2 : highlight with cursor-like color plus echo as a message (default)
-  * 1 : highlight with cursor-like color
-  * 0 : nothing visible
-* `g:DiffSplitTime`, `t:DiffSplitTime` - A time length (ms) to apply the internal algorithm first
-  * 0 ~ : (100 as default)
+  * -n : multiples of the window height (default as -3)
+  * n  : the actual number of lines
+  * 0  : disable (detect all DiffChange lines once diff mode begins)
 
 #### Demo
 
@@ -173,8 +170,10 @@ This plugin has been always positively supporting mulltibyte characters.
 :EDChar          " echo line 3 together with corresponding difference unit
 :%EDChar!        " echo all lines along with the line number
 
-<space>          " move cursor forward on line 1 and
+<space>          " move a cursor forward on line 1 and
 <space>          " make its corresponding unit pair visible
+...
+...              " move a mouse cursor over on line 3 and show a balloon
 ...
 ]b\g             " jump to the next difference unit on line 3 and
 ]b\g             " get each unit pair from another buffer to undo difference

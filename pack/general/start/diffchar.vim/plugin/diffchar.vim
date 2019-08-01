@@ -8,15 +8,15 @@
 " |     || || |   | |   |  |__ |  _  ||  _  || |  | |
 " |____| |_||_|   |_|   |_____||_| |_||_| |_||_|  |_|
 "
-" Last Change:	2018/11/18
-" Version:		8.1
+" Last Change:	2019/03/22
+" Version:		8.5
 " Author:		Rick Howe <rdcxy754@ybb.ne.jp>
-" Copyright:	(c) 2014-2018 by Rick Howe
+" Copyright:	(c) 2014-2019 by Rick Howe
 
 if exists('g:loaded_diffchar') || !has('diff') || v:version < 800
 	finish
 endif
-let g:loaded_diffchar = 8.1
+let g:loaded_diffchar = 8.5
 
 let s:save_cpo = &cpoptions
 set cpo&vim
@@ -69,6 +69,13 @@ if !exists('g:DiffColors')
 	" let g:DiffColors = 100	" all available colors in dynamic random order
 endif
 
+" Make a corresponding unit visible when cursor is moved on a diff unit
+if !exists('g:DiffPairVisible')
+	let g:DiffPairVisible = 2	" cursor-like highlight + echo
+	" let g:DiffPairVisible = 1	" cursor-like highlight
+	" let g:DiffPairVisible = 0	" disable
+endif
+
 " Set a diff mode synchronization to show/reset/update exact differences
 if !exists('g:DiffModeSync')
 	let g:DiffModeSync = 1		" enable
@@ -77,22 +84,10 @@ endif
 
 " Set a number of maximum DiffChange lines to be dynamically detected
 if !exists('g:DiffMaxLines')
-	let g:DiffMaxLines = executable('diff') ? 300 : 100
-	" let g:DiffMaxLines = 1	" current visible height
-	" let g:DiffMaxLines = 0	" statically detect all lines
-endif
-
-" Make a corresponding unit visible when cursor is moved on a diff unit
-if !exists('g:DiffPairVisible')
-	let g:DiffPairVisible = 2	" cursor-like highlight + echo
-	" let g:DiffPairVisible = 1	" cursor-like highlight
-	" let g:DiffPairVisible = 0	" nothing visible
-endif
-
-" Set a time length (ms) to apply this plugin's internal algorithm first
-if !exists('g:DiffSplitTime')
-	let g:DiffSplitTime = 100	" when timeout, split to diff command
-	" let g:DiffSplitTime = 0	" always apply diff command only
+	let g:DiffMaxLines = -3		" 3 times as many lines as higher window
+	" let g:DiffMaxLines = 50	" 50 lines including visible ones
+	" let g:DiffMaxLines = 1	" as few as visible lines
+	" let g:DiffMaxLines = 0	" disable and statically detect all lines
 endif
 
 " Set this plugin's DiffCharExpr() to the diffexpr option if empty
