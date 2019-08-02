@@ -822,7 +822,7 @@ autocmd BufReadCmd *.maff,*.xmind,*.crx,*.apk,*.whl,*.egg  call zip#Browse(expan
 "   见 ft-syntax-omni
 if has("autocmd") && exists("+omnifunc")
   autocmd Filetype *
-	\ if &omnifunc == "" |
+	\ if &omnifunc == "" && !get(b:, 'disable_omnifunc') |
 	\   setlocal omnifunc=syntaxcomplete#Complete |
 	\ endif
 endif
