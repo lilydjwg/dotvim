@@ -461,6 +461,10 @@ set noequalalways
 set listchars=eol:$,tab:>-,nbsp:␣
 set display=lastline
 set completeopt+=longest
+try
+  set completeopt+=popup
+catch /.*/
+endtry
 set maxcombine=4
 set cedit=<C-Y>
 set whichwrap=b,s,[,]
