@@ -463,6 +463,7 @@ set display=lastline
 set completeopt+=longest
 try
   set completeopt+=popup
+  set completepopup=border:off
 catch /.*/
 endtry
 set maxcombine=4
