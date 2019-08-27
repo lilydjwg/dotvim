@@ -1,0 +1,15 @@
+function
+coroutine
+create
+require
+assert
+local
+ipairs
+pairs
+execute
+coroutine
+resume
+tonumber
+tostring
+require
+loadstring

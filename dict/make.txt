@@ -1,0 +1,11 @@
+shared
+addsuffix
+wildcard
+basename
+PHONY
+LDFLAGS
+CFLAGS
+cflags
+shared
+findstring
+patsubst

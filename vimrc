@@ -259,6 +259,14 @@ function! Lilydjwg_checklist_bs(pat)
     return "\<BS>"
   endif
 endfunction
+"   字典补全 <C-X><C-K> 与 <C-K>[[[2
+function Lilydjwg_dictcomplete()
+  if pumvisible()
+    return "\<C-K>"
+  else
+    return "\<C-X>\<C-K>"
+  endif
+endfunction
 "   返回当前日期的中文表示[[[2
 function Lilydjwg_zh_date()
   let d = strftime("%Y年%m月%d日")
@@ -558,6 +566,7 @@ endif
 " 路径相关 [[[3
 let g:VEConf_favorite = g:vimfiles . "/ve_favorite"
 let g:NERDTreeBookmarksFile = g:vimfiles . "/NERDTreeBookmarks"
+let g:dictfilePrefix = g:vimfiles . "/dict/"
 if has("python3")
   exe "py3file" g:vimfiles . "/vimrc.py"
 endif
@@ -756,6 +765,7 @@ imap <silent> <C-F5> <C-R>=strftime("%Y-%m-%d %H:%M")<CR>
 imap <F2> <C-X><C-O>
 imap <F3> <C-X><C-F>
 imap <S-F3> <C-X><C-L>
+imap <F7> <C-R>=Lilydjwg_dictcomplete()<CR>
 "     补全最长项
 inoremap <expr> <C-L> pumvisible()?"\<C-E>\<C-N>":"\<C-N>"
 "   vmap [[[2
