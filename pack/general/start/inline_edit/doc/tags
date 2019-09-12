@@ -1,0 +1,14 @@
+g:inline_edit_autowrite	inline_edit.txt	/*g:inline_edit_autowrite*
+g:inline_edit_html_like_filetypes	inline_edit.txt	/*g:inline_edit_html_like_filetypes*
+g:inline_edit_modify_statusline	inline_edit.txt	/*g:inline_edit_modify_statusline*
+g:inline_edit_new_buffer_command	inline_edit.txt	/*g:inline_edit_new_buffer_command*
+g:inline_edit_patterns	inline_edit.txt	/*g:inline_edit_patterns*
+g:inline_edit_proxy_type	inline_edit.txt	/*g:inline_edit_proxy_type*
+inline-edit	inline_edit.txt	/*inline-edit*
+inline-edit-contents	inline_edit.txt	/*inline-edit-contents*
+inline-edit-extending	inline_edit.txt	/*inline-edit-extending*
+inline-edit-installation	inline_edit.txt	/*inline-edit-installation*
+inline-edit-issues	inline_edit.txt	/*inline-edit-issues*
+inline-edit-settings	inline_edit.txt	/*inline-edit-settings*
+inline-edit-usage	inline_edit.txt	/*inline-edit-usage*
+inline_edit.txt	inline_edit.txt	/*inline_edit.txt*
