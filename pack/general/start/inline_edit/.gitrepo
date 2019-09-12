@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:AndrewRadev/inline_edit.vim.git
+	branch = master
+	commit = 460e8ab5488e797b68dfa29663a18b0956e97a82
+	parent = 97527c38c51e22dde92996e7dd0cb30228f0f582
+	method = merge
+	cmdver = 0.4.0
