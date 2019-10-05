@@ -204,7 +204,7 @@ function LookFurther(down)
   " 光标下的字符是多字节的？
   " echo '['.matchstr(getline('.'), target_pattern).']'
   if matchstr(getline('.'), target_pattern) == '' &&
-	\ matchstr(getline('.'), target_pattern_1) != ''
+        \ matchstr(getline('.'), target_pattern_1) != ''
     let column_num -= 1
     " 上面的字符可能是英文（前者）或者中文（后者）的
     let target_pattern  = '\%' . column_num . 'v.\|' . target_pattern
@@ -332,7 +332,7 @@ function Lilydjwg_toggle_color()
   endif
   let i = index(colors, g:colors_name)
   let i = (i+1) % len(colors)
-  exe 'colorscheme ' . get(colors, i)
+  exe 'colorscheme' get(colors, i)
 endfunction
 "   %xx -> 对应的字符(到消息)[[[2
 function Lilydjwg_hexchar()
@@ -606,7 +606,7 @@ elseif has("unix")
       let g:colors_name = 'default'
       " 在终端下，如果码表存在，则自动加载vimim输入法
       if len(split(globpath(&rtp, 'so/vimim.wubi.txt'), '\n')) > 0
-	autocmd VimEnter * runtime so/vimim.vim
+        autocmd VimEnter * runtime so/vimim.vim
       endif
     endif
   endif
@@ -662,17 +662,6 @@ if has("persistent_undo")
   endif
   set undofile
 endif
-try
-  " Vim 7.4.399+
-  set cryptmethod=blowfish2
-catch /.*/
-  " Vim 7.3+
-  try
-    set cryptmethod=blowfish
-  catch /.*/
-    " Vim 7.2-, neovim
-  endtry
-endtry
 unlet g:undodir
 let g:silent_unsupported = 1
 " map 相关[[[1
@@ -680,7 +669,7 @@ let g:silent_unsupported = 1
 "     Fx 相关 [[[3
 " buffer list
 nmap <F2> <Leader>be
-nmap <F4> :ls<CR>:buffer 
+nmap <F4> :ls<CR>:buffer<Space>
 nmap <F6> :cnext<CR>
 nmap <S-F6> :cprevious<CR>
 nmap <silent> <F9> :enew<CR>
@@ -722,7 +711,7 @@ nmap -int :exe 'tabe '.g:vimfiles.'/indent/'.&ft.'.vim'<CR>
 "     显示高亮组 [[[4
 nnoremap <silent> wh :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<' . synIDattr(synID(line("."),col("."),0),"name") . "> lo<" . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
 "     Alt 组合键 [[[3
-nmap <M-m> :MRU 
+nmap <M-m> :MRU<Space>
 " 打开草稿
 nmap <unique> <silent> <M-s> <Plug>ShowScratchBuffer
 for i in range(1, 8)
@@ -750,7 +739,6 @@ nmap cac :call Lilydjwg_changeColor()<CR>
 nmap gl :IndentGuidesToggle<CR>
 nnoremap <silent> gs :echo Lilydjwg_getfsize(expand('%'))<CR>
 "   imap [[[2
-inoremap <S-CR> <CR>    
 inoremap <M-c> <C-R>=Lilydjwg_colorpicker()<CR>
 inoremap <C-J> <C-P>
 inoremap <M-j> <C-N>
@@ -805,17 +793,10 @@ nmap <F12> :tabnew<CR>
 imap <F12> <ESC>:tabnew<CR>
 vmap <F12> <ESC>:tabnew<CR>
 "     mouse mapping[[[2
-if v:version < 703
-  nmap <silent> <S-MouseDown> zhzhzh
-  nmap <silent> <S-MouseUp> zlzlzl
-  vmap <silent> <S-MouseDown> zhzhzh
-  vmap <silent> <S-MouseUp> zlzlzl
-else
-  map <S-ScrollWheelDown> <ScrollWheelRight>
-  map <S-ScrollWheelUp> <ScrollWheelLeft>
-  imap <S-ScrollWheelDown> <ScrollWheelRight>
-  imap <S-ScrollWheelUp> <ScrollWheelLeft>
-endif
+map <S-ScrollWheelDown> <ScrollWheelRight>
+map <S-ScrollWheelUp> <ScrollWheelLeft>
+imap <S-ScrollWheelDown> <ScrollWheelRight>
+imap <S-ScrollWheelUp> <ScrollWheelLeft>
 nnoremap <silent> <S-MiddleMouse> <LeftMouse>"+P
 inoremap <silent> <S-MiddleMouse> <C-r>+
 "     上下移动一行文字[[[2
@@ -826,9 +807,9 @@ vmap <C-k> :m'<-2<cr>`>my`<mzgv`yo`z
 " 自动命令[[[1
 "   自动关闭预览窗口（不能用在命令窗口，所以设置了一个变量）
 let s:cmdwin = 0
-autocmd CmdwinEnter	* let s:cmdwin = 1
-autocmd CmdwinLeave	* let s:cmdwin = 0
-autocmd InsertLeave	* if s:cmdwin == 0 && pumvisible() == 0|pclose|endif
+autocmd CmdwinEnter     * let s:cmdwin = 1
+autocmd CmdwinLeave     * let s:cmdwin = 0
+autocmd InsertLeave     * if s:cmdwin == 0 && pumvisible() == 0|pclose|endif
 "   插入模式下长时间不动则打断撒消序列
 if (v:version == 800 && has("patch1407")) || v:version != 800
   autocmd CursorHoldI * call feedkeys("\<C-g>u", 'nt')
@@ -837,9 +818,9 @@ autocmd BufReadCmd *.maff,*.xmind,*.crx,*.apk,*.whl,*.egg  call zip#Browse(expan
 "   见 ft-syntax-omni
 if has("autocmd") && exists("+omnifunc")
   autocmd Filetype *
-	\ if &omnifunc == "" && !get(b:, 'disable_omnifunc') |
-	\   setlocal omnifunc=syntaxcomplete#Complete |
-	\ endif
+        \ if &omnifunc == "" && !get(b:, 'disable_omnifunc') |
+        \   setlocal omnifunc=syntaxcomplete#Complete |
+        \ endif
 endif
 " 自定义命令[[[1
 " 对齐 xxx: xxx （两栏）
@@ -1149,7 +1130,7 @@ if has("cscope")
     " 查找包含本文件的文件
     nmap csi :cs find i ^<C-R>=expand("<cfile>")<CR>$<CR>
     " 自己来输入命令
-    nmap cs<Space> :cs find 
+    nmap cs<Space> :cs find<Space>
   endif
 endif
 " 最后 [[[1
