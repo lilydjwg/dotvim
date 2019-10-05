@@ -477,7 +477,7 @@ endtry
 set maxcombine=4
 set cedit=<C-Y>
 set whichwrap=b,s,[,]
-set tags+=./../tags,./../../tags,./../../../tags
+set tags+=./tags;
 try
   set matchpairs=(:),{:},[:],《:》,〈:〉,［:］,（:）,「:」,『:』,‘:’,“:”
 catch /^Vim\%((\a\+)\)\=:E474/
