@@ -584,17 +584,17 @@ elseif has("unix")
   set ambiwidth=single
   " 防止退出时终端乱码
   " 这里两者都需要。只前者标题会重复，只后者会乱码
-  set t_fs=(B
-  set t_IE=(B
+  exec "set t_fs=\033(B\007"
+  exec "set t_IE=\033(B\007"
   if &term =~ '256color\|nvim'
     set cursorline
   else
     " 在Linux文本终端下非插入模式显示块状光标
     if &term == "linux" || &term == "fbterm"
-      set t_ve+=[?6c
-      autocmd InsertEnter * set t_ve-=[?6c
-      autocmd InsertLeave * set t_ve+=[?6c
-      " autocmd VimLeave * set t_ve-=[?6c
+      exec "set t_ve+=\033[?6c"
+      autocmd InsertEnter * exec "set t_ve-=\033[?6c"
+      autocmd InsertLeave * exec "set t_ve+=\033[?6c"
+      " autocmd VimLeave * exec "set t_ve-=\033[?6c"
     endif
     if &term == "fbterm"
       set cursorline
@@ -636,16 +636,16 @@ if &term =~ '^screen\|^tmux' && exists('&t_BE')
   let &t_BE = "\033[?2004h"
   let &t_BD = "\033[?2004l"
   " t_PS and t_PE are key code options and they are special
-  exec "set t_PS=" . "\033[200~"
-  exec "set t_PE=" . "\033[201~"
+  exec "set t_PS=\033[200~"
+  exec "set t_PE=\033[201~"
 endif
 if &term =~ '^screen\|^tmux'
   " This may leave mouse in use by terminal application
-  " set t_RV=Ptmux;[>c\
+  " exec "set t_RV=\033Ptmux;\033\033[>c\033\\"
   set ttymouse=sgr
   if &t_GP == ''
     " for getwinpos
-    set t_GP=Ptmux;[13t\
+    exec "set t_GP=\033Ptmux;\033\033[13t\033\\"
   endif
 endif
 " 不同的 Vim 版本 [[[2
