@@ -643,7 +643,8 @@ if &term =~ '^screen\|^tmux'
   " This may leave mouse in use by terminal application
   " exec "set t_RV=\033Ptmux;\033\033[>c\033\\"
   set ttymouse=sgr
-  if &t_GP == ''
+  " t_GP not present in 7.4 (CentOS 6)
+  if has('&t_GP') && &t_GP == ''
     " for getwinpos
     exec "set t_GP=\033Ptmux;\033\033[13t\033\\"
   endif
