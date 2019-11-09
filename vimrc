@@ -502,33 +502,14 @@ try
   set signcolumn=number
 catch /.*/
 endtry
+set grepprg=grep\ -nH\ $*
 " Linux 与 Windows 等 [[[2
 if has("gui_macvim")
   set macmeta
 end
 if has("win32") || has("win64")
-  " Win 编码 [[[3
-  " 行禁则补丁要求 encoding 为 'utf-8'
-  " 但是设置 encoding=utf-8 会导致状态栏和编译者信息乱码
-  " set encoding=utf-8
-  " set fileencoding=cp936
-  " language messages zh_CN.UTF-8
-  " set termencoding=cp936
-  " set langmenu=chinese_gb.936
-  " source $VIMRUNTIME/delmenu.vim
-  " source $VIMRUNTIME/menu.vim
-  " Win 路径 [[[3
   let g:vimfiles = split(&runtimepath, ',')[1]
   let g:mytmpdir = $TMP
-  " Win 程序 [[[3
-  "   用默认的程序打开文件
-  nmap <C-S-F5> :!"%"<CR>
-  command Hex silent !winhex '%'
-  command SHELL silent cd %:p:h|silent exe "!start cmd"|silent cd -
-  command Nautilus silent !explorer %:p:h
-  " Win 配置 [[[3
-  command FScreen simalt ~x
-  command Fscreen simalt ~r
   if has('directx')
     set renderoptions=type:directx
   endif
@@ -545,16 +526,6 @@ else
   " cron 的目录不要备份
   set backupskip+=/etc/cron.*/*
   set backupdir=.,/var/tmp,/tmp
-  " Linux 程序 [[[3
-  "   用默认的程序打开文件
-  nmap <C-S-F5> :!gnome-open "%"<CR>
-  set grepprg=grep\ -nH\ $*
-  command Hex silent !setsid ghex2 '%'
-  command SHELL silent cd %:p:h|silent exe '!setsid xfce4-terminal'|silent cd -
-  command Nautilus silent !nautilus %:p:h
-  " Linux 配置 [[[3
-  command FScreen winpos 0 0|set lines=40|set columns=172
-  command Fscreen set lines=40|set columns=88
 endif
 " 语言相关 [[[3
 if $LANGUAGE =~ '^zh' || ($LANGUAGE == '' && v:lang =~ '^zh')
