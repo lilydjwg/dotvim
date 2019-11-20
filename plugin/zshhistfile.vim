@@ -24,8 +24,8 @@ function s:zshhistfileRead(file)
   " FIXME 转换失败不要使用问号代替
   let fencs = &fencs
   set fencs=utf8
-  exe 'sil r!cat ''' . a:file . '''|zhist'
-  let &fencs=fencs
+  exe 'sil r!zhist < ''' . a:file . ''''
+  let &fencs = fencs
   1d
   setf sh
   " for mru.vim
