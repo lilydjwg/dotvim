@@ -30,6 +30,13 @@ function! s:AutoEink()
     let x = getwinposx()
   endif
 
+  if x == -1 || x == 0
+    " not available or wrong, try using the mouse position
+    " vte 0.58.3 always replies (0, 0), see
+    " https://gitlab.gnome.org/GNOME/vte/issues/128
+    let x = system("python -c 'from X import Display; print(Display().getpos()[0])' 2>/dev/null || true")
+  endif
+
   if x >= 1920
     call s:Eink('')
   endif
