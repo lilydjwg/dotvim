@@ -72,7 +72,7 @@ endif
 
 "- commands --------------------------------------------------------------------
 
-command! -bar -nargs=* -range=1 -complete=customlist,ConflictMotions#Complete ConflictTake if ! ConflictMotions#Take(<line1>, <line2>, <q-args>) | echoerr ingo#err#Get() | endif
+command! -bar -nargs=* -range=% -complete=customlist,ConflictMotions#Complete ConflictTake if ! ConflictMotions#Take(<line1>, <line2>, <q-args>) | echoerr ingo#err#Get() | endif
 
 
 "- mappings --------------------------------------------------------------------

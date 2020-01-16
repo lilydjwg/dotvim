@@ -211,7 +211,7 @@ function! ConflictMotions#Take( takeStartLnum, takeEndLnum, arguments )
     let s:stickyChoice = ''
     let l:currentLnum = line('.')
     let l:save_view = winsaveview()
-    let l:hasRange = (a:takeEndLnum != 1)
+    let l:hasRange = (a:takeEndLnum != line('$'))
     let l:arguments = split(a:arguments, '\s\+\|\%(\A\&\S\)\zs')
 
     let l:isMapping = 0
