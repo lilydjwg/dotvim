@@ -1,0 +1,10 @@
+softtabstop  ;;  	    trailing and indented with ;; separator
+tab	;;	trailing and indented with ;; separator
+4space  ;;  trailing and indented with ;; separator
+softtabstop     	    trailing and indented with space separator
+tab	 	trailing and indented with space separator
+4space     trailing and indented with space separator
+softtabstop    	    trailing and indented
+tab		trailing and indented
+4space    trailing and indented
+

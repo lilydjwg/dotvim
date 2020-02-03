@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:inkarkat/vim-ingo-library.git
+	branch = master
+	commit = 0d33532f43d0716a31222183102d481b782cf963
+	parent = 7e375fd31c0d024f32249daedfac643cf386e9df
+	method = merge
+	cmdver = 0.4.1

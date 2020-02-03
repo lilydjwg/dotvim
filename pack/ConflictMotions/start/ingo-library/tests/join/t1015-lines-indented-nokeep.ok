@@ -1,0 +1,10 @@
+softtabstop;;indented with ;; separator
+tab;;indented with ;; separator
+4space;;indented with ;; separator
+softtabstop indented with space separator
+tab indented with space separator
+4space indented with space separator
+softtabstopindented
+tabindented
+4spaceindented
+

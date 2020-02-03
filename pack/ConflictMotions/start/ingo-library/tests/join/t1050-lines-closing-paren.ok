@@ -1,0 +1,13 @@
+softtabstop    ;;) parenthesis with ;; separator
+tab	;;) parenthesis with ;; separator
+4space    ;;) parenthesis with ;; separator
+plain;;) parenthesis with ;; separator
+softtabstop    	  ) indented parenthesis
+tab		) indented parenthesis
+4space        ) indented parenthesis
+plain ) indented parenthesis
+softtabstop    ) parenthesis
+tab	) parenthesis
+4space    ) parenthesis
+plain) parenthesis
+
