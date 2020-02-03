@@ -911,12 +911,6 @@ let g:cycle_default_groups = [
 "   Erlang[[[2
 let g:erlangHighlightBif = 1
 let g:erlangFold = 1
-"   CountJump[[[2
-"   Regex in Javascript, etc
-call CountJump#TextObject#MakeWithCountSearch('', '/', 'ai', 'v', '\\\@<!/', '\\\@<!/')
-call CountJump#TextObject#MakeWithCountSearch('', ':', 'ai', 'v', '\\\@<!:', '\\\@<!:')
-call CountJump#TextObject#MakeWithCountSearch('', '_', 'ai', 'v', '_', '_')
-call CountJump#TextObject#MakeWithCountSearch('', '<Tab>', 'ai', 'v', '\t', '\t')
 "   colorizer.vim[[[2
 let g:colorizer_nomap = 1
 let g:colorizer_startup = 0
