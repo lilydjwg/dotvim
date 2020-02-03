@@ -1,0 +1,63 @@
+begin
+|This {{{ Mauris neque ante, placerat at, mollis vitae, faucibus quis, leo. }}} Ut feugiat.
+|{{{Vivamus}}} urna quam, congue vulputate, convallis non, cursus cursis, risus.
+|Quisque aliquet. {{{Donec vulputate egestas elit. Morbi dictum, sem sit amet
+|aliquam euismod, odio tortor pellentesque odio, ac ultrices enim nibh sed quam.}}}
+{{{
+|Integer tortor velit, condimentum a, vestibulum eget, sagittis nec, neque.
+|Aenean est urna, bibendum et, imperdiet at, rhoncus in, arcu. In hac habitasse
+|platea dictumst. Vestibulum blandit dignissim dui. Maecenas vitae magna non
+|felis ornare consectetuer. Sed lorem. Nam leo. In eget pede. Donec porta.
+}}}
+end
+
+{{{ ...
+|Integer tortor velit, condimentum a, vestibulum eget, sagittis nec, neque.
+|Aenean est urna, bibendum et, imperdiet at, rhoncus in, arcu. In hac habitasse
+|platea dictumst. Vestibulum blandit dignissim dui. Maecenas vitae magna non
+|felis ornare consectetuer. Sed lorem. Nam leo. In eget pede. Donec porta.
+... }}}
+
+|{{{Etiam facilisis. {{{Nam suscipit.}}} {{{Ut consectetuer {{{leo}}} vehicula augue.}}} Aliquam
+|cursus. Integer.}}}
+|[[[Etiam facilisis. [[[Nam suscipit.]]] [[[Ut consectetuer [[[leo]]] vehicula augue.]]] Aliquam
+|cursus. Integer.]]]
+
+|The {{{one}}} and {{{two}}} and {{{three}}} in a row. Plus {{{four}}}!
+|Maybe {{{five}}}, or {{{six}}} at most. Definitely stop at {{{seven}}}.
+
+begin
+    call CountJump#Region#Motion#MakeBracketMotion('<buffer>', 'x', 'X', '^|', 1)
+    call CountJump#Region#TextObject#Make('<buffer>', 'x', 'a', 'V', '^|', 1)
+    call CountJump#Region#TextObject#Make('<buffer>', 'x', 'i', 'V', '^|', 1)
+end
+begin
+    call CountJump#Region#Motion#MakeBracketMotion('<buffer>', '<Plug>(BarBegin%s)', '<Plug>(BarEnd%s)', '^|', 1)
+    call CountJump#Region#TextObject#Make('<buffer>', '<Plug>(Bar%sObject)', 'ai', 'V', '^|', 1)
+    nmap <buffer> [x <Plug>(BarBeginBackward)
+    nmap <buffer> ]x <Plug>(BarBeginForward)
+    nmap <buffer> [X <Plug>(BarEndBackward)
+    nmap <buffer> ]X <Plug>(BarEndForward)
+    vmap <buffer> ax <Plug>(BarOuterObject)
+    vmap <buffer> ix <Plug>(BarInnerObject)
+end
+
+begin
+    call CountJump#Region#Motion#MakeBracketMotion('<buffer>', '', '', '^begin\|^end', 0)
+    call CountJump#Region#TextObject#Make('<buffer>', 'b', 'a', 'V', '^begin\|^end', 0)
+    call CountJump#Region#TextObject#Make('<buffer>', 'b', 'i', 'V', '^begin\|^end', 0)
+end
+begin
+    call CountJump#Region#Motion#MakeBracketMotion('<buffer>', '<Plug>(PascalBegin%s)', '<Plug>(PascalEnd%s)', '^begin\|^end', 0)
+    call CountJump#Region#TextObject#Make('<buffer>', '<Plug>(Pascal%s)', 'a', 'V', '^begin\|^end', 0)
+    call CountJump#Region#TextObject#Make('<buffer>', '<Plug>(Pascal%s)', 'i', 'V', '^begin\|^end', 0)
+    nmap <buffer> [[ <Plug>(PascalBeginBackward)
+    nmap <buffer> ]] <Plug>(PascalBeginForward)
+    nmap <buffer> [] <Plug>(PascalEndBackward)
+    nmap <buffer> ][ <Plug>(PascalEndForward)
+    vmap <buffer> ab <Plug>(PascalOuter)
+    vmap <buffer> ib <Plug>(PascalInner)
+end
+
+begin
+end

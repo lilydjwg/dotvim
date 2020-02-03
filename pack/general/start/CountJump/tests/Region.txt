@@ -1,0 +1,24 @@
+$       on warning then goto nopriv
+$       set on
+$       set process/privilege=(sysnam,sysprv)
+$!...
+
+
+$nopriv:
+$       write sys$output "Required privs: SYSNAM, SYSPRV"
+$       status = 36
+$       goto exit
+$!...
+$exit:
+$       set process/privilege=(nosysnam,nosysprv)
+
+$	set mine
+$	set yours
+$
+$	set all
+$
+$
+$	goto exit
+call CountJump#Region#Motion#MakeBracketMotion( '<buffer>', '', '', '^\$\s*\S', 1)
+call CountJump#Region#TextObject#Make( '<buffer>', 'p', 'ai', 'V', '^\$\s*\S', 1 )
+

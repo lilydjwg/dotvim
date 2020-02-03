@@ -1,0 +1,8 @@
+autoload/CountJump.vim
+autoload/CountJump/Mappings.vim
+autoload/CountJump/Motion.vim
+autoload/CountJump/Region.vim
+autoload/CountJump/Region/Motion.vim
+autoload/CountJump/Region/TextObject.vim
+autoload/CountJump/TextObject.vim
+doc/CountJump.txt

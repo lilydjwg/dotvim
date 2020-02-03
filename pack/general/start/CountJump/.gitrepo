@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:inkarkat/vim-CountJump.git
+	branch = master
+	commit = 6231c92f41523b56e87d80fc64d27b273a5eb27f
+	parent = 3124f19a7cb2b8437d272421cb5074b5223dfe08
+	method = merge
+	cmdver = 0.4.1

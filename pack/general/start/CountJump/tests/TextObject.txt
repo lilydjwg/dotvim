@@ -1,0 +1,9 @@
+For more intricate $formula in here$ patterns like
+this \[ math formula \]
+scripts could (should?) be $$written$$.
+
+call CountJump#TextObject#MakeWithCountSearch('<buffer>', '$', 'ai', 'v', '\$', '\$')
+call CountJump#TextObject#MakeWithCountSearch('<buffer>', 's', 'ai', 'v', '\$', '\$')
+call CountJump#TextObject#MakeWithCountSearch('<buffer>', 'S', 'ai', 'v', '\$\$', '\$\$')
+call CountJump#TextObject#MakeWithCountSearch('<buffer>', 'm', 'ai', 'v', '\\\[', '\\\]')
+

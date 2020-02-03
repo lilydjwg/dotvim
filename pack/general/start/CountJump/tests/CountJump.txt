@@ -1,0 +1,66 @@
+begin
+This {{{ Mauris neque ante, placerat at, mollis vitae, faucibus quis, leo. }}} Ut feugiat.
+{{{Vivamus}}} urna quam, congue vulputate, convallis non, cursus cursis, risus.
+Quisque aliquet. {{{Donec vulputate egestas elit. Morbi dictum, sem sit amet
+aliquam euismod, odio tortor pellentesque odio, ac ultrices enim nibh sed quam.}}}
+{{{
+Integer tortor velit, condimentum a, vestibulum eget, sagittis nec, neque.
+Aenean est urna, bibendum et, imperdiet at, rhoncus in, arcu. In hac habitasse
+platea dictumst. Vestibulum blandit dignissim dui. Maecenas vitae magna non
+felis ornare consectetuer. Sed lorem. Nam leo. In eget pede. Donec porta.
+}}}
+end
+
+{{{ ...
+Integer tortor velit, condimentum a, vestibulum eget, sagittis nec, neque.
+Aenean est urna, bibendum et, imperdiet at, rhoncus in, arcu. In hac habitasse
+platea dictumst. Vestibulum blandit dignissim dui. Maecenas vitae magna non
+felis ornare consectetuer. Sed lorem. Nam leo. In eget pede. Donec porta.
+... }}}
+
+{{{Etiam facilisis. {{{Nam suscipit.}}} {{{Ut consectetuer {{{leo}}} vehicula augue.}}} Aliquam
+cursus. Integer.}}}
+[[[Etiam facilisis. [[[Nam suscipit.]]] [[[Ut consectetuer [[[leo]]] vehicula augue.]]] Aliquam
+cursus. Integer.]]]
+
+The {{{one}}} and {{{two}}} and {{{three}}} in a row. Plus {{{four}}}!
+Maybe {{{five}}}, or {{{six}}} at most. Definitely stop at {{{seven}}}.
+
+begin
+    call CountJump#Motion#MakeBracketMotion('<buffer>', 'x', 'X', '{{{', '}}}', 1)
+    call CountJump#Motion#MakeBracketMotion('<buffer>', 'y', 'Y', '[[[', ']]]', 0)
+    call CountJump#TextObject#MakeWithCountSearch('<buffer>', 'x', 'ai', 'v', '{{{', '}}}')
+    call CountJump#TextObject#MakeWithCountSearch('<buffer>', 'X', 'ai', 'V', '{{{', '}}}')
+    call CountJump#TextObject#MakeWithCountSearch('<buffer>', 'y', 'ai', 'v', '[[[', ']]]')
+end
+begin
+    call CountJump#Motion#MakeBracketMotion('<buffer>', '<Plug>(CurlyBegin%s)', '<Plug>(CurlyEnd%s)', '{{{', '}}}', 1)
+    call CountJump#Motion#MakeBracketMotion('<buffer>', '<Plug>(SquareBegin%s)', '<Plug>(SquareEnd%s)', '[[[', ']]]', 0)
+    call CountJump#TextObject#MakeWithCountSearch('<buffer>', '<Plug>(Curly%sObject)', 'ai', 'v', '{{{', '}}}')
+    nmap <buffer> [x <Plug>(CurlyBeginBackward)
+    nmap <buffer> ]x <Plug>(CurlyBeginForward)
+    nmap <buffer> [X <Plug>(CurlyEndBackward)
+    nmap <buffer> ]X <Plug>(CurlyEndForward)
+    vmap <buffer> ax <Plug>(CurlyOuterObject)
+    vmap <buffer> ix <Plug>(CurlyInnerObject)
+end
+
+begin
+    call CountJump#Motion#MakeBracketMotion('<buffer>', '', '', '\c^begin\n\zs', '\c^.*\nend', 0)
+    call CountJump#TextObject#MakeWithCountSearch('<buffer>', 'b', 'a', 'V', '\c^begin\n', '\c^end.*$')
+    call CountJump#TextObject#MakeWithCountSearch('<buffer>', 'b', 'i', 'V', '\c^begin\n', '\c^end.*$')
+end
+begin
+    call CountJump#Motion#MakeBracketMotion('<buffer>', '<Plug>(PascalBegin%s)', '<Plug>(PascalEnd%s)', '\c^begin\n\zs', '\c^.*\nend', 0)
+    call CountJump#TextObject#MakeWithCountSearch('<buffer>', '<Plug>(Pascal%s)', 'a', 'V', '\c^begin\n', '\c^end.*$')
+    call CountJump#TextObject#MakeWithCountSearch('<buffer>', '<Plug>(Pascal%s)', 'i', 'V', '\c^begin\n', '\c^end.*$')
+    nmap <buffer> [[ <Plug>(PascalBeginBackward)
+    nmap <buffer> ]] <Plug>(PascalBeginForward)
+    nmap <buffer> [] <Plug>(PascalEndBackward)
+    nmap <buffer> ][ <Plug>(PascalEndForward)
+    vmap <buffer> ab <Plug>(PascalOuter)
+    vmap <buffer> ib <Plug>(PascalInner)
+end
+
+begin
+end
