@@ -1,0 +1,59 @@
+Just some text
+<<<<<<< l.my
+ This is my version.
+||||||| l.orig
+ This is the original.
+=======
+This is your version.
+>>>>>>> l.your
+
+directories=
+<<<<<<< l.my
+||||||| l.orig
+files=
+=======
+files=
+flags=
+>>>>>>> l.your
+
+if [ $# -lt 1 ]; then
+<<<<<<< l.my
+=======
+    directories=.
+>>>>>>> l.your
+else
+    while [ $# -ne 0 ]; do
+	fileSystemSpec=$1
+	shift
+
+	if [ -d "$fileSystemSpec" ]; then
+	    directories="$directories \"$fileSystemSpec\""
+	else
+<<<<<<< l.my
+	    echo "FATAL: \"$fileSystemSpec\" does not exist!"
+||||||| l.orig
+	    echo "ERROR: \"$fileSystemSpec\" does not exist!"
+=======
+	    echo "ERROR: No file at \"$fileSystemSpec\"!"
+>>>>>>> l.your
+	fi
+    done
+fi
+
+<<<<<<< l.my
+echo "directories=$directories"
+
+||||||| l.orig
+START
+echo "directories=$directories"
+echo "files=$files"
+INNER
+ONE
+foobar
+hihihi
+END
+=======
+>>>>>>> l.your
+if [ "$directories" ]; then
+    sh -c "ls $directories"
+fi

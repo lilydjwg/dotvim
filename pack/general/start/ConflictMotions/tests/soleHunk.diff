@@ -1,0 +1,7 @@
+<<<<<<< HEAD
+Some text here for HEAD
+||||||| ANCESTOR
+Some text here for ANCESTOR
+======= OLD
+Some text here for OLD. There must not be a line after the close marker.
+>>>>>>>

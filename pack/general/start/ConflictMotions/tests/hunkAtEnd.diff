@@ -1,0 +1,8 @@
+Some text above the conflict. Bug doesn't happen if it covers the whole file.
+<<<<<<< HEAD
+Some text here for HEAD
+||||||| ANCESTOR
+Some text here for ANCESTOR
+======= OLD
+Some text here for OLD. There must not be a line after the close marker.
+>>>>>>>
