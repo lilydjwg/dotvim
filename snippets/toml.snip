@@ -2,3 +2,8 @@ snippet lto
 options head
 	[profile.release]
 	lto = true
+snippet best
+options head
+	[profile.release]
+	lto = "fat"
+	codegen-units = 1
