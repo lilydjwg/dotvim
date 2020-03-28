@@ -48,6 +48,4 @@ augroup END
 "  Restoration And Modelines:
 let &cpo= s:keepcpo
 unlet s:keepcpo
-" Vim Modeline:
-" vim:fdm=expr:fde=getline(v\:lnum-1)=~'\\v"\\s*-{20,}'?'>1'\:1
 " ---------------------------------------------------------------------
