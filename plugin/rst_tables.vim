@@ -26,7 +26,7 @@ if !has('python3') || v:version < 704
     finish
 endif
 
-python3 << endpython
+python3 << ENDPYTHON
 import vim
 import re
 import unicodedata
@@ -325,7 +325,7 @@ def reflow_table():
     slice = draw_table(indent, table, widths)
     vim.current.buffer[upper - 1:lower] = slice
 
-endpython
+ENDPYTHON
 
 function s:do_map()
     nnoremap <buffer> <silent> <leader><leader>c :py3 reformat_table()<CR>
