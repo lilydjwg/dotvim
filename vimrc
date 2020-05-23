@@ -1103,7 +1103,12 @@ if has("cscope")
 endif
 " 最后 [[[1
 if exists(':packadd')
-  let &runtimepath = g:vimfiles . '/config,' . &runtimepath
+  " insert after the first one so spell changes won't go
+  " into our config directory.
+  let rtp = split(&runtimepath, ',')
+  call insert(rtp, g:vimfiles . '/config', 1)
+  let &runtimepath = join(rtp, ',')
+  unlet rtp
 endif
 runtime abbreviate.vim
 runtime local.vim
