@@ -560,7 +560,12 @@ elseif has("unix")
   " 这里两者都需要。只前者标题会重复，只后者会乱码
   exec "set t_fs=\033(B\007"
   exec "set t_IE=\033(B\007"
-  if &term =~ '256color\|nvim'
+  if $COLORTERM == 'truecolor'
+    set cursorline
+    set termguicolors
+    let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+    let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+  elseif &term =~ '256color\|nvim'
     set cursorline
   else
     " 在Linux文本终端下非插入模式显示块状光标
