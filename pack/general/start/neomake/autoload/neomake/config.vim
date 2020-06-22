@@ -1,4 +1,4 @@
-" Config API.
+" New-style config API.
 
 let g:neomake#config#_defaults = {
             \ 'maker_defaults': {
@@ -11,9 +11,15 @@ lockvar g:neomake#config#_defaults
 let g:neomake#config#undefined = {}
 lockvar! g:neomake#config#undefined
 
-" Resolve a:name (split on dots) and (optionally) init a:dict accordingly.
-function! s:resolve_name(dict, name, init) abort
+" Resolve a:name (list of keys or string (split on dots)) and (optionally)
+" init a:dict accordingly.
+function! s:resolve_name(dict, name, init, validate) abort
     let parts = type(a:name) == type([]) ? a:name : split(a:name, '\.')
+    if a:validate && parts[0] ==# 'neomake'
+        throw printf(
+                    \ 'Neomake: config: "neomake" is not necessary with new-style config settings (%s).',
+                    \ string(a:name))
+    endif
     let c = a:dict
     for p in parts[0:-2]
         if !has_key(c, p)
@@ -30,10 +36,11 @@ function! s:resolve_name(dict, name, init) abort
     return [c, parts[-1]]
 endfunction
 
-" Get a:name (list of keys) from a:dict, using a:prefixes.
+" Get a:name (list of keys or string (split on dots)) from a:dict,
+" using a:prefixes.
 function! s:get(dict, parts, prefixes) abort
     for prefix in a:prefixes
-        let [c, k] = s:resolve_name(a:dict, prefix + a:parts[0:-1], 0)
+        let [c, k] = s:resolve_name(a:dict, prefix + a:parts[0:-1], 0, 1)
         if has_key(c, k)
             return [prefix, get(c, k)]
         endif
@@ -111,9 +118,9 @@ function! neomake#config#get_with_source(name, ...) abort
             if source ==# 'maker'
                 let maker_prefixes = map(copy(prefixes), '!empty(v:val) && v:val[-1] ==# maker_name ? v:val[:-2] : v:val')
                 let maker_setting_parts = parts[0] == maker_name ? parts[1:] : parts
-                let [prefix, R] = s:get(lookup, maker_setting_parts, maker_prefixes)
+                let [prefix, l:R] = s:get(lookup, maker_setting_parts, maker_prefixes)
             else
-                let [prefix, R] = s:get(lookup, parts, prefixes)
+                let [prefix, l:R] = s:get(lookup, parts, prefixes)
             endif
             if R isnot# g:neomake#config#undefined
                 let log_name = join(map(copy(parts), "substitute(v:val, '\\.', '|', '')"), '.')
@@ -141,14 +148,19 @@ function! neomake#config#get_with_source(name, ...) abort
 endfunction
 
 
-" Set a:name in a:dict to a:value, after resolving it (split on dots).
-function! s:set(dict, name, value) abort
-    let [c, k] = s:resolve_name(a:dict, a:name, 1)
+" Set a:name (list or string (split on dots)) in a:dict to a:value.
+function! s:set(dict, name, value, validate) abort
+    let [c, k] = s:resolve_name(a:dict, a:name, 1, a:validate)
     let c[k] = a:value
     return c
 endfunction
 
-" Set a:name (resolved on dots) to a:value in the config.
+" Set a:name to a:value in the config.
+" a:name:
+"  - a list (e.g. `['ft', 'javascript.jsx', 'eslint', 'exe']`, or
+"  - a string (split on dots, e.g. `'ft.python.enabled_makers'`), where
+"    `b:` sets a buffer-local setting (via `neomake#config#set_buffer`).
+" a:value: the value to set
 function! neomake#config#set(name, value) abort
     let parts = type(a:name) == type([]) ? a:name : split(a:name, '\.')
     if parts[0] =~# '^b:'
@@ -158,10 +170,10 @@ function! neomake#config#set(name, value) abort
     if !has_key(g:, 'neomake')
         let g:neomake = {}
     endif
-    return s:set(g:neomake, parts, a:value)
+    return s:set(g:neomake, parts, a:value, 1)
 endfunction
 
-" Set a:name (resolved on dots) to a:value for buffer a:bufnr.
+" Set a:name (list or string (split on dots)) to a:value for buffer a:bufnr.
 function! neomake#config#set_buffer(bufnr, name, value) abort
     let bufnr = +a:bufnr
     let bneomake = getbufvar(bufnr, 'neomake')
@@ -170,21 +182,21 @@ function! neomake#config#set_buffer(bufnr, name, value) abort
         let bneomake = {}
         call setbufvar(bufnr, 'neomake', bneomake)
     endif
-    return s:set(bneomake, a:name, a:value)
+    return s:set(bneomake, a:name, a:value, 1)
 endfunction
 
-" Set a:name (resolved on dots) to a:value in a:scope.
+" Set a:name (list or string (split on dots)) to a:value in a:scope.
 " This is meant for advanced usage, e.g.:
 "   set_scope(t:, 'neomake.disabled', 1)
 function! neomake#config#set_dict(dict, name, value) abort
-    return s:set(a:dict, a:name, a:value)
+    return s:set(a:dict, a:name, a:value, 0)
 endfunction
 
-" Unset a:name (resolved on dots).
+" Unset a:name (list or string (split on dots)).
 " This is meant for advanced usage, e.g.:
 "   unset_dict(t:, 'neomake.disabled', 1)
 function! neomake#config#unset_dict(dict, name) abort
-    let [c, k] = s:resolve_name(a:dict, a:name, 0)
+    let [c, k] = s:resolve_name(a:dict, a:name, 0, 0)
     if has_key(c, k)
         unlet c[k]
     endif

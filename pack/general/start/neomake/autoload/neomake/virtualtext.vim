@@ -76,14 +76,14 @@ if exists('*nvim_create_namespace')  " Includes nvim_buf_set_virtual_text.
     let s:cur_virtualtext = []
 
     function! neomake#virtualtext#handle_current_error() abort
-        if !get(g:, 'neomake_virtualtext_current_error', 1)
-            return
-        endif
-
+        " Clean always.
         if !empty(s:cur_virtualtext)
             if bufexists(s:cur_virtualtext[0])
                 call nvim_buf_clear_highlight(s:cur_virtualtext[0], s:cur_virtualtext[1], 0, -1)
             endif
+        endif
+        if !get(g:, 'neomake_virtualtext_current_error', 1)
+            return
         endif
         let entry = neomake#get_nearest_error()
         if empty(entry)
@@ -105,16 +105,7 @@ endif
 
 function! neomake#virtualtext#DefineHighlights() abort
     " NOTE: linking to SpellBad etc is bad/distracting (with undercurl).
-    for [group, link] in items({
-                \ 'NeomakeVirtualtextError': 'Error',
-                \ 'NeomakeVirtualtextWarning': 'WarningMsg',
-                \ 'NeomakeVirtualtextInfo': 'NeomakeVirtualtextWarning',
-                \ 'NeomakeVirtualtextMessage': 'NeomakeVirtualtextWarning'
-                \ })
-        if !neomake#utils#highlight_is_defined(group)
-            exe 'highlight link '.group.' '.link
-        endif
-    endfor
+    call neomake#utils#define_derived_highlights('NeomakeVirtualtext%s', ['NONE', 'NONE'])
 endfunction
 
 call neomake#virtualtext#DefineHighlights()

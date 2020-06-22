@@ -45,7 +45,7 @@ dispatch.
 :Neomake! [makers]      Run a make command with no file as input. If no makers
                         are specified, the default top-level makers will be
                         used. If no default top-level makers exist,
-                        |'makeprg'| will be used.
+                        'makeprg' will be used.
 
                                                                   *:NeomakeSh*
 :NeomakeSh {command}    Run {command} in a shell (according to 'shell'). The
@@ -108,7 +108,7 @@ status gets displayed.
 3. Configuration                                       *neomake-configuration*
 
 If you just want an easy way to run |:make| asynchronously, you're all set.
-Just set your |'makeprg'| and |'errorformat'| as usual, and run |:Neomake!|.
+Just set your 'makeprg' and 'errorformat' as usual, and run |:Neomake!|.
 If you want more, read on.
 
 3.1 Automaking                                              *neomake-automake*
@@ -227,13 +227,17 @@ Here is a sample maker definition: >
                                                    *neomake-makers-InitForJob*
 You can configure a maker dynamically through a `InitForJob` function, which
 gets the jobinfo (|neomake-object-jobinfo|) as its argument.
+`self` refers to the maker instance therein, which is not copied (i.e.
+mutating `self.args` would change it for following jobs also).
+It is possible to return a new instance based on that (factory pattern): >
 
-This can also be configured as setting: >
-    function! CustomExe(jobinfo) abort
-        let self.args = [self.exe] + self.args
-        let self.exe = 'some_custom_wrapper'
+    function! MyCustomExe(jobinfo) abort
+      let maker = deepcopy(self)
+      call insert(maker.args, maker.exe)
+      let maker.exe = 'some_custom_wrapper'
+      return maker
     endfunction
-    call neomake#config#set('ft.python.InitForJob', function('CustomExe'))
+    call neomake#config#set('ft.python.InitForJob', function('MyCustomExe'))
 <
                                                           *neomake-makers-exe*
                                                          *neomake-makers-args*
@@ -399,7 +403,7 @@ feedback as early as possible, you can set this to `0`.
 You can override this for a maker using e.g.: >
     let g:neomake_ft_test_maker_buffer_output = 0
 <
-Your results will appear earlier, but if the |'errorformat'| is meant to parse
+Your results will appear earlier, but if the 'errorformat' is meant to parse
 multiline output this will likely cause issues (depending on how the maker
 flushes its output).
 
@@ -409,7 +413,7 @@ To change the default for all makers use: >
                                        *neomake-makers-remove_invalid_entries*
 Default: 0
 This option filters invalid entries from makers from the location/quickfix
-list (i.e. entries that do not match the |'errorformat'|, and that would show
+list (i.e. entries that do not match the 'errorformat', and that would show
 up with a `||` prefix in the location/quickfix list): >
     let g:neomake_ft_maker_remove_invalid_entries = 1
 <
@@ -447,6 +451,21 @@ falls back to using |tempname()|.
 
 You can configure this per buffer or maker as usual, e.g.: >
         let g:neomake_<ft>_<name>_tempfile_enabled = 0
+<
+                                                 *neomake-makers-tempfile_dir*
+Default: unset
+You can configure the directory to use for temporary files (see
+|neomake-makers-tempfile_enabled|).
+
+The default behavior is to use the same directory as the original file, so
+that any config files (e.g. `setup.cfg` for Python tools) take effect.
+
+You can configure this per buffer or maker as usual, e.g.: >
+        let g:neomake_<ft>_<name>_tempfile_dir = '/tmp/custom'
+<
+The value gets expanded (via `neomake#utils#ExpandArgs`), which allows for
+the following to use the original file's directory structure (`%:p:h`): >
+        let g:neomake_tempfile_dir = '/tmp/custom%:p:h'
 <
                                                 *neomake-makers-output_stream*
 Default: "both" ("stdout", "stderr", "both")
@@ -562,7 +581,7 @@ otherwise.
 Defaults to 1.
 
 *g:neomake_virtualtext_current_error*
-Use Neovim's virtualtext API to display error for the current line next
+Use Neovim's virtualtext API to display the error for the current line next
 to the text.  This is experimental, and uses the same mechanism (timer)
 as |g:neomake_echo_current_error|.
 Defaults to 1 (only available on Neovim 0.3.2+).
@@ -597,7 +616,7 @@ Each log level includes all the levels before it.
 
 Defaults to 1.
 
-|'verbose'| gets added to this setting, so you can use |:verbose| to increase
+'verbose' gets added to this setting, so you can use |:verbose| to increase
 the verbosity temporarily: >
     :3verb Neomake
 <
@@ -612,7 +631,7 @@ append, but overwrite the file with each message.
 *g:neomake_place_signs*
 This setting enables the placement of signs next to items from the location
 and quickfix list (i.e. errors/warnings etc recognized from the
-|'errorformat'|). Defaults to 1.
+'errorformat'). Defaults to 1.
 
 *g:neomake_error_sign*
 *g:neomake_warning_sign*
@@ -632,16 +651,22 @@ create new ones.
 
 Neomake uses the following defaults: >
 
-     let g:neomake_error_sign = {'text': '✖', 'texthl': 'NeomakeErrorSign'}
+     let g:neomake_error_sign = {
+         \ 'text': '✖',
+         \ 'texthl': 'NeomakeErrorSign',
+         \ }
      let g:neomake_warning_sign = {
-         \   'text': '⚠',
+         \   'text': '‼',
          \   'texthl': 'NeomakeWarningSign',
          \ }
      let g:neomake_message_sign = {
           \   'text': '➤',
           \   'texthl': 'NeomakeMessageSign',
           \ }
-     let g:neomake_info_sign = {'text': 'ℹ', 'texthl': 'NeomakeInfoSign'}
+     let g:neomake_info_sign = {
+          \ 'text': 'ℹ',
+          \ 'texthl': 'NeomakeInfoSign'
+          \ }
 <
 
 Default |highlight-groups| are created with those names, but only if they do
@@ -690,7 +715,7 @@ You can define them yourself: >
 
 *g:airline#extensions#neomake#enabled*
 Shows warning and error counts returned by |neomake#statusline#LoclistCounts|
-in the warning and error sections of the vim-airline |'statusline'|. Defaults
+in the warning and error sections of the vim-airline 'statusline'. Defaults
 to 1.
 
 ==============================================================================
@@ -881,7 +906,7 @@ You can use the following format placeholders:
 
 *neomake#statusline#LoclistStatus*
 *neomake#statusline#QflistStatus*
-These functions return text for your |'statusline'|. They each take an
+These functions return text for your 'statusline'. They each take an
 optional first argument, which is the prefix text that will be shown if errors
 or warnings exist. Example usage: >
     set statusline+=\ %#ErrorMsg#%{neomake#statusline#QflistStatus('qf:\ ')}

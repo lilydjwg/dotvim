@@ -3,13 +3,17 @@ let s:name_to_level = {'error': 0, 'warning': 1, 'verbose': 2, 'debug': 3}
 let s:short_level_to_name = {0: 'E', 1: 'W', 2: 'V', 3: 'D'}
 let s:is_testing = exists('g:neomake_test_messages')
 let s:pid = getpid()
+let s:indent = 0
+let s:indent_str = ''
 
-let s:last_msg_ts = neomake#compat#reltimefloat()
+if !exists('s:last_msg_ts')
+    let s:last_msg_ts = neomake#compat#reltimefloat()
+endif
 
 function! s:reltime_lastmsg() abort
     let cur = neomake#compat#reltimefloat()
     let diff = (cur - s:last_msg_ts)
-    let s:last_msg_ts = neomake#compat#reltimefloat()
+    let s:last_msg_ts = cur
 
     if diff < 0.01
         return '     '
@@ -36,6 +40,7 @@ function! s:log(level, msg, ...) abort
         return
     endif
 
+    let msg = s:indent_str . a:msg
     if a:0
         if has_key(a:1, 'options')
             let context = copy(a:1.options)
@@ -48,9 +53,7 @@ function! s:log(level, msg, ...) abort
                     \ get(context, 'id', '-'),
                     \ get(context, 'bufnr', get(context, 'file_mode', 0) ? '?' : '-'),
                     \ get(context, 'winnr', winnr()),
-                    \ a:msg)
-    else
-        let msg = a:msg
+                    \ msg)
     endif
 
     " Use Vader's log for messages during tests.
@@ -77,19 +80,16 @@ function! s:log(level, msg, ...) abort
             let g:neomake_test_errors += ['Log msg does not end with punctuation: "'.a:msg.'".']
         endif
     elseif verbosity >= a:level
-        redraw
-        if a:level ==# 0
-            echohl ErrorMsg
-        elseif a:level ==# 1
-            echohl WarningMsg
-        endif
         if verbosity > 2
             echom 'Neomake: '.msg
         else
+            if a:level ==# 0
+                echohl ErrorMsg
+            else
+                echohl WarningMsg
+            endif
             " Use message without context for non-debug msgs.
             echom 'Neomake: '.a:msg
-        endif
-        if a:level ==# 0 || a:level ==# 1
             echohl None
         endif
     endif
@@ -102,7 +102,6 @@ function! s:log(level, msg, ...) abort
                 let s:logfile_writefile_opts = 'aS'
             else
                 let s:logfile_writefile_opts = ''
-                redraw
                 echohl WarningMsg
                 echom 'Neomake: appending to the logfile is not supported in your Vim version.'
                 echohl NONE
@@ -123,6 +122,14 @@ function! s:log(level, msg, ...) abort
         endtry
     endif
     " @vimlint(EVL104, 0, l:timediff)
+endfunction
+
+function! neomake#log#indent(offset) abort
+    if a:offset < 0 && s:indent <= 0
+        throw 'invalid offset (already 0)'
+    endif
+    let s:indent += a:offset
+    let s:indent_str = repeat(' ', s:indent*2)
 endfunction
 
 function! neomake#log#error(...) abort
@@ -149,7 +156,6 @@ endfunction
 
 function! neomake#log#exception(error, ...) abort
     let log_context = a:0 ? a:1 : {'bufnr': bufnr('%')}
-    redraw
     echom printf('Neomake error in: %s', v:throwpoint)
     call neomake#log#error(a:error, log_context)
     call neomake#log#debug(printf('(in %s)', v:throwpoint), log_context)
@@ -160,7 +166,7 @@ function! neomake#log#warn_once(msg, key) abort
     if !has_key(s:warned, a:key)
         let s:warned[a:key] = 1
         echohl WarningMsg
-        redraw | echom 'Neomake: ' . a:msg
+        echom 'Neomake: ' . a:msg
         echohl None
         let v:warningmsg = 'Neomake: '.a:msg
         call neomake#log#debug('Neomake warning: '.a:msg)

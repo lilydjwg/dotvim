@@ -1,5 +1,7 @@
 let g:neomake#core#valid_maker_name_pattern = '\v^\w+$'
 
+let g:neomake#core#_ignore_autocommands = 0
+
 function! neomake#core#create_jobs(options, makers) abort
     let args = [a:options, a:makers]
     let jobs = call('s:bind_makers_for_job', args)
@@ -38,12 +40,12 @@ function! neomake#core#instantiate_maker(maker, options, check_exe) abort
     let bufnr = get(options, 'bufnr', '')
 
     " Call InitForJob function in maker object, if any.
-    let Init = neomake#utils#GetSetting('InitForJob', maker, g:neomake#config#undefined, ft, bufnr)
+    let l:Init = neomake#utils#GetSetting('InitForJob', maker, g:neomake#config#undefined, ft, bufnr)
     if empty(Init)
         " Deprecated: should use InitForJob instead.
         if has_key(maker, 'fn')
             unlet Init  " vim73
-            let Init = maker.fn
+            let l:Init = maker.fn
             call neomake#log#warn_once(printf("Please use 'InitForJob' instead of 'fn' for maker %s.", maker.name),
                         \ printf('deprecated-fn-%s', maker.name))
         endif
@@ -88,9 +90,16 @@ let g:neomake#core#command_maker_base = {}
 function! g:neomake#core#command_maker_base._get_fname_for_args(jobinfo) abort dict
     " Append file?  (defaults to jobinfo.file_mode, project/global makers should set it to 0)
     let append_file = neomake#utils#GetSetting('append_file', self, a:jobinfo.file_mode, a:jobinfo.ft, a:jobinfo.bufnr)
+    " Use stdin?  (checked here always to work without setting "uses_filename").
+    let uses_stdin = neomake#utils#GetSetting('uses_stdin', self, g:neomake#config#undefined, a:jobinfo.ft, a:jobinfo.bufnr)
+    if uses_stdin isnot g:neomake#config#undefined
+        let a:jobinfo.uses_stdin = uses_stdin
+        call neomake#log#debug(printf('Using uses_stdin (%s) from setting.',
+                    \ a:jobinfo.uses_stdin), a:jobinfo)
+    endif
     " Use/generate a filename?  (defaults to 1 if tempfile_name is set)
     let uses_filename = append_file || neomake#utils#GetSetting('uses_filename', self, has_key(self, 'tempfile_name'), a:jobinfo.ft, a:jobinfo.bufnr)
-    if append_file || uses_filename
+    if append_file || uses_filename || !empty(uses_stdin)
         let filename = self._get_fname_for_buffer(a:jobinfo)
         if append_file
             return filename

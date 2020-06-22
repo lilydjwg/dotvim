@@ -42,8 +42,6 @@ let s:sign_order = {'neomake_file_err': 0, 'neomake_file_warn': 1,
 
 " Get the defined signs for a:bufnr.
 " It returns a dictionary with line numbers as keys.
-" If there are multiple entries for a line only the first (visible) entry is
-" returned.
 function! neomake#signs#by_lnum(bufnr) abort
     let bufnr = a:bufnr + 0
     if !bufexists(bufnr)
@@ -54,9 +52,10 @@ function! neomake#signs#by_lnum(bufnr) abort
     if exists('*sign_getplaced')  " patch-8.1.0614
         for sign in sign_getplaced(bufnr)[0].signs
             if has_key(r, sign.lnum)
-                continue
+                call add(r[sign.lnum], [sign.id, sign.name])
+            else
+                let r[sign.lnum] = [[sign.id, sign.name]]
             endif
-            let r[sign.lnum] = [sign.id, sign.name]
         endfor
         return r
     endif
@@ -74,12 +73,14 @@ function! neomake#signs#by_lnum(bufnr) abort
         " XXX: does not really match "name="
         "      (broken by patch-8.1.0614, but handled above)
         let sign_type = line[strridx(line, '=')+1:]
-        if sign_type[0:7] ==# 'neomake_'
-            let lnum_idx = stridx(line, '=')
-            let lnum = line[lnum_idx+1:] + 0
-            if lnum
-                let sign_id = line[stridx(line, '=', lnum_idx+1)+1:] + 0
-                let r[lnum] = [sign_id, sign_type]
+        let lnum_idx = stridx(line, '=')
+        let lnum = line[lnum_idx+1:] + 0
+        if lnum
+            let sign_id = line[stridx(line, '=', lnum_idx+1)+1:] + 0
+            if has_key(r, lnum)
+                call insert(r[lnum], [sign_id, sign_type])
+            else
+                let r[lnum] = [[sign_id, sign_type]]
             endif
         endif
     endfor
@@ -93,7 +94,13 @@ let s:entry_to_sign_type = {'W': 'warn', 'I': 'info', 'M': 'msg'}
 function! neomake#signs#PlaceSigns(bufnr, entries, type) abort
     " Query the list of currently placed signs.
     " This allows to cope with movements, e.g. when lines were added.
-    let placed_signs = neomake#signs#by_lnum(a:bufnr)
+    let all_placed_signs = neomake#signs#by_lnum(a:bufnr)
+    let placed_signs = filter(map(copy(all_placed_signs),
+                \ 'filter(copy(v:val), "v:val[1] =~# ''^neomake_''")'),
+                \ '!empty(v:val)')
+
+    " TEMP: use the first sign only for now.
+    call map(placed_signs, 'v:val[0]')
 
     let entries_by_linenr = {}
     for entry in a:entries
@@ -117,21 +124,23 @@ function! neomake#signs#PlaceSigns(bufnr, entries, type) abort
             call add(place_new, [lnum, sign_type])
             continue
         endif
+
+        let sign_id = existing_sign[0]
         if existing_sign[1] == sign_type
-            let sign_id = existing_sign[0]
             let count_reused += 1
             " call neomake#log#debug(printf(
             "             \ 'Reusing sign: id=%d, type=%s, lnum=%d.',
             "             \ sign_id, existing_sign[1], lnum), log_context)
-
-            " Keep this sign from being cleaned.
-            if exists('s:last_placed_signs[a:type][a:bufnr][sign_id]')
-                unlet s:last_placed_signs[a:type][a:bufnr][sign_id]
-            endif
         else
-            let cmd = 'sign place '.existing_sign[0].' name='.sign_type.' buffer='.a:bufnr
+            let cmd = printf('sign place %s name=%s buffer=%d',
+                        \ sign_id, sign_type, a:bufnr)
             call neomake#log#debug('Upgrading sign for lnum='.lnum.': '.cmd.'.', log_context)
             exe cmd
+        endif
+
+        " Keep this sign from being cleaned.
+        if exists('s:last_placed_signs[a:type][a:bufnr][sign_id]')
+            unlet s:last_placed_signs[a:type][a:bufnr][sign_id]
         endif
     endfor
     if count_reused
@@ -140,8 +149,11 @@ function! neomake#signs#PlaceSigns(bufnr, entries, type) abort
 
     for [lnum, sign_type] in place_new
         if !exists('next_sign_id')
-            if !empty(placed_signs)
-                let next_sign_id = max(map(values(copy(placed_signs)), 'v:val[0]')) + 1
+            if !empty(all_placed_signs)
+                let next_sign_id = max(map(map(values(all_placed_signs), 'map(copy(v:val), ''v:val[0]'')'), 'v:val[0]')) + 1
+                if next_sign_id < s:base_sign_id
+                    let next_sign_id = s:base_sign_id
+                endif
             else
                 let next_sign_id = s:base_sign_id
             endif
@@ -214,7 +226,7 @@ function! neomake#signs#RedefineErrorSign(...) abort
 endfunction
 
 function! neomake#signs#RedefineWarningSign(...) abort
-    let default_opts = {'text': '⚠', 'texthl': 'NeomakeWarningSign'}
+    let default_opts = {'text': '‼', 'texthl': 'NeomakeWarningSign'}
     let opts = {}
     if a:0
         call extend(opts, a:1)
@@ -253,31 +265,12 @@ function! neomake#signs#RedefineInfoSign(...) abort
 endfunction
 
 function! neomake#signs#DefineHighlights() abort
-    let ctermbg = neomake#utils#GetHighlight('SignColumn', 'bg')
-    let guibg = neomake#utils#GetHighlight('SignColumn', 'bg#')
-    let bg = 'ctermbg='.ctermbg.' guibg='.guibg
+    " Use background from SignColumn.
+    let ctermbg = neomake#utils#GetHighlight('SignColumn', 'bg', 'Normal')
+    let guibg = neomake#utils#GetHighlight('SignColumn', 'bg#', 'Normal')
 
-    for [group, fg_from] in items({
-                \ 'NeomakeErrorSign': ['Error', 'bg'],
-                \ 'NeomakeWarningSign': ['Todo', 'fg'],
-                \ 'NeomakeInfoSign': ['Question', 'fg'],
-                \ 'NeomakeMessageSign': ['ModeMsg', 'fg']
-                \ })
-        let [fg_group, fg_attr] = fg_from
-        let ctermfg = neomake#utils#GetHighlight(fg_group, fg_attr)
-        let guifg = neomake#utils#GetHighlight(fg_group, fg_attr.'#')
-        " Ensure that we're not using SignColumn bg as fg (as with gotham
-        " colorscheme, issue https://github.com/neomake/neomake/pull/659).
-        if ctermfg == ctermbg && guifg == guibg
-            let fg_attr = neomake#utils#ReverseSynIDattr(fg_attr)
-            let ctermfg = neomake#utils#GetHighlight(fg_group, fg_attr)
-            let guifg = neomake#utils#GetHighlight(fg_group, fg_attr.'#')
-        endif
-        exe 'hi '.group.'Default ctermfg='.ctermfg.' guifg='.guifg.' '.bg
-        if !neomake#utils#highlight_is_defined(group)
-            exe 'hi link '.group.' '.group.'Default'
-        endif
-    endfor
+    " Define NeomakeErrorSign, NeomakeWarningSign etc.
+    call neomake#utils#define_derived_highlights('Neomake%sSign', [ctermbg, guibg])
 endfunction
 
 function! neomake#signs#DefineSigns() abort

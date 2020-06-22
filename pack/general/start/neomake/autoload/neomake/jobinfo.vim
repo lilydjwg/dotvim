@@ -1,6 +1,7 @@
 let s:jobinfo_base = {
             \ 'cd_back_cmd': '',
             \ 'pending_output': [],
+            \ 'file_mode': 1,
             \ }
 function! s:jobinfo_base.get_pid() abort
     if has_key(self, 'vim_job')
@@ -71,6 +72,8 @@ function! s:jobinfo_base.cd(...) abort
     if dir !=# cur_wd
         let [cd_error, cd_back_cmd] = neomake#utils#temp_cd(dir, cur_wd)
         if !empty(cd_error)
+            call neomake#log#debug(printf('jobinfo.cd(): error when trying to change cwd to %s: %s.',
+                        \ dir, cd_error))
             return cd_error
         endif
         let self.cwd = dir
@@ -81,5 +84,10 @@ function! s:jobinfo_base.cd(...) abort
     return ''
 endfunction
 
-let g:neomake#jobinfo#base = s:jobinfo_base
+function! neomake#jobinfo#new() abort
+    let jobinfo = deepcopy(s:jobinfo_base)
+    let jobinfo.bufnr = bufnr('%')
+    return jobinfo
+endfunction
+
 " vim: ts=4 sw=4 et

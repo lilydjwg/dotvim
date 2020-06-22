@@ -30,8 +30,13 @@ endfunction
 " re-queued also).
 function! neomake#action_queue#add(events, data) abort
     let job_or_make_info = a:data[1][0]
-    call neomake#log#debug(printf('Queuing action %s for %s.',
-                \ s:actionname(a:data[0]), join(a:events, ', ')), job_or_make_info)
+    if a:events is# g:neomake#action_queue#any_event
+        call neomake#log#debug(printf('Queuing action %s for any event.',
+                    \ s:actionname(a:data[0])), job_or_make_info)
+    else
+        call neomake#log#debug(printf('Queuing action %s for %s.',
+                    \ s:actionname(a:data[0]), join(a:events, ', ')), job_or_make_info)
+    endif
 
     for event in a:events
         if event ==# 'Timer'
@@ -112,6 +117,12 @@ function! s:process_action_queue(event) abort
     let queue = s:action_queue
     let q_for_this_event = []
     let i = 0
+    if g:neomake#core#_ignore_autocommands
+        call neomake#log#debug(printf('action queue: skip processing for %s (ignore_autocommands=%d).',
+                    \ a:event, g:neomake#core#_ignore_autocommands),
+                    \ {'bufnr': bufnr('%'), 'winnr': winnr()})
+        return
+    endif
     for [events, v] in queue
         if index(events, a:event) != -1 || events is# g:neomake#action_queue#any_event
             call add(q_for_this_event, [i, v])
@@ -120,6 +131,7 @@ function! s:process_action_queue(event) abort
     endfor
     call neomake#log#debug(printf('action queue: processing for %s (%d items).',
                 \ a:event, len(q_for_this_event)), {'bufnr': bufnr('%'), 'winnr': winnr()})
+    call neomake#log#indent(1)
 
     let processed = []
     let removed = 0
@@ -217,6 +229,7 @@ function! s:process_action_queue(event) abort
     endfor
     call neomake#log#debug(printf('action queue: processed %d items.',
                 \ len(processed)), {'bufnr': bufnr('%')})
+    call neomake#log#indent(-1)
 
     call s:clean_action_queue_events()
 endfunction

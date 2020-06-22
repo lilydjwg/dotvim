@@ -153,7 +153,12 @@ function! neomake#compat#systemlist(cmd) abort
             endtry
         endif
         " @vimlint(EVL108, 0)
-        return systemlist(a:cmd)
+        try
+            return systemlist(a:cmd)
+        catch /^Vim\%((return)\)\=:E475/
+            call neomake#log#exception(printf('systemlist error: %s.', v:exception))
+            return ''
+        endtry
     endif
 
     if type(a:cmd) == type([])
@@ -284,9 +289,9 @@ if exists('*win_getid')
         elseif winnr() != pw
             let aw = win_id2win(aw_id)
             if aw
-                noautocmd exec aw . 'wincmd w'
+                exec aw . 'wincmd w'
             endif
-            noautocmd exec pw . 'wincmd w'
+            exec pw . 'wincmd w'
         endif
     endfunction
 else
@@ -303,9 +308,9 @@ else
                         \ pw, winnr('$')))
         elseif winnr() != pw
             if aw
-                noautocmd exec aw . 'wincmd w'
+                exec aw . 'wincmd w'
             endif
-            noautocmd exec pw . 'wincmd w'
+            exec pw . 'wincmd w'
         endif
     endfunction
 endif

@@ -18,19 +18,26 @@ let s:needs_to_replace_qf_for_lwindow = has('patch-7.4.379')
 " @vimlint(EVL108, 0)
 let s:needs_to_init_qf_for_lwindow = !has('patch-8.1.0622')
 
-function! neomake#list#ListForMake(make_info) abort
-    let type = a:make_info.options.file_mode ? 'loclist' : 'quickfix'
-    let list = neomake#list#List(type)
-    let list.make_info = a:make_info
-    if type ==# 'loclist'
-        let info = get(w:, '_neomake_info', {})
-        let info['loclist'] = list
-        let w:_neomake_info = info
+function! s:save_list_ref(list) abort
+    if a:list.type ==# 'loclist'
+        for d in [w:, b:]
+            let info = get(d, '_neomake_info', {})
+            let info['loclist'] = a:list
+            let d['_neomake_info'] = info
+        endfor
     else
         let info = get(g:, '_neomake_info', {})
-        let info['qflist'] = list
+        let info['qflist'] = a:list
         let g:_neomake_info = info
     endif
+endfunction
+
+function! neomake#list#ListForMake(make_info) abort
+    let file_mode = a:make_info.options.file_mode
+    let type = file_mode ? 'loclist' : 'quickfix'
+    let list = neomake#list#List(type)
+    let list.make_info = a:make_info
+    call s:save_list_ref(list)
     return list
 endfunction
 
@@ -93,6 +100,22 @@ endfunction
 
 " Add entries for a job (non-efm method).
 function! s:base_list.add_entries_for_job(entries, jobinfo) dict abort
+    let tempfiles = get(self.make_info, 'tempfiles', [])
+    if !empty(tempfiles)
+        let mapped = 0
+        for e in a:entries
+            if has_key(e, 'filename') && get(e, 'bufnr', 0) == 0
+                if index(tempfiles, e.filename) != -1
+                    unlet e.filename
+                    let e.bufnr = a:jobinfo.bufnr
+                    let mapped += 1
+                endif
+            endif
+        endfor
+        if mapped
+            call neomake#log#debug(printf('Mapped %d bufnrs from temporary files.', mapped), a:jobinfo)
+        endif
+    endif
     return self._appendlist(a:entries, a:jobinfo)
 endfunction
 
@@ -314,17 +337,27 @@ function! s:base_list._get_loclist_win(...) abort
     let loclist_win = 0
     let make_id = self.make_info.make_id
     " NOTE: prefers using 0 for when winid is not supported with
-    " setloclist() yet (vim74-xenial).
+    " setloclist() yet (vim74-xenial, patch-7.4.1895).
     if index(get(w:, 'neomake_make_ids', []), make_id) == -1
-        if has_key(self.make_info.options, 'winid')
+        if has_key(self.make_info.options, 'winid') && has('patch-7.4.1895')
+            " Can only use it with getloclist after patch-7.4.1895.
             let loclist_win = self.make_info.options.winid
         else
             let [t, w] = neomake#core#get_tabwin_for_makeid(make_id)
             if [t, w] == [-1, -1]
-                if a:0 && a:1
-                    return -1
+                for w in range(1, winnr('$'))
+                    if get(get(get(neomake#compat#getwinvar(w, '_neomake_info', {}), 'loclist', {}), 'make_info', {}), 'make_id') == make_id
+                        let loclist_win = w
+                        break
+                    endif
+                endfor
+                if loclist_win == 0
+                    if a:0 && a:1
+                        return -1
+                    endif
+                    throw printf('Neomake: could not find location list for make_id %d.', make_id)
                 endif
-                throw printf('Neomake: could not find location list for make_id %d.', make_id)
+                return loclist_win
             endif
             if t != tabpagenr()
                 if a:0 && a:1
@@ -386,8 +419,8 @@ function! s:base_list._get_fn_args(action, ...) abort
     else
         call extend(args, a:000)
         if a:action ==# 'set'
-            if exists(':Assert')
-                Assert len(a:000) == 2
+            if exists('*vader#assert#equal')
+                call vader#assert#equal(len(a:000), 2)
             endif
             if s:can_set_qf_items
                 let options.items = a:1
@@ -516,7 +549,11 @@ function! s:base_list._appendlist(entries, jobinfo) abort
     let action = 'a'
     if !self.need_init
         let action = 'a'
-        if s:needs_to_replace_qf_for_lwindow
+        if s:needs_to_replace_qf_for_lwindow || neomake#quickfix#is_enabled()
+            " Need to replace whole list with customqf to trigger FileType
+            " autocmd (which is not done for action='a').
+            " This should be enhanced to only format new entries instead
+            " later, but needs support for changing non-current buffer lines.
             let action = 'r'
             if self.type ==# 'loclist'
                 let set_entries = self._get_qflist_entries() + set_entries
@@ -666,7 +703,7 @@ function! s:base_list.add_lines_with_efm(lines, jobinfo) dict abort
         endif
     endif
 
-    let Postprocess = neomake#utils#GetSetting('postprocess', maker, [], a:jobinfo.ft, a:jobinfo.bufnr)
+    let l:Postprocess = neomake#utils#GetSetting('postprocess', maker, [], a:jobinfo.ft, a:jobinfo.bufnr)
     if type(Postprocess) != type([])
         let postprocessors = [Postprocess]
     else
@@ -689,7 +726,7 @@ function! s:base_list.add_lines_with_efm(lines, jobinfo) dict abort
         let entry_idx += 1
         let before = copy(entry)
         " Handle unlisted buffers via tempfiles and uses_stdin.
-        if file_mode && entry.bufnr && entry.bufnr != a:jobinfo.bufnr
+        if entry.bufnr && entry.bufnr != a:jobinfo.bufnr
                     \ && (!empty(tempfile_bufnrs) || uses_stdin)
             let map_bufnr = index(tempfile_bufnrs, entry.bufnr)
             if map_bufnr != -1
@@ -719,7 +756,7 @@ function! s:base_list.add_lines_with_efm(lines, jobinfo) dict abort
         if !empty(postprocessors)
             let g:neomake_postprocess_context = {'jobinfo': a:jobinfo}
             try
-                for F in postprocessors
+                for l:F in postprocessors
                     if type(F) == type({})
                         call call(F.fn, [entry], F)
                     else
@@ -848,12 +885,24 @@ function! s:base_list.add_lines_with_efm(lines, jobinfo) dict abort
     return entries
 endfunction
 
-" Get the current location or quickfix list.
-function! neomake#list#get() abort
-    let winnr = winnr()
-    let win_info = neomake#compat#getwinvar(winnr, '_neomake_info', {})
+" Get location list from current window, or via buffer.
+function! s:get_loclist() abort
+    let win_info = neomake#compat#getwinvar(winnr(), '_neomake_info', {})
     if has_key(win_info, 'loclist')
         return win_info['loclist']
+    endif
+    let buf_info = neomake#compat#getbufvar(bufnr('%'), '_neomake_info', {})
+    if has_key(buf_info, 'loclist')
+        return buf_info['loclist']
+    endif
+    return {}
+endfunction
+
+" Get the current location or quickfix list.
+function! neomake#list#get() abort
+    let loclist = s:get_loclist()
+    if !empty(loclist)
+        return loclist
     endif
     let info = get(g:, '_neomake_info', {})
     if has_key(info, 'qflist')
@@ -862,18 +911,16 @@ function! neomake#list#get() abort
     return {}
 endfunction
 
-function! neomake#list#get_loclist(...) abort
-    let winnr = a:0 ? a:1 : winnr()
-    let info = neomake#compat#getwinvar(winnr, '_neomake_info', {})
-    if !has_key(info, 'loclist')
+function! neomake#list#get_loclist() abort
+    let loclist = s:get_loclist()
+    if empty(loclist)
         " Create a new list, not bound to a job.
         call neomake#log#debug('Creating new List object.')
-        let list = neomake#list#List('loclist')
-        call list.add_entries(getloclist(winnr))
-        let info['loclist'] = list
-        call setwinvar(winnr, '_neomake_info', info)
+        let loclist = neomake#list#List('loclist')
+        call loclist.add_entries(getloclist(0))
+        call s:save_list_ref(loclist)
     endif
-    return info['loclist']
+    return loclist
 endfunction
 
 " TODO: save project-maker quickfix list.
@@ -927,9 +974,9 @@ function! s:cmp_listitem_loc(a, b) abort
         return buf_diff
     endif
 
-    if exists(':Assert')
-        Assert a:a.bufnr != -1
-        Assert a:b.bufnr != -1
+    if exists('*vader#assert#not_equal')
+        call vader#assert#not_equal(a:a.bufnr, -1)
+        call vader#assert#not_equal(a:b.bufnr, -1)
     endif
 
     let lnum_diff = a:a.lnum - a:b.lnum
@@ -976,17 +1023,17 @@ function! s:goto_nearest(list, offset) abort
 
     if found
         if a:list.type ==# 'loclist'
-            if exists(':AssertEqual')
+            if exists('*vader#assert#equal')
                 " @vimlint(EVL102, 1, l:ll_item)
                 let ll_item = getloclist(0)[found-1]
-                AssertEqual [ll_item.bufnr, ll_item.lnum], [item.bufnr, item.lnum]
+                call vader#assert#equal([ll_item.bufnr, ll_item.lnum], [item.bufnr, item.lnum])
             endif
             execute 'll '.found
         else
-            if exists(':AssertEqual')
+            if exists('*vader#assert#equal')
                 " @vimlint(EVL102, 1, l:cc_item)
                 let cc_item = getqflist()[found-1]
-                AssertEqual [cc_item.bufnr, cc_item.lnum], [item.bufnr, item.lnum]
+                call vader#assert#equal([cc_item.bufnr, cc_item.lnum], [item.bufnr, item.lnum])
             endif
             execute 'cc '.found
         endif

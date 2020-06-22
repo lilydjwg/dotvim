@@ -44,7 +44,7 @@ endfunction
 function! s:tick_changed(context) abort
     let bufnr = +a:context.bufnr
     let ft = get(a:context, 'ft', getbufvar(bufnr, '&filetype'))
-    let prev_tick = getbufvar(bufnr, 'neomake_automake_tick')
+    let prev_tick = getbufvar(bufnr, '_neomake_automake_tick')
     let r = 1
     if empty(prev_tick)
         call s:debug_log('tick changed (new)')
@@ -54,16 +54,6 @@ function! s:tick_changed(context) abort
             call s:debug_log('tick is unchanged')
             return 0
         endif
-
-        " NOTE: every write (BufWritePost) increments b:changedtick.
-        if a:context.event ==# 'BufWritePost'
-            let adjusted_prev_tick = [prev_tick[0]+1, prev_tick[1]]
-            if adjusted_prev_tick == cur_tick
-                let r = 0
-                call setbufvar(bufnr, 'neomake_automake_tick', adjusted_prev_tick)
-                call s:debug_log('tick is unchanged with BufWritePost adjustment')
-            endif
-        endif
     endif
     return r
 endfunction
@@ -72,7 +62,7 @@ function! neomake#configure#_update_automake_tick(bufnr, ft) abort
     if has_key(s:configured_buffers, a:bufnr)
         let tick = getbufvar(a:bufnr, 'changedtick')
         call s:debug_log('updating tick: '.tick)
-        call setbufvar(a:bufnr, 'neomake_automake_tick', [tick, a:ft])
+        call setbufvar(a:bufnr, '_neomake_automake_tick', [tick, a:ft])
     endif
 endfunction
 
@@ -96,7 +86,7 @@ endfunction
 function! s:handle_changed_buffer(make_id, event) abort
     " Cleanup always.
     if exists('b:_neomake_automake_changed_context')
-        let [make_id, prev_tick, context] = b:_neomake_automake_changed_context
+        let [make_id, prev_tick, changedtick, context] = b:_neomake_automake_changed_context
 
         if s:need_to_skip_first_textchanged && a:event ==# 'TextChanged'
             if !get(b:, '_neomake_seen_TextChanged', 0)
@@ -104,6 +94,11 @@ function! s:handle_changed_buffer(make_id, event) abort
                 let b:_neomake_seen_TextChanged = 1
                 return
             endif
+        endif
+
+        if changedtick == b:changedtick
+            call s:debug_log(printf('handle_changed_buffer: %s: tick was not changed', a:event))
+            return
         endif
 
         unlet b:_neomake_automake_changed_context
@@ -124,8 +119,8 @@ function! s:handle_changed_buffer(make_id, event) abort
         return
     endif
 
-    call setbufvar(context.bufnr, 'neomake_automake_tick', prev_tick)
-    call filter(b:neomake_automake_make_ids, 'v:val != '.a:make_id)
+    call setbufvar(context.bufnr, '_neomake_automake_tick', prev_tick)
+    call filter(b:_neomake_automake_make_ids, 'v:val != '.a:make_id)
     call s:update_cancel_rate(context.bufnr, 0)
 
     call s:debug_log(printf('buffer was changed (%s), canceling make', a:event), {'make_id': a:make_id})
@@ -149,16 +144,15 @@ function! s:handle_changed_buffer(make_id, event) abort
         call s:neomake_do_automake(context)
     else
         call s:debug_log(printf('restarting for original event (%s) without delay', context.event))
-
-        call neomake#log#warn_once(printf('automake was restarted due to %s after %s. This might indicate a problem with your setup (plugin order).', a:event, context.event),
-                    \ printf('automake-restart-%s-%s', a:event, context.event))
-
         call s:neomake_do_automake(context)
     endif
 endfunction
 
 function! s:neomake_do_automake(context) abort
     let bufnr = +a:context.bufnr
+    if s:skip_for_running_jobs(bufnr)
+        return
+    endif
 
     if !get(a:context, '_via_timer_cb') && a:context.delay
         if exists('s:timer_by_bufnr[bufnr]')
@@ -173,7 +167,7 @@ function! s:neomake_do_automake(context) abort
         endif
 
         " Cancel any already running automake runs.
-        let prev_make_ids = getbufvar(bufnr, 'neomake_automake_make_ids')
+        let prev_make_ids = getbufvar(bufnr, '_neomake_automake_make_ids')
         if !empty(prev_make_ids)
             call s:debug_log(printf('stopping previous make runs: %s', join(prev_make_ids, ', ')))
             for prev_make_id in prev_make_ids
@@ -210,11 +204,11 @@ function! s:neomake_do_automake(context) abort
     let event = a:context.event
 
     call s:debug_log('neomake_do_automake: '.event, {'bufnr': bufnr})
-    let prev_tick = getbufvar(bufnr, 'neomake_automake_tick')
     if !s:tick_changed({'event': event, 'bufnr': bufnr, 'ft': ft})
         call s:debug_log('buffer was not changed', {'bufnr': bufnr})
         return
     endif
+    let prev_tick = getbufvar(bufnr, '_neomake_automake_tick')
 
     call s:debug_log(printf('enabled makers: %s', join(map(copy(a:context.maker_jobs), 'v:val.maker.name'), ', ')))
     let make_options = {
@@ -228,8 +222,8 @@ function! s:neomake_do_automake(context) abort
     call s:debug_log(printf('started jobs: %s', string(map(copy(started_jobs), 'v:val.id'))))
     if !empty(started_jobs)
         let make_id = jobinfos[0].make_id
-        call setbufvar(bufnr, 'neomake_automake_make_ids',
-                    \ neomake#compat#getbufvar(bufnr, 'neomake_automake_make_ids', []) + [make_id])
+        call setbufvar(bufnr, '_neomake_automake_make_ids',
+                    \ neomake#compat#getbufvar(bufnr, '_neomake_automake_make_ids', []) + [make_id])
 
         " Setup buffer autocmd to cancel/restart make for changed buffer.
         let events = []
@@ -238,7 +232,7 @@ function! s:neomake_do_automake(context) abort
                 call add(events, event)
             endif
         endfor
-        call setbufvar(bufnr, '_neomake_automake_changed_context', [make_id, prev_tick, a:context])
+        call setbufvar(bufnr, '_neomake_automake_changed_context', [make_id, prev_tick, getbufvar(bufnr, 'changedtick'), a:context])
         augroup neomake_automake_abort
             exe printf('au! * <buffer=%d>', bufnr)
             for event in events
@@ -407,48 +401,54 @@ function! s:parse_events_from_args(config, string_or_dict_config, ...) abort
         endif
     else
         " Map string config to events dict.
-        let modes = a:string_or_dict_config
+        let modes = split(a:string_or_dict_config, '\zs')
         let events = {}
         let default_with_delay = {}
 
-        " Insert mode.
-        if modes =~# 'i'
-            if exists('##TextChangedI') && has('timers')
-                let events['TextChangedI'] = default_with_delay
-            else
-                call s:debug_log('using CursorHoldI instead of TextChangedI')
-                let events['CursorHoldI'] = (delay != 0 ? {'delay': 0} : {})
-            endif
-        endif
-        " Normal mode.
-        if modes =~# 'n'
-            if exists('##TextChanged') && has('timers')
-                let events['TextChanged'] = default_with_delay
-                if !has_key(events, 'TextChangedI')
-                    " Run when leaving insert mode, since only TextChangedI would be triggered
-                    " for `ciw` etc.
-                    let events['InsertLeave'] = default_with_delay
+        let unknown = []
+        for mode in modes
+            " Insert mode.
+            if mode ==# 'i'
+                if exists('##TextChangedI') && has('timers')
+                    let events['TextChangedI'] = default_with_delay
+                else
+                    call s:debug_log('using CursorHoldI instead of TextChangedI')
+                    let events['CursorHoldI'] = (delay != 0 ? {'delay': 0} : {})
                 endif
-            else
-                call s:debug_log('using CursorHold instead of TextChanged')
-                let events['CursorHold'] = (delay != 0 ? {'delay': 0} : {})
-                let events['InsertLeave'] = (delay != 0 ? {'delay': 0} : {})
-            endif
-        endif
-        " On writes.
-        if modes =~# 'w'
-            let events['BufWritePost'] = (delay != 0 ? {'delay': 0} : {})
-        endif
-        " On reads.
-        if modes =~# 'r'
-            let events['BufWinEnter'] = {}
-            let events['FileType'] = {}
+            " Normal mode.
+            elseif mode ==# 'n'
+                if exists('##TextChanged') && has('timers')
+                    let events['TextChanged'] = default_with_delay
+                    if !has_key(events, 'TextChangedI')
+                        " Run when leaving insert mode, since only TextChangedI would be triggered
+                        " for `ciw` etc.
+                        let events['InsertLeave'] = default_with_delay
+                    endif
+                else
+                    call s:debug_log('using CursorHold instead of TextChanged')
+                    let events['CursorHold'] = (delay != 0 ? {'delay': 0} : {})
+                    let events['InsertLeave'] = (delay != 0 ? {'delay': 0} : {})
+                endif
+            " On writes.
+            elseif mode ==# 'w'
+                let events['BufWritePost'] = (delay != 0 ? {'delay': 0} : {})
+            " On reads.
+            elseif mode ==# 'r'
+                let events['BufWinEnter'] = {}
+                let events['FileType'] = {}
 
-            " When a file was changed outside of Vim.
-            " TODO: test
-            let events['FileChangedShellPost'] = {}
-            " XXX: FileType might work better, at least when wanting to skip filetypes.
-            " let events['FileType'] = {'delay': a:0 > 1 ? delay : 0}
+                " When a file was changed outside of Vim.
+                " TODO: test
+                let events['FileChangedShellPost'] = {}
+                " XXX: FileType might work better, at least when wanting to skip filetypes.
+                " let events['FileType'] = {'delay': a:0 > 1 ? delay : 0}
+            else
+                let unknown += [mode]
+            endif
+        endfor
+        if !empty(unknown)
+            call neomake#log#error(printf('unknown modes in string automake config (%s): %s.',
+                        \ a:string_or_dict_config, join(unknown, ', ')))
         endif
     endif
 
@@ -478,7 +478,7 @@ function! neomake#configure#automake_for_buffer(string_or_dict_config, ...) abor
             endif
         endif
     endif
-    return call('s:configure_buffer', [bufnr] + [a:string_or_dict_config, options])
+    return call('s:configure_buffer', [bufnr, a:string_or_dict_config, options])
 endfunction
 
 " Workaround for getbufvar not having support for defaults.
@@ -544,11 +544,11 @@ function! s:configure_buffer(bufnr, ...) abort
         call extend(s:configured_buffers[bufnr], implicit_config, 'force')
     else
         let s:configured_buffers[bufnr] = implicit_config
-    endif
 
-    augroup neomake_automake_clean
-        autocmd BufWipeout <buffer> call s:neomake_automake_clean(expand('<abuf>'))
-    augroup END
+        augroup neomake_automake_clean
+            autocmd BufWipeout <buffer> call s:neomake_automake_clean(expand('<abuf>'))
+        augroup END
+    endif
 
     if implicit_config.ignore
         return s:configured_buffers[bufnr]
@@ -577,15 +577,15 @@ function! s:configure_buffer(bufnr, ...) abort
                 \ ft, empty(jobs) ? 'no enabled makers' : join(map(copy(jobs), 'v:val.maker.name'), ', ').' ('.source.')'), {'bufnr': bufnr})
     if old_config != config
         call s:debug_log('resetting tick because of config changes')
-        call setbufvar(bufnr, 'neomake_automake_tick', [])
+        call setbufvar(bufnr, '_neomake_automake_tick', [])
     elseif exists('old_registration')
         if old_registration != s:configured_buffers[bufnr]
             call s:debug_log('resetting tick because of registration changes')
-            call setbufvar(bufnr, 'neomake_automake_tick', [])
+            call setbufvar(bufnr, '_neomake_automake_tick', [])
         endif
     else
         call s:debug_log('setting tick for new buffer')
-        call setbufvar(bufnr, 'neomake_automake_tick', [])
+        call setbufvar(bufnr, '_neomake_automake_tick', [])
     endif
 
     if a:0
@@ -598,6 +598,20 @@ endfunction
 function! s:maybe_reconfigure_buffer(bufnr) abort
     if has_key(s:configured_buffers, a:bufnr) && !s:configured_buffers[a:bufnr].custom
         call s:configure_buffer(a:bufnr)
+    endif
+endfunction
+
+function! s:skip_for_running_jobs(bufnr) abort
+    let running_jobs = values(filter(copy(neomake#_get_s().jobs),
+                        \ 'v:val.bufnr == a:bufnr'
+                        \ .' && v:val.file_mode == 1'
+                        \ .' && !get(v:val, "automake", 0)'
+                        \ ." && !get(v:val, 'canceled')"))
+    if !empty(running_jobs)
+        call s:debug_log(printf('skipping for already running jobs: %s',
+                    \ string(map(running_jobs, 'v:val.as_string()'))),
+                    \ {'bufnr': a:bufnr})
+        return 1
     endif
 endfunction
 
@@ -637,6 +651,10 @@ function! s:neomake_automake(event, bufnr) abort
         return
     endif
 
+    if s:skip_for_running_jobs(bufnr)
+        return
+    endif
+
     call s:debug_log(printf('automake for event %s', a:event), {'bufnr': bufnr})
     let config = s:configured_buffers[bufnr].events_config
     if !has_key(config, a:event)
@@ -672,14 +690,18 @@ endfunction
 
 function! s:stop_timers() abort
     let timers = keys(s:timer_info)
-    call s:debug_log(printf('stopping timers: %s', join(timers, ', ')))
-    for timer in timers
-        call s:stop_timer(timer)
-    endfor
+    if !empty(timers)
+        call s:debug_log(printf('stopping timers: %s', join(timers, ', ')))
+        for timer in timers
+            call s:stop_timer(timer)
+        endfor
+    endif
 endfunction
 
 function! neomake#configure#reset_automake() abort
-    let s:configured_buffers = {}
+    for bufnr in keys(s:configured_buffers)
+        call s:neomake_automake_clean(bufnr)
+    endfor
     let s:registered_events = []
     call s:stop_timers()
     call neomake#configure#automake()
@@ -689,10 +711,13 @@ function! s:neomake_automake_clean(bufnr) abort
     if has_key(s:timer_by_bufnr, a:bufnr)
         let timer = s:timer_by_bufnr[a:bufnr]
         call s:stop_timer(timer)
-        call s:debug_log('stopped timer for wiped buffer: '.timer)
+        call s:debug_log('stopped timer for cleaned buffer: '.timer)
     endif
     if has_key(s:configured_buffers, a:bufnr)
         unlet s:configured_buffers[a:bufnr]
+        augroup neomake_automake_clean
+            exe printf('au! * <buffer=%d>', a:bufnr)
+        augroup END
     endif
 endfunction
 
@@ -722,9 +747,7 @@ endfunction
 
 function! neomake#configure#reset_automake_for_buffer(...) abort
     let bufnr = a:0 ? +a:1 : bufnr('%')
-    if has_key(s:configured_buffers, bufnr)
-        unlet s:configured_buffers[bufnr]
-    endif
+    call s:neomake_automake_clean(bufnr)
 endfunction
 
 function! neomake#configure#automake(...) abort

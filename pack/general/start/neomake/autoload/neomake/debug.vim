@@ -11,7 +11,7 @@ function! s:pprint(v, ...) abort
             return '{}'
         endif
         let r = "{\n"
-        for [k, V] in items(a:v)
+        for [k, l:V] in items(a:v)
             let r .= printf("%s  %s: %s,\n",
                         \ indent,
                         \ string(k),
@@ -60,8 +60,9 @@ function! neomake#debug#validate_maker(maker) abort
         endif
     endfor
 
+    let jobinfo = neomake#jobinfo#new()
     try
-        let maker = neomake#core#instantiate_maker(a:maker, {}, 0)
+        let maker = neomake#core#instantiate_maker(a:maker, jobinfo, 0)
         if !executable(maker.exe)
             let t = get(maker, 'auto_enabled', 0) ? 'warnings' : 'errors'
             let issues[t] += [printf("maker's exe (%s) is not executable.", maker.exe)]
@@ -102,7 +103,7 @@ function! s:get_maker_info(maker, ...) abort
     let maker_defaults = a:0 ? a:1 : {}
     let maker = a:maker
     let r = []
-    for [k, V] in sort(copy(items(maker)))
+    for [k, l:V] in sort(copy(items(maker)))
         if k !=# 'name' && k !=# 'ft' && k !~# '^_'
             if !has_key(maker_defaults, k)
                         \ || type(V) != type(maker_defaults[k])

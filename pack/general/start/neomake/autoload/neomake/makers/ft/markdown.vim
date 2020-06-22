@@ -9,18 +9,26 @@ function! neomake#makers#ft#markdown#EnabledMakers() abort
 endfunction
 
 function! neomake#makers#ft#markdown#mdl() abort
-    return {
+    let maker = {
                 \
                 \ 'errorformat':
-                \   '%W%f:%l: MD%n %m,' .
-                \   '%W%f:%l: %m',
+                \   '%W%f:%l: %m,%-G%.%#',
                 \ 'output_stream': 'stdout',
                 \ }
+    function! maker.postprocess(entry) abort
+        if a:entry.text[0:1] ==# 'MD'
+            let [code, text] = split(a:entry.text, '\v^MD\d+\zs ')
+            let a:entry.nr = str2nr(code[2:])
+            let a:entry.text = printf('%s (%s)', text, code)
+        endif
+        return a:entry
+    endfunction
+    return maker
 endfunction
 
 function! neomake#makers#ft#markdown#markdownlint() abort
     return {
-                \ 'errorformat': '%f: %l: %m'
+                \ 'errorformat': '%f:%l %m,%f: %l: %m'
                 \ }
 endfunction
 
