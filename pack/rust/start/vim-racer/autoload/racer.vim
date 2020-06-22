@@ -1,22 +1,22 @@
-let s:is_win = has('win32') || has('win64')
+let s:is_win = has('win32')
 
 function! racer#GetRacerCmd() abort
-  if !exists('g:racer_cmd')
-    let sep = s:is_win ? '\' : '/'
-    let path = join([
-          \ escape(expand('<sfile>:p:h'), '\'),
-          \ '..',
-          \ 'target',
-          \ 'release',
-          \ ], sep)
-    if isdirectory(path)
-      let pathsep = s:is_win ? ';' : ':'
-      let $PATH .= pathsep . path
+    if !exists('g:racer_cmd')
+        let sep = s:is_win ? '\' : '/'
+        let path = join([
+              \ escape(expand('<sfile>:p:h'), '\'),
+              \ '..',
+              \ 'target',
+              \ 'release',
+              \ ], sep)
+        if isdirectory(path)
+            let pathsep = s:is_win ? ';' : ':'
+            let $PATH .= pathsep . path
+        endif
+        let g:racer_cmd = 'racer'
     endif
-    let g:racer_cmd = 'racer'
-  endif
 
-  return expand(g:racer_cmd)
+    return expand(g:racer_cmd)
 endfunction
 
 function! s:RacerGetPrefixCol(base)
@@ -30,7 +30,7 @@ function! s:RacerGetPrefixCol(base)
     let prefixline = split(res, '\n')[0]
     let startbyte = split(prefixline[7:], ',')[0]
     call delete(b:tmpfname)
-    return startbyte - line2byte(byte2line(startbyte)) + 1
+    return startbyte - line2byte(byte2line(startbyte)) + (col == 1 ? 0 : 1)
 endfunction
 
 function! s:RacerGetExpCompletions(base)
@@ -108,7 +108,7 @@ function! s:RacerSplitLine(line)
     return parts
 endfunction
 
-function! racer#ShowDocumentation()
+function! racer#ShowDocumentation(tab)
     let winview = winsaveview()  " Save the current cursor position
     " Move to the end of the word for the entire token to search.
     " Move one char back to avoid moving to the end of the *next* word.
@@ -143,7 +143,11 @@ function! racer#ShowDocumentation()
             " If the __doc__ buffer is open in the current tab, jump to it
             silent execute (wi+1) . 'wincmd w'
         else
-            pedit __doc__
+            if a:tab
+                tab pedit __doc__
+            else
+                pedit __doc__
+            endif
             wincmd P
         endif
 
@@ -214,7 +218,25 @@ function! racer#GoToDefinition()
             let linenum = split(line[6:], ',')[1]
             let colnum = split(line[6:], ',')[2]
             let fname = split(line[6:], ',')[3]
+            let dotag = &tagstack && exists('*gettagstack') && exists('*settagstack')
+            if dotag
+                let from = [bufnr('%'), line('.'), col('.'), 0]
+                let tagname = expand('<cword>')
+                let stack = gettagstack()
+                if stack.curidx > 1
+                    let stack.items = stack.items[0:stack.curidx-2]
+                else
+                    let stack.items = []
+                endif
+                let stack.items += [{'from': from, 'tagname': tagname}]
+                let stack.curidx = len(stack.items)
+                call settagstack(win_getid(), stack)
+            endif
             call s:RacerJumpToLocation(fname, linenum, colnum)
+            if dotag
+                let curidx = gettagstack().curidx + 1
+                call settagstack(win_getid(), {'curidx': curidx})
+            endif
             break
         endif
     endfor
