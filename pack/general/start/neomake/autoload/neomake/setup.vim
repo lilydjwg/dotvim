@@ -15,6 +15,12 @@ function! neomake#setup#define_highlights() abort
     endif
 endfunction
 
+function! s:cursor_moved(t)
+    augroup neomake
+        autocmd CursorMoved * call neomake#CursorMovedDelayed()
+    augroup END
+endfunction
+
 function! neomake#setup#setup_autocmds() abort
     augroup neomake
         au!
@@ -22,7 +28,7 @@ function! neomake#setup#setup_autocmds() abort
             autocmd BufEnter * call neomake#highlights#ShowHighlights()
         endif
         if has('timers')
-            autocmd CursorMoved * call neomake#CursorMovedDelayed()
+            call timer_start(500, function('s:cursor_moved'))
             " Force-redraw display of current error after resizing Vim, which appears
             " to clear the previously echoed error.
             autocmd VimResized * call timer_start(100, function('neomake#EchoCurrentError'))
