@@ -8,15 +8,15 @@
 " |     || || |   | |   |  |__ |  _  ||  _  || |  | |
 " |____| |_||_|   |_|   |_____||_| |_||_| |_||_|  |_|
 "
-" Last Change:	2019/03/22
-" Version:		8.5
+" Last Change:	2020/05/01
+" Version:		8.7
 " Author:		Rick Howe <rdcxy754@ybb.ne.jp>
-" Copyright:	(c) 2014-2019 by Rick Howe
+" Copyright:	(c) 2014-2020 by Rick Howe
 
 if exists('g:loaded_diffchar') || !has('diff') || v:version < 800
 	finish
 endif
-let g:loaded_diffchar = 8.5
+let g:loaded_diffchar = 8.7
 
 let s:save_cpo = &cpoptions
 set cpo&vim
@@ -51,7 +51,7 @@ for [key, plg, cmd] in [
 	execute 'nnoremap <silent> ' plg . ' ' . cmd . '<CR>'
 endfor
 
-" Set a difference unit type
+" a type of difference unit
 if !exists('g:DiffUnit')
 	let g:DiffUnit = 'Word1'	" \w\+ word and any \W single character
 	" let g:DiffUnit = 'Word2'	" non-space and space words
@@ -60,7 +60,7 @@ if !exists('g:DiffUnit')
 	" let g:DiffUnit = 'CSV(,)'	" split characters
 endif
 
-" Set a difference unit matching colors
+" matching colors for changed units
 if !exists('g:DiffColors')
 	let g:DiffColors = 0		" always 1 color
 	" let g:DiffColors = 1		" 4 colors in fixed order
@@ -69,25 +69,13 @@ if !exists('g:DiffColors')
 	" let g:DiffColors = 100	" all available colors in dynamic random order
 endif
 
-" Make a corresponding unit visible when cursor is moved on a diff unit
+" a visibility of corresponding diff units
 if !exists('g:DiffPairVisible')
-	let g:DiffPairVisible = 2	" cursor-like highlight + echo
-	" let g:DiffPairVisible = 1	" cursor-like highlight
+	let g:DiffPairVisible = 1	" highlight 
+	" let g:DiffPairVisible = 2	" highlight + echo
+	" let g:DiffPairVisible = 3	" highlight + popup/floating at cursor pos
+	" let g:DiffPairVisible = 4	" highlight + popup/floating at mouse pos
 	" let g:DiffPairVisible = 0	" disable
-endif
-
-" Set a diff mode synchronization to show/reset/update exact differences
-if !exists('g:DiffModeSync')
-	let g:DiffModeSync = 1		" enable
-	" let g:DiffModeSync = 0	" disable
-endif
-
-" Set a number of maximum DiffChange lines to be dynamically detected
-if !exists('g:DiffMaxLines')
-	let g:DiffMaxLines = -3		" 3 times as many lines as higher window
-	" let g:DiffMaxLines = 50	" 50 lines including visible ones
-	" let g:DiffMaxLines = 1	" as few as visible lines
-	" let g:DiffMaxLines = 0	" disable and statically detect all lines
 endif
 
 " Set this plugin's DiffCharExpr() to the diffexpr option if empty
@@ -100,7 +88,7 @@ if g:DiffExpr && empty(&diffexpr) && &diffopt !~ 'internal'
 	let &diffexpr = 'diffchar#DiffCharExpr()'
 endif
 
-" Set an event group of this plugin
+" an event group of this plugin
 augroup diffchar
 	autocmd!
 	if has('patch-8.0.736')			" OptionSet triggered with diff option
