@@ -1,0 +1,215 @@
+*togglecursor.txt*  Change cursor in insert mode
+
+Author:  John Szakmeister <john@szakmeister.net>
+License: Same terms as Vim itself (see |license|)
+
+This plugin is only available if 'compatible' is not set, and your vim has
+been compiled with |+cursorshape| support.
+
+==============================================================================
+INTRODUCTION                                     *togglecursor*
+
+In gVim, when you change from normal mode to insert mode, the cursor shape
+typically changes from a block cursor to a line ('|') cursor.  However, in a
+terminal, you lose that feature.  This plugin aims to help bring it back on
+supported terminals.
+
+==============================================================================
+SUPPORTED TERMINALS                              *togglecursor-supported*
+
+Currently supported terminals are iTerm2 for the Mac (version 1.0.0.20130602
+beta or better is required), Mac's native Terminal (2.7 or better, starting in
+Sierra), rxvt-unicode (version 9.21 or better), VTE3 based terminals (including
+gnome-terminal), kitty (version 0.6 or better), and KDE's Konsole.  XTerm 252 or
+better is supported as well.  XTerms younger than 282 don't support the line
+cursor, so this plugin currently sets the cursor to an underline instead for
+insert mode.
+
+Older versions of VTE3 based terminals (before v0.39) do not support changing 
+the cursor via escape sequences and are not supported.  On unsupported 
+terminals, Vim's default behavior is left unaltered.
+
+The plugin also supports tmux, and will change your cursor inside a tmux
+session too.
+
+==============================================================================
+OPTIONS                                          *togglecursor-options*
+
+All the cursor options take a string representing the shape.  The shape is
+allowed to be one of 'block', 'blinking_block', 'line', 'blinking_line',
+'underline', or 'blinking_underline'.
+
+                                                 *togglecursor_default*
+g:togglecursor_default  The default cursor shape.  It is used in all modes
+                        except insert mode.  The default value is
+                        'blinking_block', where it's known to be supported,
+                        and 'block' otherwise.
+
+                                                 *togglecursor_insert*
+g:togglecursor_insert   The insert mode cursor shape.  The default value is
+                        'blinking_line' where supported, 'line' if the vertical
+                        line cursor is supported, or 'blinking_underline' if
+                        neither is supported.
+
+                                                 *togglecursor_leave*
+g:togglecursor_leave    The cursor shape to set when exiting Vim.  The default
+                        value is 'block', except on VTE-based terminals which
+                        commonly have blinking cursor and defaults to
+                        'blinking_block'.
+
+                                                 *togglecursor_replace*
+g:togglecursor_replace  The replace mode cursor shape.  The default value is
+                        'underline'.
+
+                                                 *togglecursor_force*
+g:togglecursor_force    Force togglecursor to use a particular mechanism to
+                        change the cursor.  Setting this turns off automatic
+                        detection.  The only valid choices are 'xterm' (which
+                        uses the DESCCUSR escape sequence) and 'cursorshape'
+                        (what Konsole uses).
+
+                                                 *togglecursor_disable_tmux*
+
+In some versions of tmux, the passthrough handling appears to be slightly
+broken.  When you are on the last line of a short file, and delete a line with
+'dd', tmux appears to insert an extra line into the mix and distorts the
+terminal.  It appears to be fixed in tmux 1.7.  If you'd like to disable using
+tmux passthrough support to try and change the cursor, do the following in
+your vimrc: >
+
+    let g:togglecursor_disable_tmux = 1
+
+The default value for |togglecursor_disable_tmux| is 0.
+
+Note: options should be overridden in your vimrc.  Changing them after Vim has
+loaded will have little or no effect.
+
+                                                 *togglecursor_disable_neovim*
+By default, togglecursor will detect the presence of Neovim and turn on
+NVIM_TUI_ENABLE_CURSOR_SHAPE environment variable for you.  If you don't want
+this behavior, you can add the following to your vimrc: >
+
+    let g:togglecursor_disable_neovim = 1
+<
+Note: if you've already defined NVIM_TUI_ENABLE_CURSOR_SHAPE to a non-empty
+value, then togglecursor will leave it alone.  Also, Neovim's environment
+variable detection can't tell the difference between an unset variable and
+an empty variable.  So togglecursor may enable cursor support even though you've
+attempted to opt-out of it.  Setting g:togglecursor_disable_neovim will keep
+togglecursor from attempting to set the NVIM_TUI_ENABLE_CURSOR_SHAPE variable.
+
+                                             *togglecursor_disable_default_init*
+To support changing the normal mode cursor, togglecursor modifies 't_ti' to
+include an escape sequence to modify the cursor.  It has been seen on VTE
+0.40.2-based terminals that this can cause the cursor to disappear.
+
+To allow users to workaround this kind of bug, you can set
+g:togglecursor_disable_default_init to a non-zero value in your vimrc: >
+
+    let g:togglecursor_disable_default_init = 1
+<
+This will prevent togglecursor from altering 't_ti' at the cost of not having
+the correct cursor when first entering Vim.  Once you go into insert mode and
+back to normal mode, you'll find that the cursor has changed to the desired
+type.
+
+==============================================================================
+LIMITATIONS                                      *togglecursor-limitations*
+
+Since this plugin relies on detecting on the type of terminal being run, it
+will not work automatically when working remotely.  The required environment
+variables are simply not available.
+
+This also doesn't support all terminals, see |togglecursor-supported| for
+details.  Others may be added later, as long as there is a safe way to detect
+and add that support.
+
+Also, this plugin works by setting the |t_SI|, |t_EI|, |t_ti|, and |t_te|
+options and including special escape codes to let the terminal know how to
+change the cursor.  I've tried to avoid doing anything that would cause bad
+interaction with the terminal, but sometimes bugs happen.  If you run into an
+environment where cursor changing is a problem, put the following into your
+vimrc to disable the plugin: >
+
+    let g:loaded_togglecursor = 0
+
+Once such bug appears to exist in tmux 1.6, at least under Fedora 16.  If you
+experience troubles with cursor changing under tmux, you can disable cursor
+changing only under tmux using the |togglecursor_disable_tmux| option.
+
+It's also been noticed that Konsole will clear the profile name when using
+togglecursor.  It turns out that toggling the cursor--even through ANSI
+sequences--modifies the profile causing Konsole to clear the name.  As a
+result, if you make other changes you'll want to select your normal profile
+name and save them there.  The bug has been reported to Konsole, but it's
+unclear what they're going to do about it.  The bug was reported here:
+https://bugs.kde.org/show_bug.cgi?id=323227.
+
+Note: Neovim doesn't allow the technique used by togglecursor to work.  Neovim
+does natively have the ability to change cursor shape by the
+NVIM_TUI_ENABLE_CURSOR_SHAPE environment variable--though you cannot control
+the shapes.  The plugin will set this environment variable for you, but will not
+offer any control over the actual shapes.  In fact, it will look like the plugin
+hasn't loaded--the environment variable is set, and then the plugin exits.
+
+If you find that the Neovim's sequences are not working for your terminal, you
+can disable this feature using |togglecursor_disable_neovim|.
+
+There has been a report of the cursor going missing on start-up with VTE
+0.40.2-based terminals.  If you're seeing this issue, take a look at
+|togglecursor_disable_default_init|.  Note: the issue was fixed in VTE 0.41.90.
+
+==============================================================================
+TIPS                                             *togglecursor-tips*
+
+On most systems, the default SSH settings will not transmit the TERM_PROGRAM
+environment variable to the remote system, which is used by togglecursor to help
+determine how to change the cursor.  If you'd like togglecursor to work for your
+remote session, then you must edit the SSH server configuration as well as your
+client configuration.
+
+The typical unix location for your ssh client configuration is in ~/.ssh/config.
+Simply add the following line to the file: >
+
+    SendEnv TERM_PROGRAM
+<
+On the server side, the configuration is typically in /etc/ssh/sshd_config.  Add
+TERM_PROGRAM to the list of accepted environment variables.  It should look
+something like this: >
+
+    AcceptEnv LANG LC_* TERM_PROGRAM
+<
+Now the TERM_PROGRAM environment variable will be passed to the remote session
+and togglecursor will be able to change the cursor correctly.
+
+You can configure Konsole to set TERM_PROGRAM by editing the environment in
+'Settings->Edit Current Profile->General' and adding the following line: >
+
+    TERM_PROGRAM=Konsole
+<
+==============================================================================
+SUDO                                            *togglecursor-sudo*
+
+The sudo tool scrubs the environment by default, preventing most environment
+variables from being forwarded into the new sudo environment, which prevents
+togglecursor from being able to detect the running terminal.  To allow
+auto-detection, you need to tell sudo to keep these environment
+variables.  This is done by using visudo to modify /etc/sudoers and add
+something like the following to file: >
+
+    Defaults env_keep += "TERM_PROGRAM VTE_VERSION XTERM_VERSION"
+<
+The exact variables to add depend on what you use.  For instance, if you use
+Konsole, you may need to add KONSOLE_DBUS_SESSION to the list.
+
+Another alternative is to set |togglecursor_force| to the correct value for the
+terminal you use and skip autodetection.
+
+==============================================================================
+ABOUT                                            *togglecursor-about*
+
+Grab the latest version or report a bug on GitHub:
+
+https://github.com/jszakmeister/vim-togglecursor
+
+vim:ft=help
