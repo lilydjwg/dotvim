@@ -3,7 +3,6 @@
 " Author:       lilydjwg <lilydjwg@gmail.com>
 " Last Change:  2010年2月10日
 
-" ---------------------------------------------------------------------
 "  Don't mark as Error:
 syn region shCommandSub matchgroup=shCmdSubRegion start="\$(" end=")" contains=@shCommandSubList
 
@@ -19,7 +18,3 @@ syn match  shDerefPOL	contained	":[^}]\+"	contains=@shCommandSubList
 syn match  shDerefPPS	contained	'/\{1,2}'	nextgroup=shDerefPPSleft
 syn region shDerefPPSleft	contained	start='.'	skip=@\%(\\\)\/@ matchgroup=shDerefOp end='/' end='\ze}' nextgroup=shDerefPPSright contains=@shCommandSubList
 syn region shDerefPPSright	contained	start='.'	end='\ze}'	contains=@shCommandSubList
-" ---------------------------------------------------------------------
-" Vim Modeline:
-" vim:fdm=expr:fde=getline(v\:lnum-1)=~'\\v"\\s*-{20,}'?'>1'\:1
-" ---------------------------------------------------------------------
