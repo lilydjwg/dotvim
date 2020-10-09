@@ -801,6 +801,7 @@ if has("autocmd") && exists("+omnifunc")
         \   setlocal omnifunc=syntaxcomplete#Complete |
         \ endif
 endif
+autocmd TerminalWinOpen * setlocal nonumber
 " 自定义命令[[[1
 " 对齐 xxx: xxx （两栏）
 " .vimrc 有可能是软链接
