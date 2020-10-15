@@ -11,7 +11,10 @@ set cpo&vim
 " ---------------------------------------------------------------------
 " Functions:
 function Escalt_console()
-  for i in range(48, 57) + range(65, 90) + range(97, 122)
+  " <M-P> are left out because it causes issues
+  " https://github.com/vim/vim/issues/7135
+  " reason: https://github.com/vim/vim/issues/2581#issuecomment-639746235
+  for i in range(48, 57) + range(65, 79) + range(81, 90) + range(97, 122)
     exe "set <M-".nr2char(i).">=\<Esc>".nr2char(i)
   endfor
   " 10, 22, 34, 62, 124 can't be set
