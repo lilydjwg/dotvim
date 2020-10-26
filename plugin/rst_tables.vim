@@ -51,7 +51,7 @@ def get_table_bounds():
     else:
         lower -= 1
 
-    match = re.match('^(\s*).*$', vim.current.buffer[upper-1])
+    match = re.match(r'^(\s*).*$', vim.current.buffer[upper-1])
 
     return (upper, lower, match.group(1))
 
