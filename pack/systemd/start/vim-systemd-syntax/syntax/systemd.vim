@@ -106,7 +106,7 @@ syn keyword sdFailAction   contained nextgroup=sdErr exit exit-force
 syn keyword sdArch         contained nextgroup=sdErr x86 x86_64 ppc ppc-le ppc64 ppc64-le ia64 parisc parisc64 s390 s390x sparc sparc64 mips mips-le mips64 mips64-le alpha arm arm-be arm64 arm64-be sh sh64 m68k tilegx cris arc arc-be native
 syn keyword sdController   contained cpu cpuacct io blkio memory devices pids nextgroup=sdController,sdErr
 syn match sdCondUser       contained /@system/
-syn match sdUser           contained nextgroup=sdErr /\d\+\|[A-Za-z_][A-Za-z0-9_-]*/
+syn match sdUser           contained nextgroup=sdErr /\d\+\|[A-Za-z_%][A-Za-z0-9_%-]*/
 syn match sdExitStatus     contained nextgroup=sdErr /\d\|\d\d\|[01]\d\d\|2[0-4]\d\|25[0-5]/
 syn match sdDocUri         contained /\%(https\=:\/\/\|file:\|info:\|man:\)\S\+\s*/ nextgroup=sdDocUri,sdErr
 
@@ -138,10 +138,10 @@ syn match sdExecKey contained /^\%(SupplementaryGroups\|CPUAffinity\|SyslogIdent
 syn match sdExecKey contained /^Limit\%(CPU\|FSIZE\|DATA\|STACK\|CORE\|RSS\|NOFILE\|AS\|NPROC\|MEMLOCK\|LOCKS\|SIGPENDING\|MSGQUEUE\|NICE\|RTPRIO\|RTTIME\)=/ nextgroup=sdRlimit
 syn match sdExecKey contained /^\%(CPUSchedulingResetOnFork\|TTYReset\|TTYVHangup\|TTYVTDisallocate\|SyslogLevelPrefix\|ControlGroupModify\|DynamicUser\|RemoveIPC\|NoNewPrivileges\|RestrictRealtime\|RestrictSUIDSGID\|LockPersonality\|MountAPIVFS\)=/ nextgroup=sdBool,sdErr
 syn match sdExecKey contained /^Private\%(Tmp\|Network\|Devices\|Users\|Mounts\)=/ nextgroup=sdBool,sdErr
-syn match sdExecKey contained /^Protect\%(KernelTunables\|KernelModules\|KernelLogs\|Clock\|ControlGroups\|Hostname\)=/ nextgroup=sdBool,sdErr
+syn match sdExecKey contained /^Protect\%(KernelTunables\|KernelModules\|KernelLogs\|Clock\|ControlGroups\|Hostname\|Home\)=/ nextgroup=sdBool,sdErr
 syn match sdExecKey contained /^\%(Nice\|OOMScoreAdjust\)=/ nextgroup=sdInt,sdErr
 syn match sdExecKey contained /^\%(CPUSchedulingPriority\|TimerSlackNSec\)=/ nextgroup=sdUInt,sdErr
-syn match sdExecKey contained /^\%(ReadWrite\|ReadOnly\|Inaccessible\)Directories=/ nextgroup=sdFileList
+syn match sdExecKey contained /^\%(ReadWrite\|ReadOnly\|Inaccessible\)Paths=/ nextgroup=sdFileList
 syn match sdExecKey contained /^CapabilityBoundingSet=/ nextgroup=sdCapNameList
 syn match sdExecKey contained /^Capabilities=/ nextgroup=sdCapability,sdErr
 syn match sdExecKey contained /^UMask=/ nextgroup=sdOctal,sdErr
@@ -159,11 +159,16 @@ syn match sdExecKey contained /^Environment=/ nextgroup=sdEnvDefs
 syn match sdExecKey contained /^EnvironmentFile=-\=/ contains=sdEnvDashFlag nextgroup=sdFilename,sdErr
 
 syn match   sdExecFlag      contained /-\=@\=/ nextgroup=sdExecFile,sdErr
-syn match   sdExecFile      contained /\/\S\+/ nextgroup=sdExecArgs
+syn match   sdExecFile      contained /\S\+/ nextgroup=sdExecArgs
 syn match   sdExecArgs      contained /.*/ contains=sdEnvArg
-syn match   sdEnvDefs       contained /.*/ contains=sdEnvDef
+syn match   sdEnvDefs       contained /.*/ contains=sdEnvDef,sdEnvSQuotes,sdEnvDQuotes
 syn match   sdEnvDashFlag   contained /-/ nextgroup=sdFilename,sdErr
-syn match   sdEnvDef        contained /\i\+=/he=e-1
+syn match   sdEnvDef        contained /\i\+=/he=e-1 nextgroup=sdEnvValue
+syn match   sdEnvDefQuoted  contained /['"]\@<=\i\+=/he=e-1
+hi link sdEnvDefQuoted sdEnvDef
+syn region  sdEnvSQuotes    contained start=/'/ skip=+\\'+ end=/'/ contains=sdEnvDefQuoted
+syn region  sdEnvDQuotes    contained start=/"/ skip=+\\"+ end=/"/ contains=sdEnvDefQuoted
+syn match   sdEnvValue      contained /\S*/
 syn match   sdFileList      contained /.*/ contains=sdFilename,sdErr
 " CAPABILITIES WOOO {{{
 syn case ignore
@@ -185,6 +190,8 @@ syn match   sdCapability    contained /\%(\%([A-Za-z_]\+,\=\)*\|all\)\%(=[eip]*\
 syn keyword sdStdin         contained nextgroup=sdErr null tty-force tty-fail socket tty
 syn match   sdStdout        contained nextgroup=sdErr /\%(syslog\|kmsg\|journal\)\%(+console\)\=/
 syn keyword sdStdout        contained nextgroup=sdErr inherit null tty socket
+syn match   sdStdout        contained /fd:/
+syn match   sdStdout        contained nextgroup=sdFilename,sdErr /\v%(file|append):/
 syn keyword sdSyslogFacil   contained nextgroup=sdErr kern user mail daemon auth syslog lpr news uucp cron authpriv ftp
 syn match   sdSyslogFacil   contained nextgroup=sdErr /\<local[0-7]\>/
 syn keyword sdSyslogLevel   contained nextgroup=sdErr emerg alert crit err warning notice info debug
@@ -206,7 +213,7 @@ syn match sdKillKey  contained /^\%(SendSIGKILL\|SendSIGHUP\)=/ nextgroup=sdBool
 
 syn keyword sdSignal      contained nextgroup=sdErr SIGHUP SIGINT SIGQUIT SIGKILL SIGTERM SIGUSR1 SIGUSR2
 syn match   sdOtherSignal contained nextgroup=sdErr /\<\%(\d\+\|SIG[A-Z]\{2,6}\)\>/
-syn match   sdKillMode    contained nextgroup=sdErr /\%(control-group\|process\|none\)/
+syn match   sdKillMode    contained nextgroup=sdErr /\%(control-group\|mixed\|process\|none\)/
 
 " Resource Control options for [Service|Socket|Mount|Swap|Slice|Scope] {{{1
 " see systemd.resource-control(5)
