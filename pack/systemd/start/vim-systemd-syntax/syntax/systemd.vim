@@ -156,6 +156,7 @@ syn match sdExecKey contained /^CPUSchedulingPolicy=/ nextgroup=sdCPUSchedPol,sd
 syn match sdExecKey contained /^MountFlags=/ nextgroup=sdMountFlags,sdErr
 syn match sdExecKey contained /^\%(IgnoreSIGPIPE\|MemoryDenyWriteExecute\)=/ nextgroup=sdBool,sdErr
 syn match sdExecKey contained /^Environment=/ nextgroup=sdEnvDefs
+syn match sdExecKey contained /^UnsetEnvironment=/ nextgroup=sdEnvName
 syn match sdExecKey contained /^EnvironmentFile=-\=/ contains=sdEnvDashFlag nextgroup=sdFilename,sdErr
 
 syn match   sdExecFlag      contained /-\=@\=/ nextgroup=sdExecFile,sdErr
@@ -166,6 +167,8 @@ syn match   sdEnvDashFlag   contained /-/ nextgroup=sdFilename,sdErr
 syn match   sdEnvDef        contained /\i\+=/he=e-1 nextgroup=sdEnvValue
 syn match   sdEnvDefQuoted  contained /['"]\@<=\i\+=/he=e-1
 hi link sdEnvDefQuoted sdEnvDef
+syn match   sdEnvName       contained /\i\+/
+hi link sdEnvName sdEnvDef
 syn region  sdEnvSQuotes    contained start=/'/ skip=+\\'+ end=/'/ contains=sdEnvDefQuoted
 syn region  sdEnvDQuotes    contained start=/"/ skip=+\\"+ end=/"/ contains=sdEnvDefQuoted
 syn match   sdEnvValue      contained /\S*/
