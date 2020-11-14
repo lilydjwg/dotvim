@@ -802,7 +802,7 @@ if has("autocmd") && exists("+omnifunc")
         \   setlocal omnifunc=syntaxcomplete#Complete |
         \ endif
 endif
-if exists('#TerminalWinOpen')
+if exists('##TerminalWinOpen')
   autocmd TerminalWinOpen * setlocal nonumber
 endif
 " 自定义命令[[[1
