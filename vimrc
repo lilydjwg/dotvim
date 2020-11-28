@@ -419,7 +419,6 @@ filetype plugin on
 filetype indent on
 " maybe necessary when root
 syntax on
-" set guifont=文泉驿等宽正黑\ Medium\ 10
 set number
 set smarttab
 set expandtab
