@@ -1,0 +1,7 @@
+Word word
+word Word
+Word word
+word Word
+
+let g:VM_maps['Visual Regex']                = 'g/'
+let g:VM_maps['Visual All']                  = '<leader>A'

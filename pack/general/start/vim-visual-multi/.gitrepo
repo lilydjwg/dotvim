@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:mg979/vim-visual-multi.git
+	branch = master
+	commit = aa66db40e6c765fd6293c69e71b38b6a87dd3a08
+	parent = 13b79b2b203d31a031bcc74541aee5124ca8c5ae
+	method = merge
+	cmdver = 0.4.3
