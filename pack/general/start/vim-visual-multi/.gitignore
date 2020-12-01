@@ -1,9 +1,0 @@
-*vim-bookmarks
-.TODO
-tags
-doc/tags
-*.sw*
-generated_output_file.txt
-test.log
-__pycache__
-test/.python-version
