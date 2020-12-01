@@ -41,4 +41,4 @@ function! s:AutoEink()
     call s:Eink('')
   endif
 endfunction
-autocmd VimEnter * call s:AutoEink()
+" autocmd VimEnter * call s:AutoEink()
