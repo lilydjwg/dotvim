@@ -5,8 +5,9 @@ syntax match   shellbang "^#!.*iojs\>"
 
 "JavaScript comments
 syntax keyword typescriptCommentTodo TODO FIXME XXX TBD
+syntax match typescriptMagicComment "@ts-\%(ignore\|expect-error\)\>"
 syntax match   typescriptLineComment "//.*"
-  \ contains=@Spell,typescriptCommentTodo,typescriptRef
+  \ contains=@Spell,typescriptCommentTodo,typescriptRef,typescriptMagicComment
 syntax region  typescriptComment
   \ start="/\*"  end="\*/"
   \ contains=@Spell,typescriptCommentTodo extend
@@ -32,6 +33,8 @@ syntax match   typescriptDocNotation           contained /@/ nextgroup=typescrip
 syntax keyword typescriptDocTags               contained constant constructor constructs function ignore inner private public readonly static
 syntax keyword typescriptDocTags               contained const dict expose inheritDoc interface nosideeffects override protected struct internal
 syntax keyword typescriptDocTags               contained example global
+syntax keyword typescriptDocTags               contained alpha beta defaultValue eventProperty experimental label
+syntax keyword typescriptDocTags               contained packageDocumentation privateRemarks remarks sealed typeParam
 
 " syntax keyword typescriptDocTags               contained ngdoc nextgroup=typescriptDocNGDirective
 syntax keyword typescriptDocTags               contained ngdoc scope priority animations
@@ -73,7 +76,7 @@ syntax region  typescriptDocLinkTag            contained matchgroup=typescriptDo
 
 syntax cluster typescriptDocs                  contains=typescriptDocParamType,typescriptDocNamedParamType,typescriptDocParam
 
-if main_syntax == "typescript"
+if exists("main_syntax") && main_syntax == "typescript"
   syntax sync clear
   syntax sync ccomment typescriptComment minlines=200
 endif

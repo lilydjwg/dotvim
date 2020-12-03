@@ -1,7 +1,29 @@
+var a = (): string => 123
 var p: Promise<void>
 
 var a = { template: /*eee*/ this.template
 }
+
+type A = [
+    /*test*/ string,
+    /*test*/ string,
+]
+
+function tail<T extends any[]>(arr: readonly [any, ...T]) {
+    const [_ignored, ...rest] = arr;
+    return rest;
+}
+
+let resp = await someAPI()
+resp &&= resp.data
+
+type Range = [start: number, end: number, rest?: () => 123];
+
+var b: unique symbol = 123
+
+var c: readonly t.MyClass<T>[] = 333
+
+c?.test
 
 const COMPILER_PROVIDERS: Array<any[]> = null
 
@@ -49,11 +71,13 @@ type A = 42
 
 
 test({
-  a: test ? // test
+  async a: test ? // test
   test: ee
 })
 
 getSymbolIterator(3) in obj;
+
+const a = (): string => '123'
 
 
 list.reduce((flat: any[], item: T | T[]): T[] => {
@@ -83,3 +107,33 @@ var a = ({a: () => 123})
 enum A {
 
 }
+
+interface FooBar<T extends Record<string, any> = Record<string, any>> {
+  foo: string;
+  bar: number;
+}
+
+[].map(({num}, index) => {
+    const key = `${num}`
+})
+
+const [foo, [bar, baz = 1], ...rest] = arr;
+const [
+  foo = 'alice',
+  ...rest,
+] = arr;
+
+const {foo, bar: {baz = 1, qux: quux, 'foo bar': foobar}, ...rest} = obj;
+const {
+  foo = 'alice',
+  bar: {
+    qux: quux,
+    'foo bar': foobar,
+  },
+  ...rest,
+} = obj;
+
+const {foo: [a, {b, 'bar': d}, ...x], ...y} = obj;
+
+type Greeting = `hello ${World}`;
+type X = Y extends string ? string : Y

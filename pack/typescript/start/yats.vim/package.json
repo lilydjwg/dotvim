@@ -3,9 +3,9 @@
     "version": "1.0.0",
     "description": "Yet another TypeScript syntax for Vim",
     "devDependencies": {
-        "js-yaml": "*",
         "camel-case": "*",
-        "is-upper-case": "*"
+        "is-upper-case": "*",
+        "js-yaml": "*"
     },
     "license": "Same as Vim"
 }

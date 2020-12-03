@@ -15,7 +15,6 @@ setlocal nosmartindent
 
 " Now, set up our indentation expression and keys that trigger it.
 setlocal indentexpr=GetTypescriptIndent()
-setlocal formatexpr=Fixedgq(v:lnum,v:count)
 setlocal indentkeys=0{,0},0),0],0\,,!^F,o,O,e
 
 " Only define the function once.
@@ -37,19 +36,13 @@ let s:syng_strcom = 'string\|regex\|comment\c'
 " Regex of syntax group names that are strings.
 let s:syng_string = 'regex\c'
 
-" Regex of syntax group names that are strings or documentation.
-let s:syng_multiline = 'comment\c'
-
-" Regex of syntax group names that are line comment.
-let s:syng_linecom = 'linecomment\c'
-
 " Expression used to check whether we should skip a match with searchpair().
 let s:skip_expr = "synIDattr(synID(line('.'),col('.'),1),'name') =~ '".s:syng_strcom."'"
 
 let s:line_term = '\s*\%(\%(\/\/\).*\)\=$'
 
 " Regex that defines continuation lines, not including (, {, or [.
-let s:continuation_regex = '\%([\\*+/.:]\|\%(<%\)\@<![=-]\|\W[|&?]\|||\|&&\|[^=]=[^=].*,\)' . s:line_term
+let s:continuation_regex = '\%([\\*+/.:]\|\%(<%\)\@<![=-]\|\W[|&?]\|||\|&&\|[^=]=[^=]\)' . s:line_term
 
 " Regex that defines continuation lines.
 " TODO: this needs to deal with if ...: and so on
@@ -65,8 +58,8 @@ let s:var_stmt = '^\s*var'
 let s:comma_first = '^\s*,'
 let s:comma_last = ',\s*$'
 
-let s:ternary = '^\s\+[?|:]'
-let s:ternary_q = '^\s\+?'
+let s:ternary = '^\s\+[?:]'
+let s:ternary_q = '^\s\+?[.?]\@!'
 
 " 2. Auxiliary Functions {{{1
 " ======================
@@ -79,16 +72,6 @@ endfunction
 " Check if the character at lnum:col is inside a string.
 function s:IsInString(lnum, col)
   return synIDattr(synID(a:lnum, a:col, 1), 'name') =~ s:syng_string
-endfunction
-
-" Check if the character at lnum:col is inside a multi-line comment.
-function s:IsInMultilineComment(lnum, col)
-  return !s:IsLineComment(a:lnum, a:col) && synIDattr(synID(a:lnum, a:col, 1), 'name') =~ s:syng_multiline
-endfunction
-
-" Check if the character at lnum:col is a line comment.
-function s:IsLineComment(lnum, col)
-  return synIDattr(synID(a:lnum, a:col, 1), 'name') =~ s:syng_linecom
 endfunction
 
 " Find line above 'lnum' that isn't empty, in a comment, or in a string.
@@ -191,9 +174,9 @@ function s:GetVarIndent(lnum)
 
     " if the previous line doesn't end in a comma, return to regular indent
     if (line !~ s:comma_last)
-      return indent(prev_lnum) - &sw
+      return indent(prev_lnum) - shiftwidth()
     else
-      return indent(lvar) + &sw
+      return indent(lvar) + shiftwidth()
     endif
   endif
 
@@ -321,7 +304,7 @@ function GetTypescriptIndent()
           return indent(prevline)
         " otherwise we indent 1 level
         else
-          return indent(lvar) + &sw
+          return indent(lvar) + shiftwidth()
         endif
       endif
     endif
@@ -340,19 +323,19 @@ function GetTypescriptIndent()
 
   " If the line is comma first, dedent 1 level
   if (getline(prevline) =~ s:comma_first)
-    return indent(prevline) - &sw
+    return indent(prevline) - shiftwidth()
   endif
 
   if (line =~ s:ternary)
     if (getline(prevline) =~ s:ternary_q)
       return indent(prevline)
     else
-      return indent(prevline) + &sw
+      return indent(prevline) + shiftwidth()
     endif
   endif
 
   " If we are in a multi-line comment, cindent does the right thing.
-  if s:IsInMultilineComment(v:lnum, 1) && !s:IsLineComment(v:lnum, 1)
+  if yats#IsInMultilineComment(v:lnum, 1) && !yats#IsLineComment(v:lnum, 1)
     return cindent(v:lnum)
   endif
 
@@ -368,7 +351,7 @@ function GetTypescriptIndent()
   " If the line is empty and the previous nonblank line was a multi-line
   " comment, use that comment's indent. Deduct one char to account for the
   " space in ' */'.
-  if line =~ '^\s*$' && s:IsInMultilineComment(prevline, 1)
+  if line =~ '^\s*$' && yats#IsInMultilineComment(prevline, 1)
     return indent(prevline) - 1
   endif
 
@@ -391,7 +374,7 @@ function GetTypescriptIndent()
 
   " If the previous line ended with a block opening, add a level of indent.
   if s:Match(lnum, s:block_regex)
-    return indent(s:GetMSL(lnum, 0)) + &sw
+    return indent(s:GetMSL(lnum, 0)) + shiftwidth()
   endif
 
   " If the previous line contained an opening bracket, and we are still in it,
@@ -400,12 +383,12 @@ function GetTypescriptIndent()
     let counts = s:LineHasOpeningBrackets(lnum)
     if counts[0] == '1' && searchpair('(', '', ')', 'bW', s:skip_expr) > 0
       if col('.') + 1 == col('$')
-        return ind + &sw
+        return ind + shiftwidth()
       else
         return virtcol('.')
       endif
     elseif counts[1] == '1' || counts[2] == '1'
-      return ind + &sw
+      return ind + shiftwidth()
     else
       call cursor(v:lnum, vcol)
     end
@@ -415,18 +398,18 @@ function GetTypescriptIndent()
   " --------------------------
 
   let ind_con = ind
-  let ind = s:IndentWithContinuation(lnum, ind_con, &sw)
+  let ind = s:IndentWithContinuation(lnum, ind_con, shiftwidth())
 
   " }}}2
   "
   "
   let ols = s:InOneLineScope(lnum)
   if ols > 0
-    let ind = ind + &sw
+    let ind = ind + shiftwidth()
   else
     let ols = s:ExitingOneLineScope(lnum)
     while ols > 0 && ind > 0
-      let ind = ind - &sw
+      let ind = ind - shiftwidth()
       let ols = s:InOneLineScope(ols - 1)
     endwhile
   endif
@@ -438,64 +421,3 @@ endfunction
 
 let &cpo = s:cpo_save
 unlet s:cpo_save
-
-function! Fixedgq(lnum, count)
-    let l:tw = &tw ? &tw : 80;
-
-    let l:count = a:count
-    let l:first_char = indent(a:lnum) + 1
-
-    if mode() == 'i' " gq was not pressed, but tw was set
-        return 1
-    endif
-
-    " This gq is only meant to do code with strings, not comments
-    if s:IsLineComment(a:lnum, l:first_char) || s:IsInMultilineComment(a:lnum, l:first_char)
-        return 1
-    endif
-
-    if len(getline(a:lnum)) < l:tw && l:count == 1 " No need for gq
-        return 1
-    endif
-
-    " Put all the lines on one line and do normal spliting after that
-    if l:count > 1
-        while l:count > 1
-            let l:count -= 1
-            normal J
-        endwhile
-    endif
-
-    let l:winview = winsaveview()
-
-    call cursor(a:lnum, l:tw + 1)
-    let orig_breakpoint = searchpairpos(' ', '', '\.', 'bcW', '', a:lnum)
-    call cursor(a:lnum, l:tw + 1)
-    let breakpoint = searchpairpos(' ', '', '\.', 'bcW', s:skip_expr, a:lnum)
-
-    " No need for special treatment, normal gq handles edgecases better
-    if breakpoint[1] == orig_breakpoint[1]
-        call winrestview(l:winview)
-        return 1
-    endif
-
-    " Try breaking after string
-    if breakpoint[1] <= indent(a:lnum)
-        call cursor(a:lnum, l:tw + 1)
-        let breakpoint = searchpairpos('\.', '', ' ', 'cW', s:skip_expr, a:lnum)
-    endif
-
-
-    if breakpoint[1] != 0
-        call feedkeys("r\<CR>")
-    else
-        let l:count = l:count - 1
-    endif
-
-    " run gq on new lines
-    if l:count == 1
-        call feedkeys("gqq")
-    endif
-
-    return 0
-endfunction

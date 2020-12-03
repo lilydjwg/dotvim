@@ -1,8 +1,8 @@
 if !exists("main_syntax")
-  if exists("b:current_syntax") && b:current_syntax != 'typescript'
+  if exists("b:current_syntax")
     finish
   endif
-  let main_syntax = 'typescript.tsx'
+  let main_syntax = 'typescriptreact'
 endif
 
 syntax region tsxTag
@@ -119,6 +119,8 @@ syntax region tsxEscJs
     \ end=+}+
     \ extend
 
+runtime syntax/common.vim
+
 syntax cluster typescriptExpression add=tsxRegion,tsxFragment
 
 highlight def link tsxTag htmlTag
@@ -130,12 +132,11 @@ highlight def link tsxCommentInvalid Error
 highlight def link tsxBlockComment Comment
 highlight def link tsxLineComment Comment
 highlight def link tsxAttrib Type
-highlight def link tsxEscapeJs tsxEscapeJs
 highlight def link tsxEscJs tsxEscapeJs
 highlight def link tsxCloseTag htmlTag
 highlight def link tsxCloseString Identifier
 
-let b:current_syntax = "typescript.tsx"
-if main_syntax == 'typescript.tsx'
+let b:current_syntax = "typescriptreact"
+if main_syntax == 'typescriptreact'
   unlet main_syntax
 endif

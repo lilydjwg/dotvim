@@ -1,13 +1,17 @@
 " Types
 syntax match typescriptOptionalMark /?/ contained
 
+syntax cluster typescriptTypeParameterCluster contains=
+  \ typescriptTypeParameter,
+  \ typescriptGenericDefault
+
 syntax region typescriptTypeParameters matchgroup=typescriptTypeBrackets
   \ start=/</ end=/>/
-  \ contains=typescriptTypeParameter
+  \ contains=@typescriptTypeParameterCluster
   \ contained
 
 syntax match typescriptTypeParameter /\K\k*/
-  \ nextgroup=typescriptConstraint,typescriptGenericDefault
+  \ nextgroup=typescriptConstraint
   \ contained skipwhite skipnl
 
 syntax keyword typescriptConstraint extends
@@ -49,12 +53,26 @@ syntax cluster typescriptPrimaryType contains=
   \ typescriptObjectType,
   \ typescriptTupleType,
   \ typescriptTypeQuery,
-  \ typescriptStringLiteralType
+  \ typescriptStringLiteralType,
+  \ typescriptTemplateLiteralType,
+  \ typescriptReadonlyArrayKeyword,
+  \ typescriptAssertType
 
 syntax region  typescriptStringLiteralType contained
   \ start=/\z(["']\)/  skip=/\\\\\|\\\z1\|\\\n/  end=/\z1\|$/
   \ nextgroup=typescriptUnion
   \ skipwhite skipempty
+
+syntax region  typescriptTemplateLiteralType contained
+  \ start=/`/  skip=/\\\\\|\\`\|\n/  end=/`\|$/
+  \ contains=typescriptTemplateSubstitutionType
+  \ nextgroup=typescriptTypeOperator
+  \ skipwhite skipempty
+
+syntax region  typescriptTemplateSubstitutionType matchgroup=typescriptTemplateSB
+  \ start=/\${/ end=/}/
+  \ contains=@typescriptType
+  \ contained
 
 syntax region typescriptParenthesizedType matchgroup=typescriptParens
   \ start=/(/ end=/)/
@@ -62,19 +80,23 @@ syntax region typescriptParenthesizedType matchgroup=typescriptParens
   \ nextgroup=@typescriptTypeOperator
   \ contained skipwhite skipempty fold
 
-syntax keyword typescriptPredefinedType any number boolean string void never undefined null object unknown
-  \ nextgroup=@typescriptTypeOperator
-  \ contained skipwhite skipempty
-
 syntax match typescriptTypeReference /\K\k*\(\.\K\k*\)*/
   \ nextgroup=typescriptTypeArguments,@typescriptTypeOperator,typescriptUserDefinedType
   \ skipwhite contained skipempty
 
+syntax keyword typescriptPredefinedType any number boolean string void never undefined null object unknown
+  \ nextgroup=@typescriptTypeOperator
+  \ contained skipwhite skipempty
+
+syntax match typescriptPredefinedType /unique symbol/
+  \ nextgroup=@typescriptTypeOperator
+  \ contained skipwhite skipempty
+
 syntax region typescriptObjectType matchgroup=typescriptBraces
   \ start=/{/ end=/}/
-  \ contains=@typescriptTypeMember,typescriptEndColons,@typescriptComments,typescriptAccessibilityModifier
+  \ contains=@typescriptTypeMember,typescriptEndColons,@typescriptComments,typescriptAccessibilityModifier,typescriptReadonlyModifier
   \ nextgroup=@typescriptTypeOperator
-  \ contained skipwhite fold
+  \ contained skipwhite skipnl fold
 
 syntax cluster typescriptTypeMember contains=
   \ @typescriptCallSignature,
@@ -82,15 +104,20 @@ syntax cluster typescriptTypeMember contains=
   \ typescriptIndexSignature,
   \ @typescriptMembers
 
+syntax match typescriptTupleLable /\K\k*?\?:/
+    \ contained
+
 syntax region typescriptTupleType matchgroup=typescriptBraces
   \ start=/\[/ end=/\]/
-  \ contains=@typescriptType
-  \ contained skipwhite oneline
+  \ contains=@typescriptType,@typescriptComments,typescriptRestOrSpread,typescriptTupleLable
+  \ contained skipwhite
 
 syntax cluster typescriptTypeOperator
-  \ contains=typescriptUnion,typescriptTypeBracket
+  \ contains=typescriptUnion,typescriptTypeBracket,typescriptConstraint,typescriptConditionalType
 
 syntax match typescriptUnion /|\|&/ contained nextgroup=@typescriptPrimaryType skipwhite skipempty
+
+syntax match typescriptConditionalType /?\|:/ contained nextgroup=@typescriptPrimaryType skipwhite skipempty
 
 syntax cluster typescriptFunctionType contains=typescriptGenericFunc,typescriptFuncType
 syntax region typescriptGenericFunc matchgroup=typescriptTypeBrackets
@@ -123,6 +150,10 @@ syntax keyword typescriptTypeQuery typeof keyof
   \ nextgroup=typescriptTypeReference
   \ contained skipwhite skipnl
 
+syntax keyword typescriptAssertType asserts
+  \ nextgroup=typescriptTypeReference
+  \ contained skipwhite skipnl
+
 syntax cluster typescriptCallSignature contains=typescriptGenericCall,typescriptCall
 syntax region typescriptGenericCall matchgroup=typescriptTypeBrackets
   \ start=/</ end=/>/
@@ -142,6 +173,7 @@ syntax match typescriptTypeAnnotation /:/
 syntax cluster typescriptParameterList contains=
   \ typescriptTypeAnnotation,
   \ typescriptAccessibilityModifier,
+  \ typescriptReadonlyModifier,
   \ typescriptOptionalMark,
   \ typescriptRestOrSpread,
   \ typescriptFuncComma,
@@ -177,3 +209,6 @@ syntax region typescriptAliasDeclaration matchgroup=typescriptUnion
   \ contains=typescriptConstraint,typescriptTypeParameters
   \ contained skipwhite skipempty
 
+syntax keyword typescriptReadonlyArrayKeyword readonly
+  \ nextgroup=@typescriptPrimaryType
+  \ skipwhite
