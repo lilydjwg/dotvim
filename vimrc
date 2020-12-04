@@ -494,9 +494,10 @@ if !has("patch-8.1.1270")
   catch /.*/
   endtry
 endif
-if exists('&balloonevalterm')
-  set balloonevalterm
-endif
+" will make termux mouse not work https://github.com/vim/vim/issues/7422
+" if exists('&balloonevalterm')
+"   set balloonevalterm
+" endif
 try
   set signcolumn=number
 catch /.*/
