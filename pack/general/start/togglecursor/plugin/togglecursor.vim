@@ -53,7 +53,8 @@ let s:xterm_blinking_block = "\<Esc>[0 q"
 let s:xterm_blinking_line = "\<Esc>[5 q"
 let s:xterm_blinking_underline = "\<Esc>[3 q"
 
-let s:in_tmux = exists("$TMUX")
+" This fixes https://github.com/jszakmeister/vim-togglecursor/issues/43
+let s:in_tmux = 0
 
 " Detect whether this version of vim supports changing the replace cursor
 " natively.
