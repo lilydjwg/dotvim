@@ -22,6 +22,7 @@ setlocal fo+=B
 let wiki.nested_syntaxes = {
       \ 'sh': 'sh', 'c': 'c', 'rust': 'rust',
       \ 'sql': 'sql', 'pgsql': 'pgsql',
+      \ 'toml': 'toml',
       \ }
 
 imap <buffer> <BS> <C-R>=Lilydjwg_checklist_bs('\v^\s*[*-]( \[.\])? $')<CR>
