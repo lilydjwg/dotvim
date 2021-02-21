@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:easymotion/vim-easymotion.git
+	branch = master
+	commit = d75d9591e415652b25d9e0a3669355550325263d
+	parent = 4e29652d5562894ecaca460c83be9dda4f9b12e4
+	method = merge
+	cmdver = 0.4.3
