@@ -875,9 +875,6 @@ let g:ConflictMotions_TakeMappingPrefix = ''
 let g:nrrw_rgn_vert = 1
 let g:nrrw_rgn_wdth = 80
 let g:nrrw_rgn_hl = 'Folded'
-"   easymotion[[[2
-let EasyMotion_leader_key = '<M-q>'
-let EasyMotion_keys = 'abcdefghijklmnopqrstuvwxyz'
 "   cycle[[[2
 "   https://github.com/lilydjwg/vim-cycle
 nnoremap <expr> <silent> <C-X> Lilydjwg_trycycle('x')
