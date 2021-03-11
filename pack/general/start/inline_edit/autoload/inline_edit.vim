@@ -172,3 +172,82 @@ function! inline_edit#HereDoc()
 
   return [start, end, filetype, indent]
 endfunction
+
+" function! inline_edit#PythonQuotedString() {{{2
+
+" Opens up a new proxy buffer with the contents of a fenced code block in
+" github-flavoured markdown.
+function! inline_edit#PythonMultilineString()
+  call inline_edit#PushCursor()
+
+  try
+    normal! 0
+
+    if !s:CheckInsidePythonString()
+      return []
+    endif
+
+    normal! $
+
+    if !s:CheckInsidePythonString()
+      return []
+    endif
+
+    " We are inside a Python multiline string, so we have to find the boundaries
+    let quote_type = search('"""\|\(''''''\)', 'bWp')
+
+    if quote_type == 0
+      return []
+    endif
+
+    let start = line('.') + 1
+
+    if quote_type == 1
+      let end_quote = '"""'
+    elseif quote_type == 2
+      let end_quote = "'''"
+    else
+      echoerr "Invalid quote pattern found"
+      return []
+    endif
+
+    let end = search(end_quote, 'W')
+
+    if end == 0
+      " No end quote was found
+      return []
+    endif
+
+    let end -= 1
+  finally
+    call inline_edit#PopCursor()
+  endtry
+
+  let lines = join(getline(start, end), "\n")
+
+  " We try to guess the filetype
+  if g:inline_edit_python_guess_sql && (
+      \ lines =~# '\<SELECT\>\_.*\<FROM\>'
+      \ || lines =~# '\<CREATE\>\_s*\<OR\>\_s*\<REPLACE\>'
+      \ )
+    " This is a SQL file
+    let filetype = 'sql'
+  else
+    let filetype = ''
+  endif
+
+  let indent = indent(start)
+  for i in range(start + 1, end)
+    let current_indent = indent(i)
+    " Get the minimum indent of the non-blank lines
+    if current_indent < indent && getline(i) !~? '^\s*$'
+      let indent = current_indent
+    endif
+  endfor
+
+  return [start, end, filetype, indent]
+endfunction
+
+function s:CheckInsidePythonString()
+  return index(map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")'), "pythonString") >= 0
+endfunction

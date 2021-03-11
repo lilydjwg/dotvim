@@ -1,0 +1,21 @@
+%h1 Heading
+
+.content
+  Test content
+
+%div.nesting
+  :javascript
+    if (foo) {
+      alert("OK");
+    }
+
+  :css
+    .content {
+      border: 1px solid black;
+    }
+
+    .one-more-content {
+      border: 1px solid black;
+    }
+
+%div Other content

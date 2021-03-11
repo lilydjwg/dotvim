@@ -6,6 +6,7 @@ function! inline_edit#controller#New()
         \ 'SyncProxies': function('inline_edit#controller#SyncProxies'),
         \ 'VisualEdit':  function('inline_edit#controller#VisualEdit'),
         \ 'PatternEdit': function('inline_edit#controller#PatternEdit'),
+        \ 'IndentEdit':  function('inline_edit#controller#IndentEdit'),
         \ }
 
   return controller
@@ -81,4 +82,50 @@ function! inline_edit#controller#PatternEdit(pattern) dict
 
   call self.NewProxy(start, end, pattern.sub_filetype, indent)
   return 1
+endfunction
+
+function! inline_edit#controller#IndentEdit(pattern) dict
+  let pattern = extend({
+        \ 'sub_filetype':      &filetype,
+        \ 'indent_adjustment': 0,
+        \ }, a:pattern)
+
+  call inline_edit#PushCursor()
+
+  " find start of area
+  if search(pattern.start, 'Wb') <= 0
+    call inline_edit#PopCursor()
+    return 0
+  endif
+  let start = line('.') + 1
+
+  " find end of area
+  let end = s:LowerIndentLimit(start)
+  if end - start < 0
+    return 0
+  endif
+  let indent = indent(end) + pattern.indent_adjustment * (&et ? &sw : &ts)
+
+  call inline_edit#PopCursor()
+
+  if line('.') < start || line('.') > end
+    " then we're not inside the section
+    return 0
+  endif
+
+  call self.NewProxy(start, end, pattern.sub_filetype, indent)
+  return 1
+endfunction
+
+function! s:LowerIndentLimit(lineno)
+  let base_indent  = indent(a:lineno)
+  let current_line = a:lineno
+  let next_line    = nextnonblank(current_line + 1)
+
+  while current_line < line('$') && indent(next_line) >= base_indent
+    let current_line = next_line
+    let next_line    = nextnonblank(current_line + 1)
+  endwhile
+
+  return current_line
 endfunction

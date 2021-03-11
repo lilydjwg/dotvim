@@ -126,12 +126,24 @@ Embedded languages within Vimscript ~
       print("OK")
     EOF
 <
+Javascript and CSS within HAML ~
+>
+    %body
+      :javascript
+        alert("OK");
+
+      :css
+        .content { border: 1px solid black; }
+
 Visual Mode ~
 
-If you'd like to work on an area that's not very well definable, |:InlineEdit|
-also works in visual mode. Selecting an area of the code and executing
-":InlineEdit some_filetype" will open up a proxy buffer with that area and set
-the filetype to "some_filetype".
+If you'd like to work on an area that's easily definable, |:InlineEdit| also
+works in visual mode. Selecting an area of the code and executing
+>
+    :InlineEdit some_filetype
+<
+will open up a proxy buffer with that area and set the filetype to
+"some_filetype".
 
 
 ==============================================================================
@@ -197,6 +209,18 @@ This variable is set to the command that will be used to open the proxy
 buffer.  You can use any buffer-opening command like "new", "rightbelow
 vertical new", etc.
 
+                                              *g:inline_edit_python_guess_sql*
+>
+    let g:inline_edit_python_guess_sql = 0
+<
+
+Default value: 1
+
+By default, when a multiline string in Python is matched, the plugin will try
+to guess whether the text is a SQL statement. The detection is based on SQL
+keywords and is very rudimentary, easily allowing for false positives. This
+option controls whether the SQL detection is enabled.
+
                                               *g:inline_edit_modify_statusline*
 >
     let g:inline_edit_modify_statusline = 0
@@ -225,9 +249,9 @@ plugin to work for new patterns is a simple matter of adding entries to it.
 You can safely assign patterns to the variable in your .vimrc, the plugin
 won't override them.
 
-Each entry in the list can have one of two formats.
+Each entry in the list can have one of three formats.
 
-Simple ~
+With "start" and "end" pattern ~
 >
     let g:inline_edit_patterns = [
             \   {
@@ -275,6 +299,23 @@ the margins of the area to edit. The other entries are as follows:
       the proxy buffer will be indented with the level of the delimiting
       patterns (the end pattern, to be precise).
 
+With a "start" pattern in an indent-based filetype ~
+>
+    let g:inline_edit_patterns = [
+            \   {
+            \     'main_filetype': 'haml',
+            \     'sub_filetype':  'javascript',
+            \     'start':         ':javascript', " required
+            \     'indent_based':  1,             " required
+            \   },
+            \
+            \   " ...
+            \ ]
+<
+This works the same way as the above, with the difference that there is no
+"end" pattern since HAML is an indent-based filetype. Setting the
+"indent_based" parameter to 1 (or |v:true|) will consider everything "under"
+this starting pattern, indentation-wise, to be the text to edit.
 
 Callback ~
 >
@@ -302,7 +343,7 @@ function inline_edit#MarkdownFencedCode() in "autoload/inline_edit.vim" for
 inspiration.
 
 If the callback function fails to find the area, it should return an empty
-dictionary.
+list.
 
 Deeper control ~
 
