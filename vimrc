@@ -28,8 +28,7 @@ function Lilydjwg_copy_to_newtab()
     let nr = bufnr('%')
     exec "mkview" temp
     tabnew
-    exec "buffer" nr
-    exec "source" temp
+    silent exec "source" temp
   finally
     call delete(temp)
   endtry
