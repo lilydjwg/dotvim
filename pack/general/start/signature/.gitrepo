@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:kshenoy/vim-signature.git
+	branch = master
+	commit = 6bc3dd1294a22e897f0dcf8dd72b85f350e306bc
+	parent = 5880558a28c6195bff5efe46cd90cc8fb8421e5c
+	method = merge
+	cmdver = 0.4.3
