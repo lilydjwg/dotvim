@@ -4,6 +4,7 @@ g:inline_edit_modify_statusline	inline_edit.txt	/*g:inline_edit_modify_statuslin
 g:inline_edit_new_buffer_command	inline_edit.txt	/*g:inline_edit_new_buffer_command*
 g:inline_edit_patterns	inline_edit.txt	/*g:inline_edit_patterns*
 g:inline_edit_proxy_type	inline_edit.txt	/*g:inline_edit_proxy_type*
+g:inline_edit_python_guess_sql	inline_edit.txt	/*g:inline_edit_python_guess_sql*
 inline-edit	inline_edit.txt	/*inline-edit*
 inline-edit-contents	inline_edit.txt	/*inline-edit-contents*
 inline-edit-extending	inline_edit.txt	/*inline-edit-extending*
