@@ -15,8 +15,14 @@ let g:loaded_fcitx = 1
 try " abort on fail
   exe 'py3file' expand('<sfile>:r') . '.py'
   if py3eval('fcitx_loaded')
-    au InsertLeavePre * py3 fcitx2en()
+    if exists('##InsertLeavePre')
+      au InsertLeavePre * py3 fcitx2en()
+    else
+      au InsertLeave * py3 fcitx2en()
+    endif
     au InsertEnter * py3 fcitx2zh()
+    au CmdlineEnter / py3 fcitx2zh()
+    au CmdlineLeave / py3 fcitx2en()
   endif
 endtry
 " ---------------------------------------------------------------------
