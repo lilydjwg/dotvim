@@ -779,10 +779,10 @@ imap <S-ScrollWheelUp> <ScrollWheelLeft>
 nnoremap <silent> <S-MiddleMouse> <LeftMouse>"+P
 inoremap <silent> <S-MiddleMouse> <C-r>+
 "     上下移动一行文字[[[2
-nmap <C-j> mz:m+<cr>`z
-nmap <C-k> mz:m-2<cr>`z
-vmap <C-j> :m'>+<cr>`<my`>mzgv`yo`z
-vmap <C-k> :m'<-2<cr>`>my`<mzgv`yo`z
+nmap <C-j> :m+<cr>
+nmap <C-k> :m-2<cr>
+vmap <C-j> :m'>+<cr>gv
+vmap <C-k> :m'<-2<cr>gv
 " 自动命令[[[1
 "   自动关闭预览窗口（不能用在命令窗口，所以设置了一个变量）
 let s:cmdwin = 0
