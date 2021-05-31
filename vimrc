@@ -924,10 +924,6 @@ let g:Grep_Default_Options = '--binary-files=without-match'
 let g:NERDTreeMapToggleZoom = 'a'
 let g:NERDTreeMapToggleHidden = 'h'
 "   另见平台相关部分
-"   DirDiff[[[2
-let g:DirDiffDynamicDiffText = 1
-let g:DirDiffExcludes = "*~,*.swp"
-let g:DirDiffWindowSize = 20
 "   bufexplorer[[[2
 let g:bufExplorerFindActive = 0
 "   tagbar[[[2
