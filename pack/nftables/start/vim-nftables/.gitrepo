@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:nfnty/vim-nftables.git
+	branch = master
+	commit = 26f8a506c6f3e41f1e4a8d6aa94c9a79a666bbff
+	parent = 6111e184e6125a50e09c511f19f9d7c0a4250541
+	method = merge
+	cmdver = 0.4.3
