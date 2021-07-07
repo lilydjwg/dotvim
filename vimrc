@@ -506,6 +506,8 @@ if has('&clipboard')
   set clipboard=autoselect,html,exclude:cons\|linux
 endif
 set tabpagemax=50
+" make it unusable so it won't clash
+set termwinkey=<C-\\>
 " Linux 与 Windows 等 [[[2
 if has("gui_macvim")
   set macmeta
