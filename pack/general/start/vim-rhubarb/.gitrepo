@@ -6,7 +6,7 @@
 [subrepo]
 	remote = git@github.com:tpope/vim-rhubarb.git
 	branch = master
-	commit = 5130596a65330a4e8523d3ac1582f6c31ea6bc63
+	commit = 2590324d7fdaf0c6311fad4ee2a2878acaaec42d
 	parent = 238f151bbedbb80a1c52d03a7290e56908c2cf18
 	method = merge
-	cmdver = 0.4.1
+	cmdver = 0.4.3

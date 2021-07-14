@@ -26,11 +26,10 @@ endfunction
 function! rhubarb#HomepageForUrl(url) abort
   let domain_pattern = 'github\.com'
   let domains = get(g:, 'github_enterprise_urls', get(g:, 'fugitive_github_domains', []))
-  call map(copy(domains), 'substitute(v:val, "/$", "", "")')
   for domain in domains
-    let domain_pattern .= '\|' . escape(split(domain, '://')[-1], '.')
+    let domain_pattern .= '\|' . escape(split(substitute(domain, '/$', '', ''), '://')[-1], '.')
   endfor
-  let base = matchstr(a:url, '^\%(https\=://\%([^@/:]*@\)\=\|git://\|git@\|ssh://git@\)\=\zs\('.domain_pattern.'\)[/:].\{-\}\ze\%(\.git\)\=/\=$')
+  let base = matchstr(a:url, '^\%(https\=://\%([^@/:]*@\)\=\|git://\|git@\|ssh://git@\|org-\d\+@\|ssh://org-\d\+@\)\=\zs\('.domain_pattern.'\)[/:].\{-\}\ze\%(\.git\)\=/\=$')
   if index(domains, 'http://' . matchstr(base, '^[^:/]*')) >= 0
     return 'http://' . tr(base, ':', '/')
   elseif !empty(base)
@@ -48,11 +47,7 @@ function! s:repo_homepage() abort
   if exists('b:rhubarb_homepage')
     return b:rhubarb_homepage
   endif
-  if exists('*FugitiveRemoteUrl')
-    let remote = FugitiveRemoteUrl()
-  else
-    let remote = fugitive#repo().config('remote.origin.url')
-  endif
+  let remote = FugitiveRemoteUrl()
   let homepage = rhubarb#HomepageForUrl(remote)
   if !empty(homepage)
     let b:rhubarb_homepage = homepage
@@ -66,8 +61,8 @@ endfunction
 function! s:credentials() abort
   if !exists('g:github_user')
     let g:github_user = $GITHUB_USER
-    if g:github_user ==# '' && exists('*FugitiveConfig')
-      let g:github_user = FugitiveConfig('github.user', '')
+    if g:github_user ==# '' && exists('*FugitiveConfigGet')
+      let g:github_user = FugitiveConfigGet('github.user', '')
     endif
     if g:github_user ==# ''
       let g:github_user = $LOGNAME
@@ -75,8 +70,8 @@ function! s:credentials() abort
   endif
   if !exists('g:github_password')
     let g:github_password = $GITHUB_PASSWORD
-    if g:github_password ==# '' && exists('*FugitiveConfig')
-      let g:github_password = FugitiveConfig('github.password', '')
+    if g:github_password ==# '' && exists('*FugitiveConfigGet')
+      let g:github_password = FugitiveConfigGet('github.password', '')
     endif
   endif
   return g:github_user.':'.g:github_password
@@ -228,7 +223,7 @@ function! rhubarb#Complete(findstart, base) abort
       else
         let issues = get(response, 'items', [])
       endif
-      return map(issues, '{"word": prefix.v:val.number, "abbr": "#".v:val.number, "menu": v:val.title, "info": substitute(v:val.body,"\\r","","g")}')
+      return map(issues, '{"word": prefix.v:val.number, "abbr": "#".v:val.number, "menu": v:val.title, "info": substitute(empty(v:val.body) ? "\n" : v:val.body,"\\r","","g")}')
     endif
   catch /^rhubarb:.*is not a GitHub repository/
     return []
@@ -241,7 +236,7 @@ function! rhubarb#omnifunc(findstart, base) abort
   return rhubarb#Complete(a:findstart, a:base)
 endfunction
 
-" Section: Fugitive :Gbrowse support
+" Section: Fugitive :GBrowse support
 
 function! rhubarb#FugitiveUrl(...) abort
   if a:0 == 1 || type(a:1) == type({})
@@ -275,9 +270,9 @@ function! rhubarb#FugitiveUrl(...) abort
   elseif get(opts, 'type', '') ==# 'blob' || opts.path =~# '[^/]$'
     let escaped_commit = substitute(commit, '#', '%23', 'g')
     let url = root . '/blob/' . escaped_commit . '/' . path
-    if get(opts, 'line2') && opts.line1 == opts.line2
+    if get(opts, 'line2') > 0 && get(opts, 'line1') == opts.line2
       let url .= '#L' . opts.line1
-    elseif get(opts, 'line2')
+    elseif get(opts, 'line1') > 0 && get(opts, 'line2') > 0
       let url .= '#L' . opts.line1 . '-L' . opts.line2
     endif
   else

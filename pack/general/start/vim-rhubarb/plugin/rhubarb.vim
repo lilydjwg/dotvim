@@ -11,33 +11,29 @@ if !exists('g:dispatch_compilers')
 endif
 let g:dispatch_compilers['hub'] = 'git'
 
-if get(g:, 'fugitive_git_command', 'git') ==# 'git' && executable('hub')
-  let g:fugitive_git_command = 'hub'
-endif
-
-function! s:Config() abort
-  if exists('*FugitiveFind')
-    let dir = FugitiveFind('.git/config')[0:-8]
-  else
-    let dir = get(b:, 'git_dir', '')
-    let common_dir = b:git_dir . '/commondir'
-    if filereadable(dir . '/commondir')
-      let dir .= '/' . readfile(common_dir)[0]
-    endif
+function! s:SetUpMessage(filename) abort
+  if &omnifunc !~# '^\%(syntaxcomplete#Complete\)\=$' ||
+        \ a:filename !~# '\.git[\/].*MSG$' ||
+        \ !exists('*FugitiveFind')
+    return
   endif
-  return filereadable(dir . '/config') ? readfile(dir . '/config') : []
+  let dir = exists('*FugitiveConfigGetRegexp') ? FugitiveGitDir() : FugitiveExtractGitDir(a:filename)
+  if empty(dir)
+    return
+  endif
+  let config_file = FugitiveFind('.git/config', dir)
+  let config = filereadable(config_file) ? readfile(config_file) : []
+  if !empty(filter(config,
+        \ '!empty(rhubarb#HomepageForUrl(matchstr(v:val, ''^\s*url\s*=\s*"\=\zs\S*'')))'))
+    setlocal omnifunc=rhubarb#Complete
+  endif
 endfunction
 
 augroup rhubarb
   autocmd!
-  autocmd User Fugitive
-        \ if expand('%:p') =~# '\.git[\/].*MSG$' &&
-        \   exists('+omnifunc') &&
-        \   &omnifunc =~# '^\%(syntaxcomplete#Complete\)\=$' &&
-        \   !empty(filter(s:Config(),
-        \     '!empty(rhubarb#HomepageForUrl(matchstr(v:val, ''^\s*url\s*=\s*"\=\zs\S*'')))')) |
-        \   setlocal omnifunc=rhubarb#Complete |
-        \ endif
+  if exists('+omnifunc')
+    autocmd FileType gitcommit call s:SetUpMessage(expand('<afile>:p'))
+  endif
   autocmd BufEnter *
         \ if expand('%') ==# '' && &previewwindow && pumvisible() && getbufvar('#', '&omnifunc') ==# 'rhubarb#omnifunc' |
         \    setlocal nolist linebreak filetype=markdown |

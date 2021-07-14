@@ -3,10 +3,7 @@
 If [fugitive.vim][] is the Git, rhubarb.vim is the Hub.  Here's the full list
 of features:
 
-* Enables `:Gbrowse` from fugitive.vim to open GitHub URLs.
-
-* Sets up `:Git` to use [`hub`](https://github.com/github/hub) if installed
-  rather than `git`.
+* Enables `:GBrowse` from fugitive.vim to open GitHub URLs.
 
 * In commit messages, GitHub issues, issue URLs, and collaborators can be
   omni-completed (`<C-X><C-O>`, see `:help compl-omni`).  This makes inserting
@@ -28,7 +25,7 @@ then simply copy and paste:
 You'll also need [fugitive.vim][].
 
 [Curl](http://curl.haxx.se/) (included with macOS) is required for features
-that use the GitHub API (i.e., `:Gbrowse` doesn't need it).
+that use the GitHub API (i.e., `:GBrowse` doesn't need it).
 [Generate a personal access token](https://github.com/settings/tokens/new)
 with repo permissions and add it to your `.netrc`:
 
@@ -44,6 +41,19 @@ If you are using GitHub Enterprise, repeat this step for each domain (omit the
 > How do I turn off that preview window that shows the issue body?
 
     set completeopt-=preview
+
+> What happened to the support for [`hub`](https://github.com/github/hub)?
+
+Support was dropped partially because [GitHub CLI](https://github.com/cli/cli)
+appears to be unseating it as the preferred GitHub command line solution, and
+partly because `hub` isn't quite a perfect drop-in replacement for `git`,
+making life more difficult for Fugitive.  My recommended solution is to call
+it via a Git alias:
+
+    git config --global alias.hub '!hub'
+
+This will let you call `hub pull-request` via `:Git hub pull-request`, for
+example.
 
 ## Self-Promotion
 
