@@ -6,7 +6,7 @@
 [subrepo]
 	remote = git@github.com:machakann/vim-highlightedyank.git
 	branch = master
-	commit = 51e25c9fa3bd2dca500ee0c910a45641d57a57fa
+	commit = 931cc6bd53e4a1fdbe592751f0e13c0e401f0a49
 	parent = 54cdd5e7e5a644bc88c03a9ca9f4f74176f8fc9e
-	cmdver = 0.4.0
+	cmdver = 0.4.3
 	method = merge

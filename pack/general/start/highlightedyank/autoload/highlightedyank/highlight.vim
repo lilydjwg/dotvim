@@ -201,10 +201,10 @@ function! s:highlight.add(...) dict abort "{{{
   let self.bufnr = bufnr('%')
   let self.winid = win_getid()
   call self.switchtask.call(self.switch, [], self)
-                     \.repeat(-1)
+                     \.repeat(1)
                      \.waitfor(['BufEnter'])
-  let triggers = [['TextChanged', '<buffer>'], ['InsertEnter', '<buffer>'],
-               \  ['BufUnload', '<buffer>'], ['CmdwinLeave', '<buffer>'],
+  let triggers = [['BufUnload', '<buffer>'], ['CmdwinLeave', '<buffer>'],
+               \  ['TextChanged', '*'], ['InsertEnter', '*'],
                \  ['TabLeave', '*']]
   if duration > 0
     call add(triggers, duration)
@@ -251,8 +251,7 @@ endfunction "}}}
 function! s:highlight._quench_now() abort "{{{
   if self.is_in_highlight_window()
     " current window
-    call map(self.id, 'matchdelete(v:val)')
-    call filter(self.id, 'v:val > 0')
+    call s:matchdelete_all(self.id)
   else
     " move to another window
     let original_winid = win_getid()
@@ -261,8 +260,7 @@ function! s:highlight._quench_now() abort "{{{
     noautocmd let reached = win_gotoid(self.winid)
     if reached
       " reached to the highlighted buffer
-      call map(self.id, 'matchdelete(v:val)')
-      call filter(self.id, 'v:val > 0')
+      call s:matchdelete_all(self.id)
     else
       " highlighted buffer does not exist
       call filter(self.id, 0)
@@ -286,17 +284,40 @@ function! s:is_in_cmdline_window() abort "{{{
 endfunction "}}}
 
 
-" Toggle on/off when the displayed buffer is changed in the highlighting window
+" Quench if buffer is switched in the same window
 function! s:highlight.switch() abort "{{{
   if win_getid() != self.winid
     return
   endif
-
   if bufnr('%') == self.bufnr
-    call self.add()
-  else
-    call self.delete()
+    return
   endif
+  call self.delete()
+endfunction "}}}
+
+
+function! s:matchdelete_all(ids) abort "{{{
+  if empty(a:ids)
+    return
+  endif
+
+  let alive_ids = map(getmatches(), 'v:val.id')
+  " Return if another plugin called clearmatches() which clears *ALL*
+  " highlights including others set.
+  if empty(alive_ids)
+    return
+  endif
+  if !count(alive_ids, a:ids[0])
+    return
+  endif
+
+  for id in a:ids
+    try
+      call matchdelete(id)
+    catch
+    endtry
+  endfor
+  call filter(a:ids, 0)
 endfunction "}}}
 "}}}
 
