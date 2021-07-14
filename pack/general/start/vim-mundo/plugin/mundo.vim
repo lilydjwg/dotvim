@@ -9,11 +9,11 @@
 " ============================================================================
 
 if !exists('g:mundo_debug') && (exists('g:mundo_disable') &&
-            \ g:mundo_disable == 1 || exists('loaded_mundo') || &cp)"{{{
+            \ g:mundo_disable == 1 || exists('loaded_mundo') || &cp) "{{{
     finish
 endif
 
-let loaded_mundo = 1"}}}
+let loaded_mundo = 1 "}}}
 
 " Default option values{{{
 
@@ -30,6 +30,8 @@ call mundo#util#set_default(
 call mundo#util#set_default(
             \ 'g:mundo_first_visible_line', 0,
             \ 'g:gundo_first_visible_line')
+
+call mundo#util#set_default('g:mundo_header', 1)
 
 call mundo#util#set_default(
             \ 'g:mundo_help', 0,
@@ -95,6 +97,34 @@ call mundo#util#set_default(
             \ 'g:mundo_width', 45,
             \ 'g:gundo_width')
 
+" Set up the default mappings, unless a g:mundo_mappings has already been
+" provided
+if mundo#util#set_default('g:mundo_mappings', {})
+    let g:mundo_mappings = {
+                \ '<CR>': 'preview',
+                \ 'o': 'preview',
+                \ 'J': 'move_older_write',
+                \ 'K': 'move_newer_write',
+                \ 'gg': 'move_top',
+                \ 'G': 'move_bottom',
+                \ 'P': 'play_to',
+                \ 'd': 'diff',
+                \ 'i': 'toggle_inline',
+                \ '/': 'search',
+                \ 'n': 'next_match',
+                \ 'N': 'previous_match',
+                \ 'p': 'diff_current_buffer',
+                \ 'r': 'rdiff',
+                \ '?': 'toggle_help',
+                \ 'q': 'quit',
+                \ '<2-LeftMouse>': 'mouse_click' }
+    let g:mundo_mappings[g:mundo_map_move_older] = 'move_older'
+    let g:mundo_mappings[g:mundo_map_move_newer] = 'move_newer'
+    if g:mundo_map_up_down
+        let g:mundo_mappings['<down>'] = 'move_older'
+        let g:mundo_mappings['<up>'] = 'move_newer'
+    endif
+endif
 "}}}
 
 "{{{ Create commands

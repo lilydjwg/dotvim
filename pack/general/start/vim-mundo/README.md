@@ -47,21 +47,38 @@ set undodir=~/.vim/undo
 
 <br>
 
-### Contributing to Mundo
+### Installation
 
-#### Tagging in the issue tracker
+It is recommended to use one of the popular plugin managers for Vim. There are
+many and you probably already have a preferred one, but a few examples for your
+copy-and-paste convenience:
 
-When submitting pull requests (commonly referred to as "PRs"), include one
-of the following tags prepended to the title:
+#### Pathogen
 
-- [WIP] - Work In Progress: the PR will change, so while there is no immediate
-need for review, the submitter still might appreciate it.
-- [RFC] - Request For Comment: the PR needs reviewing and/or comments.
-- [RDY] - Ready: the PR has been reviewed by at least one other person and has
-no outstanding issues.
+    $ git clone https://github.com/simnalamburt/vim-mundo ~/.vim/bundle/mundo.vim
 
-Assuming the above criteria has been met, feel free to change your PR's tag
-yourself, as opposed to waiting for a contributor to do it for you.
+#### Vundle
+
+```vim
+Plugin 'simnalamburt/vim-mundo'
+```
+
+#### NeoBundle
+
+```vim
+NeoBundle 'simnalamburt/vim-mundo'
+```
+
+#### Vim-Plug
+
+```vim
+Plug 'simnalamburt/vim-mundo'
+```
+
+#### Manual (not recommended)
+
+[Download](releases) the plugin and extract it in `~/.vim/` (or
+`%PROGRAMFILES%/Vim/vimfiles` on Windows).
 
 #### Unit tests
 Tests unit tests can be run with [nose]:

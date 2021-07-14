@@ -1,8 +1,8 @@
-import diff
+import mundo.diff as diff
 import difflib
 import itertools
 import time
-import util
+import mundo.util as util
 
 # Python undo tree data structures and functions ----------------------------------
 class Node(object):
@@ -110,7 +110,7 @@ class Nodes(object):
         return current
 
     def _fmt_time(self,t):
-        return time.strftime('%Y-%m-%d %I:%M:%S %p', time.localtime(float(t)))
+        return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(float(t)))
 
     def _get_lines(self,node):
         n = 0
