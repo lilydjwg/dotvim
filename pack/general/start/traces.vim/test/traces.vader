@@ -3,8 +3,11 @@ Execute (Setup):
   \ &listchars, &hlsearch, &cursorline, &cursorline, &encoding
   let g:traces_preserve_view_state = 0
   let g:traces_substitute_preview  = 1
+  let g:traces_normal_preview  = 1
   let g:traces_skip_modifiers = 1
   let g:traces_num_range_preview = 0
+  let g:traces_preview_window = ''
+  let g:traces_abolish_integration = 0
 
   function! Group(group) abort
     let matches = filter(getmatches(), {idx, val -> val.group == a:group})
@@ -44,6 +47,37 @@ Given (Ten lines):
   12  foo?bar
   13  \
   14  four
+
+Execute (Range):
+  14
+  call traces#init('/four', {})
+  Assert line('.') is 4
+
+Execute (Range):
+  14
+  call traces#init('/four/', {})
+  Assert line('.') is 4
+
+Execute (Range):
+  14
+  let @/= 'four'
+  call traces#init('\/', {})
+  Assert line('.') is 4
+
+Execute (Range):
+  set nowrapscan
+  14
+  call traces#init('/four/-', {})
+  Assert line('.') is 14
+  set wrapscan
+
+Execute (Range):
+  set nowrapscan
+  14
+  let @/= 'four'
+  call traces#init('\/-', {})
+  Assert line('.') is 14
+  set wrapscan
 
 Execute (Range):
   1
@@ -469,8 +503,71 @@ Execute (Substitute):
   AssertEqual '\%>0l\%<5l\_.', Group('Visual')
 
 #######################
+# Test normal         #
+#######################
+Given (Three lines):
+  one
+  two
+  three
+
+Execute (Normal):
+  call traces#init('%normal! Iline ', {})
+
+Expect:
+  line one
+  line two
+  line three
+
+Execute (Normal):
+  call cursor(2, 3)
+  call traces#init('normal! a foobar', {})
+
+Expect:
+  one
+  two foobar
+  three
+
+Execute (Normal):
+  execute "normal ggVG\<esc>"
+  call traces#init('''<,''>normal! ve', {})
+  call traces#cmdl_leave()
+  call traces#init('''<,''>normal! veA word', {})
+
+Expect:
+  one word
+  two word
+  three word
+
+#######################
 # Test substitute     #
 #######################
+Given (Zhongwen):
+  一
+  二
+  三
+  四
+  五
+  六
+  七
+  八
+  九
+  十
+
+Execute (Substitute, expression with decimal number):
+  call traces#init('?二?+;/九/-s/\v四|六|一|十/数字/g', {})
+
+Expect:
+  一
+  二
+  三
+  数字
+  五
+  数字
+  七
+  八
+  九
+  十
+
 Given (Three lines):
   1
   2
