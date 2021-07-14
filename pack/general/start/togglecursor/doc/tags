@@ -9,7 +9,7 @@ togglecursor.txt	togglecursor.txt	/*togglecursor.txt*
 togglecursor_default	togglecursor.txt	/*togglecursor_default*
 togglecursor_disable_default_init	togglecursor.txt	/*togglecursor_disable_default_init*
 togglecursor_disable_neovim	togglecursor.txt	/*togglecursor_disable_neovim*
-togglecursor_disable_tmux	togglecursor.txt	/*togglecursor_disable_tmux*
+togglecursor_enable_tmux_escaping	togglecursor.txt	/*togglecursor_enable_tmux_escaping*
 togglecursor_force	togglecursor.txt	/*togglecursor_force*
 togglecursor_insert	togglecursor.txt	/*togglecursor_insert*
 togglecursor_leave	togglecursor.txt	/*togglecursor_leave*

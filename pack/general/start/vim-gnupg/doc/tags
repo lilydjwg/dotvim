@@ -6,6 +6,7 @@ gnupg-:GPGViewOptions	gnupg.txt	/*gnupg-:GPGViewOptions*
 gnupg-:GPGViewRecipients	gnupg.txt	/*gnupg-:GPGViewRecipients*
 gnupg-autocmds	gnupg.txt	/*gnupg-autocmds*
 gnupg-commands	gnupg.txt	/*gnupg-commands*
+gnupg-debugging	gnupg.txt	/*gnupg-debugging*
 gnupg-g:GPGDefaultRecipients	gnupg.txt	/*gnupg-g:GPGDefaultRecipients*
 gnupg-g:GPGExecutable	gnupg.txt	/*gnupg-g:GPGExecutable*
 gnupg-g:GPGFilePattern	gnupg.txt	/*gnupg-g:GPGFilePattern*

@@ -12,11 +12,13 @@ mundo_auto_preview	mundo.txt	/*mundo_auto_preview*
 mundo_auto_preview_delay	mundo.txt	/*mundo_auto_preview_delay*
 mundo_close_on_revert	mundo.txt	/*mundo_close_on_revert*
 mundo_disable	mundo.txt	/*mundo_disable*
+mundo_header	mundo.txt	/*mundo_header*
 mundo_help	mundo.txt	/*mundo_help*
 mundo_inline_undo	mundo.txt	/*mundo_inline_undo*
 mundo_map_move_newer	mundo.txt	/*mundo_map_move_newer*
 mundo_map_move_older	mundo.txt	/*mundo_map_move_older*
 mundo_map_up_down	mundo.txt	/*mundo_map_up_down*
+mundo_mappings	mundo.txt	/*mundo_mappings*
 mundo_mirror_graph	mundo.txt	/*mundo_mirror_graph*
 mundo_playback_delay	mundo.txt	/*mundo_playback_delay*
 mundo_preview_bottom	mundo.txt	/*mundo_preview_bottom*

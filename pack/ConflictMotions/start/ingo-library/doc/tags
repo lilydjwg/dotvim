@@ -2,6 +2,7 @@ g:IngoLibrary_DateCommand	ingo-library.txt	/*g:IngoLibrary_DateCommand*
 g:IngoLibrary_FileCacheMaxSize	ingo-library.txt	/*g:IngoLibrary_FileCacheMaxSize*
 g:IngoLibrary_Marks	ingo-library.txt	/*g:IngoLibrary_Marks*
 g:IngoLibrary_PreferredDateFormat	ingo-library.txt	/*g:IngoLibrary_PreferredDateFormat*
+g:IngoLibrary_SpecialFilePredicates	ingo-library.txt	/*g:IngoLibrary_SpecialFilePredicates*
 g:IngoLibrary_SpecialWindowPredicates	ingo-library.txt	/*g:IngoLibrary_SpecialWindowPredicates*
 g:IngoLibrary_TruncateEllipsis	ingo-library.txt	/*g:IngoLibrary_TruncateEllipsis*
 ingo-library-configuration	ingo-library.txt	/*ingo-library-configuration*
