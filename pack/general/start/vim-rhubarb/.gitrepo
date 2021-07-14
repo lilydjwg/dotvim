@@ -7,6 +7,6 @@
 	remote = git@github.com:tpope/vim-rhubarb.git
 	branch = master
 	commit = 5130596a65330a4e8523d3ac1582f6c31ea6bc63
-	parent = 50fd91a20f2da6adf02b395ac2d4db5c70d6ce05
+	parent = 238f151bbedbb80a1c52d03a7290e56908c2cf18
 	method = merge
 	cmdver = 0.4.1
