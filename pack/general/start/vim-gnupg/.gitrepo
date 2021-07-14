@@ -6,7 +6,7 @@
 [subrepo]
 	remote = git@github.com:jamessan/vim-gnupg.git
 	branch = main
-	commit = f663d0e857bd88cb39c16ca45c37a27488648562
+	commit = 96be0be1240a848da56d665b38e1b0fe7ee3f1af
 	parent = f340a802c0e8a426b2cf2b4729997616d8d43395
 	method = merge
-	cmdver = 0.4.1
+	cmdver = 0.4.3

@@ -1,5 +1,5 @@
 " Name:    gnupg.vim
-" Last Change: 2019 May 30
+" Last Change: 2020 Nov 11
 " Maintainer:  James McCoy <jamessan@jamessan.com>
 " Original Author:  Markus Braun <markus.braun@krawel.de>
 " Summary: Vim plugin for transparent editing of gpg encrypted files.
@@ -7,7 +7,7 @@
 "          modify it under the terms of the GNU General Public License
 "          as published by the Free Software Foundation; either version
 "          2 of the License, or (at your option) any later version.
-"          See http://www.gnu.org/copyleft/gpl-2.0.txt
+"          See https://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 "
 " Section: Plugin header {{{1
 
@@ -15,7 +15,7 @@
 if (exists("g:loaded_gnupg") || &cp || exists("#GnuPG"))
   finish
 endif
-let g:loaded_gnupg = '2.7.0-dev'
+let g:loaded_gnupg = '2.7.2-dev'
 
 " check for correct vim version {{{2
 if (v:version < 702)
