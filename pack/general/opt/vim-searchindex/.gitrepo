@@ -6,7 +6,7 @@
 [subrepo]
 	remote = git@github.com:google/vim-searchindex.git
 	branch = master
-	commit = 576a7018081b38f621de050d4d60d59515865a75
+	commit = b0788c8213210b3bd23b62847dd5a9ebbe4ad648
 	parent = efeb48c971a9783d20c63d55dc6b2fd3b82206ae
 	method = merge
-	cmdver = 0.4.0
+	cmdver = 0.4.3
