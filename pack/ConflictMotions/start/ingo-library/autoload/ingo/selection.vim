@@ -2,7 +2,7 @@
 "
 " DEPENDENCIES:
 "
-" Copyright: (C) 2011-2019 Ingo Karkat
+" Copyright: (C) 2011-2020 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -103,8 +103,11 @@ endfunction
 function! ingo#selection#GetInclusiveEndPos() abort
     if &selection ==# 'exclusive'
 	let l:pos = getpos("'>")
-	let l:charBeforePosition = matchstr(getline(l:pos[1]), '.\%' . l:pos[2] . 'c')
-	let l:pos[2] -= len(l:charBeforePosition)
+	let l:line = getline(l:pos[1])
+	if len(l:line) + 1 >= l:pos[2]
+	    let l:charBeforePosition = matchstr(l:line, '.\%' . l:pos[2] . 'c')
+	    let l:pos[2] -= len(l:charBeforePosition)
+	endif
 	return l:pos
     else
 	return getpos("'>")
@@ -115,8 +118,11 @@ function! ingo#selection#GetExclusiveEndPos() abort
 	return getpos("'>")
     else
 	let l:pos = getpos("'>")
-	let l:charAtPosition = matchstr(getline(l:pos[1]), '\%' . l:pos[2] . 'c.')
-	let l:pos[2] += len(l:charAtPosition)
+	let l:line = getline(l:pos[1])
+	if len(l:line) + 1 >= l:pos[2]
+	    let l:charAtPosition = matchstr(l:line, '\%' . l:pos[2] . 'c.')
+	    let l:pos[2] += len(l:charAtPosition)
+	endif
 	return l:pos
     endif
 endfunction

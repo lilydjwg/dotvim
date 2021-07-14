@@ -2,7 +2,7 @@
 "
 " DEPENDENCIES:
 "
-" Copyright: (C) 2016-2019 Ingo Karkat
+" Copyright: (C) 2016-2020 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -108,6 +108,34 @@ function! s:CollectionElementToPattern( collectionElement )
 	" For the rest, enclose in a (smaller) collection on its own.
 	return '[' . a:collectionElement . ']'
     endif
+endfunction
+
+function! ingo#regexp#collection#LargeRange( startCodePoint, endCodePoint ) abort
+"******************************************************************************
+"* PURPOSE:
+"   Vim currently cannot search for ranges larger than 256 characters; build a
+"   pattern that combines several small ranges. Cp.
+"   http://groups.google.com/group/vim_dev/browse_thread/thread/299aa3d757293f26/d33a7180c434a6c1?lnk=gst&q=%5Cu+unicode+range#d33a7180c434a6c1
+"* ASSUMPTIONS / PRECONDITIONS:
+"   None.
+"* EFFECTS / POSTCONDITIONS:
+"   None.
+"* INPUTS:
+"   a:startCodePoint    Low end of the codepoint range.
+"   a:endCodePoint      High end of the codepoint range.
+"* RETURN VALUES:
+"   Regular expression.
+"******************************************************************************
+    let l:collections = []
+    let l:codePoint = a:startCodePoint
+    while (a:endCodePoint - l:codePoint >= 256)
+	call add(l:collections, printf('[\u%04x-\u%04x]', l:codePoint, l:codePoint + 255))
+	let l:codePoint += 256
+    endwhile
+    if l:codePoint < a:endCodePoint
+	call add(l:collections, printf('[\u%04x-\u%04x]', l:codePoint, a:endCodePoint))
+    endif
+    return '\%(' . join(l:collections, '\|') . '\)'
 endfunction
 
 let &cpo = s:save_cpo

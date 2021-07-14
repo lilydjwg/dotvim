@@ -5,7 +5,7 @@
 "   - ingo/pos.vim autoload script
 "   - ingo/regexp/virtcols.vim autoload script
 "
-" Copyright: (C) 2012-2019 Ingo Karkat
+" Copyright: (C) 2012-2020 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -171,6 +171,24 @@ function! ingo#text#Insert( pos, text )
     endif
     return (setline(l:lnum, strpart(l:line, 0, l:col - 1) . a:text . strpart(l:line, l:col - 1)) == 0)
 endfunction
+function! ingo#text#InsertHere( text ) abort
+"******************************************************************************
+"* PURPOSE:
+"   Insert a:text at the cursor position; at the beginning of the line if the
+"   cursor is in column 1, else appending after the character the cursor is on.
+"* ASSUMPTIONS / PRECONDITIONS:
+"   Buffer is modifiable.
+"* EFFECTS / POSTCONDITIONS:
+"   Changes the buffer.
+"   Sets register ".
+"* INPUTS:
+"   a:text  String to insert.
+"* RETURN VALUES:
+"   None.
+"******************************************************************************
+    execute 'normal!' (col('.') == 1 ? 'i' : 'a') . a:text . "\<C-\>\<C-n>"
+endfunction
+
 function! ingo#text#Replace( pos, len, replacement, ... )
 "******************************************************************************
 "* PURPOSE:

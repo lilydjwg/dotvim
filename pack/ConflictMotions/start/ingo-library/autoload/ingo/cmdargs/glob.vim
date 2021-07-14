@@ -1,24 +1,11 @@
 " ingo/cmdargs/glob.vim: Functions for expanding file glob arguments.
 "
 " DEPENDENCIES:
-"   - ingo/cmdargs/file.vim autoload script
-"   - ingo/compat.vim autoload script
-"   - ingo/os.vim autoload script
 "
-" Copyright: (C) 2012-2016 Ingo Karkat
+" Copyright: (C) 2012-2020 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
-"
-" REVISION	DATE		REMARKS
-"   1.025.004	08-Jul-2016	ENH: Add second optional flag
-"				a:isKeepDirectories to
-"				ingo#cmdargs#glob#Expand() /
-"				ingo#cmdargs#glob#ExpandSingle().
-"   1.022.003	22-Sep-2014	Use ingo#compat#glob().
-"   1.013.002	13-Sep-2013	Use operating system detection functions from
-"				ingo/os.vim.
-"   1.007.001	01-Jun-2013	file creation from ingofileargs.vim
 
 function! ingo#cmdargs#glob#ExpandSingle( fileglob, ... )
 "******************************************************************************
@@ -85,6 +72,27 @@ function! ingo#cmdargs#glob#Expand( fileglobs, ... )
     return l:filespecs
 endfunction
 
+function! s:FileLinePredicate( filespec ) abort
+    let l:names = matchlist(a:filespec, '\(.\{-1,}\):\%(\(\d\+\)\%(:\(\d*\):\?\)\?\)\?$')
+    return (! empty(l:names) && filereadable(l:names[1]))
+endfunction
+if ! exists('g:IngoLibrary_SpecialFilePredicates')
+    let g:IngoLibrary_SpecialFilePredicates = []
+    call add(g:IngoLibrary_SpecialFilePredicates, 'v:val =~# ''^\w\+:/''')  " Assume that files that start with "protocol:/" do exist (usually handled by the netrw plugin)
+
+    if exists('g:loaded_file_line') && g:loaded_file_line
+	call add(g:IngoLibrary_SpecialFilePredicates, function('s:FileLinePredicate'))
+    endif
+endif
+function! ingo#cmdargs#glob#IsSpecialFile( filespec ) abort
+    for l:SpecialFileReadablePredicate in g:IngoLibrary_SpecialFilePredicates
+	if ingo#actions#EvaluateWithValOrFunc(l:SpecialFileReadablePredicate, a:filespec)
+	    return 1
+	endif
+	unlet! l:SpecialFileReadablePredicate
+    endfor
+    return 0
+endfunction
 function! s:ContainsNoWildcards( fileglob )
     " Note: This is only an empirical approximation; it is not perfect.
     if ingo#os#IsWinOrDos()
@@ -106,9 +114,10 @@ function! ingo#cmdargs#glob#Resolve( fileglobs )
 "* INPUTS:
 "   a:fileglobs Raw list of file patterns.
 "* RETURN VALUES:
-"   [l:filespecs, l:statistics]	First element is a list of the resolved
-"   filespecs (in normal, not Ex syntax), second element is a dictionary
-"   containing the file statistics.
+"   [filespecs, statistics]	First element is a list of the resolved
+"                               filespecs (in normal, not Ex syntax), second
+"                               element is a dictionary containing the file
+"                               statistics.
 "*******************************************************************************
     let l:statistics = { 'files': 0, 'removed': 0, 'nonexisting': 0 }
     let l:filespecs = []
@@ -123,7 +132,7 @@ function! ingo#cmdargs#glob#Resolve( fileglobs )
 	    let l:normalizedPotentialFilespec = substitute(l:fileglob, '\\\@<!\\ ', ' ', 'g')
 
 	    " The globbing yielded no files; however:
-	    if filereadable(l:normalizedPotentialFilespec)
+	    if filereadable(l:normalizedPotentialFilespec) || ingo#cmdargs#glob#IsSpecialFile(l:normalizedPotentialFilespec)
 		" a) The file pattern itself represents an existing file. This
 		"    happens if a file is passed that matches one of the
 		"    'wildignore' patterns. In this case, as the file has been

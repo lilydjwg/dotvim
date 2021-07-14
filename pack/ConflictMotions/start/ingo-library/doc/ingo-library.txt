@@ -107,6 +107,17 @@ ingo#plugin#marks#Reserve() by default uses any unused mark. You can instead
 assign a fixed set of marks that will be available for plugins via: >
     let g:IngoLibrary_Marks = 'abcABC'
 <
+					 *g:IngoLibrary_SpecialFilePredicates*
+Some special filenames are caught by |BufNewFile|,|BufRead| autocmds and
+translated into existing files. ingo#cmdargs#glob#Resolve() can be taught
+those patterns by configuring a List of Funcrefs or expressions in
+g:IngoLibrary_SpecialFilePredicates that take a single filespec argument /
+v:val and return whether this is an existing file. This will then correct the
+statistics information returned by the function.
+By default, includes any filespec that starts with a "protocol:/" (e.g. scp://
+for |netrw|), and also file:lnum[:column] special filenames if
+https://github.com/bogado/file-line is installed.
+
 ==============================================================================
 INSTALLATION					   *ingo-library-installation*
 
@@ -145,13 +156,87 @@ https://github.com/inkarkat/vim-ingo-library/issues or email (address below).
 ==============================================================================
 HISTORY							*ingo-library-history*
 
-1.041	RELEASEME
+1.043	RELEASEME
+- Minor: Actually support no-argument form of
+  ingo#query#get#[Writable]Register(), the documentation already states that
+  the a:errorRegister defaults to the empty string.
+- Add ingo/subs/apply.vim module.
+- Add ingo#escape#file#CmdlineSpecialEscape().
+- Add ingo#buffer#IsWritable().
+- Deprecated: ingo#subst#expr#emulation#Substitute() is now available as a
+  compat function ingo#compat#substitution#RecursiveSubstitutionExpression()
+  because since Vim 8.0.20, the regexp engine is reentrant.
+- Add ingo#hlgroup#Get{Foreground,Background,}Color().
+- ingo#list#lcs#Find{All,Longest}Common(), ingo#subs#BraceCreation#FromList():
+  Add optional a:isIgnoreCase argument to ignore case differences when
+  searching for common substrings.
+- Add ingo#window#special#HasOtherDiffWindow() variant of
+  ingo#window#special#HasDiffWindow().
+- dirforaction: BUG: Passed filenames with escaped glob characters not handled
+  correctly; need to use the unescaped filename for l:isAbsoluteFilename
+  check.
+- dirforaction: ENH: Add a:parameters.completeFunctionHook.
+- Add ingo/escape/mapping.vim module.
+- Add ingo/window/iterate.vim module.
+- Add ingo#hlgroup#GetApplicableColorModes().
+- ingo#buffer#VisibleList(): ENH: Allow passing range of tab pages to be
+  considered.
+- Add ingo/list/transform.vim module.
+- Add ingo#buffer#NameOrDefault().
+- Add ingo/buffers.vim module.
+- Add ingo/list/reduce.vim module.
+- Add ingo#compat#getenv() and ingo#compat#setenv().
+
+1.042	03-Aug-2020
+- BUG: ingo#join#Lines() inserts the separator before the line's last
+  character when joining with a following empty line and ! a:isKeepSpace.
+- Support List of precisions in ingo#units#Format() and default to not showing
+  a fraction for bytes in ingo#units#FormatBytesDecimal() and
+  ingo#units#FormatBytesBinary() (as there are no fractional bytes).
+- Add ingo#regexp#collection#LargeRange().
+- Add ingo#text#InsertHere().
+- Expose ingo#mapmaker#OpfuncExpression(); it can avoid duplication of
+  ...#Expression() functions in many plugins.
+- Add ingo/change/processed.vim module.
+- CHG: ingo#area#frompattern#GetCurrent() now takes optional arguments as
+  Dictionary and adds a:options.firstLnum and a:options.lastLnum.
+- CHG: ingo#text#frompattern#GetCurrent() now take the optional a:currentPos
+  as Dictionary and adds a:options.firstLnum, a:options.lastLnum, and
+  a:options.returnValueOnNoSelection.
+
+1.041	12-Mar-2020
 - Add ingo/register/pending.vim module.
 - ingo#regexp#EscapeLiteralText(): Make second argument
   (a:additionalEscapeCharacters) optional; many clients don't need this.
 - ingo#cmdargs#register#Parse{Ap,Pre}pendedWritableRegister(): ENH: Allow
   using the a:directSeparator default while supplying a:isPreferText by
   passing an empty List.
+- Introduce g:IngoLibrary_SpecialFilePredicates customization for
+  ingo#cmdargs#glob#Resolve().
+- ingo#selection#Get{In,Ex}clusiveEndPos(): Prevent "E951: \% value too large"
+  by checking line length. This condition typically happens with a linewise
+  selection (where the column is 2147483647).
+- Add ingo#window#quickfix#GetOtherList() variant of
+  ingo#window#quickfix#GetList() that gets the quickfixType passed in.
+- Add ingo#window#quickfix#CmdPre() and ingo#window#quickfix#CmdPost().
+- Add optional a:Predicate argument to ingo#area#frompattern#Get() and
+  ingo#text#frompattern#Get(). Additionally, the a:isOnlyFirstMatch and
+  a:isUnique arguments are optional now, too.
+- Add ingo#str#trcd() variant of ingo#str#trd().
+- Add ingo#plugin#cmdcomplete#dirforaction#setup().
+- Add ingo#fs#path#IsPath().
+- ingo#plugin#cmdcomplete#dirforaction#setup(): ENH: Use special completion
+  that only returns directories if a:parameters.action is "chdir".
+- Add ingo/regexp/parse.vim module.
+- CHG: Move ingo#regexp#multi#Expr() to ingo#regexp#parse#MultiExpr().
+- ingo#regexp#deconstruct#ToQuasiLiteral() also covers new
+  ingo#regexp#deconstruct#TranslateSingleCharacterAtoms() and
+  ingo#regexp#deconstruct#RemoveOtherAtoms().
+- Add ingo/list/merge.vim module.
+- Add ingo#collections#{CharacterCount,StringDisplayWidth}{Asc,Desc}Sort().
+- FIX: ingo#smartcase#IsSmartCasePattern() and ingo#smartcase#Undo() now also
+  handle the smartcased single all-lower or -uppercase alphabetic word special
+  case.
 
 1.040	31-Oct-2019
 - Add ingo#str#TrimTrailing() variant of ingo#str#Trim().
@@ -1078,7 +1163,7 @@ First published version as separate shared library.
 Started development of shared autoload functionality.
 
 ==============================================================================
-Copyright: (C) 2009-2020 Ingo Karkat
+Copyright: (C) 2009-2021 Ingo Karkat
 Contains URL encoding / decoding algorithms written by Tim Pope.
 The VIM LICENSE applies to this plugin; see |copyright|.
 

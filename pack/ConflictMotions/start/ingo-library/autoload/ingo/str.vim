@@ -5,7 +5,7 @@
 "   - ingo/regexp/virtcols.vim autoload script
 "   - ingo/str/list.vim autoload script
 "
-" Copyright: (C) 2013-2019 Ingo Karkat
+" Copyright: (C) 2013-2020 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -139,6 +139,25 @@ function! ingo#str#trd( src, fromstr )
 "   Copy of a:src that has all instances of the characters in a:fromstr removed.
 "******************************************************************************
     return substitute(a:src, '\C' . ingo#regexp#collection#LiteralToRegexp(a:fromstr), '', 'g')
+endfunction
+
+function! ingo#str#trcd( src, fromstr )
+"******************************************************************************
+"* PURPOSE:
+"   Keep only characters in a:fromstr in a copy of a:src. Like tr -cd, but the
+"   built-in tr() doesn't support this.
+"* ASSUMPTIONS / PRECONDITIONS:
+"   None.
+"* EFFECTS / POSTCONDITIONS:
+"   None.
+"* INPUTS:
+"   a:src   Source string.
+"   a:fromstr   Characters that will each be kept in a:src.
+"* RETURN VALUES:
+"   Copy of a:src that has all instances of the complement of the characters in
+"   a:fromstr removed.
+"******************************************************************************
+    return substitute(a:src, '\C[^' . ingo#regexp#collection#LiteralToRegexp(a:fromstr)[1:], '', 'g')
 endfunction
 
 function! ingo#str#Wrap( string, commonOrPrefix, ... ) abort

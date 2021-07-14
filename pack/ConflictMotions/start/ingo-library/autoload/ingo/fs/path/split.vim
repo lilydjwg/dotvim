@@ -4,7 +4,7 @@
 "   - ingo/fs/path.vim autoload script
 "   - ingo/str.vim autoload script
 "
-" Copyright: (C) 2014-2018 Ingo Karkat
+" Copyright: (C) 2014-2020 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -29,7 +29,13 @@ function! ingo#fs#path#split#PathAndName( filespec, ... )
 "   [filepath, filename]
 "******************************************************************************
     let l:isPathWithTrailingSeparator = (a:0 ? a:1 : 1)
-    let [l:dirspec, l:filename] = [fnamemodify(a:filespec, ':h'), fnamemodify(a:filespec, ':t')]
+
+    " Special cases not handled by fnamemodify().
+    if index(['.', '..'], a:filespec) != -1
+	let [l:dirspec, l:filename] = [a:filespec, '']
+    else
+	let [l:dirspec, l:filename] = [fnamemodify(a:filespec, ':h'), fnamemodify(a:filespec, ':t')]
+    endif
 
     if l:isPathWithTrailingSeparator
 	let l:dirspec = ingo#fs#path#Combine(l:dirspec, '')

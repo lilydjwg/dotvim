@@ -2,29 +2,20 @@
 "
 " DEPENDENCIES:
 "
-" Copyright: (C) 2014 Ingo Karkat
+" Copyright: (C) 2014-2020 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
-"
-" REVISION	DATE		REMARKS
-"   1.021.003	24-Jun-2014	ENH: For a single word that so far didn't change
-"				the SmartCase pattern, allow for an optional
-"				preceding or trailing non-alphabetic keyword
-"				separator. This makes the
-"				ChangeGloballySmartCase replacement of "foo"
-"				also work correctly on FOO_BAR.
-"   1.021.002	20-Jun-2014	Also handle regexp atoms in
-"				ingo#smartcase#FromPattern(). This isn't
-"				required by the (literal text, very nomagic)
-"				original use case, but for the arbitrary
-"				patterns in CmdlineSpecialEdits.vim.
-"   1.021.001	20-Jun-2014	file creation from plugin/ChangeGloballySmartCase.vim
 let s:save_cpo = &cpo
 set cpo&vim
 
+let s:singleSmartCaseAssertion = '\%(\A\&\k\)\='
+let s:singleSmartCasePattern = printf('\V\C\^\\c\\(%s\(\zs\.\*\ze\)\\|\1%s\\)\$', escape(s:singleSmartCaseAssertion, '\') , escape(s:singleSmartCaseAssertion, '\'))
 function! ingo#smartcase#IsSmartCasePattern( pattern )
-    return (a:pattern =~# '\%(\%(^\|[^\\]\)\%(\\\\\)*\\\)\@<!\\c' && a:pattern =~# '\%(\%(^\|[^\\]\)\%(\\\\\)*\\\)\@<!\\A\\[?=]')
+    return (a:pattern =~# '\%(\%(^\|[^\\]\)\%(\\\\\)*\\\)\@<!\\c' && (
+    \   a:pattern =~# '\%(\%(^\|[^\\]\)\%(\\\\\)*\\\)\@<!\\A\\[?=]' ||
+    \   a:pattern =~# s:singleSmartCasePattern
+    \))
 endfunction
 function! s:Escape( atom )
     " Anything larger than two characters is a special regexp atom that must be
@@ -56,13 +47,17 @@ function! ingo#smartcase#FromPattern( pattern, ... )
 	" Limit to keywords here to only match stuff like "_", but not arbitrary
 	" stuff around (e.g. "'foo" in "'foo bar'", which would result in
 	" "'foo'quux bar" instead of the desired "'fooQuux bar").
-	let l:pattern = printf('\%%(\%%(\A\&\k\)\=%s\|%s\%%(\A\&\k\)\=\)', l:pattern, l:pattern)
+	let l:pattern = printf('\%(%s%s\|%s%s\)', s:singleSmartCaseAssertion, l:pattern, l:pattern, s:singleSmartCaseAssertion)
     endif
 
     return '\c' . l:pattern
 endfunction
 function! ingo#smartcase#Undo( smartCasePattern )
-    return substitute(a:smartCasePattern, '\%(\%(^\|[^\\]\)\%(\\\\\)*\\\)\@<!\\\(c\|A\\[?=]\)', '', 'g')
+    let l:normalPatternFromSingleSmartCasePattern = matchstr(a:smartCasePattern, s:singleSmartCasePattern)
+    return (empty(l:normalPatternFromSingleSmartCasePattern) ?
+    \   substitute(a:smartCasePattern, '\%(\%(^\|[^\\]\)\%(\\\\\)*\\\)\@<!\\\(c\|A\\[?=]\)', '', 'g') :
+    \   l:normalPatternFromSingleSmartCasePattern
+    \)
 endfunction
 
 let &cpo = s:save_cpo

@@ -2,7 +2,7 @@
 "
 " DEPENDENCIES:
 "
-" Copyright: (C) 2008-2019 Ingo Karkat
+" Copyright: (C) 2008-2021 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -81,6 +81,11 @@ endfunction
 
 function! ingo#window#special#HasDiffWindow()
     let l:diffedWinNrs = filter( range(1, winnr('$')), 'getwinvar(v:val, "&diff")' )
+    return ! empty(l:diffedWinNrs)
+endfunction
+function! ingo#window#special#HasOtherDiffWindow()
+    let l:winNrs = filter(range(1, winnr('$')), 'v:val != ' . winnr())
+    let l:diffedWinNrs = filter(l:winNrs, 'getwinvar(v:val, "&diff")')
     return ! empty(l:diffedWinNrs)
 endfunction
 

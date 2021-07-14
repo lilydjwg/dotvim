@@ -6,7 +6,7 @@
 "   - ingo/subs/BraceCreation.vim autoload script
 "   - ingo/plugin/rendered/*.vim autoload scripts
 "
-" Copyright: (C) 2018 Ingo Karkat
+" Copyright: (C) 2018-2021 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -151,6 +151,13 @@ function! g:ingo#plugin#rendered#BraceExpressionRenderer.options() dict
     let l:options = ['Longer co&mmon', 'Shor&ter common', 'Longer disti&nct', 'Sho&rter distinct']
     if ! get(self.braceOptions, 'strict', 0) | call add(l:options, '&Strict') | endif
     if ! get(self.braceOptions, 'short', 0)  | call add(l:options, 'S&hort')  | endif
+    if has_key(self.braceOptions, 'isIgnoreCase')
+	call add(l:options, (self.braceOptions.isIgnoreCase ? 'no ' : '') . '&ignore-case')
+    elseif get(self.braceOptions, 'short', 0)
+	call add(l:options, 'no &ignore-case')
+    else
+	call add(l:options, '&ignore-case')
+    endif
     return l:options
 endfunction
 function! g:ingo#plugin#rendered#BraceExpressionRenderer.render( items ) dict
@@ -167,6 +174,10 @@ function! g:ingo#plugin#rendered#BraceExpressionRenderer.handleOption( command )
     elseif a:command ==# 'Short'
 	let self.braceOptions.short = 1
 	let self.braceOptions.strict = 0
+    elseif a:command ==# 'no ignore-case'
+	let self.braceOptions.isIgnoreCase = 0
+    elseif a:command ==# 'ignore-case'
+	let self.braceOptions.isIgnoreCase = 1
     elseif a:command ==# 'Longer common'
 	let self.commonLengthOffset += 1
     elseif a:command ==# 'Shorter common'

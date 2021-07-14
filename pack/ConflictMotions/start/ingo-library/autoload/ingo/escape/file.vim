@@ -3,7 +3,7 @@
 " DEPENDENCIES:
 "   - ingo/os.vim autoload script
 "
-" Copyright: (C) 2013-2016 Ingo Karkat
+" Copyright: (C) 2013-2020 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -158,6 +158,28 @@ function! ingo#escape#file#wildcardescape( filespec )
     else
 	return substitute(escape(a:filespec, '?*'), '[[]', '[[]', 'g')
     endif
+endfunction
+
+function! ingo#escape#file#CmdlineSpecialEscape( filespec ) abort
+"******************************************************************************
+"* PURPOSE:
+"   Just escape |cmdline-special| symbols (%, #, <) to work around the bug that
+"   when defining a custom command with -nargs=+ -complete=file, these lose
+"   their escaping.
+"* ASSUMPTIONS / PRECONDITIONS:
+"   None.
+"* EFFECTS / POSTCONDITIONS:
+"   None.
+"* INPUTS:
+"   a:filespec	    Normal filespec, from a <q-args> of a :command -nargs=+
+"                   -complete=file
+"* RETURN VALUES:
+"   Escaped filespec to the appended to an Ex command (without further
+"   fnameescape()).
+"******************************************************************************
+    " Note: Everything starting with < is escaped, though strictly only the
+    " actual <cword> etc. variants would require escaping).
+    return substitute(a:filespec, '\%(\%(^\|[^\\]\)\%(\\\\\)*\\\)\@<![%#<]', '\\&', 'g')
 endfunction
 
 " vim: set ts=8 sts=4 sw=4 noexpandtab ff=unix fdm=syntax :

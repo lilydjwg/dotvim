@@ -2,7 +2,7 @@
 "
 " DEPENDENCIES:
 "
-" Copyright: (C) 2010-2013 Ingo Karkat
+" Copyright: (C) 2010-2020 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -10,7 +10,7 @@
 " REVISION	DATE		REMARKS
 "   1.006.001	17-Apr-2013	file creation from ingointegration.vim
 
-function! s:OpfuncExpression( opfunc )
+function! ingo#mapmaker#OpfuncExpression( opfunc )
     let &opfunc = a:opfunc
 
     let l:keys = 'g@'
@@ -65,7 +65,7 @@ function! ingo#mapmaker#OperatorMappingForRangeCommand( mapArgs, mapKeys, rangeC
     \	a:rangeCommand
     \)
 
-    execute 'nnoremap <expr>' a:mapArgs a:mapKeys '<SID>OpfuncExpression(''<SID>' . l:rangeCommandOperator . ''')'
+    execute 'nnoremap <expr>' a:mapArgs a:mapKeys 'ingo#mapmaker#OpfuncExpression(''<SID>' . l:rangeCommandOperator . ''')'
 endfunction
 
 " vim: set ts=8 sts=4 sw=4 noexpandtab ff=unix fdm=syntax :

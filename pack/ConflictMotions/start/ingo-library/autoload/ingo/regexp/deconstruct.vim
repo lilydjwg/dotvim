@@ -2,7 +2,7 @@
 "
 " DEPENDENCIES:
 "
-" Copyright: (C) 2018-2019 Ingo Karkat
+" Copyright: (C) 2018-2020 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -24,7 +24,7 @@ function! ingo#regexp#deconstruct#RemovePositionAtoms( pattern )
 "* RETURN VALUES:
 "   Modified a:pattern with position atoms removed.
 "******************************************************************************
-    return substitute(a:pattern, '\%(\%(^\|[^\\]\)\%(\\\\\)*\\\)\@<!\%(\\\%([\^<>]\|_\^\|_\$\|%[\^$V#]\|%[<>]\?''.\|%[<>]\?\d\+[lcv]\)\|[\^$]\)', '', 'g')
+    return substitute(a:pattern, ingo#regexp#parse#PositionAtomExpr(), '', 'g')
 endfunction
 
 function! ingo#regexp#deconstruct#RemoveMultis( pattern )
@@ -42,7 +42,7 @@ function! ingo#regexp#deconstruct#RemoveMultis( pattern )
 "* RETURN VALUES:
 "   Modified a:pattern with multi items removed.
 "******************************************************************************
-    return substitute(a:pattern, ingo#regexp#multi#Expr(), '', 'g')
+    return substitute(a:pattern, ingo#regexp#parse#MultiExpr(), '', 'g')
 endfunction
 
 let s:specialLookup = {
@@ -69,9 +69,27 @@ function! ingo#regexp#deconstruct#UnescapeSpecialCharacters( pattern )
 "   Modified a:pattern with special characters turned into literal ones.
 "******************************************************************************
     let l:result = a:pattern
-    let l:result = substitute(l:result, '\%(\%(^\|[^\\]\)\%(\\\\\)*\\\)\@<!\\\([etrbn]\)', '\=s:specialLookup[submatch(1)]', 'g')
+    let l:result = substitute(l:result, ingo#regexp#parse#EscapedCharacterExpr(), '\=s:specialLookup[submatch(1)]', 'g')
     let l:result = ingo#escape#Unescape(l:result, '\^$.*~[]')
     return l:result
+endfunction
+
+function! ingo#regexp#deconstruct#TranslateSingleCharacterAtoms( pattern ) abort
+"******************************************************************************
+"* PURPOSE:
+"   Return a regular expression that matches any unspecific single character,
+"   i.e. . or \_..
+"* ASSUMPTIONS / PRECONDITIONS:
+"   Does not consider "very magic" (/\v)-style syntax. If you may have this,
+"   convert via ingo#regexp#magic#Normalize() first.
+"* EFFECTS / POSTCONDITIONS:
+"   None.
+"* INPUTS:
+"   None.
+"* RETURN VALUES:
+"   Regular expression.
+"******************************************************************************
+    return substitute(a:pattern, ingo#regexp#parse#SingleCharacterExpr(), "\u2022", 'g')
 endfunction
 
 function! ingo#regexp#deconstruct#TranslateCharacterClasses( pattern, ... ) abort
@@ -148,11 +166,11 @@ function! ingo#regexp#deconstruct#TranslateCharacterClasses( pattern, ... ) abor
     \   '[]': "\u2026",
     \})
 
-    let l:pattern = substitute(l:pattern, '\C\%(\%(^\|[^\\]\)\%(\\\\\)*\\\)\@<!\\_\?\([iIkKfFpPsSdDxXoOwWhHaAlLuU]\)', '\=get(l:replacements, submatch(1), "")', 'g')
+    let l:pattern = substitute(l:pattern, '\C' . ingo#regexp#parse#CharacterClassesExpr(), '\=get(l:replacements, submatch(1), "")', 'g')
 
     " Optional sequence of atoms \%[]. Note: Because these can contain
     " collection-like stuff, it has to be processed before collections.
-    let l:pattern = substitute(l:pattern, '\%(\%(^\|[^\\]\)\%(\\\\\)*\\\)\@<!\\%\[\(\%(\[\[\]\|\[\]\]\|[^][]\|' . ingo#regexp#collection#Expr({'isBarePattern': 1}) . '\)\+\)\]', '\1', 'g')
+    let l:pattern = substitute(l:pattern, ingo#regexp#parse#OptionalSequenceExpr(), '\1', 'g')
 
     let l:pattern = substitute(l:pattern, ingo#regexp#collection#Expr({'isCapture': 1}), '\=s:TransformCollection(l:replacements, submatch(1))', 'g')
 
@@ -242,12 +260,30 @@ function! ingo#regexp#deconstruct#TranslateBranches( pattern ) abort
     return l:pattern
 endfunction
 
+function! ingo#regexp#deconstruct#RemoveOtherAtoms( pattern ) abort
+"******************************************************************************
+"* PURPOSE:
+"   Remove any non-ordinary (i.e. not a literal or escaped character) atom that
+"   isn't already removed or translated by one of the other functions here.
+"* ASSUMPTIONS / PRECONDITIONS:
+"   Does not consider "very magic" (/\v)-style syntax. If you may have this,
+"   convert via ingo#regexp#magic#Normalize() first.
+"* EFFECTS / POSTCONDITIONS:
+"   None.
+"* INPUTS:
+"   None.
+"* RETURN VALUES:
+"   Regular expression.
+"******************************************************************************
+    return substitute(a:pattern, ingo#regexp#parse#OtherAtomExpr(), '', 'g')
+endfunction
+
 function! ingo#regexp#deconstruct#ToQuasiLiteral( pattern )
 "******************************************************************************
 "* PURPOSE:
 "   Turn a:pattern into something resembling a literal match of it by removing
-"   position atoms, multis, translating character classes / collections and
-"   branches, and unescaping.
+"   any non-ordinary atoms, multis, translating character classes / collections
+"   and branches, and unescaping.
 "* ASSUMPTIONS / PRECONDITIONS:
 "   Does not consider "very magic" (/\v)-style syntax. If you may have this,
 "   convert via ingo#regexp#magic#Normalize() first.
@@ -259,8 +295,10 @@ function! ingo#regexp#deconstruct#ToQuasiLiteral( pattern )
 "   Modified a:pattern that resembles a literal match.
 "******************************************************************************
     let l:result = a:pattern
+    let l:result = ingo#regexp#deconstruct#RemoveOtherAtoms(l:result)
     let l:result = ingo#regexp#deconstruct#RemovePositionAtoms(l:result)
     let l:result = ingo#regexp#deconstruct#RemoveMultis(l:result)
+    let l:result = ingo#regexp#deconstruct#TranslateSingleCharacterAtoms(l:result)
     let l:result = ingo#regexp#deconstruct#TranslateCharacterClasses(l:result)
     let l:result = ingo#regexp#deconstruct#TranslateNumberEscapes(l:result)
     let l:result = ingo#regexp#deconstruct#TranslateBranches(l:result)

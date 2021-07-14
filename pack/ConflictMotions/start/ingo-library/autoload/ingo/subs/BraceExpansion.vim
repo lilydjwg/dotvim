@@ -6,7 +6,7 @@
 "   - ingo/compat.vim autoload script
 "   - ingo/escape.vim autoload script
 "
-" Copyright: (C) 2016-2017 Ingo Karkat
+" Copyright: (C) 2016-2021 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -69,7 +69,7 @@ function! s:ExpandOneLevel( TailCall, text, level )
 	endif
 	let l:isNumericSequence = (len(filter(copy(l:sequenceElements), 'v:val !~# "^[+-]\\?\\d\\+$"')) == 0)
 	if l:isNumericSequence
-	    let l:numberElements = map(copy(l:sequenceElements), 'str2nr(v:val)')
+	    let l:numberElements = ingo#list#transform#str2nr(copy(l:sequenceElements))
 	    let l:step = ingo#compat#abs(get(l:numberElements, 2, 1))
 	    if l:step == 0 | let l:step = 1 | endif
 	    let l:isZeroPadding = (l:sequenceElements[0] =~# '^0\d' || l:sequenceElements[1] =~# '^0\d')

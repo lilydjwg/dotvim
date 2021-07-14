@@ -5,7 +5,7 @@
 "   - ingo/list.vim autoload script
 "   - ingo/str/split.vim autoload script
 "
-" Copyright: (C) 2017-2018 Ingo Karkat
+" Copyright: (C) 2017-2021 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -23,11 +23,14 @@ function! ingo#list#lcs#FindLongestCommon( strings, ... )
 "* INPUTS:
 "   a:strings   List of strings.
 "   a:minimumLength Minimum substring length; default 1.
+"   a:isIgnoreCase  Flag whether the search is done without considering case
+"                   (default: 0).
 "* RETURN VALUES:
 "   Longest string that occurs in all of a:strings, or empty string if there's
 "   no commonality at all.
 "******************************************************************************
     let l:minimumLength = (a:0 ? a:1 : 1)
+    let l:ignoreCaseAtom = (a:0 >= 2 && a:2 ? '\c' : '')
     let l:pos = 0
     let l:maxMatchLen = 0
     let l:maxMatch = ''
@@ -35,7 +38,7 @@ function! ingo#list#lcs#FindLongestCommon( strings, ... )
     while 1
 	let [l:match, l:startPos, l:endPos] = ingo#compat#matchstrpos(
 	\   join(a:strings + [''], "\n"),
-	\   printf('^[^\n]\{-}\zs\([^\n]\{%d,}\)\ze[^\n]\{-}\n\%([^\n]\{-}\1[^\n]*\n\)\{%d}$', l:minimumLength, len(a:strings) - 1),
+	\   printf(l:ignoreCaseAtom . '^[^\n]\{-}\zs\([^\n]\{%d,}\)\ze[^\n]\{-}\n\%([^\n]\{-}\1[^\n]*\n\)\{%d}$', l:minimumLength, len(a:strings) - 1),
 	\   l:pos
 	\)
 	if l:startPos == -1
@@ -64,7 +67,10 @@ function! ingo#list#lcs#FindAllCommon( strings, ... )
 "* INPUTS:
 "   a:strings                   List of strings.
 "   a:minimumCommonLength       Minimum substring length; default 1.
-"   a:minimumDifferingLength    Minimum length; default 0.
+"   a:minimumDifferingLength    Minimum length or [minimumPrefixDifferingLength,
+"                               minimumSuffixDifferingLength]; default 0.
+"   a:isIgnoreCase              Flag whether the search is done without
+"                               considering case (default: 0).
 "* RETURN VALUES:
 "   [distinctLists, commons], as in:
 "   [
@@ -84,13 +90,15 @@ function! ingo#list#lcs#FindAllCommon( strings, ... )
     \   ) :
     \   [0, 0]
     \)
+    let l:isIgnoreCase = (a:0 >= 3 ? a:3 : 0)
 
-    let l:common = ingo#list#lcs#FindLongestCommon(a:strings, l:minimumCommonLength)
+
+    let l:common = ingo#list#lcs#FindLongestCommon(a:strings, l:minimumCommonLength, l:isIgnoreCase)
     if empty(l:common)
 	return [[a:strings], []]
     endif
 
-    let [l:differingCnt, l:prefixes, l:suffixes] = s:Split(a:strings, l:common)
+    let [l:differingCnt, l:prefixes, l:suffixes] = s:Split(a:strings, l:common, l:isIgnoreCase)
 
     let l:isPrefixTooShort = s:IsTooShort(l:prefixes, l:minimumPrefixDifferingLength)
     let l:isSuffixTooShort = s:IsTooShort(l:suffixes, l:minimumSuffixDifferingLength)
@@ -106,7 +114,7 @@ function! ingo#list#lcs#FindAllCommon( strings, ... )
 	else
 	    " Recurse into the suffixes, then join its first distincts with the
 	    " prefixes and common.
-	    let [l:suffixDiffering, l:suffixCommon] = ingo#list#lcs#FindAllCommon(l:suffixes, l:minimumCommonLength, [0, l:minimumSuffixDifferingLength]) " Minimum prefix length doesn't apply here, as we're joining it.
+	    let [l:suffixDiffering, l:suffixCommon] = ingo#list#lcs#FindAllCommon(l:suffixes, l:minimumCommonLength, [0, l:minimumSuffixDifferingLength], l:isIgnoreCase) " Minimum prefix length doesn't apply here, as we're joining it.
 
 	    let [l:prefixDiffering, l:prefixCommon] = [[map(range(l:differingCnt), 'get(l:prefixes, v:val, "") . l:common . get(get(l:suffixDiffering, 0, []), v:val, "")')], []]
 	    let l:common = ''
@@ -115,14 +123,14 @@ function! ingo#list#lcs#FindAllCommon( strings, ... )
     elseif l:isSuffixTooShort
 	" Recurse into the prefixes, then join its last distincts with common
 	" and the suffixes.
-	let [l:prefixDiffering, l:prefixCommon] = ingo#list#lcs#FindAllCommon(l:prefixes, l:minimumCommonLength, [l:minimumPrefixDifferingLength, 0]) " Minimum suffix length doesn't apply here, as we're joining it.
+	let [l:prefixDiffering, l:prefixCommon] = ingo#list#lcs#FindAllCommon(l:prefixes, l:minimumCommonLength, [l:minimumPrefixDifferingLength, 0], l:isIgnoreCase) " Minimum suffix length doesn't apply here, as we're joining it.
 	let [l:suffixDiffering, l:suffixCommon] = [[map(range(l:differingCnt), 'get(l:prefixDiffering[-1], v:val, "") . l:common . get(l:suffixes, v:val, "")')], []]
 	let l:common = ''
 	call remove(l:prefixDiffering, -1)
     else
 	" Recurse into both prefixes and suffixes.
-	let [l:prefixDiffering, l:prefixCommon] = ingo#list#lcs#FindAllCommon(l:prefixes, l:minimumCommonLength, [l:minimumPrefixDifferingLength, l:minimumSuffixDifferingLength])
-	let [l:suffixDiffering, l:suffixCommon] = ingo#list#lcs#FindAllCommon(l:suffixes, l:minimumCommonLength, [l:minimumPrefixDifferingLength, l:minimumSuffixDifferingLength])
+	let [l:prefixDiffering, l:prefixCommon] = ingo#list#lcs#FindAllCommon(l:prefixes, l:minimumCommonLength, [l:minimumPrefixDifferingLength, l:minimumSuffixDifferingLength], l:isIgnoreCase)
+	let [l:suffixDiffering, l:suffixCommon] = ingo#list#lcs#FindAllCommon(l:suffixes, l:minimumCommonLength, [l:minimumPrefixDifferingLength, l:minimumSuffixDifferingLength], l:isIgnoreCase)
     endif
 
     return [
@@ -135,12 +143,16 @@ function! s:IsTooShort( list, minimumLength )
     \   min(map(copy(a:list), 'ingo#compat#strchars(v:val)')) < a:minimumLength &&
     \   ! ingo#list#IsEmpty(a:list)
 endfunction
-function! s:Split( strings, common )
+function! s:Split( strings, common, isIgnoreCase )
     let l:prefixes = []
     let l:suffixes = []
 
     for l:string in a:strings
-	let [l:prefix, l:suffix] = ingo#str#split#StrFirst(l:string, a:common)
+	if a:isIgnoreCase
+	    let [l:prefix, l:ignoredMatchedText, l:suffix] = ingo#str#split#MatchFirst(l:string, '\V\c' . escape(a:common, '\'))
+	else
+	    let [l:prefix, l:suffix] = ingo#str#split#StrFirst(l:string, a:common)
+	endif
 	call add(l:prefixes, l:prefix)
 	call add(l:suffixes, l:suffix)
     endfor

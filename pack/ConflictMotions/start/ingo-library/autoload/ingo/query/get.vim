@@ -2,7 +2,7 @@
 "
 " DEPENDENCIES:
 "
-" Copyright: (C) 2012-2018 Ingo Karkat
+" Copyright: (C) 2012-2020 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -142,7 +142,7 @@ function! ingo#query#get#ValidChar( ... )
     return l:char
 endfunction
 
-function! ingo#query#get#Register( errorRegister, ... )
+function! ingo#query#get#Register( ... )
 "******************************************************************************
 "* PURPOSE:
 "   Query a register from the user.
@@ -159,14 +159,15 @@ function! ingo#query#get#Register( errorRegister, ... )
 "* RETURN VALUES:
 "   Either the register, or an a:errorRegister when aborted or invalid register.
 "******************************************************************************
+    let l:errorRegister = (a:0 ? a:1 : '')
     try
-	let l:register = ingo#query#get#Char({'validExpr': ingo#register#All(), 'invalidExpr': (a:0 ? a:1 : '')})
-	return (empty(l:register) ? a:errorRegister : l:register)
+	let l:register = ingo#query#get#Char({'validExpr': ingo#register#All(), 'invalidExpr': (a:0 >= 2 ? a:2 : '')})
+	return (empty(l:register) ? l:errorRegister : l:register)
     catch /^Vim\%((\a\+)\)\=:E523:/ " E523: Not allowed here
-	return a:errorRegister
+	return l:errorRegister
     endtry
 endfunction
-function! ingo#query#get#WritableRegister( errorRegister, ... )
+function! ingo#query#get#WritableRegister( ... )
 "******************************************************************************
 "* PURPOSE:
 "   Query a register that can be written to from the user.
@@ -184,11 +185,12 @@ function! ingo#query#get#WritableRegister( errorRegister, ... )
 "   Either the writable register, or an a:errorRegister when aborted or invalid
 "   register.
 "******************************************************************************
+    let l:errorRegister = (a:0 ? a:1 : '')
     try
-	let l:register = ingo#query#get#Char({'validExpr': ingo#register#Writable(), 'invalidExpr': (a:0 ? a:1 : '')})
-	return (empty(l:register) ? a:errorRegister : l:register)
+	let l:register = ingo#query#get#Char({'validExpr': ingo#register#Writable(), 'invalidExpr': (a:0 >= 2 ? a:2 : '')})
+	return (empty(l:register) ? l:errorRegister : l:register)
     catch /^Vim\%((\a\+)\)\=:E523:/ " E523: Not allowed here
-	return a:errorRegister
+	return l:errorRegister
     endtry
 endfunction
 

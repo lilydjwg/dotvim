@@ -1,17 +1,11 @@
 " ingo/join.vim: Functions for joining lines in the buffer.
 "
 " DEPENDENCIES:
-"   - ingo/folds.vim autoload script
 "
-" Copyright: (C) 2014-2019 Ingo Karkat
+" Copyright: (C) 2014-2020 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
-"
-" REVISION	DATE		REMARKS
-"   1.020.002	08-Jun-2014	Do not clobber the default register when joining
-"				lines with separator and not keeping spaces.
-"   1.020.001	08-Jun-2014	file creation from ingocommands.vim
 
 function! ingo#join#Lines( lnum, isKeepSpace, separator )
 "******************************************************************************
@@ -49,14 +43,16 @@ function! ingo#join#Lines( lnum, isKeepSpace, separator )
 	    endif
 	endif
     else
+	let l:isFollowingOptionalWhitespaceLine = (getline(a:lnum + 1) =~# '^\s*$')
 	execute a:lnum . 'normal! J'
 
 	let l:changeJoiner = (empty(a:separator) ? '"_diw' : '"_ciw' . a:separator . "\<Esc>")
 	" The J command inserts one space in place of the <EOL> unless there is
-	" trailing white space or the next line starts with a ')'. The
-	" whitespace will be handed by "ciw", but we need a special case for ).
+	" trailing white space or the next line starts with a ')' or is empty.
+	" The whitespace will be handed by "ciw", but we need a special case
+	" for ')' and a following empty line.
 	if ! search('\%#\s\|\s\%#', 'bcW', line('.'))
-	    let l:changeJoiner = (empty(a:separator) ? '' : 'i' . a:separator . "\<Esc>")
+	    let l:changeJoiner = (empty(a:separator) ? '' : (l:isFollowingOptionalWhitespaceLine ? 'a' : 'i') . a:separator . "\<Esc>")
 	endif
 	if ! empty(l:changeJoiner)
 	    execute 'normal!' l:changeJoiner

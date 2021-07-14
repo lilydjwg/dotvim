@@ -6,7 +6,7 @@
 "   - ingo/os.vim autoload script
 "   - ingo/fs/path/split.vim autoload script
 "
-" Copyright: (C) 2012-2018 Ingo Karkat
+" Copyright: (C) 2012-2020 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -189,6 +189,26 @@ function! ingo#fs#path#IsUpwards( filespec )
 "   current context.
 "******************************************************************************
     return (ingo#fs#path#Normalize(simplify(a:filespec), '/') =~# '^\.\./')
+endfunction
+
+function! ingo#fs#path#IsPath( filespec ) abort
+"******************************************************************************
+"* PURPOSE:
+"   Test whether a:filespec represents an actual path (i.e. anything with a path
+"   separator in it, either relative or absolute) or just a (also possibly
+"   non-existing) file name.
+"* ASSUMPTIONS / PRECONDITIONS:
+"   None.
+"* EFFECTS / POSTCONDITIONS:
+"   None.
+"* INPUTS:
+"   a:filespec  Relative / absolute filespec. Does not need to exist.
+"* RETURN VALUES:
+"   1 if it represents a path, 0 if it is just a file name.
+"******************************************************************************
+    let [l:dirspec, l:filename] = ingo#fs#path#split#PathAndName(simplify(a:filespec))
+
+    return ! empty(a:filespec) && (ingo#fs#path#Normalize(l:dirspec, '/') !=# './' || empty(l:filename))
 endfunction
 
 function! ingo#fs#path#IsCaseInsensitive( ... )

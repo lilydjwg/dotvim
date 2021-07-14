@@ -1,16 +1,8 @@
 " ingo/regexp/length.vim: Functions to compare the length of regular expression matches.
 "
 " DEPENDENCIES:
-"   - ingo/collections.vim autoload script
-"   - ingo/compat.vim autoload script
-"   - ingo/list/split.vim autoload script
-"   - ingo/regexp/collection.vim autoload script
-"   - ingo/regexp/deconstruct.vim autoload script
-"   - ingo/regexp/magic.vim autoload script
-"   - ingo/regexp/multi.vim autoload script
-"   - ingo/regexp/split.vim autoload script
 "
-" Copyright: (C) 2018 Ingo Karkat
+" Copyright: (C) 2018-2020 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -70,7 +62,7 @@ function! s:ProjectBranch( pattern )
     let l:previousMinMax = [0, 0]
     while len(l:splits) > 1
 	let l:prefix = remove(l:splits, 0)
-	let [l:multi, l:rest] = matchlist(l:prefix, '^\(' . ingo#regexp#multi#Expr() . '\)\?\(.\{-}\)$')[1:2]
+	let [l:multi, l:rest] = matchlist(l:prefix, '^\(' . ingo#regexp#parse#MultiExpr() . '\)\?\(.\{-}\)$')[1:2]
 	if empty(l:multi)
 	    call s:AddMinMax(l:minMaxes, l:previousMinMax)
 	else
@@ -96,7 +88,7 @@ function! s:ProjectUngroupedPattern( pattern )
     \   ingo#list#split#ChunksOf(
     \       ingo#collections#SplitKeepSeparators(
     \           a:pattern,
-    \           ingo#regexp#multi#Expr(),
+    \           ingo#regexp#parse#MultiExpr(),
     \           1
     \       ),
     \       2, ''

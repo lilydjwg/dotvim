@@ -2,7 +2,7 @@
 "
 " DEPENDENCIES:
 "
-" Copyright: (C) 2013-2019 Ingo Karkat
+" Copyright: (C) 2013-2020 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -87,7 +87,7 @@ function! ingo#text#frompattern#GetCurrent( pattern, ... )
 "   cursor position itself. So this function can be used when it's difficult to
 "   include a cursor position assertion (\%#) inside a:pattern.
 "* SEE ALSO:
-"   - ingo#area#frompattern#GetAroundHere() returns the positions, not the match.
+"   - ingo#area#frompattern#GetCurrent() returns the positions, not the match.
 "* ASSUMPTIONS / PRECONDITIONS:
 "   None.
 "* EFFECTS / POSTCONDITIONS:
@@ -96,21 +96,37 @@ function! ingo#text#frompattern#GetCurrent( pattern, ... )
 "   a:pattern       Regular expression to search. 'ignorecase', 'smartcase' and
 "		    'magic' applies. When empty, the last search pattern |"/| is
 "		    used.
-"   a:currentPos    Optional base position.
+"   a:options.returnValueOnNoSelection
+"		    Optional return value if there's no match. If omitted, the
+"		    empty string will be returned.
+"   a:options.currentPos
+"		    Optional base position.
+"   a:options.firstLnum
+"		    Optional first line number to search for the start of the
+"		    pattern. Defaults to the current line.
+"   a:options.lastLnum
+"		    Optional end line number to search for the start of the
+"		    pattern. Defaults to the current line.
 "* RETURN VALUES:
 "   Matched text, or empty string.
 "******************************************************************************
-    let [l:startPos, l:endPos] = call('ingo#area#frompattern#GetCurrent', [a:pattern] + (a:0 ? [[[0, 0], [0, 0]], a:1] : []))
-    return (l:startPos == [0, 0] ? '' : ingo#text#Get(l:startPos, l:endPos))
-endfunction
-
-
-function! s:UniqueAdd( list, expr )
-    if index(a:list, a:expr) == -1
-	call add(a:list, a:expr)
+    let l:arguments = [a:pattern]
+    let l:returnValueOnNoSelection = ''
+    if a:0 >= 1
+	let l:options = copy(a:1)
+	if has_key(l:options, 'returnValueOnNoSelection')
+	    let l:returnValueOnNoSelection = l:options.returnValueOnNoSelection
+	    unlet l:options.returnValueOnNoSelection
+	endif
+	call add(l:arguments, l:options)
     endif
+
+    let [l:startPos, l:endPos] = call('ingo#area#frompattern#GetCurrent', l:arguments)
+    return (l:startPos == [0, 0] ? l:returnValueOnNoSelection : ingo#text#Get(l:startPos, l:endPos))
 endfunction
-function! ingo#text#frompattern#Get( firstLine, lastLine, pattern, replacement, isOnlyFirstMatch, isUnique )
+
+
+function! ingo#text#frompattern#Get( firstLine, lastLine, pattern, ... )
 "******************************************************************************
 "* PURPOSE:
 "   Extract all non-overlapping matches of a:pattern in the a:firstLine,
@@ -137,14 +153,40 @@ function! ingo#text#frompattern#Get( firstLine, lastLine, pattern, replacement, 
 "		    therefore doesn't work standalone), you can also pass a
 "		    [replPattern, replacement] tuple, which will then be
 "		    globally applied to the match.
-"   a:isOnlyFirstMatch  Flag whether to include only the first match in every
-"			line.
-"   a:isUnique          Flag whether duplicate matches are omitted from the
-"			result. When set, the result will consist of unique
-"			matches.
+"   a:isOnlyFirstMatch  Optional flag whether to include only the first match in
+"                       every line. By default, all matches are returned.
+"   a:isUnique          Optional flag whether duplicate matches (actually unique
+"                       replacements if given) are omitted from the result. When
+"                       set, the result will consist of unique matches.
+"   a:Predicate	    Optional function reference that is called on each match;
+"		    takes a context object as argument and returns whether the
+"		    match should be included. Or pass an empty value to accept
+"		    all locations.
+"		    The context object has the following attributes:
+"			match:      current matched text
+"			matchStart: [lnum, col] of the match start
+"			matchEnd:   [lnum, col] of the match end (this is also
+"				    the cursor position)
+"			replacement:current replacement text (if passed, else
+"				    equal to match)
+"			matchCount: number of current (unique) match of {pattern}
+"			acceptedCount:
+"				    number of matches already accepted by the
+"				    predicate
+"			n: number / flag (0 / false)
+"			m: number / flag (1 / true)
+"			l: empty List []
+"			d: empty Dictionary {}
+"			s: empty String ""
 "* RETURN VALUES:
 "   List of (optionally replaced) matches, or empty List when no matches.
 "******************************************************************************
+    let l:replacement = (a:0 >= 1 ? a:1 : '')
+    let l:isOnlyFirstMatch = (a:0 >= 2 ? a:2 : 0)
+    let l:isUnique = (a:0 >= 3 ? a:3 : 0)
+    let l:Predicate = (a:0 >= 4 ? a:4 : 0)
+    let l:context = {'match': '', 'replacement': '', 'matchCount': 0, 'acceptedCount': 0, 'n': 0, 'm': 1, 'l': [], 'd': {}, 's': ''}
+
     let l:save_view = winsaveview()
 	let l:matches = []
 	call cursor(a:firstLine, 1)
@@ -156,25 +198,45 @@ function! ingo#text#frompattern#Get( firstLine, lastLine, pattern, replacement, 
 	    let l:endPos = searchpos(a:pattern, 'ceW', a:lastLine)
 	    if l:endPos == [0, 0] | break | endif
 	    let l:match = ingo#text#Get(l:startPos, l:endPos)
-	    if ! empty(a:replacement)
-		if type(a:replacement) == type([])
-		    let l:match = substitute(l:match, a:replacement[0], a:replacement[1], 'g')
+	    let l:originalMatch = l:match
+
+	    if ! empty(l:replacement)
+		if type(l:replacement) == type([])
+		    let l:match = substitute(l:match, l:replacement[0], l:replacement[1], 'g')
 		else
-		    let l:match = substitute(l:match, (empty(a:pattern) ? @/ : a:pattern), a:replacement, '')
+		    let l:match = substitute(l:match, (empty(a:pattern) ? @/ : a:pattern), l:replacement, '')
 		endif
 	    endif
-	    if a:isUnique
-		call s:UniqueAdd(l:matches, l:match)
-	    else
-		call add(l:matches, l:match)
+	    if l:isUnique && index(l:matches, l:match) != -1
+		continue
 	    endif
+	    if ! s:PredicateCheck(l:Predicate, l:context, l:originalMatch, l:match, l:startPos, l:endPos)
+		continue
+	    endif
+	    call add(l:matches, l:match)
 "****D echomsg '****' string(l:startPos) string(l:endPos) string(l:match)
-	    if a:isOnlyFirstMatch
+	    if l:isOnlyFirstMatch
 		normal! $
 	    endif
 	endwhile
     call winrestview(l:save_view)
     return l:matches
+endfunction
+function! s:PredicateCheck( Predicate, context, match, replacement, startPos, endPos ) abort
+    if empty(a:Predicate) | return 1 | endif
+
+    let a:context.match = a:match
+    let a:context.matchStart = a:startPos
+    let a:context.matchEnd = a:endPos
+    let a:context.replacement = a:replacement
+    let a:context.matchCount += 1
+
+    let l:isAccepted = call(a:Predicate, [a:context])
+    if l:isAccepted
+	let a:context.acceptedCount += 1
+    endif
+
+    return l:isAccepted
 endfunction
 
 " vim: set ts=8 sts=4 sw=4 noexpandtab ff=unix fdm=syntax :

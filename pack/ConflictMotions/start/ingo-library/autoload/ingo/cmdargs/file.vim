@@ -2,7 +2,7 @@
 "
 " DEPENDENCIES:
 "
-" Copyright: (C) 2012-2018 Ingo Karkat
+" Copyright: (C) 2012-2020 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -41,7 +41,11 @@ endfunction
 
 
 function! ingo#cmdargs#file#FileOptionsAndCommandsToEscapedExCommandLine( fileOptionsAndCommands )
-    return join(map(copy(a:fileOptionsAndCommands), "escape(v:val, '\\ ')"))
+    " cmdline-special symbols (%, #, <) and backslashes may have been escaped
+    " already. These escapings must not be doubled, so unescape them first, so
+    " that cmdline-special symbols stand on their own, and a double backslash
+    " remains as it was passed.
+    return join(map(copy(a:fileOptionsAndCommands), "escape(ingo#escape#Unescape(v:val, '%#<\\'), '\\ ')"))
 endfunction
 function! ingo#cmdargs#file#FilterFileOptions( fileglobs )
 "*******************************************************************************

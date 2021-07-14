@@ -7,7 +7,7 @@
 "   - ingo/os.vim autoload script
 "   - ingo/strdisplaywidth.vim autoload script
 "
-" Copyright: (C) 2013-2019 Ingo Karkat
+" Copyright: (C) 2013-2021 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -356,6 +356,12 @@ if (v:version == 703 && has('patch32') || v:version > 703) && ! has_key(s:compat
 	endif
 	let l:mapInfo = call('maparg', l:args)
 
+	if type(l:mapInfo) != type({}) || ! has_key(l:mapInfo, 'rhs')
+	    " Avoid "E121: Undefined variable: rhs" / "E716: Key not present in
+	    " Dictionary: rhs" in case empty / non-existing a:name is passed.
+	    return ''
+	endif
+
 	" Contrary to the old maparg(), <SID> doesn't get automatically
 	" translated into <SNR>NNN_ here.
 	return substitute(l:mapInfo.rhs, '\c<SID>', '<SNR>' . l:mapInfo.sid . '_', 'g')
@@ -500,6 +506,38 @@ else
 	    let l:str = call('matchstr', a:000)
 	    let l:end = call('matchend', a:000)
 	    return [l:str, l:start, l:end]
+	endif
+    endfunction
+endif
+
+if exists('*getenv') && ! has_key(s:compatFor, 'getenv')
+    function! ingo#compat#getenv( name )
+	let l:val = getenv(a:name)
+
+	if l:val is# v:null
+	    " XXX: getenv() returns v:null even though the environment variable is defined.
+	    return (exists('$' . a:name) ? '' : l:val)
+	else
+	    return l:val
+	endif
+    endfunction
+else
+    function! ingo#compat#getenv( name )
+	let l:ev = '$' . a:name
+	return (exists(l:ev) ? eval(l:ev) : [])
+    endfunction
+endif
+if exists('*setenv') && ! has_key(s:compatFor, 'setenv')
+    function! ingo#compat#setenv( name, val )
+	return setenv(a:name, (type(a:val) == type([]) ? v:null : a:val))
+    endfunction
+else
+    function! ingo#compat#setenv( name, val )
+	let l:ev = '$' . a:name
+	if type(a:val) == type([])
+	    execute 'unlet!' l:ev
+	else
+	    execute 'let' l:ev '= a:val'
 	endif
     endfunction
 endif
