@@ -20,7 +20,7 @@ fu! <sid>Warning(msg) "{{{3
     echohl Normal
 endfu
 
-fu! <sid>Esc(val, char) "{{{3 
+fu! <sid>Esc(val, char) "{{{3
     if empty(a:val)
         return a:val
     endif
@@ -32,7 +32,7 @@ fu! <sid>CheckSaneSearchPattern() "{{{3
     let s:col_def = '\%([^' . s:del_def . ']*' . s:del_def . '\|$\)'
     let s:col_def_end = '\%([^' . s:del_def . ']*' . s:del_def . '\)'
 
-    " First: 
+    " First:
     " Check for filetype plugin. This syntax script relies on the filetype
     " plugin, else, it won't work properly.
     redir => s:a |sil filetype | redir end
@@ -51,6 +51,12 @@ fu! <sid>CheckSaneSearchPattern() "{{{3
         let b:csv_cmt = [g:csv_comment]
     endif
 
+    " Make sure, b:csv_cmt always has 2 items
+    " can happen with e.g. :set cms="#%s
+    if b:csv_cmt == []
+        let b:csv_cmt = ['', '']
+    endif
+
 
     " Second: Check for sane defaults for the column pattern
     " Not necessary to check for fixed width columns
@@ -64,10 +70,10 @@ fu! <sid>CheckSaneSearchPattern() "{{{3
     let s:col  = get(b:, 'col', s:col_def)
     let s:col_end  = get(b:, 'col_end', s:col_def_end)
     let s:del  = get(b:, 'delimiter', s:del_def)
-    let s:cmts = b:csv_cmt[0]
-    let s:cmte = len(b:csv_cmt) == 2 ? b:csv_cmt[1] : ''
+    let s:cmts = get(get(b:, 'csv_cmt', ['']), 0)
+    let s:cmte = len(get(b:, 'csv_cmt', [])) == 2 ? b:csv_cmt[1] : ''
     " Make the file start at the first actual CSV record (issue #71)
-    if !exists("b:csv_headerline")
+    if !exists("b:csv_headerline") && !empty(s:cmts)
         let cmts    = <sid>Esc(s:cmts, '')
         let pattern = '\%^\(\%('.cmts.'.*\n\)\|\%(\s*\n\)\)\+'
         let start = search(pattern, 'nWe', 10)
@@ -83,6 +89,7 @@ fu! <sid>CheckSaneSearchPattern() "{{{3
     if line('$') > 1 && (!exists("b:col") || empty(b:col))
         " check for invalid pattern, ftplugin hasn't been loaded yet
         call <sid>Warning("Invalid column pattern, using default pattern " . s:col_def)
+        call <sid>Warning("Or ftplugin hasn't been sourced before the syntax script")
     endif
 endfu
 
@@ -90,7 +97,7 @@ endfu
 fu! <sid>DoHighlight() "{{{3
     if has("conceal") && !exists("g:csv_no_conceal") &&
         \ !exists("b:csv_fixed_width_cols")
-        exe "syn match CSVDelimiter /" . s:col_end . 
+        exe "syn match CSVDelimiter /" . s:col_end .
             \ '/ms=e,me=e contained conceal cchar=' .
             \ (&enc == "utf-8" ? "│" : '|')
         hi def link CSVDelimiter Conceal
@@ -117,7 +124,7 @@ fu! <sid>DoHighlight() "{{{3
     else
         for i in range(len(b:csv_fixed_width_cols))
             let pat = '/\%' . b:csv_fixed_width_cols[i] . 'v.*' .
-                \ ((i == len(b:csv_fixed_width_cols)-1) ? '/' : 
+                \ ((i == len(b:csv_fixed_width_cols)-1) ? '/' :
                 \ '\%' . b:csv_fixed_width_cols[i+1] . 'v/')
 
             let group  = "CSVColumn" . (i%2 ? "Odd"  : "Even" )
@@ -126,9 +133,11 @@ fu! <sid>DoHighlight() "{{{3
         endfor
     endif
     " Comment regions
-    exe 'syn match CSVComment /'. s:cmts. '.*'.
-        \ (!empty(s:cmte) ? '\%('. s:cmte. '\)\?'
-        \: '').  '/'
+    if !empty(s:cmts)
+        exe 'syn match CSVComment /'. s:cmts. '.*'.
+            \ (!empty(s:cmte) ? '\%('. s:cmte. '\)\?'
+            \: '').  '/'
+    endif
     hi def link CSVComment Comment
 endfun
 
@@ -153,7 +162,7 @@ fu! <sid>DoSyntaxDefinitions() "{{{3
     endif
 endfun
 
-" Main: {{{2 
+" Main: {{{2
 " Make sure, we are using a sane, valid pattern for syntax
 " highlighting
 call <sid>CheckSaneSearchPattern()

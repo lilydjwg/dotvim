@@ -58,6 +58,7 @@ NO WARRANTY, EXPRESS OR IMPLIED.  USE AT-YOUR-OWN-RISK.
     4.11 Move folded lines......................|csv-move-folds|
     4.12 Using Comments.........................|csv-comments|
     4.13 Size and performance considerations....|csv-size|
+    4.14 Map `B` instead of `E` to jump back to previous column...|csv-bind-B|
 5. Functions....................................|CSV-Functions|
     5.1 CSVPat()................................|CSVPat()|
     5.2 CSVField()..............................|CSVField()|
@@ -289,6 +290,16 @@ Note: this command does not work for fixed width columns |csv-fixedwidth|
 See also |csv-arrange-autocmd| on how to have vim automatically arrange a CSV
 file upon entering it.
 
+By default, all lines in the file are considered to calculate the column width.
+If you want to ignore some lines at the beginning of the file, set the global
+variable g:csv_skipfirst to the number of lines to be ignored, e.g. the first
+line of the file can be ignored with >
+
+    :let g:csv_skipfirst = 1
+<
+Then use the '!' to force recalculation of column width when applying 
+:ArrangeColumn
+
                                                         *:CSVUnArrangeColumn*
 3.6 UnArrangeColumn                                    *UnArrangeColumn_CSV*
 -----------------
@@ -406,9 +417,13 @@ While this command >
 
 reverses the order based on column 3.
 
+If you want numeric sort on floatng points, you can use: >
+
+    :2,$Sort 3f
+
 The column number can be optionally followed by any of the flags [i], [n],
 [x] and [o] for [i]gnoring case, sorting by [n]umeric, he[x]adecimal
-or [o]ctal value.
+[o]ctal or [f]loat value.
 
 When no column number is given, it will sort by the column, on which the
 cursor is currently.
@@ -516,15 +531,17 @@ Note: Will remove trailing delimiters.
 If you want to check the file for duplicate records, use the command
 `:Duplicate` or `:CSVDuplicate`: >
 
-    :Duplicate columnlist
+    :Duplicate [columnlist]
 <
 
 Columnlist needs to be a numeric comma-separated list of all columns that you
 want to check. You can also use a range like '2-5' which means the plugin
-should check columns 2,3,4 and 5.
+should check columns 2,3,4 and 5. If no columnlist ist given, will use the
+current column.
 
 If the plugin finds a duplicate records, it outputs its line number (but it
-only does that at most 10 times).
+only does that at most 10 times). You can find the message also in the message
+history using `:mess`.
 
 3.17 Normal mode commands					 *csv-mapping*
 -------------------------
@@ -604,9 +621,11 @@ is equival to a single backslash '\', e.g. \K would run the lookup function on
 the word under the cursor and \J would join this line with the previous line.
 
 If you want to prevent the mapping of keys, simply set the global variable
-g:csv_nomap_<key> to 1, e.g. to prevent mapping of <CR> in csv files, put >
+g:csv_nomap_<key> to 1, (remove the special characters `<>` and replace `-` by
+`_`), e.g. to prevent mapping of <CR> and <C-Left> in csv files, put >
 
     let g:csv_nomap_cr = 1
+    let g:csv_nomap_c_left = 1
 <
 into your |.vimrc|. Note, the keyname must be lower case.
 
@@ -800,6 +819,13 @@ This tells you, that the the value '10' in column 3 occurs 50% of the time
 (exactly 20 times) and the other 2 values '2' and '5' occur only 10 times, so
 25% of the time.
 
+In addition, a second argument may be used to specify the number of top values.
+So 
+
+    :Analyze 3 10
+
+outputs the the distribution of the top 10 values in column 3, respectively.
+
                                                  *:CSVVertFold* *VertFold_CSV*
 3.21 Vertical Folding       					 *csv-vertfold*
 ---------------------
@@ -948,8 +974,7 @@ The result is also available in the buffer-local variable `b:csv_result`.
 
 See also |csv-aggregate-functions|
 
-                                                                *MinCol_CSV*
-3.27 Maximum/Minimum value of a Column 				*MaxCol_CSV*
+3.27 Maximum/Minimum value of a Column 		*MaxCol_CSV* *MinCol_CSV*
 ---------------------------------------
 You can let Vim output the 10 maximum/minimum values of a column using the
 `:CSVMaxCol` command >
@@ -963,6 +988,7 @@ given, this calculates the sum for the column the cursor is on. Note, that the
 delimiter will be stripped away from each value and also empty values won't be
 considered.
 
+                                                    *format_number_csv*
 By default, Vim uses the a numerical format that uses the '.' as decimal
 separator while there is no thousands separator. If youre file contains
 the numbers in a different format, you can use the /format/ option to specify
@@ -982,10 +1008,6 @@ uses the Space as thousands separator and the '.' as decimal separator.
 
 If [distinct] is given, only returns the number of distinct values.
 
-Note, if you Vim is compiled without floating point number format (|+float|),
-Vim will only aggregate the integer part and therefore won't use the 'y'
-argument in the /format/ specifier.
-
 The result is also available in the buffer-local variable `b:csv_result`.
 
 3.28 Average value of a Column 				*AvgCol_CSV*
@@ -1000,18 +1022,20 @@ given, this calculates the sum for the column the cursor is on. Note, that the
 delimiter will be stripped away from each value and also empty values won't be
 considered.
 
-For the [/format/] part, see |MaxCol_CSV|.
+For the [/format/] part, see |format_number_csv|.
 
 The result is also available in the buffer-local variable `b:csv_result`.
 
 See also |csv-aggregate-functions|
 
-3.29 Variance of a Column 				*VarCol_CSV*
+3.29 Variance of a Column 				*VarCol_CSV* *SmplVarCol* *PopVarCol*
 _________________________
 
-    :[range]PopVarianceCol [nr] [/format/]
+    :[range]PopVarCol [nr] [/format/]
 
-    :[range]SmplVarianceCol [nr] [/format/]
+    :[range]SmplVarCol [nr] [/format/]
+
+Calculate the Population or Sample Variance for the specified column.
 
 This outputs the result of the column `<nr>` within the range given. If no range
 is given, this will calculate the statistical variance of the whole column. If <nr> is not
@@ -1020,12 +1044,16 @@ will be stripped away from each value and also empty values won't be considered.
 
 The result is also available in the buffer-local variable `b:csv_result`.
 
-3.30 Standard Deviation of a Column 				*StdDevCol_CSV*
+For the [/format/] part, see |format_number_csv|.
+
+3.30 Standard Deviation of a Column *StdDevCol_CSV* *PopStdCol* *SmplStdCol*
 ___________________________________
 
     :[range]PopStdCol [nr] [/format/]
 
     :[range]SmplStdCol [nr] [/format/]
+
+Calculate the Population or Sample Standard Deviation for the specified column.
 
 This outputs the result of the column `<nr>` within the range given. If no range
 is given, this will calculate the standard deviation of the whole column. If <nr> is not
@@ -1033,6 +1061,8 @@ given, this calculates the standard deviation for the column the cursor is on. N
 the delimiter will be stripped away from each value and also empty values won't be considered.
 
 The result is also available in the buffer-local variable `b:csv_result`.
+
+For the [/format/] part, see |format_number_csv|.
 
                                                             *:CSVDupColumn*
 3.31 Duplicate columns                                       *DupColumn_CSV*
@@ -1068,7 +1098,7 @@ This outputs the sum of the row [range]. If no range is given, this will
 calculate the sum for the current row. Note, that the delimiter will be
 stripped away from each value and also empty values won't be considered.
 
-For the [/format/] part, see |MaxCol_CSV|.
+For the [/format/] part, see |format_number_csv|
 ==============================================================================
 4. CSV Configuration					 *csv-configuration*
 
@@ -1089,6 +1119,11 @@ manually, use: >
 
 to let the comma be the delimiter. This sets the buffer local delimiter
 variable b:delimiter.
+
+You can also set default delimiter to prevent a warning if no delimiter can
+be detected: >
+
+    :let g:csv_default_delim=','
 
 If your file does not consist of delimited columns, but rather is a fixed
 width csv file, see |csv-fixedwidth| for configuring the plugin appropriately.
@@ -1305,6 +1340,9 @@ This defines that each column starts at multiples of 4. Be sure, to issue
 this command in the buffer, that contains your file, otherwise, it won't
 have an effect, since this is a buffer-local option (|local-option|)
 
+This means, your CSV file consists of 6 fixed width columns and the last one
+starts at column 21 and goes till the end of the line.
+
 After setting this variable, you should reinitialize the plugins using
 |InitCSV|
 
@@ -1329,9 +1367,13 @@ This means, you can now use those 5 keys to configure the fixed-width columns:
    <ESC>    Abort
    <BS>     Press the backspace key, to remove the last column you fixed with
             the <Space> key.
-   <CR>     Use Enter to finish the wizard. This will use all fixed columns
-            to define the fixed width columns of your csv file. The plugin
+   <CR>     Use Enter to finish the wizard. This marks the current position 
+            and finishes the wizard. It will use all define marks which
+            define the width of each separate column of your "csv" file. The plugin
             will be initialized and syntax highlighting should appear.
+
+You should not need to mark the last column. Vim will automatically determine the
+last column from the spaces that is left after the latest mark.
 
 Note: This only works, if your Vim has the 'colorcolumn' option available
 (This won't work with Vim < 7.3 and also not with a Vim without +syntax
@@ -1413,7 +1455,7 @@ set the variable `g:csv_disable_fdt` in your |.vimrc| >
 By default, the csv plugin will analyze the whole file to determine which
 delimiter to use. Beside specifying the the actual delimiter to use
 (|csv-delimiter|) you can restrict analyzing the plugin to consider only a
-certain part of the file. This should make loading huge csv files a log
+certain part of the file. This should make loading huge csv files a lot
 faster. To only consider the first 100 rows set the `g:csv_start` and
 `g:csv_end` variables in your |.vimrc| like this >
 
@@ -1426,6 +1468,24 @@ disable syntax highlighting and the filetype commands for very large csv files
 (by default larger than 100 MB).
 
 See also |csv-slow|
+                                                                    *g:csv_bind_B*
+                                                                    *csv-bind-B*
+4.14 Map `B` instead of `E` to jump back to previous column             *csv-bind*
+-------------------------------------------------------
+
+Mapping E to go back a cell has no logic ; this feature lets the user choose
+to map B instead with the `g:csv_bind_B` variable (boolean) defined anywhere
+in his vim configuration. If it is not set, falls back to mapping E to
+previous column. Added by @lapingenieur (https://github.com/lapingenieur ;
+email: lapingenieur@gmail.com).
+
+Exemple : I want to remap `B` to go to the previous column (comma) instead of `E`
+>
+    let g:csv_bind_B = 1
+<
+If you don't want this feature, you can just leave this variable without
+defining it : the script will automatically map `E`
+
 ==============================================================================
 5. Functions                                                    *CSV-Functions*
 
@@ -1487,9 +1547,13 @@ Returns the 10 smallest values for column col.
 ------------------------------------------------------
 Returns the average value for column col. 
 
-5.9 CSVWidth()                                                  *CSVWidth()*
+5.9 CSVWidth([silent])                                             *CSVWidth()*
 ------------------------------------------------------
-Returns a list with the width for each column.
+Returns a list with the width for each column. If the first argument is given
+and non-zero, do not output warning message about the number of records used
+to calculate the width (else it might output something like:
+  CSV: File too large, only checking the first 10000 rows for the width
+), default: 1
 
 ==============================================================================
 6. CSV Tips and Tricks						*csv-tips*
@@ -1682,6 +1746,16 @@ comes after the :filetype plugin (|:filetype-plugin-on|) statement in your
 |.vimrc|
 
 Alternatively, you can simply call |InitCSV| and ignore the error.
+
+Note: It could also be caused by lazy loading feature by a vim plugin
+manager. For example this line might also cause it: >
+
+  Plug 'https://github.com/chrisbra/csv.vim',  { 'for' : 'csv' }
+<
+
+The fix would then be: >
+
+  Plug 'https://github.com/chrisbra/csv.vim'
 
 6.6 Calculate new columns               *csv-calculate-column*
 -------------------------

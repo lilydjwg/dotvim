@@ -1,4 +1,4 @@
-# Introduction
+# Introduction [![Say Thanks!](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)](https://saythanks.io/to/cb%40256bit.org)
 
 This plugin is used for handling column separated data with Vim. Usually those
 files are called csv files and use the ',' as delimiter, though sometimes they
@@ -9,7 +9,11 @@ This is a filetype plugin for CSV files. It was heavily influenced by
 the [Vim Wiki Tip667](http://vim.wikia.com/wiki/VimTip667), though it
 works differently. 
 
-It will make use of the [vartab](http://vimhelp.appspot.com/options.txt.html#'vartabstop') feature for tab delimited files.
+It will make use of the [vartabs](https://vimhelp.org/options.txt.html#%27vartabstop%27) feature for tab delimited files.
+
+By default, some remapings are done, including `E` to go back to the previous column (comma) which is obviously not the best option :
+it'd be logical to use `B` to do so. Fortunately, you can set your favourite key to do this action just by setting a variable in your config.
+Follow the indications [there](#map-b-instead-of-e-to-jump-back-to-previous-column) (also in the builtin docs).
 
 ![Screenshot](http://www.256bit.org/~chrisbra/csv.gif)
 
@@ -67,6 +71,7 @@ It will make use of the [vartab](http://vimhelp.appspot.com/options.txt.html#'va
   * [Move folded lines](#move-folded-lines)
   * [Using comments](#using-comments)
   * [Size and performance considerations](#size-and-performance-considerations)
+  * [Map `B` instead of `E` to jump back to previous column](#map-b-instead-of-e-to-jump-back-to-previous-column)
 - [Functions](#functions)
   * [CSVPat()](#csvpat)
   * [CSVField(x,y[, orig])](#csvfieldxy-orig)
@@ -426,11 +431,15 @@ While this command
 :1,10Sort! 3
 ```
 
-reverses the order based on column 3.
+reverses the order based on column 3. If you want numeric sort on floatng
+points, you can use:
+```vim
+:2,$Sort 3f
+```
 
 The column number can be optionally followed by any of the flags [i], [n],
 [x] and [o] for [i]gnoring case, sorting by [n]umeric, he[x]adecimal
-or [o]ctal value.
+[o]ctal or [f]loat value.
 
 When no column number is given, it will sort by the column, on which the
 cursor is currently.
@@ -490,34 +499,6 @@ given, this calculates the sum for the column the cursor is on. Note, that the
 delimiter will be stripped away from each value and also empty values won't be
 considered.
 
-By default, Vim uses the a numerical format that uses the '.' as decimal
-separator while there is no thousands separator. If youre file contains
-the numbers in a different format, you can use the /format/ option to specify
-a different thousands separator or a different decimal separator. The format
-needs to be specified like this:
-
-```
-/x:y/
-```
-where 'x' defines the thousands separator and y defines the decimal
-separator and each one is optional. This means, that 
-
-```vim
-:SumCol 1 /:,/
-```
-
-uses the default thousands separator and ',' as the decimal separator and 
-
-```vim
-:SumCol 2 / :./
-```
-
-uses the Space as thousands separator and the '.' as decimal separator.
-
-Note, if you Vim is compiled without floating point number format ([`+float`](http://vimhelp.appspot.com/various.txt.html#%2Bfloat)),
-Vim will only aggregate the integer part and therefore won't use the 'y'
-argument in the /format/ specifier.
-
 See also [Defining custom aggregate functions](#defining-custom-aggregate-functions)
 
 ## Create new Records
@@ -551,15 +532,17 @@ If you want to check the file for duplicate records, use the command
 `:Duplicate` or `:CSVDuplicate`: 
 
 ```vim
-:Duplicate columnlist
+:Duplicate [columnlist]
 ```
 
 Columnlist needs to be a numeric comma-separated list of all columns that you
 want to check. You can also use a range like '2-5' which means the plugin
-should check columns 2,3,4 and 5.
+should check columns 2,3,4 and 5. If no columnlist ist given, will use the
+current column.
 
 If the plugin finds a duplicate records, it outputs its line number (but it
-only does that at most 10 times).
+only does that at most 10 times). You can find the message also in the message
+history using `:mess`.
 
 ## Normal mode commands
 
@@ -856,6 +839,15 @@ This tells you, that the the value '10' in column 3 occurs 50% of the time
 (exactly 20 times) and the other 2 values '2' and '5' occur only 10 times, so
 25% of the time.
 
+In addition, a second argument may be used to specify the number of top values.
+So 
+
+```vim
+:Analyze 3 10
+```
+
+outputs the the distribution of the top 10 values in column 3, respectively.
+
 ## Vertical Folding
 
 Sometimes, you want to hide away certain columns to better view only certain
@@ -1080,7 +1072,7 @@ given, this calculates the average for the column the cursor is on. Note, that t
 delimiter will be stripped away from each value and also empty values won't be
 considered.
 
-For the `[/format/]` part, see [Maximum/Minimum value of a Column](#maximumminimum-value-of-a-column).
+For the `[/format/]` part, see [Number format](#number-format).
 
 The result is also available in the buffer-local variable `b:csv_result`.
 
@@ -1096,12 +1088,16 @@ See also [Defining custom aggregate functions](#defining-custom-aggregate-functi
 :[range]SmplVarianceCol [nr] [/format/]
 ```
 
+Calculate the Population or Sample Variance for the specified column.
+
 This outputs the result of the column `<nr>` within the range given. If no range
 is given, this will calculate the statistical variance of the whole column. If `<nr>` is not
 given, this calculates the variance for the column the cursor is on. Note, that the delimiter
 will be stripped away from each value and also empty values won't be considered.
 
 The result is also available in the buffer-local variable `b:csv_result`.
+
+For the `[/format/]` part, see [Number format](#number-format).
 
 ## Standard Deviation of a Column
 
@@ -1113,14 +1109,16 @@ The result is also available in the buffer-local variable `b:csv_result`.
 :[range]SmplStdCol [nr] [/format/]
 ```
 
+Calculate the Population or Sample Standard Deviation for the specified column.
+
 This outputs the result of the column `<nr>` within the range given. If no range
 is given, this will calculate the standard deviation of the whole column. If `<nr>` is not
 given, this calculates the standard deviation for the column the cursor is on. Note, that
 the delimiter will be stripped away from each value and also empty values won't be considered.
 
-For the `[/format/]` part, see [Maximum/Minimum value of a Column](#maximumminimum-value-of-a-column).
-
 The result is also available in the buffer-local variable `b:csv_result`.
+
+For the `[/format/]` part, see [Number format](#number-format).
 
 ## Duplicate columns
 
@@ -1158,7 +1156,7 @@ This outputs the sum of the row `[line]`. If no line is given, this will
 calculate the sum for the current row. Note, that the delimiter will be
 stripped away from each value and also empty values won't be considered.
 
-For the `[/format/]` part, see [Maximum/Minimum value of a Column](#maximumminimum-value-of-a-column).
+For the `[/format/]` part, see [Number format](#number-format).
 
 # CSV Configuration
 
@@ -1179,6 +1177,13 @@ manually, use:
 
 to let the comma be the delimiter. This sets the buffer local delimiter
 variable b:delimiter.
+
+You can also set default delimiter to prevent a warning if no delimiter can
+be detected:
+
+```vim
+:let g:csv_default_delim=','
+```
 
 If your file does not consist of delimited columns, but rather is a fixed
 width csv file, see [Fixed width columns](#fixed-width-columns) for configuring the plugin appropriately.
@@ -1477,23 +1482,44 @@ instead is on line 5, simply set this variable to 5. This also applies to the
 
 ## Number format
 
-When using the [Sum of a Column](#sum-of-a-column) command, you can specify a certain number format
-using the /x:y/ argument. You can however also configure the plugin to detect
-a different number format than the default number format (which does not
-support a thousands separator and uses the '.' as decimal separator).
+By default, Vim uses the a numerical format that uses the '.' as decimal
+separator while there is no thousands separator. If youre file contains
+the numbers in a different format, you can use the /format/ option to specify
+a different thousands separator or a different decimal separator. The format
+needs to be specified like this:
+
+```
+/x:y/
+```
+where 'x' defines the thousands separator and y defines the decimal
+separator and each one is optional. This means, that 
+
+```vim
+:SumCol 1 /:,/
+```
+
+uses the default thousands separator and ',' as the decimal separator and 
+
+```vim
+:SumCol 2 / :./
+```
+
+uses the Space as thousands separator and the '.' as decimal separator.
+
+You can however also configure the plugin to detect a different number format
+than the default number format (which does not support a thousands separator
+and uses the '.' as decimal separator).
 
 To specify a different thousands separator by default, use 
 
 ```vim
 let b:csv_thousands_sep = ' '
 ```
-
 to have the space use as thousands separator and 
 
 ```vim
 let b:csv_decimal_sep = ','
 ```
-
 to use the comma as decimal separator.
 
 ## Move folded lines
@@ -1545,7 +1571,7 @@ set the variable `g:csv_disable_fdt` in your [`.vimrc`](http://vimhelp.appspot.c
 By default, the csv plugin will analyze the whole file to determine which
 delimiter to use. Beside specifying the the actual delimiter to use
 (see also [Delimiter](#delimiter)) you can restrict analyzing the plugin to consider only a
-certain part of the file. This should make loading huge csv files a log
+certain part of the file. This should make loading huge csv files a lot
 faster. To only consider the first 100 rows set the `g:csv_start` and
 `g:csv_end` variables in your [`.vimrc`](http://vimhelp.appspot.com/starting.txt.html#.vimrc) like this
 
@@ -1560,6 +1586,24 @@ will disable syntax highlighting and the filetype commands for very large csv
 files (by default larger than 100 MB).
 
 See also [Slow CSV plugin](#slow-csv-plugin)
+
+## Map `B` instead of `E` to jump back to previous column
+
+Mapping E to go back a cell has no logic ; this feature lets the user choose
+to map B instead with the `g:csv_bind_B` variable (boolean) defined anywhere
+in his vim configuration. If it is not set, falls back to mapping E to
+previous column. Added by @lapingenieur ([lapingenieur over github](https://github.com/lapingenieur),
+email: lapingenieur@gmail.com).
+
+Exemple : I want to remap `B` to go to the previous column (comma) instead of `E`.
+Just put this in your counfig file :
+
+```vim
+    let g:csv_bind_B = 1
+```
+
+If you don't want this feature, you can just leave this variable without
+defining it : the script will automatically map `E`.
 
 # Functions
 
@@ -1829,6 +1873,17 @@ comes after the :filetype plugin ([`:filetype-plugin-on`](http://vimhelp.appspot
 [`.vimrc`](http://vimhelp.appspot.com/starting.txt.html#.vimrc)
 
 Alternatively, you can simply call [CSVInit](#csvinit) and ignore the error.
+
+Note: It could also be caused by lazy loading feature by a vim plugin
+manager. For example this line might also cause it:
+
+```vim
+  Plug 'https://github.com/chrisbra/csv.vim',  { 'for' : 'csv' }
+```
+The fix would then be:
+```vim
+  Plug 'https://github.com/chrisbra/csv.vim'
+```
 
 ## Calculate new columns
 
