@@ -23,38 +23,47 @@ function! denite#custom#_init() abort
   let s:custom.option = {}
   let s:custom.filter = {}
   let s:custom.action = {}
+  let s:custom.kind = {}
+  let s:custom.kind._ = {}
 endfunction
 
-function! denite#custom#source(source_name, option_name, value) abort
-  if index(['matchers', 'sorters', 'converters',
-        \   'vars', 'args', 'max_candidates'],
-        \ a:option_name) < 0
-    call denite#util#print_error('Invalid option_name: ' . a:option_name)
-    return
-  endif
-
+function! denite#custom#source(source_name, name_or_dict, ...) abort
   let custom = denite#custom#_get().source
 
   for key in denite#util#split(a:source_name)
     if !has_key(custom, key)
       let custom[key] = {}
     endif
-    let custom[key][a:option_name] = a:value
+
+    call s:set_custom(custom[key], a:name_or_dict, get(a:000, 0, ''))
   endfor
 endfunction
 
-function! denite#custom#filter(filter_name, var_name, value) abort
+function! denite#custom#kind(kind_name, name_or_dict, ...) abort
+  let custom = denite#custom#_get().kind
+
+  for key in denite#util#split(a:kind_name)
+    if !has_key(custom, key)
+      let custom[key] = {}
+    endif
+
+    call s:set_custom(custom[key], a:name_or_dict, get(a:000, 0, ''))
+  endfor
+endfunction
+
+function! denite#custom#filter(filter_name, name_or_dict, ...) abort
   let custom = denite#custom#_get().filter
 
   for key in denite#util#split(a:filter_name)
     if !has_key(custom, key)
       let custom[key] = {}
     endif
-    let custom[key][a:var_name] = a:value
+
+    call s:set_custom(custom[key], a:name_or_dict, get(a:000, 0, ''))
   endfor
 endfunction
 
-function! denite#custom#var(source_name, var_name, value) abort
+function! denite#custom#var(source_name, name_or_dict, ...) abort
   let custom = denite#custom#_get().source
 
   for key in denite#util#split(a:source_name)
@@ -64,7 +73,8 @@ function! denite#custom#var(source_name, var_name, value) abort
     if !has_key(custom[key], 'vars')
       let custom[key].vars = {}
     endif
-    let custom[key].vars[a:var_name] = a:value
+
+    call s:set_custom(custom[key].vars, a:name_or_dict, get(a:000, 0, ''))
   endfor
 endfunction
 
@@ -112,17 +122,21 @@ function! denite#custom#action(kind, name, func, ...) abort
     if !has_key(custom, key)
       let custom[key] = {}
     endif
+
     let custom[key][a:name] = [a:func, a:0 ? a:1 : {}]
   endfor
 endfunction
-function! denite#custom#_call_action(kind, name, context) abort
+function! denite#custom#_call_action(index, name, context) abort
   let custom = denite#custom#_get().action
 
-  for key in denite#util#split(a:kind)
+  let new_context = {}
+  for key in denite#util#split(a:index)
     if has_key(custom, key) && has_key(custom[key], a:name)
-      call call(custom[key][a:name][0], [a:context])
+      let new_context = call(custom[key][a:name][0], [a:context])
     endif
   endfor
+
+  return new_context
 endfunction
 
 function! s:set_custom(dest, name_or_dict, value) abort

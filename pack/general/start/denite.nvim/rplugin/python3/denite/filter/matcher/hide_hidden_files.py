@@ -4,23 +4,25 @@
 # License: MIT license
 # ============================================================================
 
-from os.path import basename
+from pathlib import Path
+from pynvim import Nvim
 from re import match
 
-from denite.filter.base import Base
+from denite.base.filter import Base
+from denite.util import UserContext, Candidates
 
 
 class Filter(Base):
 
-    def __init__(self, vim):
+    def __init__(self, vim: Nvim) -> None:
         super().__init__(vim)
 
         self.name = 'matcher/hide_hidden_files'
         self.description = 'hide the hidden files'
 
-    def filter(self, context):
+    def filter(self, context: UserContext) -> Candidates:
         if '.' in context['input']:
-            return context['candidates']
+            return list(context['candidates'])
 
         return [x for x in context['candidates']
-                if not match(r'\.', basename(x['action__path']))]
+                if not match(r'\.', Path(x['action__path']).name)]

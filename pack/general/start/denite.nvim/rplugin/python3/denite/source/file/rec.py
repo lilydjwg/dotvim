@@ -4,19 +4,21 @@
 # License: MIT license
 # ============================================================================
 
+from pathlib import Path
+from pynvim import Nvim
 import argparse
 import shutil
-from os import path, pardir
-from os.path import relpath, isabs, isdir, join, normpath
+import typing
 
-from denite.source.base import Base
+from denite.base.source import Base
 from denite.process import Process
-from denite.util import parse_command, abspath
+from denite.util import parse_command, abspath, UserContext, Candidates
+from denite.util import get_python_exe
 
 
 class Source(Base):
 
-    def __init__(self, vim):
+    def __init__(self, vim: Nvim) -> None:
         super().__init__(vim)
 
         self.name = 'file/rec'
@@ -25,9 +27,11 @@ class Source(Base):
             'command': [],
             'cache_threshold': 10000,
         }
-        self._cache = {}
+        self.converters = ['converter/truncate_abbr']
 
-    def on_init(self, context):
+        self._cache: typing.Dict[str, Candidates] = {}
+
+    def on_init(self, context: UserContext) -> None:
         """scantree.py command has special meaning, using the internal
         scantree.py Implementation"""
 
@@ -43,24 +47,24 @@ class Source(Base):
                     '-type', 'l', '-print', '-o', '-type', 'f', '-print']
             else:
                 self.vars['command'] = self.parse_command_for_scantree(
-                    ['scantree.py'])
+                    ['scantree.py', '--path', ':directory'])
 
         context['__proc'] = None
         directory = context['args'][0] if len(
             context['args']) > 0 else context['path']
         context['__directory'] = abspath(self.vim, directory)
 
-    def on_close(self, context):
+    def on_close(self, context: UserContext) -> None:
         if context['__proc']:
             context['__proc'].kill()
             context['__proc'] = None
 
-    def gather_candidates(self, context):
+    def gather_candidates(self, context: UserContext) -> Candidates:
         if not self.vars['command']:
             return []
 
         directory = context['__directory']
-        if not isdir(directory):
+        if not Path(directory).is_dir():
             return []
 
         if context['is_redraw'] and directory in self._cache:
@@ -83,27 +87,32 @@ class Source(Base):
         self.print_message(context, args)
         context['__proc'] = Process(args, context, directory)
         context['__current_candidates'] = []
-        return self._async_gather_candidates(context, 0.5)
+        return self._async_gather_candidates(
+            context, context['async_timeout'])
 
-    def _async_gather_candidates(self, context, timeout):
+    def _async_gather_candidates(self, context: UserContext,
+                                 timeout: float) -> Candidates:
         outs, errs = context['__proc'].communicate(timeout=timeout)
         if errs:
             self.error_message(context, errs)
+        if not context['__proc']:
+            return []
+
         context['is_async'] = not context['__proc'].eof()
         if context['__proc'].eof():
             context['__proc'] = None
         if not outs:
             return []
         directory = context['__directory']
-        if isabs(outs[0]):
+        if outs and Path(outs[0]).is_absolute():
             candidates = [{
-                'word': relpath(x, start=directory),
+                'word': str(Path(x).relative_to(directory)),
                 'action__path': x,
-                } for x in outs if x != '']
+                } for x in outs if x != '' and directory in x]
         else:
             candidates = [{
                 'word': x,
-                'action__path': join(directory, x),
+                'action__path': str(Path(directory).joinpath(x)),
                 } for x in outs if x != '']
         context['__current_candidates'] += candidates
 
@@ -114,31 +123,28 @@ class Source(Base):
 
         return candidates
 
-    def parse_command_for_scantree(self, cmd):
+    def parse_command_for_scantree(self,
+                                   cmd: typing.List[str]) -> typing.List[str]:
         """Given the user choice for --ignore get the corresponding value"""
 
         parser = argparse.ArgumentParser(description="parse scantree options")
         parser.add_argument('--ignore', type=str, default=None)
+        parser.add_argument('--path', type=str, default=None)
 
         # the first name on the list is 'scantree.py'
-        args = parser.parse_args(
+        (args, rest) = parser.parse_known_args(
             cmd[1:] if cmd and cmd[0] == 'scantree.py' else cmd)
         if args.ignore is None:
             ignore = self.vim.options['wildignore']
         else:
             ignore = args.ignore
-
-        current_folder, _ = path.split(__file__)
-        scantree_py = normpath(join(current_folder,
-                                    pardir, pardir, 'scantree.py'))
-
-        if shutil.which('python3') is not None:
-            python_exe = 'python3'
+        if args.path is None:
+            path = ':directory'
         else:
-            python_exe = 'python'
-        if shutil.which(python_exe) is None:
-            raise FileNotFoundError("Coudn't find {} executable!".format(
-                                    python_exe))
+            path = args.path
 
-        return [python_exe, scantree_py, '--ignore', ignore,
-                '--path', ':directory']
+        scantree_py = Path(__file__).parent.parent.parent.joinpath(
+            'scantree.py')
+
+        return [get_python_exe(), str(scantree_py),
+                '--ignore', ignore, '--path', path, *rest]

@@ -4,7 +4,11 @@
 # License: MIT license
 # ============================================================================
 
-from denite.source.base import Base
+from pynvim import Nvim
+import typing
+
+from denite.base.source import Base
+from denite.util import UserContext, Candidates
 
 CHANGE_HIGHLIGHT_SYNTAX = [
     {'name': 'Text', 'link': 'Function', 're': r'\v(\d+\s+\d+\s+\d+\s+)\zs.*'},
@@ -13,25 +17,26 @@ CHANGE_HIGHLIGHT_SYNTAX = [
 
 class Source(Base):
 
-    def __init__(self, vim):
+    def __init__(self, vim: Nvim) -> None:
         super().__init__(vim)
 
         self.name = 'change'
         self.kind = 'file'
 
-    def on_init(self, context):
+    def on_init(self, context: UserContext) -> None:
         context['__parse'] = self._parse(context)[::-1]
 
-    def highlight(self):
+    def highlight(self) -> None:
         for syn in CHANGE_HIGHLIGHT_SYNTAX:
             self.vim.command(
                 'syntax match {0}_{1} /{2}/ contained containedin={0}'.format(
                     self.syntax_name, syn['name'], syn['re']))
             self.vim.command(
-                'highlight default link {0}_{1} {2}'.format(
+                'highlight default link {}_{} {}'.format(
                     self.syntax_name, syn['name'], syn['link']))
 
-    def _parse(self, context):
+    def _parse(self, context: UserContext) -> typing.List[
+            typing.Dict[str, typing.Any]]:
         change_list = []
         for row_data in self.vim.call('execute', 'changes').split('\n'):
             elements = row_data.split()
@@ -63,5 +68,5 @@ class Source(Base):
 
         return change_list
 
-    def gather_candidates(self, context):
-        return context['__parse']
+    def gather_candidates(self, context: UserContext) -> Candidates:
+        return list(context['__parse'])

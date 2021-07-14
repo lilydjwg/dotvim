@@ -4,20 +4,23 @@
 # License: MIT license
 # ============================================================================
 
+from pynvim import Nvim
 import re
 
-from denite.source.base import Base
+from denite.base.source import Base
+from denite.kind.word import Kind as Word
+from denite.util import UserContext, Candidates
 
 
 class Source(Base):
 
-    def __init__(self, vim):
+    def __init__(self, vim: Nvim) -> None:
         super().__init__(vim)
 
         self.name = 'register'
-        self.kind = 'word'
+        self.kind = Kind(vim)
 
-    def gather_candidates(self, context):
+    def gather_candidates(self, context: UserContext) -> Candidates:
         candidates = []
 
         for reg in (['+', '*']
@@ -28,7 +31,7 @@ class Source(Base):
            'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
            'u', 'v', 'w', 'x', 'y', 'z',
            '-', '.', ':', '#', '%', '/', '=']:
-            register = self.vim.call('getreg', reg, 1)
+            register = self.vim.call('denite#util#getreg', reg)
             if not register:
                 continue
 
@@ -36,5 +39,25 @@ class Source(Base):
                 'word': reg + ': ' + re.sub(
                     r'\n', r'\\n', register)[:200],
                 'action__text': register,
+                'action__register': reg,
+                'action__regtype': self.vim.call('getregtype', reg),
             })
         return candidates
+
+
+class Kind(Word):
+    def __init__(self, vim: Nvim) -> None:
+        super().__init__(vim)
+
+        self.name = 'register'
+        self.persist_actions += ['edit']
+        self.redraw_actions += ['edit']
+
+    def action_edit(self, context: UserContext) -> None:
+        for target in context['targets']:
+            new_value = str(self.vim.call(
+                'denite#util#input',
+                f"Register {target['action__register']}: ",
+                target['action__text'],
+            ))
+            self.vim.call('setreg', target['action__register'], new_value)

@@ -4,43 +4,36 @@
 # License: MIT license
 # ============================================================================
 
-from denite.kind.base import Base
-from denite import util
+from pynvim import Nvim
+
+from denite.base.kind import Base
+from denite.util import UserContext
 
 
 class Kind(Base):
 
-    def __init__(self, vim):
+    def __init__(self, vim: Nvim) -> None:
         super().__init__(vim)
 
         self.name = 'command'
         self.default_action = 'execute'
 
-    def action_execute(self, context):
+    def action_execute(self, context: UserContext) -> None:
         target = context['targets'][0]
-        self._execute(context,
-                      target['action__command'],
-                      target.get('action__is_pause', False))
+        self._execute(context, target['action__command'],
+                      target.get('action__histadd', False))
 
-    def action_edit(self, context):
+    def action_edit(self, context: UserContext) -> None:
         target = context['targets'][0]
-        command = util.input(self.vim, context,
-                             "command > ",
-                             target['action__command'],
-                             'command')
-        self._execute(context, command,
-                      target.get('action__is_pause', False))
+        self.vim.call('feedkeys', f":{target['action__command']}")
 
-    def _execute(self, context, command, is_pause):
+    def _execute(self, context: UserContext,
+                 command: str, histadd: bool) -> None:
         if not command:
             return
         if context['firstline'] != context['lastline']:
             command = '{},{}{}'.format(
                 context['firstline'], context['lastline'], command)
-        output = self.vim.call(
-            'denite#util#execute_command', command, is_pause)
-        if not output or output == '\n':
-            return
-        self.vim.command('redraw')
-        self.debug(output)
-        self.vim.call('getchar')
+        self.vim.call('denite#util#execute_command', command, False)
+        if histadd:
+            self.vim.call('histadd', ':', command)

@@ -8,9 +8,11 @@
 # License: MIT license
 # ============================================================================
 
+from pynvim import Nvim
 from unicodedata import category
 
-from denite.filter.base import Base
+from denite.base.filter import Base
+from denite.util import UserContext, Candidates
 
 
 # Score consts
@@ -29,15 +31,15 @@ UNMATCHED_LETTER_PENALTY = -1
 
 
 class Filter(Base):
-    def __init__(self, vim):
+    def __init__(self, vim: Nvim) -> None:
         super().__init__(vim)
 
         self.name = 'sorter/sublime'
         self.description = 'sorter for fuzzy matching like sublime text'
 
-    def filter(self, context):
+    def filter(self, context: UserContext) -> Candidates:
         if len(context['input']) == 0:
-            return context['candidates']
+            return list(context['candidates'])
 
         for candidate in context['candidates']:
             candidate['filter__rank'] = get_score(
@@ -45,11 +47,11 @@ class Filter(Base):
 
         return sorted(
             context['candidates'],
-            key=lambda candidate: -candidate['filter__rank']
+            key=lambda candidate: -int(candidate['filter__rank'])
         )
 
 
-def get_score(pattern, candidate):
+def get_score(pattern: str, candidate: Candidates) -> int:
     # Loop variables
     score = 0
     pattern_index = 0
@@ -72,7 +74,7 @@ def get_score(pattern, candidate):
     while candidate_index != candidate_length:
         pattern_char = pattern[pattern_index] if (pattern_index !=
                                                   pattern_length) else None
-        candidate_char = candidate[candidate_index]
+        candidate_char: str = str(candidate[candidate_index])
 
         pattern_lower = pattern_char.lower() if (pattern_char is not
                                                  None) else None

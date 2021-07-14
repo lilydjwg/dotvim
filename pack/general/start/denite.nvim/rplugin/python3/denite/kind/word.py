@@ -4,12 +4,14 @@
 # License: MIT license
 # ============================================================================
 
-from denite.kind.base import Base
+from pynvim import Nvim
+
+from denite.base.kind import Base
 
 
 class Kind(Base):
 
-    def __init__(self, vim):
+    def __init__(self, vim: Nvim) -> None:
         super().__init__(vim)
 
         self.name = 'word'

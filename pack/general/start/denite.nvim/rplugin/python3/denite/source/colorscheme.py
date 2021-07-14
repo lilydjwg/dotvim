@@ -5,29 +5,32 @@
 # ============================================================================
 
 from os import path
+from pynvim import Nvim
 
-from denite.source.base import Base
+from denite.base.source import Base
 from denite.kind.command import Kind as Command
 
-from denite.util import globruntime
+from denite.util import globruntime, UserContext, Candidates
 
 
 class Source(Base):
 
-    def __init__(self, vim):
+    def __init__(self, vim: Nvim) -> None:
         super().__init__(vim)
 
         self.name = 'colorscheme'
         self.kind = Kind(vim)
 
-    def on_init(self, context):
-        context['__current_color'] = self.vim.vars['colors_name']
+    def on_init(self, context: UserContext) -> None:
+        context['__current_color'] = (
+            self.vim.vars['colors_name']
+            if 'colors_name' in self.vim.vars else 'default')
 
-    def on_close(self, context):
-        self.vim.command('silent colorscheme {}'.format(
-            context['__current_color']))
+    def on_close(self, context: UserContext) -> None:
+        self.vim.command(
+            f'silent colorscheme {context["__current_color"]}')
 
-    def gather_candidates(self, context):
+    def gather_candidates(self, context: UserContext) -> Candidates:
         colorschemes = {}
 
         for filename in globruntime(context['runtimepath'], 'colors/*.vim'):
@@ -37,15 +40,16 @@ class Source(Base):
                 'action__command': 'colorscheme ' + colorscheme
             }
 
-        return sorted(colorschemes.values(), key=lambda value: value['word'])
+        return sorted(colorschemes.values(),
+                      key=lambda value: str(value['word']))
 
 
 class Kind(Command):
-    def __init__(self, vim):
+    def __init__(self, vim: Nvim) -> None:
         super().__init__(vim)
         self.vim = vim
         self.name = 'colorscheme'
 
-    def action_preview(self, context):
+    def action_preview(self, context: UserContext) -> None:
         target = context['targets'][0]
-        self.vim.command('silent colorscheme {}'.format(target['word']))
+        self.vim.command(f'silent colorscheme {target["word"]}')

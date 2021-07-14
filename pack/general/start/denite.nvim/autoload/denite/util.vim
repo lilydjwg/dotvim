@@ -35,8 +35,8 @@ function! denite#util#execute_path(command, path) abort
   endif
 
   try
-    execute a:command escape(s:expand(a:path), '[]$')
-  catch /^Vim\%((\a\+)\)\=:E325/
+    execute a:command fnameescape(s:expand(a:path))
+  catch /^Vim\%((\a\+)\)\=:E325\|^Vim:Interrupt/
     " Ignore swap file error
   catch
     call denite#util#print_error(v:throwpoint)
@@ -61,6 +61,16 @@ function! denite#util#echo(color, string) abort
   execute 'echohl' a:color
   echon a:string
   echohl NONE
+endfunction
+
+function! denite#util#getchar(...) abort
+  try
+    return call('getchar', a:000)
+  catch /^Vim:Interrupt/
+    return 3
+  catch
+    return 0
+  endtry
 endfunction
 
 function! denite#util#open(filename) abort
@@ -114,6 +124,14 @@ function! denite#util#open(filename) abort
   endif
 endfunction
 
+function! denite#util#cd(path) abort
+  if exists('*chdir')
+    call chdir(a:path)
+  else
+    silent execute 'lcd' fnameescape(a:path)
+  endif
+endfunction
+
 function! denite#util#split(string) abort
   return split(a:string, '\s*,\s*')
 endfunction
@@ -132,7 +150,7 @@ function! s:expand(path) abort
 endfunction
 
 function! denite#util#alternate_buffer() abort
-  if len(filter(range(1, bufnr('$')), 'buflisted(v:val)')) <= 1
+  if len(filter(range(1, bufnr('$')), { _, val -> buflisted(val) })) <= 1
     enew
     return
   endif
@@ -164,7 +182,7 @@ function! denite#util#delete_buffer(command, bufnr) abort
     return
   endif
 
-  let buffers = filter(range(1, bufnr('$')), 'buflisted(v:val)')
+  let buffers = filter(range(1, bufnr('$')), { _, val -> buflisted(val) })
   if len(buffers) == 1 && bufname(buffers[0]) ==# ''
     " Noname buffer only
     return
@@ -180,6 +198,21 @@ function! denite#util#delete_buffer(command, bufnr) abort
   endfor
   execute prev_winnr . 'wincmd w'
   silent execute a:bufnr a:command
+endfunction
+
+function! denite#util#input(prompt, ...) abort
+  let text = get(a:000, 0, '')
+  let completion = get(a:000, 1, '')
+  try
+    if completion !=# ''
+      return input(a:prompt, text, completion)
+    else
+      return input(a:prompt, text)
+    endif
+  catch
+    " ignore the errors
+    return ''
+  endtry
 endfunction
 
 function! denite#util#input_yesno(message) abort
@@ -199,4 +232,101 @@ function! denite#util#input_yesno(message) abort
   redraw
 
   return yesno =~? 'y\%[es]'
+endfunction
+
+function! denite#util#has_yarp() abort
+  return !has('nvim')
+endfunction
+function! denite#util#rpcrequest(method, args, is_async) abort
+  if !denite#init#_check_channel()
+    return -1
+  endif
+
+  if denite#util#has_yarp()
+    if g:denite#_yarp.job_is_dead
+      return -1
+    endif
+    if a:is_async
+      return g:denite#_yarp.notify(a:method, a:args)
+    else
+      return g:denite#_yarp.request(a:method, a:args)
+    endif
+  else
+    if a:is_async
+      return rpcnotify(g:denite#_channel_id, a:method, a:args)
+    else
+      return rpcrequest(g:denite#_channel_id, a:method, a:args)
+    endif
+  endif
+endfunction
+
+function! denite#util#getreg(reg) abort
+  " Note: Substitute <80><fd>
+  return substitute(getreg(a:reg, 1), '[\xfd\x80]', '', 'g')
+endfunction
+
+function! denite#util#check_floating(context) abort
+  return (a:context['split'] ==# 'floating' ||
+        \ a:context['split'] ==# 'floating_relative_cursor' ||
+        \ a:context['split'] ==# 'floating_relative_window' ||
+        \ a:context['filter_split_direction'] ==# 'floating')
+        \ && exists('*nvim_open_win')
+endfunction
+function! denite#util#check_matchdelete() abort
+  if !exists('s:check_matchdelete')
+    let s:check_matchdelete = v:false
+    try
+      call getmatches(win_getid())
+      let s:check_matchdelete = v:true
+    catch
+      " Ignore error
+    endtry
+  endif
+
+  return s:check_matchdelete
+endfunction
+
+function! denite#util#escape_match(str) abort
+  return escape(a:str, '~\.^$[]')
+endfunction
+
+function! denite#util#truncate(str, max, footer_width, separator) abort
+  let width = strwidth(a:str)
+  if width <= a:max
+    let ret = a:str
+  else
+    let header_width = a:max - strwidth(a:separator) - a:footer_width
+    let ret = s:strwidthpart(a:str, header_width) . a:separator
+         \ . s:strwidthpart_reverse(a:str, a:footer_width)
+  endif
+  return s:truncate(ret, a:max)
+endfunction
+function! s:truncate(str, width) abort
+  " Original function is from mattn.
+  " http://github.com/mattn/googlereader-vim/tree/master
+
+  if a:str =~# '^[\x00-\x7f]*$'
+    return len(a:str) < a:width
+          \ ? printf('%-' . a:width . 's', a:str)
+          \ : strpart(a:str, 0, a:width)
+  endif
+
+  let ret = a:str
+  let width = strwidth(a:str)
+  if width > a:width
+    let ret = s:strwidthpart(ret, a:width)
+    let width = strwidth(ret)
+  endif
+
+  return ret
+endfunction
+function! s:strwidthpart(str, width) abort
+  let str = tr(a:str, "\t", ' ')
+  let vcol = a:width + 2
+  return matchstr(str, '.*\%<' . (vcol < 0 ? 0 : vcol) . 'v')
+endfunction
+function! s:strwidthpart_reverse(str, width) abort
+  let str = tr(a:str, "\t", ' ')
+  let vcol = strwidth(str) - a:width
+  return matchstr(str, '\%>' . (vcol < 0 ? 0 : vcol) . 'v.*')
 endfunction

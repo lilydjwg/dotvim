@@ -5,12 +5,16 @@
 # License: MIT license
 # ============================================================================
 
-from denite.source.base import Base
+from pynvim import Nvim
+import typing
+
+from denite.base.source import Base
+from denite.util import UserContext, Candidates
 
 
 class Source(Base):
 
-    def __init__(self, vim):
+    def __init__(self, vim: Nvim) -> None:
         super().__init__(vim)
 
         self.name = 'menu'
@@ -24,20 +28,21 @@ class Source(Base):
             'unite_source_menu_compatibility': False,
         }
 
-    def on_init(self, context):
+    def on_init(self, context: UserContext) -> None:
         if self.vars['unite_source_menu_compatibility']:
             self.vars['menus'].update(
                 self.vim.vars['unite_source_menu_menus']
             )
 
-    def filter_candidates(self, candidates, filetype=None):
+    def filter_candidates(self, candidates: typing.Any,
+                          filetype: str = '') -> typing.Any:
         if not filetype:
             return candidates
 
         return [candidate for candidate in candidates
                 if len(candidate) < 3 or filetype in candidate[2].split(',')]
 
-    def gather_candidates(self, context):
+    def gather_candidates(self, context: UserContext) -> Candidates:
         # If no menus have been defined, just exit
         if 'menus' not in self.vars or self.vars['menus'] == {}:
             return []
@@ -89,12 +94,15 @@ class Source(Base):
                         ])
         else:
             # Display all the registered menus
+            max_menu = max([self.vim.call('strwidth', x)
+                            for x in menus.keys()])
+            word_format = '{0:<' + str(max_menu) + '} - {1}'
             lines.extend([
                 {
-                    'word': '{} - {}'.format(
+                    'word': word_format.format(
                         menu, candidate.get('description')),
-                    'kind': 'command',
-                    'action__command': 'Denite menu:' + menu,
+                    'kind': 'source',
+                    'action__source': ['menu', menu],
                  }
                 for menu, candidate in menus.items()
             ])

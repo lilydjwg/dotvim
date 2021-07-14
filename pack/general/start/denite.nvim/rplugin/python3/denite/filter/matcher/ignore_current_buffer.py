@@ -4,18 +4,21 @@
 # License: MIT license
 # ============================================================================
 
-from denite.filter.base import Base
+from pynvim import Nvim
+
+from denite.base.filter import Base
+from denite.util import UserContext, Candidates
 
 
 class Filter(Base):
 
-    def __init__(self, vim):
+    def __init__(self, vim: Nvim) -> None:
         super().__init__(vim)
 
         self.name = 'matcher/ignore_current_buffer'
         self.description = 'ignore the current buffer path'
 
-    def filter(self, context):
+    def filter(self, context: UserContext) -> Candidates:
         current_buffer = self.vim.call(
             'fnamemodify', self.vim.buffers[int(context['bufnr'])].name, ':p')
         return [x for x in context['candidates']

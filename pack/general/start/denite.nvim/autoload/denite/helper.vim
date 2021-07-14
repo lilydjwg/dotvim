@@ -12,64 +12,113 @@ function! denite#helper#complete(arglead, cmdline, cursorpos) abort
   elseif a:arglead =~# '^-'
     " Option names completion.
     let bool_options = keys(filter(copy(denite#init#_user_options()),
-          \ 'type(v:val) == type(v:true) || type(v:val) == type(v:false)'))
-    let _ += map(copy(bool_options), "'-' . tr(v:val, '_', '-')")
+          \ { _, val -> type(val) == v:t_bool }))
+    let _ += map(copy(bool_options), { _, val -> '-' . tr(val, '_', '-') })
     let string_options = keys(filter(copy(denite#init#_user_options()),
-          \ 'type(v:val) != type(v:true) && type(v:val) != type(v:false)'))
-    let _ += map(copy(string_options), "'-' . tr(v:val, '_', '-') . '='")
+          \ { _, val -> type(val) != v:t_bool }))
+    let _ += map(copy(string_options),
+          \ { _, val -> '-' . tr(val, '_', '-') . '=' })
 
     " Add "-no-" option names completion.
-    let _ += map(copy(bool_options), "'-no-' . tr(v:val, '_', '-')")
+    let _ += map(copy(bool_options),
+          \ { _, val -> '-no-' . tr(val, '_', '-') })
   else
     " Source name completion.
     let _ += denite#helper#_get_available_sources()
   endif
 
-  return uniq(sort(filter(_, 'stridx(v:val, a:arglead) == 0')))
-endfunction
-function! denite#helper#complete_actions(arglead, cmdline, cursorpos) abort
-  return uniq(sort(filter(copy(g:denite#_actions),
-        \ 'stridx(v:val, a:arglead) == 0')))
+  return uniq(sort(filter(_, { _, val -> stridx(val, a:arglead) == 0 })))
 endfunction
 
 function! denite#helper#call_denite(command, args, line1, line2) abort
   let [args, context] = denite#helper#_parse_options_args(a:args)
 
+  let context.command = a:command
   let context.firstline = a:line1
   let context.lastline = a:line2
-  if a:command ==# 'DeniteCursorWord'
-    let context.input = expand('<cword>')
-  elseif a:command ==# 'DeniteBufferDir'
-    let context.path = expand('%:p:h')
-  elseif a:command ==# 'DeniteProjectDir'
-    let context.path = denite#project#path2project_directory(
-          \ get(context, 'path', getcwd()),
-          \ get(context, 'root_markers', ''))
-  endif
 
   call denite#start(args, context)
 endfunction
 
 function! denite#helper#preview_file(context, filename) abort
+  let preview_width = a:context.preview_width
+  let preview_height = a:context.preview_height
+  let pos = win_screenpos(win_getid())
+  let win_width = winwidth(0)
+  let win_height = winheight(0)
+
   if a:context.vertical_preview
-    let denite_winwidth = &columns
-    call denite#util#execute_path(
-          \ 'silent rightbelow vertical pedit!', a:filename)
-    wincmd P
-    execute 'vert resize ' . (denite_winwidth / 2)
+    if a:filename ==# ''
+      silent rightbelow vnew
+    else
+      call denite#util#execute_path(
+            \ 'silent rightbelow vertical pedit!', a:filename)
+      wincmd P
+    endif
+
+    if a:context.floating_preview && exists('*nvim_win_set_config')
+      if a:context['split'] ==# 'floating'
+        let win_row = a:context['winrow']
+        let win_col = a:context['wincol']
+      else
+        let win_row = pos[0] - 1
+        let win_col = pos[1] - 1
+      endif
+      let win_col += win_width
+      if (win_col + preview_width) > &columns
+        let win_col -= preview_width
+      endif
+
+      call nvim_win_set_config(win_getid(), {
+           \ 'relative': 'editor',
+           \ 'row': win_row,
+           \ 'col': win_col,
+           \ 'width': preview_width,
+           \ 'height': preview_height,
+           \ })
+    else
+      execute 'vert resize ' . preview_width
+    endif
   else
-    let previewheight_save = &previewheight
-    try
-      let &previewheight = a:context.previewheight
+    if a:filename ==# ''
+      silent aboveleft new
+    else
       call denite#util#execute_path('silent aboveleft pedit!', a:filename)
-    finally
-      let &previewheight = previewheight_save
-    endtry
+
+      wincmd P
+    endif
+
+    if a:context.floating_preview && exists('*nvim_win_set_config')
+      let win_row = pos[0] - 1
+      let win_col = pos[1] + 1
+      if win_row <= preview_height
+        let win_row += win_height + 1
+        let anchor = 'NW'
+      else
+        let anchor = 'SW'
+      endif
+
+      call nvim_win_set_config(0, {
+            \ 'relative': 'editor',
+            \ 'anchor': anchor,
+            \ 'row': win_row,
+            \ 'col': win_col,
+            \ 'width': preview_width,
+            \ 'height': preview_height,
+            \ })
+    else
+      execute 'resize ' . preview_height
+    endif
+  endif
+
+  if exists('#User#denite-preview')
+    doautocmd User denite-preview
   endif
 endfunction
 
 function! denite#helper#options() abort
-  return map(keys(denite#init#_user_options()), "tr(v:val, '_', '-')")
+  return map(keys(denite#init#_user_options()),
+        \ { _, val -> tr(val, '_', '-') })
 endfunction
 
 function! denite#helper#_parse_options_args(cmdline) abort
@@ -118,6 +167,11 @@ function! s:parse_options(cmdline) abort
   let cmdline = (a:cmdline =~# '\\\@<!`.*\\\@<!`') ?
         \ s:eval_cmdline(a:cmdline) : a:cmdline
 
+  " Note: convert number options to string to check types
+  let defalt_options = map(extend(copy(denite#init#_user_options()),
+        \ denite#init#_deprecated_options()),
+        \ { _, val -> type(val) == v:t_number ? string(val) : val })
+
   for s in split(cmdline, s:re_unquoted_match('\%(\\\@<!\s\)\+'))
     let arg = substitute(s, '\\\( \)', '\1', 'g')
     let arg_key = substitute(arg, '=\zs.*$', '', '')
@@ -131,9 +185,14 @@ function! s:parse_options(cmdline) abort
             \ s:remove_quote_pairs(arg[len(arg_key) :]) : v:true
     endif
 
-    if index(keys(denite#init#_user_options())
-          \ + keys(denite#init#_deprecated_options()), name) >= 0
-      let options[name] = value
+    if has_key(defalt_options, name)
+      " Type check
+      if type(defalt_options[name]) != type(value)
+        call denite#util#print_error(
+              \ printf('option "%s": type is invalid.', arg_key))
+      else
+        let options[name] = value
+      endif
     else
       call add(args, arg)
     endif
@@ -181,7 +240,8 @@ function! denite#helper#_set_oldfiles(oldfiles) abort
   let v:oldfiles = a:oldfiles
 endfunction
 function! denite#helper#_get_oldfiles() abort
-  return filter(copy(v:oldfiles), 'filereadable(v:val) || buflisted(v:val)')
+  return filter(copy(v:oldfiles), { _, val ->
+        \ filereadable(fnamemodify(val, ":p")) || buflisted(val) })
 endfunction
 
 
@@ -191,25 +251,28 @@ function! denite#helper#_get_available_sources() abort
   endif
   let s:source_names = map(
         \ globpath(&runtimepath, 'rplugin/python3/denite/source/**/*.py', 1, 1),
-        \ 's:_get_source_name(v:val)',
-        \)
-  return copy(filter(s:source_names, '!empty(v:val)'))
+        \ { _, val -> s:_get_source_name(val) })
+  return filter(s:source_names, { _, val -> val !=# '' })
 endfunction
 function! denite#helper#_set_available_sources(source_names) abort
   " Called from rplugin/python3/denite/denite.py#load_sources
   let s:source_names = a:source_names
 endfunction
 function! s:_get_source_name(path) abort
-  if a:path ==# '__init__.py' || a:path ==# 'base.py'
-    return ''
-  elseif a:path[-12:] ==# '/__init__.py'
-    if getfsize(a:path) == 0
+  let path_f = fnamemodify(a:path, ':gs?\\?/?')
+  let path_t = fnamemodify(path_f, ':t')
+
+  if path_t ==# '__init__.py'
+    if getfsize(path_f) == 0
       " Probably the file exists for making a namespace so ignore
       return ''
     endif
-    return fnamemodify(a:path, ':h:s?.*/rplugin/python3/denite/source/??:r')
+    return fnamemodify(path_f, ':h:s?.*/rplugin/python3/denite/source/??:r')
+  elseif path_t ==# 'base.py' || stridx(path_t, '_') == 0
+    return ''
   endif
-  return fnamemodify(a:path, ':s?.*/rplugin/python3/denite/source/??:r')
+
+  return fnamemodify(path_f, ':s?.*/rplugin/python3/denite/source/??:r')
 endfunction
 
 function! denite#helper#_get_wininfo() abort
@@ -220,4 +283,31 @@ function! denite#helper#_get_wininfo() abort
         \ 'winid': wininfo['winid'],
         \ 'tabnr': wininfo['tabnr'],
         \}
+endfunction
+function! denite#helper#_get_preview_window() abort
+  " Note: For popup preview feature
+  if exists('*popup_findpreview') && popup_findpreview() > 0
+    return 1
+  endif
+
+  return len(filter(range(1, winnr('$')),
+        \ { _, val -> getwinvar(val, '&previewwindow') ==# 1 }))
+endfunction
+
+
+function! denite#helper#_start_update_candidates_timer(bufnr) abort
+  return timer_start(100,
+        \ {-> denite#call_async_map('update_candidates')},
+        \ {'repeat': -1})
+endfunction
+function! denite#helper#_start_update_buffer_timer(bufnr) abort
+  return timer_start(20,
+        \ {-> denite#_update_map('update_buffer', a:bufnr, v:false)},
+        \ {'repeat': -1})
+endfunction
+
+function! denite#helper#_get_temp_file(bufnr) abort
+  let temp = tempname()
+  call writefile(getbufline(a:bufnr, 1, '$'), temp)
+  return temp
 endfunction

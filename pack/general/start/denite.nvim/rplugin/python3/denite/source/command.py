@@ -5,40 +5,31 @@
 # License: MIT license
 # ============================================================================
 
+from pynvim import Nvim
 import re
 
-from denite.source.base import Base
-from denite.util import globruntime
+from denite.base.source import Base
+from denite.kind.command import Kind as Command
+from denite.util import UserContext, Candidates
 
 
 class Source(Base):
 
-    def __init__(self, vim):
+    def __init__(self, vim: Nvim) -> None:
         super().__init__(vim)
 
         self.name = 'command'
-        self.kind = 'command'
-        self.commands = []
+        self.kind = Kind(vim)
 
-        self._re_command = re.compile(r'^\|:.+\|')
-        self._re_tokens = re.compile(
-            r'^\|:(.+)\|[\t\s]+:([^\t]+)[\t\s]+(.+)')
-
-    def on_init(self, context):
-        runtimepath = self.vim.eval('&runtimepath')
-        self._helpfiles = globruntime(runtimepath, 'doc/index.txt')
-        self._commands = globruntime(runtimepath, 'doc/index.txt')
-
-    def gather_candidates(self, context):
+    def gather_candidates(self, context: UserContext) -> Candidates:
         context['is_interactive'] = True
 
         has_cmdline = self.vim.call('denite#helper#has_cmdline')
+        if not has_cmdline:
+            return []
         if ' ' not in context['input'] or not has_cmdline:
-            if not self.commands:
-                self._init_commands()
-            return self.commands + [{
+            return [{
                 'action__command': x,
-                'action__is_pause': True,
                 'word': x,
             } for x in self.vim.call('getcompletion', '', 'command')]
 
@@ -46,28 +37,25 @@ class Source(Base):
 
         candidates = [{
             'action__command': prefix + x,
-            'action__is_pause': True,
             'word': prefix + x,
+            'action__histadd': True,
         } for x in self.vim.call(
             'getcompletion', context['input'], 'cmdline')]
         if not candidates:
             candidates = [{
                 'action__command': context['input'],
-                'action__is_pause': True,
                 'word': context['input'],
+                'action__histadd': True,
             }]
         return candidates
 
-    def _init_commands(self):
-        for helpfile in self._helpfiles:
-            with open(helpfile) as doc:
-                for line in [x for x in doc.readlines()
-                             if self._re_command.match(x)]:
-                    tokens = self._re_tokens.match(line).groups()
-                    command = "execute input(':{0} ')".format(tokens[0])
-                    self.commands.append({
-                        'action__command': command,
-                        'word': '{0:<20} -- {1}'.format(
-                            tokens[0], tokens[2],
-                        ),
-                    })
+
+class Kind(Command):
+
+    def __init__(self, vim: Nvim) -> None:
+        super().__init__(vim)
+
+        self.name = 'command'
+
+    def action_edit(self, context: UserContext) -> None:
+        return super().action_execute(context)

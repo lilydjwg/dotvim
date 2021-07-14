@@ -4,11 +4,15 @@
 # License: MIT license
 # ============================================================================
 
-from os.path import getatime, exists
-from time import localtime, strftime, time
+from pathlib import Path
+from pynvim import Nvim
+from pynvim.api import Buffer
 from sys import maxsize
+from time import localtime, strftime, time
+import typing
 
-from denite.source.base import Base
+from denite.base.source import Base
+from denite.util import UserContext, Candidates
 
 BUFFER_HIGHLIGHT_SYNTAX = [
     {'name': 'Name',     'link': 'Function',  're': r'[^/ \[\]]\+\s'},
@@ -22,104 +26,119 @@ BUFFER_HIGHLIGHT_SYNTAX = [
 
 class Source(Base):
 
-    def __init__(self, vim):
+    def __init__(self, vim: Nvim) -> None:
         super().__init__(vim)
 
         self.name = 'buffer'
         self.kind = 'buffer'
         self.vars = {
             'date_format': '%d %b %Y %H:%M:%S',
-            'exclude_unlisted': 1,
+            'exclude_unlisted': True,
+            'only_modified': False,
             'exclude_filetypes': ['denite']
         }
 
-    def on_init(self, context):
+    def on_init(self, context: UserContext) -> None:
         context['__exclude_unlisted'] = ('!' not in context['args'] and
                                          self.vars['exclude_unlisted'])
+        context['__only_modified'] = ('+' in context['args'] or
+                                      self.vars['only_modified'])
         context['__caller_bufnr'] = context['bufnr']
         context['__alter_bufnr'] = self.vim.call('bufnr', '#')
 
-    def highlight(self):
+    def highlight(self) -> None:
         for syn in BUFFER_HIGHLIGHT_SYNTAX:
             self.vim.command(
                 'syntax match {0}_{1} /{2}/ contained containedin={0}'.format(
                     self.syntax_name, syn['name'], syn['re']))
             self.vim.command(
-                'highlight default link {0}_{1} {2}'.format(
+                'highlight default link {}_{} {}'.format(
                     self.syntax_name, syn['name'], syn['link']))
 
-    def gather_candidates(self, context):
-        rjust = len('{}'.format(len(self.vim.buffers))) + 1
-        candidates = [
-            self._convert(ba, rjust) for ba in [
-                bufattr for bufattr in [
-                    self._get_attributes(context, buf)
-                    for buf in self.vim.buffers
-                ] if not self._is_excluded(context, bufattr)
-            ]
-        ]
+    def gather_candidates(self, context: UserContext) -> Candidates:
+        rjust = len(f'{len(self.vim.buffers)}') + 1
+        ljustnm = 0
+        rjustft = 0
+        bufattrs = []
+        for ba in [self._get_attributes(context, x)
+                   for x in self.vim.buffers]:
+            if not self._is_excluded(context, ba):
+                if ba['name'] == '':
+                    ba['fn'] = 'No Name'
+                    ba['path'] = ''
+                else:
+                    ba['fn'] = self.vim.call('fnamemodify', ba['name'], ':~:.')
+                    ba['path'] = self.vim.call('fnamemodify', ba['name'], ':p')
+                ljustnm = max(ljustnm, len(ba['fn']))
+                rjustft = max(rjustft, len(ba['filetype']))
+                bufattrs.append(ba)
+        candidates = [self._convert(x, rjust, ljustnm, rjustft)
+                      for x in bufattrs]
         return sorted(candidates, key=(
             lambda x:
             maxsize if context['__caller_bufnr'] == x['bufnr']
             else -maxsize if context['__alter_bufnr'] == x['bufnr']
-            else x['timestamp']))
+            else int(x['timestamp'])))
 
-    def _is_excluded(self, context, buffer_attr):
+    def _is_excluded(self, context: UserContext,
+                     buffer_attr: typing.Dict[str, typing.Any]) -> bool:
         if context['__exclude_unlisted'] and buffer_attr['status'][0] == 'u':
+            return True
+        if context['__only_modified'] and buffer_attr['status'][3] != '+':
             return True
         if buffer_attr['filetype'] in self.vars['exclude_filetypes']:
             return True
         return False
 
-    def _convert(self, buffer_attr, rjust):
-        if buffer_attr['name'] == '':
-            name = 'No Name'
-            path = ''
-        else:
-            name = self.vim.call('fnamemodify', buffer_attr['name'], ':~:.')
-            path = self.vim.call('fnamemodify', buffer_attr['name'], ':p')
+    def _convert(self, buffer_attr: typing.Dict[str, typing.Any],
+                 rjust: int, ljustnm: int, rjustft: int) -> typing.Dict[
+                     str, typing.Any]:
         return {
             'bufnr': buffer_attr['number'],
-            'word': name,
-            'abbr': '{0}{1} {2}{3} {4}'.format(
+            'word': buffer_attr['fn'],
+            'abbr': '{}{} {}{} {}'.format(
                 str(buffer_attr['number']).rjust(rjust, ' '),
                 buffer_attr['status'],
-                name,
-                ' [{}]'.format(buffer_attr['filetype']
-                               ) if buffer_attr['filetype'] != '' else '',
+                buffer_attr['fn'].ljust(ljustnm, ' '),
+                (f' [{buffer_attr["filetype"]}]'
+                 if buffer_attr['filetype'] != '' else '').rjust(rjustft+3),
                 strftime('(' + self.vars['date_format'] + ')',
                          localtime(buffer_attr['timestamp'])
                          ) if self.vars['date_format'] != '' else ''
             ),
             'action__bufnr': buffer_attr['number'],
-            'action__path': path,
+            'action__path': buffer_attr['path'],
             'timestamp': buffer_attr['timestamp']
         }
 
-    def _get_attributes(self, context, buf):
+    def _get_attributes(self, context: UserContext,
+                        buf: Buffer) -> typing.Dict[str, typing.Any]:
         attr = {
             'number': buf.number,
             'name': buf.name
         }
 
+        # Note: Use filereadable() to ignore stat() error in pathlib
+        timestamp = (Path(attr['name']).stat().st_atime
+                     if self.vim.call(
+                         'filereadable', attr['name']) else time())
+        mark_listed = (' ' if self.vim.call('buflisted', attr['number'])
+                       else 'u')
+        mark_bufnr = ('%' if attr['number'] == context['__caller_bufnr']
+                      else '#' if attr['number'] == context['__alter_bufnr']
+                      else ' ')
+        mark_alt = ('a' if self.vim.call('win_findbuf', attr['number'])
+                    else 'h' if self.vim.call('bufloaded', attr['number']) != 0
+                    else ' ')
+        mark_modified = ('=' if buf.options['readonly']
+                         else '+' if buf.options['modified']
+                         else '-' if buf.options['modifiable'] == 0
+                         else ' ')
         attr.update({
             'filetype': self.vim.call('getbufvar', buf.number, '&filetype'),
-            'timestamp': getatime(
-                attr['name']) if exists(attr['name']) else time(),
-            'status': '{0}{1}{2}{3}'.format(
-                ' ' if self.vim.call('buflisted', attr['number'])
-                    else 'u',
-                '%' if attr['number'] == context['__caller_bufnr']
-                    else '#' if attr['number'] == context['__alter_bufnr']
-                    else ' ',
-                'a' if self.vim.call('win_findbuf', attr['number'])
-                    else 'h' if self.vim.call('bufloaded', attr['number']) != 0
-                    else ' ',
-                '=' if buf.options['readonly']
-                    else '+' if buf.options['modified']
-                    else '-' if buf.options['modifiable'] == 0
-                    else ' '
-            )
+            'timestamp': timestamp,
+            'status': '{}{}{}{}'.format(
+                mark_listed, mark_bufnr, mark_alt, mark_modified)
         })
 
         return attr

@@ -4,10 +4,11 @@
 # License: MIT license
 # ============================================================================
 
+from pynvim import Nvim
 import re
 
-from denite.source.base import Base
-from denite.util import relpath
+from denite.base.source import Base
+from denite.util import relpath, UserContext, Candidates
 
 JUMP_HIGHLIGHT_SYNTAX = [
     {'name': 'File',     'link': 'Constant',   're': r'file: .*'},
@@ -17,35 +18,34 @@ JUMP_HIGHLIGHT_SYNTAX = [
 
 class Source(Base):
 
-    def __init__(self, vim):
+    def __init__(self, vim: Nvim) -> None:
         super().__init__(vim)
 
         self.name = 'jump'
         self.kind = 'file'
 
-    def highlight(self):
+    def highlight(self) -> None:
         for syn in JUMP_HIGHLIGHT_SYNTAX:
             self.vim.command(
                 'syntax match {0}_{1} /{2}/ contained containedin={0}'.format(
                     self.syntax_name, syn['name'], syn['re']))
             self.vim.command(
-                'highlight default link {0}_{1} {2}'.format(
+                'highlight default link {}_{} {}'.format(
                     self.syntax_name, syn['name'], syn['link']))
 
-    def on_init(self, context):
+    def on_init(self, context: UserContext) -> None:
         if self.vim.call('exists', '*getjumplist'):
             jumps = self._get_jumplist(context)
         else:
             jumps = self._parse(context)
         context['__jumps'] = jumps[::-1]
 
-    def _get_jumplist(self, context):
+    def _get_jumplist(self, context: UserContext) -> Candidates:
         [jump_info, pointer] = self.vim.call('getjumplist')
-        jump_list = []
+        jump_list: Candidates = []
         index = pointer + 1
         inc = -1
         for jump in jump_info:
-
             if index == 0:
                 inc = 1
 
@@ -55,10 +55,9 @@ class Source(Base):
             cur_buf = self.vim.current.buffer
             cur_bufnr = cur_buf.number
             jump_bufnr = jump['bufnr']
-            jump_bufname = self.vim.buffers[jump_bufnr].name
+            jump_bufname = self.vim.call('bufname', jump_bufnr)
 
-            # TODO: if buf not loaded, it will get lnum 1
-            if len(self.vim.buffers[jump_bufnr]) < lnum:
+            if not self.vim.call('bufloaded', jump_bufnr):
                 jump_bufname = cur_buf.name
                 jump_bufnr = cur_buf.number
                 cur_pos = self.vim.call('getcurpos')
@@ -66,9 +65,9 @@ class Source(Base):
                 file_or_text = '-invalid-'
             elif jump_bufnr == cur_bufnr:
                 # cur_buf start with zero, so lnum - 1
-                file_or_text = "text:" + cur_buf[lnum - 1]
+                file_or_text = 'text:' + cur_buf[lnum - 1]
             elif jump_bufnr != cur_bufnr:
-                file_or_text = "file: " + jump_bufname
+                file_or_text = 'file: ' + jump_bufname
 
             if index == 0:
                 word = '> {:>3} {:>5} {:>5} {}'.format(
@@ -87,10 +86,8 @@ class Source(Base):
 
         return jump_list
 
-    def _parse(self, context):
-        jump_list = []
-        for b in self.vim.buffers:
-            self.debug(b.name)
+    def _parse(self, context: UserContext) -> Candidates:
+        jump_list: Candidates = []
 
         for row_data in self.vim.call('execute', 'jumps').split('\n'):
             elements = row_data.split(maxsplit=3)
@@ -141,6 +138,8 @@ class Source(Base):
                     prefix = 'text: ' if file_text != '-invalid-' else ''
 
                 m = re.search(r'(^>*\s+\w+\s+\w+\s+\w+)', row_data)
+                if not m:
+                    continue
                 word = m.group(0) + ' ' + prefix + file_text
 
             else:
@@ -154,5 +153,5 @@ class Source(Base):
             })
         return jump_list
 
-    def gather_candidates(self, context):
-        return context['__jumps']
+    def gather_candidates(self, context: UserContext) -> Candidates:
+        return list(context['__jumps'])

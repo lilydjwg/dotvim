@@ -1,7 +1,17 @@
 denite.nvim
 ===========
 
-[![Build Status](https://travis-ci.org/Shougo/denite.nvim.svg?branch=master)](https://travis-ci.org/Shougo/denite.nvim)
+**Note**: Active development on denite.nvim has stopped. The only future
+changes will be bug fixes.
+
+Please see [ddu.vim](https://github.com/Shougo/ddu.vim).
+
+
+Note: Denite.nvim does not define any of default mappings.  You need to define
+them.
+
+Please read [help](doc/denite.txt) for details.
+
 
 ## About
 
@@ -49,17 +59,36 @@ not fixed anymore
 
 ## Requirements
 
-Denite requires Neovim 0.3.0+ or Vim 8.0+ with `if_python3`.
-If `:echo has("python3")` returns `1`, then you're done; otherwise, see below.
+Denite requires Neovim 0.4.0+ or Vim 8.0+ with `if_python3`.
+If `:echo has("python3")` returns `1`, then you're done.
 
-You can enable Python3 interface with `pip`:
+Note: Please install/upgrade msgpack package (1.0.0+).
+https://github.com/msgpack/msgpack-python
+
+Note: You need to install Python 3.6.1+.
+
+For neovim:
+
+You must install "pynvim" module with pip
 
     pip3 install --user pynvim
 
-If you want to read the Neovim-python/python3 interface install documentation,
+If you want to read the pynvim/python3 interface install documentation,
 you should read `:help provider-python`.
 
-Note: You need to install Python3.5+.
+For Vim8:
+
+Please install nvim-yarp plugin for Vim8.
+https://github.com/roxma/nvim-yarp
+
+Please install vim-hug-neovim-rpc plugin for Vim8.
+https://github.com/roxma/vim-hug-neovim-rpc
+
+You must install "pynvim" module with pip
+
+    pip3 install --user pynvim
+
+
 
 ### For Windows users
 
@@ -71,9 +100,65 @@ Note: You need to install Python3.5+.
 
 **Note:** You need to do 1. and 2. with the common-arch files (x86 or x64).
 
+
+## Installation
+
+For [dein.vim](https://github.com/Shougo/dein.vim)
+
+```
+call dein#add('Shougo/denite.nvim')
+if !has('nvim')
+  call dein#add('roxma/nvim-yarp')
+  call dein#add('roxma/vim-hug-neovim-rpc')
+endif
+```
+
+For [vim-plug](https://github.com/junegunn/vim-plug)
+
+```
+if has('nvim')
+  Plug 'Shougo/denite.nvim', { 'do': ':UpdateRemotePlugins' }
+else
+  Plug 'Shougo/denite.nvim'
+  Plug 'roxma/nvim-yarp'
+  Plug 'roxma/vim-hug-neovim-rpc'
+endif
+```
+
+
+## Examples
+
+```vim
+" Define mappings
+autocmd FileType denite call s:denite_my_settings()
+function! s:denite_my_settings() abort
+  nnoremap <silent><buffer><expr> <CR>
+  \ denite#do_map('do_action')
+  nnoremap <silent><buffer><expr> d
+  \ denite#do_map('do_action', 'delete')
+  nnoremap <silent><buffer><expr> p
+  \ denite#do_map('do_action', 'preview')
+  nnoremap <silent><buffer><expr> q
+  \ denite#do_map('quit')
+  nnoremap <silent><buffer><expr> i
+  \ denite#do_map('open_filter_buffer')
+  nnoremap <silent><buffer><expr> <Space>
+  \ denite#do_map('toggle_select').'j'
+endfunction
+```
+
+
 ## Screenshots
 
-![file/rec source](https://user-images.githubusercontent.com/13142418/34324674-b8ddd5b8-e840-11e7-9b77-d94e1b084bda.gif)
-![SpaceVim Guide](https://user-images.githubusercontent.com/13142418/34324752-e5a89900-e842-11e7-9f87-6d8789ba3871.gif)
-![colorscheme source](https://user-images.githubusercontent.com/13142418/34324786-f4dd39a2-e843-11e7-97ef-7a48ee04d27b.gif)
+### Old UI
 
+![denite old UI](https://user-images.githubusercontent.com/13142418/65154984-06107180-da5f-11e9-8cbf-e0a544d0dbc5.jpg)
+
+### New UI
+
+![denite new UI](https://user-images.githubusercontent.com/13142418/65154937-f002b100-da5e-11e9-8aef-723233e3704d.jpg)
+
+### Others
+
+![denite new UI2](https://user-images.githubusercontent.com/1239245/58742567-a155ea80-8460-11e9-9925-09082def2c80.gif)
+![denite new UI3](https://user-images.githubusercontent.com/41671631/58790351-cf832800-8622-11e9-912d-813408876b86.gif)

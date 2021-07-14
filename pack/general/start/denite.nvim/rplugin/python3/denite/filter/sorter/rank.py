@@ -9,23 +9,25 @@
 # License: MIT license
 # ============================================================================
 
+from pynvim import Nvim
 import string
+import typing
 
-from denite.filter.base import Base
-from denite.util import split_input
+from denite.base.filter import Base
+from denite.util import split_input, UserContext, Candidates
 
 
 class Filter(Base):
 
-    def __init__(self, vim):
+    def __init__(self, vim: Nvim) -> None:
         super().__init__(vim)
 
         self.name = 'sorter/rank'
         self.description = 'rank matcher'
 
-    def filter(self, context):
+    def filter(self, context: UserContext) -> Candidates:
         if len(context['input']) < 1:
-            return context['candidates']
+            return list(context['candidates'])
         for c in context['candidates']:
             c['filter__rank'] = 0
 
@@ -33,24 +35,24 @@ class Filter(Base):
             for c in context['candidates']:
                 c['filter__rank'] += get_score(c['word'], pattern)
         return sorted(context['candidates'],
-                      key=lambda x: x['filter__rank'])
+                      key=lambda x: int(x['filter__rank']))
 
 
 BOUNDARY_CHARS = string.punctuation + string.whitespace
 
 
-def get_score(string, query_chars):
+def get_score(string: str, query_chars: str) -> float:
     # Highest possible score is the string length
-    best_score = len(string)
-    head, tail = query_chars[0], query_chars[1:]
+    best_score: float = float(len(string))
+    head, tail = query_chars[0].lower(), query_chars[1:]
 
     # For each occurence of the first character of the query in the string
     for first_index in (idx for idx, val in enumerate(string)
-                        if val == head):
+                        if val.lower() == head):
         # Get the score for the rest
         score, last_index = find_end_of_match(string, tail, first_index)
 
-        if last_index and score < best_score:
+        if last_index and score and score < best_score:
             best_score = score
 
     # Solve equal scores by sorting on the string length. The ** 0.5 part makes
@@ -59,12 +61,14 @@ def get_score(string, query_chars):
     return best_score
 
 
-def find_end_of_match(to_match, chars, first_index):
+def find_end_of_match(to_match: str, chars: str,
+                      first_index: int) -> typing.Tuple[
+                          typing.Optional[float], typing.Optional[int]]:
     score, last_index, last_type = 1.0, first_index, None
 
     for char in chars:
         try:
-            index = to_match.index(char, last_index + 1)
+            index = to_match.lower().index(char.lower(), last_index + 1)
         except ValueError:
             return None, None
         if not index:

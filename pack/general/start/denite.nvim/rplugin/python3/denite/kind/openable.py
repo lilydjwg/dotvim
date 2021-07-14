@@ -6,23 +6,32 @@
 
 from abc import abstractmethod
 from copy import copy
+from pynvim import Nvim
+import typing
 
-from denite.kind.base import Base
+from denite.base.kind import Base
+from denite.util import UserContext, Candidate
+
+Fallback = typing.Callable[[UserContext], None]
 
 
 class Kind(Base):
 
-    def __init__(self, vim):
+    def __init__(self, vim: Nvim) -> None:
         super().__init__(vim)
 
         self.name = 'openable'
         self.default_action = 'open'
 
     @abstractmethod
-    def action_open(self, context):
+    def action_open(self, context: UserContext) -> None:
         pass
 
-    def action_split(self, context):
+    @abstractmethod
+    def _winid(self, target: Candidate) -> typing.Optional[int]:
+        pass
+
+    def action_split(self, context: UserContext) -> None:
         if self._is_current_buffer_empty():
             self.action_open(context)
             return
@@ -34,7 +43,7 @@ class Kind(Base):
             self.vim.command('split')
             self.action_open(new_context)
 
-    def action_vsplit(self, context):
+    def action_vsplit(self, context: UserContext) -> None:
         if self._is_current_buffer_empty():
             self.action_open(context)
             return
@@ -46,7 +55,7 @@ class Kind(Base):
             self.vim.command('vsplit')
             self.action_open(new_context)
 
-    def action_tabopen(self, context):
+    def action_tabopen(self, context: UserContext) -> None:
         if self._is_current_buffer_empty():
             self.action_open(context)
             return
@@ -63,26 +72,57 @@ class Kind(Base):
         finally:
             self.vim.options['hidden'] = hidden
 
-    def action_switch(self, context):
+    def action_switch(self, context: UserContext) -> None:
         self._action_switch(context, self.action_open)
 
-    def action_tabswitch(self, context):
+    def action_tabswitch(self, context: UserContext) -> None:
         self._action_switch(context, self.action_tabopen)
 
-    def action_splitswitch(self, context):
+    def action_splitswitch(self, context: UserContext) -> None:
         self._action_switch(context, self.action_split)
 
-    def action_vsplitswitch(self, context):
+    def action_vsplitswitch(self, context: UserContext) -> None:
         self._action_switch(context, self.action_vsplit)
 
-    def _action_switch(self, context, fallback):
+    def _action_switch(self, context: UserContext,
+                       fallback: Fallback) -> None:
         for target in context['targets']:
             winid = self._winid(target)
             if winid:
                 self.vim.call('win_gotoid', winid)
+                if callable(self._jump):
+                    self._jump(context, target)
             else:
                 fallback(context)
 
-    def _is_current_buffer_empty(self):
+    def _jump(self, context: UserContext, target: Candidate) -> None:
+        if 'action__pattern' in target:
+            self.vim.call('search', target['action__pattern'], 'w')
+
+        line = int(target.get('action__line', 0))
+        col = int(target.get('action__col', 0))
+
+        try:
+            if line > 0:
+                self.vim.call('cursor', [line, 0])
+                if 'action__col' not in target:
+                    pos = self.vim.current.line.lower().find(
+                        context['input'].lower())
+                    if pos >= 0:
+                        self.vim.call('cursor', [0, pos + 1])
+            if col > 0:
+                self.vim.call('cursor', [0, col])
+            elif context['input']:
+                # Search input
+                self.vim.call('cursor', [line, 1])
+                self.vim.call('search', context['input'], 'W', line)
+        except Exception:
+            pass
+
+        # Open folds and centering
+        self.vim.command('normal! zv')
+        self.vim.command('normal! zz')
+
+    def _is_current_buffer_empty(self) -> bool:
         buffer = self.vim.current.buffer
         return buffer.name == '' and len(buffer) == 1 and buffer[0] == ''

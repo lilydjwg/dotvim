@@ -4,16 +4,19 @@
 # License: MIT license
 # ============================================================================
 
-from os.path import isabs, sep
 from fnmatch import translate
+from os import sep
+from pathlib import Path
+from pynvim import Nvim
 from re import search
 
-from denite.filter.base import Base
+from denite.base.filter import Base
+from denite.util import UserContext, Candidates
 
 
 class Filter(Base):
 
-    def __init__(self, vim):
+    def __init__(self, vim: Nvim) -> None:
         super().__init__(vim)
 
         self.name = 'matcher/ignore_globs'
@@ -27,11 +30,11 @@ class Filter(Base):
             ]
         }
 
-    def filter(self, context):
+    def filter(self, context: UserContext) -> Candidates:
         # Convert globs
         patterns = []
         for glob in self.vars['ignore_globs']:
-            if not isabs(glob):
+            if not Path(glob).is_absolute() and ':' not in glob:
                 glob = '*' + sep + glob
             if glob[:2] == '.' + sep:
                 glob = context['path'] + glob[1:]
@@ -39,7 +42,7 @@ class Filter(Base):
                 glob += '*'
             patterns.append(translate(glob))
         pattern = '|'.join(patterns)
-        max_width = int(context['max_candidate_width'])
+        max_width = context['max_candidate_width']
         return [x for x in context['candidates']
                 if 'action__path' not in x or
                 not search(pattern, x['action__path'][:max_width])]

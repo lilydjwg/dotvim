@@ -5,22 +5,25 @@
 # License: MIT license
 # ============================================================================
 
-from denite.kind.base import Base
+from pynvim import Nvim
+
+from denite.base.kind import Base
+from denite.util import UserContext
 
 
 class Kind(Base):
 
-    def __init__(self, vim):
+    def __init__(self, vim: Nvim) -> None:
         super().__init__(vim)
 
         self.name = 'directory'
         self.default_action = 'narrow'
 
-    def action_cd(self, context):
+    def action_cd(self, context: UserContext) -> None:
         target = context['targets'][0]
-        self.vim.command('lcd {}'.format(target['action__path']))
+        self.vim.call('denite#util#cd', target['action__path'])
 
-    def action_narrow(self, context):
+    def action_narrow(self, context: UserContext) -> None:
         target = context['targets'][0]
         context['sources_queue'].append([
             {'name': 'file', 'args': []},
@@ -28,10 +31,10 @@ class Kind(Base):
         ])
         context['path'] = target['action__path']
 
-    def action_open(self, context):
+    def action_open(self, context: UserContext) -> None:
         for target in context['targets']:
             path = target['action__path']
-            match_path = '^{0}$'.format(path)
+            match_path = f'^{path}$'
 
             if self.vim.call('bufwinnr', match_path) <= 0:
                 self.vim.call(
