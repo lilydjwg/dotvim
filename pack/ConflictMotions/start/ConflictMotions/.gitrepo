@@ -6,7 +6,7 @@
 [subrepo]
 	remote = git@github.com:inkarkat/vim-ConflictMotions.git
 	branch = master
-	commit = 58ad21fd8037ac4bb7160e98b0d47dcb18d67a9d
+	commit = bd76f7fabaf31b13f8397b7f97941bd9ee194aaa
 	parent = 963981fdbf9f2428944d89057e083ae2fab15ba2
 	method = merge
-	cmdver = 0.4.1
+	cmdver = 0.4.3

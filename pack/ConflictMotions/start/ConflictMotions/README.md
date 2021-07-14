@@ -30,6 +30,10 @@ custom buffer status provided by the companion ConflictDetection.vim plugin
   versions and a merge target, and offers commands to merge them.
 - unimpaired.vim ([vimscript #1590](http://www.vim.org/scripts/script.php?script_id=1590)) has (among many other, largely unrelated)
   [n / ]n mappings that jump between conflict markers (like [x / ]x).
+- linediff.vim ([vimscript #3745](http://www.vim.org/scripts/script.php?script_id=3745)) opens a conflict (or generically any selected
+  ranges) as a diff in a separate tab page, allows edits to be synced back,
+  and can pick one section and replace the entire conflict with it (like
+  :ConflictTake).
 
 USAGE
 ------------------------------------------------------------------------------
