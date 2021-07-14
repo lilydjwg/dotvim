@@ -68,35 +68,15 @@ g:togglecursor_force    Force togglecursor to use a particular mechanism to
                         uses the DESCCUSR escape sequence) and 'cursorshape'
                         (what Konsole uses).
 
-                                                 *togglecursor_disable_tmux*
+                                             *togglecursor_enable_tmux_escaping*
 
-In some versions of tmux, the passthrough handling appears to be slightly
-broken.  When you are on the last line of a short file, and delete a line with
-'dd', tmux appears to insert an extra line into the mix and distorts the
-terminal.  It appears to be fixed in tmux 1.7.  If you'd like to disable using
-tmux passthrough support to try and change the cursor, do the following in
-your vimrc: >
-
-    let g:togglecursor_disable_tmux = 1
-
-The default value for |togglecursor_disable_tmux| is 0.
-
-Note: options should be overridden in your vimrc.  Changing them after Vim has
-loaded will have little or no effect.
+tmux has supported the ability to directly change the cursor for some time now.
+If you're using an old version that cannot handle this, then you can enable the
+old escaping behavior.  This shouldn't be necessary with modern tmux.
 
                                                  *togglecursor_disable_neovim*
-By default, togglecursor will detect the presence of Neovim and turn on
-NVIM_TUI_ENABLE_CURSOR_SHAPE environment variable for you.  If you don't want
-this behavior, you can add the following to your vimrc: >
-
-    let g:togglecursor_disable_neovim = 1
-<
-Note: if you've already defined NVIM_TUI_ENABLE_CURSOR_SHAPE to a non-empty
-value, then togglecursor will leave it alone.  Also, Neovim's environment
-variable detection can't tell the difference between an unset variable and
-an empty variable.  So togglecursor may enable cursor support even though you've
-attempted to opt-out of it.  Setting g:togglecursor_disable_neovim will keep
-togglecursor from attempting to set the NVIM_TUI_ENABLE_CURSOR_SHAPE variable.
+Note: This option is no longer supported.  Neovim adopted a different mechanism
+for enabling the cursor, so this is no longer necessary.
 
                                              *togglecursor_disable_default_init*
 To support changing the normal mode cursor, togglecursor modifies 't_ti' to

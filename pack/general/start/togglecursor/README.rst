@@ -41,3 +41,8 @@ variable on load and proceed to use that style of escape sequences to change the
 cursor.  This also works well if you happen to be running on a system that
 doesn't have your favorite shell available since it will fallback to
 Togglecursor's internal detection algorithm.
+
+Note: looking for "xterm" in `$TERM` is not a good approach.  Many terminals
+will set `TERM` to `xterm` or `xterm-256color`, but don't support the escape
+sequences to change the cursor.  It's better to look for something unique to the
+terminal application in the environment.
