@@ -6,7 +6,7 @@
 [subrepo]
 	remote = git@github.com:Shougo/neocomplete.vim.git
 	branch = master
-	commit = 5f3e213c629b7fe1aa3723bf56fe3ead5555a526
+	commit = fc2d22c23962290cc0b32f50bf18add6a4573bdf
 	parent = eaab7d243f14a70cb8efdae7b08508154570418c
 	method = merge
-	cmdver = 0.4.0
+	cmdver = 0.4.3

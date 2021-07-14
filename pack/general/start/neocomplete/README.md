@@ -1,6 +1,8 @@
 neocomplete
 ===========
 
+Note: This plugin is not compatible with above Vim 8.2.1066!
+https://github.com/vim/vim/commit/bd84617d1a6766efd59c94aabebb044bef805b99
 
 **Note**: Active development on neocomplete.vim has stopped. The only future
 changes will be bug fixes.
@@ -63,9 +65,7 @@ To install Vim (as opposed to MacVim) with homebrew:
 
 Make sure you have any of these packages:
 * vim-nox
-* vim-gtk
-* vim-gnome
-* vim-athena
+* vim-gtk3
 
 Which package depends on your graphical environment (except vim-nox which is
 for vim with no GUI).
