@@ -35,21 +35,23 @@ fun! hexokinase#v2#scraper#on() abort
                         \ 'close_cb': function('s:on_exit_vim'),
                         \ }
         endif
-        let cmd = printf('%s -simplified -files=%s', g:Hexokinase_executable_path, tmpname)
+        let cmd = [g:Hexokinase_executable_path, '-simplified', '-files', tmpname]
         " Neovim has multiple sign columns, in which case we don't want a
         " reversed output.
         if get(g:, 'Hexokinase_prioritizeHead', 1)
                     \ && get(b:, 'Hexokinase_prioritizeHead', 1)
                     \ && (index(g:Hexokinase_highlighters, 'sign_column') == -1 || &signcolumn !~# '\v(auto|yes):[2-9]')
-            let cmd .= ' -r'
+            call add(cmd, '-r')
         endif
-        let cmd .= hexokinase#utils#getPatModifications()
-        let cmd .= ' -bg='.hexokinase#utils#get_background_hex()
+        call extend(cmd, hexokinase#utils#getPatModifications())
+        call add(cmd, '-bg')
+        call add(cmd, hexokinase#utils#get_background_hex())
         if !empty(g:Hexokinase_palettes)
-            let cmd .= ' -palettes='.join(g:Hexokinase_palettes, ',')
+            call add(cmd, '-palettes')
+            call add(cmd, join(g:Hexokinase_palettes, ','))
         endif
         if get(g:, 'Hexokinase_checkBoundary', 1)
-            let cmd .= ' -boundary'
+            call add(cmd, '-boundary')
         endif
 
         if has('nvim')
@@ -138,9 +140,14 @@ endf
 
 fun! s:parse_colour(line) abort
     let parts = split(a:line, ':')
-    if len(parts) != 4
-        return ''
-    endif
+    if len(parts) < 4
+         return ''
+     endif
+    " If a system allows `:` inside the filename, then we join together all
+    " parts before the final 3 (which are guaranteed to be the form
+    " lnum:col:hex). This allows the filename to remain intact. For example,
+    " Windows can prefix the filename with the drive (e.g. C:/foo/bar.txt)
+    let parts = insert(parts[-3:], join(parts[:-4], ':'))
 
     return { 'lnum': parts[1],
                 \ 'start': split(parts[2], '-')[0],

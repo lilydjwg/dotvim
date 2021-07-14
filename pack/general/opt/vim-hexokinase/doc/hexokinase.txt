@@ -10,7 +10,6 @@ CONTENTS                                                *hexokinase-contents*
 
 Introduction.................................|hexokinase-introduction|
 Quick Start..................................|hexokinase-quick-start|
-Migration for Existing Users.................|hexokinase-v1-migration|
 Installation.................................|hexokinase-installation|
 Commands.....................................|hexokinase-commands|
 Configuration................................|hexokinase-configuration|
@@ -31,7 +30,6 @@ Configuration................................|hexokinase-configuration|
 Create Custom Highlighters...................|hexokinase-custom-highlighters|
     Highlight Callback.......................|hexokinase-highlight_callback|
     Teardown Callback........................|hexokinase-teardown_callback|
-V1 Deprecation...............................|hexokinase-v1-deprecation|
 FAQ..........................................|hexokinase-faq|
 
 INTRODUCTION                                        *hexokinase-introduction*
@@ -81,18 +79,6 @@ everything.
 3. Choose which patterns are matched, or stick with the default,
    |g:Hexokinase_optInPatterns| and |g:Hexokinase_ftOptInPatterns|.
 
-MIGRATION FOR EXISTING USERS                        *hexokinase-v1-migration*
-===========================================================================
-
-Read |hexokinase-installation| and |hexokinase-v1-deprecation|.
-
-You can force vim-hexokinase to return to v1 behaviour with: >
-    let g:Hexokinase_v2 = 0
-<
-But trust me, v2 is worth it.
-
-Skimming the rest of the help doc would be beneficial but not required.
-
 INSTALLATION                                        *hexokinase-installation*
 ===========================================================================
 
@@ -119,9 +105,6 @@ Or alternatively, leverage your plugin manager to run `make hexokinase` on updat
 Note: This has been tested on MacOS. Linux should work as well. Windows is
 untested, if you find an issue with Windows, open an issue at
 https://github.com/rrethy/vim-hexokinase/issues.
-
-Note: There are no specific installation instructions if you wish to stick
-with v1 of vim-hexokinase.
 
 COMMANDS                                                *hexokinase-commands*
 ===========================================================================
@@ -166,8 +149,7 @@ Highlighters                                      *g:Hexokinase_highlighters*
 
                 "virtual" will use Neovim's virtual text feature
                 (|nvim_buf_set_virtual_text()|) to display
-                the colour. However, only one colour per line can be
-                displayed.
+                the colour.
 
                 "sign_column" will use the |'sign_column'| to display the
                 colour. In Vim, only one colour per line can be displayed.
@@ -189,10 +171,6 @@ Highlighters                                      *g:Hexokinase_highlighters*
 
                 "foregroundfull" will highlight the whole foreground of the
                 appropriate text.
-
-                Note: foreground, foregroundfull, background, and
-                backgroundfull have been rewritten from v1 and now actually
-                work as they should.
 
 Custom Patterns via Palettes                          *g:Hexokinase_palettes*
 
@@ -353,16 +331,11 @@ Refresh Events                                    *g:Hexokinase_refreshEvents*
                 Which |autocmd-events| trigger a refresh of highlighting.
 
                 Default value: >
-                let g:Hexokinase_refreshEvents = ['BufWrite', 'BufRead']
+                let g:Hexokinase_refreshEvents = ['TextChanged', 'InsertLeave', 'BufRead']
 <
-                Since the scraping is done asynchronously and no more than a
-                single scraping job is started per buffer, you can use more
-                aggressive |autocmd-events|. For live updating you could use
-                ['TextChanged', 'InsertLeave'].
-
 Disabled TerminalBuffers                            *g:Hexokinase_termDisabled*
 
-                Type: |Integer| 
+                Type: |Integer|
                 Do not scraped any terminal buffers.
 
                 Default value: >
@@ -441,7 +414,17 @@ Use word Boundary                                *g:Hexokinase_checkBoundary*
 
                 " will match pink but not blue or red
                 redblue pink
+
+Executable path                                *g:Hexokinase_executable_path*
+
+                Type: |String|
+                Path to the `hexokinase` executable.
+
+                Default value: >
+                    " relative to the plugin root
+                    g:Hexokinase_executable_path = 'hexokinase/hexokinase'
 <
+
 CREATE CUSTOM HIGHLIGHTERS                   *hexokinase-custom-highlighters*
 ===========================================================================
 
@@ -481,9 +464,6 @@ highlight_callback({bufnr})
 teardown_callback({bufnr})
                                                *hexokinase-teardown_callback*
 
-                Note: {bufnr} param is new and did not exist in v1. Existing
-                callbacks signatures must be updated.
-
                 {bufnr} is the buffer number of the buffer that was scraped.
                 The currently active buffer may be different than {bufnr} so
                 don't rely on "bufnr('%')".
@@ -498,28 +478,6 @@ teardown_callback({bufnr})
                   let g:Hexokinase_tearDownCallbacks = [
                   \     function('teardown_callback')
                   \ ]
-
-V1 DEPRECATION                                    *hexokinase-v1-deprecation*
-===========================================================================
-
-vim-hexokinase v1 was deprecated and can be found in
-|deprecated-hexokinase-v1.txt|. It was the same idea as v2, but all scraping
-was done synchronously in Vimscript. Most features were ported over, here is a
-list of deprecated features.
-
- -------------------------+-------------------------------------------------
- Feature                  | Alternative                                                                  ~
- -------------------------+-------------------------------------------------
-  `Custom Highlighters`     | Still exist, but different callback signatures
-  `HexokinaseRefresh`       | Instead use `HexokinaseTurnOn`, see
-                          |   |hexokinase-commands|
-  `g:Hexokinase_ftAutoload` | Instead use |g:Hexokinase_ftEnabled|
-  `g:Hexokinase_silent`     | Fully deprecated
-  `hexokinase-patterns`     | Instead use |g:Hexokinase_palettes|
- ----------------------+-------------------------------------------------
-
- Note: |g:Hexokinase_palettes| is not as customizeable as
-       |deprecated-hexokinase-patterns| was.
 
 FAQ                                                          *hexokinase-faq*
 ===========================================================================

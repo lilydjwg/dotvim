@@ -6,7 +6,7 @@
 [subrepo]
 	remote = git@github.com:RRethy/vim-hexokinase.git
 	branch = master
-	commit = 1788753bd7eb713f1eab089796e1b70c2e410ec5
+	commit = 62324b43ea858e268fb70665f7d012ae67690f43
 	parent = 73d610d9c9ffdbc3fcbeeb243e231c056433562a
 	method = merge
-	cmdver = 0.4.1
+	cmdver = 0.4.3

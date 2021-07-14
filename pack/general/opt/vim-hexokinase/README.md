@@ -42,15 +42,14 @@ This plugin can display the colour of 6 digit hex codes, 3 digit hex codes, rgb 
 
 Colour can be displayed in each of the 6 six ways shown above, or can be customized to display colour any way the user chooses.
 
-**Note:** By default all filetypes are scraped and highlighted on `BufWrite` and `BufCreate`, see `:h g:Hexokinase_refreshEvents` for more info.
+**Note:** By default all filetypes are scraped and highlighted on `['TextChanged', 'InsertLeave', 'BufRead']`, see `:h g:Hexokinase_refreshEvents` for more info.
 
 ## Requirements
 
 - `:h 'termguicolors'` must be turned on and your terminal must support it
+- **Golang must be installed, for more information visit https://golang.org/doc/install.**
 - For *virtual text*: Neovim 0.3.2
 - For *sign_column*: Vim compiled with `+signs` or any Neovim version
-- Golang must be installed, for more information visit https://golang.org/doc/install.
-    * Without Golang, a synchronous version of the plugin will still work, documentation can be found at `:h deprecated-hexokinase.txt`.
 - Currently, untested on Windows, help is welcomed.
 
 ## Installation
