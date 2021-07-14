@@ -264,7 +264,7 @@ https://github.com/inkarkat/vim-CountJump/issues or email (address below).
 HISTORY
 ------------------------------------------------------------------------------
 
-##### 1.91    RELEASEME
+##### 1.91    03-Apr-2020
 - ENH: Allow Funcref for a:searchArguments / first search argument /
   a:patternTo{Begin,End}
 - ENH: Allow to influence given [count] via
@@ -478,7 +478,7 @@ __You need to install / update to ingo-library ([vimscript #4433](http://www.vim
 - Started development.
 
 ------------------------------------------------------------------------------
-Copyright: (C) 2009-2019 Ingo Karkat -
+Copyright: (C) 2009-2020 Ingo Karkat -
 The [VIM LICENSE](http://vimdoc.sourceforge.net/htmldoc/uganda.html#license) applies to this plugin.
 
 Maintainer:     Ingo Karkat &lt;ingo@karkat.de&gt;

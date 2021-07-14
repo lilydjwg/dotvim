@@ -4,3 +4,4 @@
 *.tap
 doc/*.description
 doc/*.install
+tags
