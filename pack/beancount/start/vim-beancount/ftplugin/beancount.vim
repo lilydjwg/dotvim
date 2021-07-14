@@ -5,6 +5,7 @@ endif
 let b:did_ftplugin = 1
 let b:undo_ftplugin = 'setlocal foldmethod< comments< commentstring<'
 
+setl regexpengine=1
 setl foldmethod=syntax
 setl comments=b:;
 setl commentstring=;%s

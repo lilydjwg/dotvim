@@ -26,7 +26,7 @@ syn match beanFlag "\v[*!&#?%PSTCURM]\s\@=" contained
 
 " Most directives start with a date.
 syn match beanDate "^\v\d{4}[-/]\d{2}[-/]\d{2}" skipwhite
-            \ nextgroup=beanOpen,beanTxn,beanClose,beanNote,beanBalance,beanEvent,beanPad,beanPrice
+            \ nextgroup=beanOpen,beanTxn,beanClose,beanCommodity,beanNote,beanBalance,beanEvent,beanPad,beanPrice
 " Options and events have two string arguments. The first, we are matching as
 " beanOptionTitle and the second as a regular string.
 syn region beanOption matchgroup=beanKeyword start="^option" end="$"
@@ -43,6 +43,8 @@ syn region beanOpen matchgroup=beanKeyword start="open" end="$" keepend
             \ contained contains=beanAccount,beanCurrency,beanComment
 syn region beanClose matchgroup=beanKeyword start="close" end="$" keepend
             \ contained contains=beanAccount,beanComment
+syn region beanCommodity matchgroup=beanKeyword start="commodity" end="$" keepend
+            \ contained contains=beanCurrency,beanComment
 syn region beanNote matchgroup=beanKeyword start="\vnote|document" end="$"
             \ keepend contains=beanAccount,beanString,beanComment contained
 syn region beanBalance matchgroup=beanKeyword start="balance" end="$" contained
@@ -86,7 +88,7 @@ highlight default link beanAmount Number
 highlight default link beanCurrency Number
 highlight default link beanCost Number
 highlight default link beanPrice Number
-highlight default link beanTag Comment
+highlight default link beanTag Tag
 highlight default link beanLink Comment
-highlight default link beanMeta Comment
+highlight default link beanMeta Special
 highlight default link beanFlag Keyword

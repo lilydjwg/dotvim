@@ -6,7 +6,7 @@
 [subrepo]
 	remote = git@github.com:nathangrigg/vim-beancount.git
 	branch = master
-	commit = 8054352c43168ece62094dfc8ec510e347e19e3c
+	commit = 2f970a0c826275f7d07fa145ba9a35c15b15232d
 	parent = 23792ca8df7fa3a279a27fdfdd6a49c26f97f617
 	method = merge
-	cmdver = 0.4.0
+	cmdver = 0.4.3
