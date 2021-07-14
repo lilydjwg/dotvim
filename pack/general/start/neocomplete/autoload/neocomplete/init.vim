@@ -40,10 +40,10 @@ function! neocomplete#init#enable() abort "{{{
     return
   endif
 
-  if has('patch-8.2.1066')
-    echomsg 'neocomplete does not work with Vim 8.2.1066+.'
-    return
-  endif
+  " if has('patch-8.2.1066')
+  "   echomsg 'neocomplete does not work with Vim 8.2.1066+.'
+  "   return
+  " endif
 
   if !exists('b:neocomplete')
     call neocomplete#init#_current_neocomplete()
