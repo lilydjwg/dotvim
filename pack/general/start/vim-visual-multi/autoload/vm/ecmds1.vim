@@ -375,7 +375,7 @@ fun! s:Edit.fill_register(reg, text, force_ow) abort
     let text      = a:text
     let reg       = empty(a:reg) ? '"' : a:reg
     let temp_reg  = reg == '§'
-    let overwrite = reg ==# s:v.def_reg || ( a:force_ow && !temp_reg )
+    let overwrite = reg ==# s:v.def_reg || reg == '+' || ( a:force_ow && !temp_reg )
     let maxw      = max(map(copy(text), 'len(v:val)'))
     let type      = s:v.multiline? 'V' : ( len(s:R())>1? 'b'.maxw : 'v' )
 
@@ -384,7 +384,10 @@ fun! s:Edit.fill_register(reg, text, force_ow) abort
         let g:Vm.registers[s:v.def_reg] = text
         let s:v.oldreg = [s:v.def_reg, join(text, "\n"), type]
     endif
-    let g:Vm.registers[reg] = text
+    " don't store the system register
+    if reg != '+'
+        let g:Vm.registers[reg] = text
+    endif
 
     "vim register is overwritten if unnamed, or if forced
     if overwrite

@@ -1,11 +1,11 @@
 *vm-settings.txt*    Version 0.3.0    Last change: June 13 2019
 
-Settings                                       |visual-multi-settings|
-Highlight                                      |visual-multi-highlight|
+Settings                                                 |vm-settings|
+Highlight                                                |vm-highlight|
 
 
 
-SETTINGS                                                *visual-multi-settings*
+SETTINGS                                                          *vm-settings*
 ===============================================================================
 
 Hopefully you won't need to alter any of these.
@@ -75,10 +75,11 @@ Hopefully you won't need to alter any of these.
   The first region will be reselected after most commands, if set to 1.
 
 
-*g:VM_case_setting*                                Default: 'smart'
+*g:VM_case_setting*                                Default: ''
 
-  Starting case matching for patterns. Other values: 'sensitive', 'ignore'
-  Can be switched inside VM.
+  Possible values: 'smart', 'sensitive', 'ignore'.
+  Starting case matching for patterns. Can be switched inside VM.
+  Leave empty to use your current setting.
 
 
 *g:VM_disable_syntax_in_imode*                     Default: 0
@@ -163,7 +164,7 @@ Hopefully you won't need to alter any of these.
 
 Set to 0 to disable entirely insert mode mappings to cycle cursors in
 |vm-single-mode|. If you only want to change the default mappings, see
-|vm-buffer-mappings|.
+|vm-mappings-buffer|.
 
 
 *g:VM_single_mode_auto_reset*                      Default: 1
@@ -192,12 +193,12 @@ automatically when exiting insert mode, unless this value is 0.
 
 *g:VM_plugins_compatibilty*                        Default: {}
 
-Used for plugins compatibility, see |visual-multi-compatibility|.
+Used for plugins compatibility, see |vm-compatibility|.
 
 
 
 
-HIGHLIGHT                                              *visual-multi-highlight*
+HIGHLIGHT                                                        *vm-highlight*
 ===============================================================================
 
 
@@ -210,7 +211,7 @@ You can load a theme by default by defining:  >
     let g:VM_theme = 'your_chosen_theme'
 <                                                                    *:VMTheme*
 If you want to change theme, run: >
-    :VMTheme
+    :VMTheme <tab>
 <
 To relink VM highlight groups: >
 
@@ -223,5 +224,41 @@ To relink VM highlight groups: >
 *g:VM_Extend_hl*  ,, in extend mode (the selections)
 *g:VM_Cursor_hl*  ,, in extend mode (the cursors)
 *g:VM_Insert_hl*  ,, in insert mode (the virtual cursors)
+
+
+
+
+DEFINING THEMES IN COLORSCHEMES                               *vm-colorschemes*
+===============================================================================
+
+If you want to load a theme inside a colorscheme, just put in the colorscheme
+script:
+>
+  silent! VMTheme theme_name
+<
+If you want to apply a custom theme, you may either relink groups as shown
+above (but then settings would persist for other colorschemes), or do it like
+this (example):
+>
+  if exists(':VMTheme')
+
+    " to avoid that current theme is reapplied on colorscheme change
+    let g:VM_theme_set_by_colorscheme = 1
+
+    " you can define both or just one, depending on the scheme
+    if &background == 'light'
+      hi VM_Extend ctermbg=24    ctermfg=237    guibg=#AAF0D6    guifg=NONE
+      hi VM_Cursor ctermbg=31    ctermfg=237    guibg=#78dede    guifg=#262626
+      hi VM_Insert ctermbg=239   ctermfg=237    guibg=#ffffaf    guifg=#262626
+      hi VM_Mono   ctermbg=180   ctermfg=235    guibg=#B23A2D    guifg=#ffffff
+    else
+      hi VM_Extend ctermbg=24    ctermfg=237    guibg=#5f8787    guifg=#ffffff
+      hi VM_Cursor ctermbg=31    ctermfg=237    guibg=#00af87    guifg=#ffffff
+      hi VM_Insert ctermbg=239   ctermfg=237    guibg=#5f0087    guifg=#ffffff
+      hi VM_Mono   ctermbg=180   ctermfg=235    guibg=#e05f51    guifg=#ffffff
+    endif
+
+  endif
+<
 
  vim: ft=help et sw=2 ts=2 sts=2 tw=79

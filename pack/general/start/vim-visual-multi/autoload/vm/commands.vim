@@ -173,6 +173,7 @@ endfun
 fun! vm#commands#regex_done() abort
     " Terminate the VM regex mode after having entered search a pattern.
     let s:v.visual_regex = s:v.using_regex == 2
+    let extend_current = s:v.using_regex == 3
     call vm#commands#regex_reset()
 
     if s:v.visual_regex
@@ -180,6 +181,10 @@ fun! vm#commands#regex_done() abort
         let g:Vm.finding = 1
         silent keepjumps normal! gv
         exe "silent normal \<Plug>(VM-Visual-Find)"
+        return
+
+    elseif extend_current
+        call vm#commands#regex_motion(@/, 1, 0)
         return
 
     elseif s:X() | silent keepjumps normal! gny`]
@@ -297,7 +302,14 @@ endfun
 fun! s:get_region(next) abort
     " Call the needed function and notify if reselecting a region.
     if !get(g:, 'VM_notify_previously_selected', 0)
-        return a:next ? s:get_next() : s:get_prev()
+        try
+            return a:next ? s:get_next() : s:get_prev()
+        catch /E38[45]/
+            redraw
+            let dir = a:next ? 'BOTTOM' : 'TOP'
+            call s:F.msg(printf("Search hit %s without a match for %s", dir, @/))
+            return s:G.select_region_at_pos('.')
+        endtry
     endif
     normal! m`
     echo "\r"
@@ -314,27 +326,25 @@ fun! s:get_region(next) abort
 endfun
 
 fun! s:get_next() abort
+    let s:v.nav_direction = 1
     if s:X()
         silent keepjumps normal! ngny`]
-        let R = s:G.new_region()
+        return s:G.new_region()
     else
         silent keepjumps normal! ngny`[
-        let R = vm#commands#add_cursor_at_word(0, 0)
+        return vm#commands#add_cursor_at_word(0, 0)
     endif
-    let s:v.nav_direction = 1
-    return R
 endfun
 
 fun! s:get_prev() abort
+    let s:v.nav_direction = 0
     if s:X()
         silent keepjumps normal! NgNy`]
-        let R = s:G.new_region()
+        return s:G.new_region()
     else
         silent keepjumps normal! NgNy`[
-        let R = vm#commands#add_cursor_at_word(0, 0)
+        return vm#commands#add_cursor_at_word(0, 0)
     endif
-    let s:v.nav_direction = 0
-    return R
 endfun
 
 fun! s:navigate(force, dir) abort
@@ -365,7 +375,7 @@ fun! vm#commands#find_next(skip, nav) abort
     "write search pattern if not navigating and no search set
     if s:X() && !a:nav | call s:Search.add_if_empty() | endif
 
-    call s:Search.validate()
+    if !s:Search.validate() && !a:nav | return | endif
 
     if s:navigate(a:nav, 1) | return 0        "just navigate to previous
     elseif a:skip           | call s:skip()   "skip current match
@@ -382,7 +392,7 @@ fun! vm#commands#find_prev(skip, nav) abort
     "write search pattern if not navigating and no search set
     if s:X() && !a:nav | call s:Search.add_if_empty() | endif
 
-    call s:Search.validate()
+    if !s:Search.validate() && !a:nav | return | endif
 
     let r = s:G.region_at_pos()
     if empty(r)  | let r = s:G.select_region(s:v.index) | endif
@@ -533,32 +543,59 @@ fun! vm#commands#regex_motion(regex, count, remove) abort
     if s:F.no_regions() | return | endif
 
     let regex = empty(a:regex) ? s:F.search_chars(a:count) : a:regex
-    let case =    g:VM_case_setting == 'smart'  ? '' :
-                \ g:VM_case_setting == 'ignore' ? '\c' : '\C'
+    let case =    g:VM_case_setting ==? 'sensitive' ? '\C' :
+                \ g:VM_case_setting ==? 'ignore'    ? '\c' : ''
 
     if empty(regex)
-      return s:F.msg('Cancel')
+        return s:F.msg('Cancel')
     endif
 
     call s:F.Scroll.get()
     let [ R, X ] = [ s:R()[ s:v.index ], s:X() ]
     call s:before_move()
 
-    for r in ( s:v.single_region ? [R] : s:R() )
-        call cursor(r.l, r.a)
-        if !search(regex.case, 'zp', r.l)
-            if a:remove | call r.remove() | endif
-            continue
-        endif
-        if X
-            let r.b = getpos('.')[2]
-            call r.update_region()
-        else
-            call r.update_cursor_pos()
-        endif
-    endfor
+    if s:v.direction
+        for r in ( s:v.single_region ? [R] : s:R() )
+            call cursor(r.L, r.b)
+            let endl = s:v.multiline && !empty(a:regex) ? line('$') : r.L
+            if !search(regex . case, 'z', endl)
+                if a:remove | call r.remove() | endif
+                continue
+            endif
+            if X
+                let [r.L, r.b] = getpos('.')[1:2]
+                call r.update_region()
+            else
+                call r.update_cursor_pos()
+            endif
+        endfor
+    else
+        for r in ( s:v.single_region ? [R] : s:R() )
+            call cursor(r.l, r.a)
+            let endl = s:v.multiline && !empty(a:regex) ? line('$') : r.l
+            if !search(regex . case, 'b', endl)
+                if a:remove | call r.remove() | endif
+                continue
+            endif
+            if X
+                let [r.l, r.a] = getpos('.')[1:2]
+                call r.update_region()
+            else
+                call r.update_cursor_pos()
+            endif
+        endfor
+    endif
 
-    "update variables, facing direction, highlighting
+    " if using slash-search, it's safer to merge regions
+    " a region update is also needed for some reason (some bytes map issue)
+    if !empty(a:regex)
+        let s:v.merge = 1
+        if !a:remove
+            call s:G.update_regions()
+        endif
+    endif
+
+    " update variables, facing direction, highlighting
     call s:after_move(R)
 endfun
 
@@ -799,7 +836,7 @@ fun! vm#commands#increase_or_decrease(increase, all_types, count)
     let map = a:increase ? "\<c-a>" : "\<c-x>"
     call s:V.Edit.run_normal(map, {'count': a:count, 'recursive': 0})
     if a:all_types
-        let &nrformats = oldnr
+        let &l:nrformats = oldnr
     endif
 endfun
 

@@ -1,6 +1,6 @@
 *vm-faq.txt*    Version 0.3.0    Last change: June 15 2019
 
-FREQUENTLY ASKED QUESTIONS                                   *visual-multi-faq*
+FREQUENTLY ASKED QUESTIONS                                             *vm-faq*
 ===============================================================================
                                                                     *vm-errors*
 VM has quit with errors and I can't clear VM highlight matches.~
@@ -12,10 +12,10 @@ Run |:VMClear|
 
 How to start VM with matches from current search register? ~
 
-Run |:VMSearch|.
+Run |:VMSearch|. It also accepts a pattern and a |range| (% finds all matches).
 
 -------------------------------------------------------------------------------
-                                                                  *vm-mappings*
+                                                              *vm-mappings-faq*
 I want to remap the main VM mappings.~
 
 You have to initialize the mappings dictionary and replace individual mappings
@@ -28,6 +28,7 @@ For a full list of mappings and other informations, see |vm-mappings.txt|.
   let g:VM_maps['Find Subword Under'] = '<C-d>'   " replace visual C-n
   let g:VM_maps["Add Cursor Down"]    = '<M-j>'   " new cursor down
   let g:VM_maps["Add Cursor Up"]      = '<M-k>'   " new cursor up
+  let g:VM_maps["Toggle Mappings"]    = '<CR>'    " toggle VM buffer mappings
   let g:VM_maps["Exit"]               = '<Space>' " quit VM
 
 To disable a specific mapping, set it to an empty string:
@@ -35,7 +36,7 @@ To disable a specific mapping, set it to an empty string:
   let g:VM_maps["Select Operator"]    = ''
 <
 -------------------------------------------------------------------------------
-                                                          *vm-disable-mappings*
+                                                          *vm-mappings-disable*
 How can I temporarily disable VM mappings? ~
 
 VM has a <Plug> for that. Normally it is bound to |VM_leader| + <Space>, but
@@ -90,7 +91,7 @@ or check one of the following settings:
 
 
 -------------------------------------------------------------------------------
-                                                           *vm-custom-mappings*
+                                                           *vm-mappings-custom*
 Can I have a mapping for...? ~
 
 If you find yourself repeating a certain action, you can create mappings like:

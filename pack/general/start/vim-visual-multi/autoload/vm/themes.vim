@@ -4,28 +4,29 @@
 
 let s:Themes = {}
 
+augroup VM_reset_theme
+  au!
+  au ColorScheme * call vm#themes#init()
+augroup END
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 fun! vm#themes#init() abort
   if !exists('g:Vm') | return | endif
-  let theme = get(g:, 'VM_theme', 'default')
-
-  silent! hi clear VM_Mono
-  silent! hi clear VM_Cursor
-  silent! hi clear VM_Extend
-  silent! hi clear VM_Insert
-  silent! hi clear MultiCursor
 
   if !empty(g:VM_highlight_matches)
     let out = execute('highlight Search')
-    let hi = strtrans(substitute(out, '^.*xxx ', '', ''))
-    let hi = substitute(hi, '\^.', '', 'g')
-    if match(hi, ' links to ') >= 0
+    if match(out, ' links to ') >= 0
       let hi = substitute(out, '^.*links to ', '', '')
-      let g:Vm.search_hi = "hi! link Search ".hi
+      let g:Vm.search_hi = "hi! link Search " . hi
     else
-      let g:Vm.search_hi = "hi! Search ".hi
+      let hi = strtrans(substitute(out, '^.*xxx ', '', ''))
+      let hi = substitute(hi, '\^.', '', 'g')
+      let g:Vm.search_hi = "hi! Search " . hi
     endif
 
-    call vm#themes#hi()
+    call vm#themes#search_highlight()
   endif
 
   let g:Vm.hi.mono    = 'VM_Mono'
@@ -34,11 +35,24 @@ fun! vm#themes#init() abort
   let g:Vm.hi.insert  = 'VM_Insert'
   let g:Vm.hi.message = get(g:, 'VM_Message_hl', 'WarningMsg')
 
+  if exists('g:VM_theme_set_by_colorscheme')
+    unlet g:VM_theme_set_by_colorscheme
+    highlight! link MultiCursor VM_Cursor
+    return
+  endif
+
+  let theme = get(g:, 'VM_theme', 'default')
+
+  silent! hi clear VM_Mono
+  silent! hi clear VM_Cursor
+  silent! hi clear VM_Extend
+  silent! hi clear VM_Insert
+  silent! hi clear MultiCursor
 
   if theme == 'default'
     exe "highlight! link VM_Mono     ".get(g:, 'VM_Mono_hl',   'ErrorMsg')
     exe "highlight! link VM_Cursor   ".get(g:, 'VM_Cursor_hl', 'Visual')
-    exe "highlight! link VM_Extend   ".get(g:, 'VM_Extend_hl', 'DiffAdd')
+    exe "highlight! link VM_Extend   ".get(g:, 'VM_Extend_hl', 'PmenuSel')
     exe "highlight! link VM_Insert   ".get(g:, 'VM_Insert_hl', 'DiffChange')
     exe "highlight! link MultiCursor ".get(g:, 'VM_Cursor_hl', 'Visual')
     return
@@ -50,7 +64,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! vm#themes#hi() abort
+fun! vm#themes#search_highlight() abort
   " Init Search highlight.
   let g:Vm.Search = g:VM_highlight_matches == 'underline' ? 'hi Search term=underline cterm=underline gui=underline' :
         \           g:VM_highlight_matches == 'red'       ? 'hi Search ctermfg=196 guifg=#ff0000' :
@@ -61,7 +75,7 @@ endfun
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! vm#themes#load(theme) abort
-  " Load a theme.
+  " Load a theme or set default.
   if empty(a:theme)
     let g:VM_theme = 'default'
     echo 'Theme set to default'
@@ -74,13 +88,11 @@ fun! vm#themes#load(theme) abort
   call vm#themes#init()
 endfun
 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 fun! vm#themes#complete(A, L, P) abort
-  if &background=='light'
-    let valid = ['sand', 'paper', 'lightblue1', 'lightblue2', 'lightpurple1', 'lightpurple2']
-  elseif &background=='dark'
-    let valid = ['iceblue', 'ocean', 'neon', 'purplegray', 'nord', 'codedark', 'spacegray', 'olive', 'sand']
-  endif
-  return filter(sort(valid), 'v:val=~#a:A')
+  let valid = &background == 'light' ? s:Themes._light : s:Themes._dark
+  return filter(sort(copy(valid)), 'v:val=~#a:A')
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -112,6 +124,11 @@ fun! vm#themes#statusline() abort
         \ color, mode, '%#VM_Insert#', vm.ratio, single, '%#TabLine#',
         \ patterns, color, vm.status . ' ')
 endfun
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+let s:Themes._light = ['sand', 'paper', 'lightblue1', 'lightblue2', 'lightpurple1', 'lightpurple2']
+let s:Themes._dark = ['iceblue', 'ocean', 'neon', 'purplegray', 'nord', 'codedark', 'spacegray', 'olive', 'sand']
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 

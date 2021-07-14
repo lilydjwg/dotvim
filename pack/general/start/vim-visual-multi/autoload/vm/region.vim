@@ -260,7 +260,12 @@ fun! s:Region.set_vcol(...) abort
     if !s:vertical()
         let self.vcol = 0
     elseif !self.vcol
-        let self.vcol = virtcol('.')
+        let before = getline('.')[:col('.')-1]
+        let self.bdiff = strlen(before) - strchars(before)
+        let self.vcol = col('.')
+        if !&expandtab
+            let self.ntabs = count(before, "\t")
+        endif
     endif
 endfun
 
@@ -299,9 +304,18 @@ endfun
 
 fun! s:keep_vertical_col(r) abort
     " Keep the vertical column if moving vertically.
-    let vcol    = a:r.vcol
+    let before = getline('.')[:col('.')-1]
+    let bdiff = strlen(before) - strchars(before)
+
+    let vcol    = a:r.vcol - a:r.bdiff + bdiff
     let lnum    = line('.')
     let endline = (col('$') > 1)? col('$') - 1 : 1
+
+    if !&expandtab
+        let ntabs = count(before, "\t")
+        let tabsdiff = ntabs - a:r.ntabs
+        let vcol -= &tabstop * tabsdiff - tabsdiff
+    endif
 
     if ( vcol < endline )
         call cursor ( lnum, vcol )
@@ -480,7 +494,9 @@ fun! s:Region.highlight() abort
     "------------------ cursor mode ----------------------------
 
     if !s:X()
-        let R.matches.cursor = matchaddpos('MultiCursor', [[R.l, R.a]], 40)
+        let R.matches.cursor = R.a == 1
+                    \ ? matchadd('MultiCursor', '\%' . R.l . 'l\%1c')
+                    \ : matchaddpos('MultiCursor', [[R.l, R.a]], 40)
         return
     endif
 
@@ -600,7 +616,6 @@ fun! s:region_vars(r, cursor, ...) abort
         let R.h     = R.L - R.l             " height
         let R.k     = R.dir? R.a : R.b      " anchor
         let R.K     = R.dir? R.A : R.B      " anchor offset
-        let R.vcol  = 0                     " vertical column
 
     elseif !a:0            "/////////// REGION ////////////
 
@@ -620,7 +635,6 @@ fun! s:region_vars(r, cursor, ...) abort
         let R.h     = R.L - R.l             " height
         let R.k     = R.dir? R.a : R.b      " anchor
         let R.K     = R.dir? R.A : R.B      " anchor offset
-        let R.vcol  = 0                     " vertical column
 
     else                   "///////// FROM ARGS ///////////
 
@@ -638,8 +652,12 @@ fun! s:region_vars(r, cursor, ...) abort
         let R.h     = R.L - R.l             " height
         let R.k     = R.dir? R.a : R.b      " anchor
         let R.K     = R.dir? R.A : R.B      " anchor offset
-        let R.vcol  = 0                     " vertical column
     endif
+
+    " used to keep the column during vertical cursors movement
+    let R.vcol  = 0 " vertical column
+    let R.ntabs = 0 " number of tabs before cursor if noexpandtab
+    let R.bdiff = 0 " bytes diff if multibyte characters before cursor
 endfun
 
 

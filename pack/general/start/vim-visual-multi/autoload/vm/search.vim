@@ -43,7 +43,7 @@ fun! s:Search.get_pattern(register) abort
     let t = self.escape_pattern(t)
     let p = s:v.whole_word ? '\<'.t.'\>' : t
     "if whole word, ensure pattern can be found
-    let p = search(p, 'nc')? p : t
+    let p = search(p, 'ncw')? p : t
     return p
 endfun
 
@@ -100,12 +100,12 @@ endfun
 
 fun! s:Search.validate() abort
     " Check whether the current search is valid, if not, clear the search.
-    if s:v.eco || empty(s:v.search) | return | endif
+    if s:v.eco || empty(s:v.search) | return v:false | endif
 
     call self.join()
 
     "pattern found, ok
-    if search(@/, 'cnw') | return | endif
+    if search(@/, 'cnw') | return v:true | endif
 
     while 1
         let i = 0
@@ -116,6 +116,7 @@ fun! s:Search.validate() abort
         break
     endwhile
     call self.join()
+    return v:true
 endfun
 
 
