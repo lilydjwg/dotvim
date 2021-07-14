@@ -6,6 +6,7 @@
 [subrepo]
 	remote = git@github.com:embear/vim-foldsearch.git
 	branch = master
-	commit = 3c027cbfa7c0d69505ca2e42ff1598406dd8c1d1
+	commit = b9fc3b9127e52190bde33d536327ccc482c6011c
 	parent = 9c72b72d69a767127980d0ebb87f41c8ab5696cc
-	cmdver = 0.3.1
+	cmdver = 0.4.3
+	method = merge

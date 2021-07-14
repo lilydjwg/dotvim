@@ -104,13 +104,13 @@ Set modified fold options to their previous value and end foldsearch.
                                                           *foldsearch-mappings*
 Mappings ~
 
-- 'Leader>fw' : |:Fw| with current context
-- 'Leader>fs' : |:Fs| with current context
-- 'Leader>fS' : |:FS|
-- 'Leader>fl' : |:Fl|
-- 'Leader>fi' : |:Fi|
-- 'Leader>fd' : |:Fd|
-- 'Leader>fe' : |:Fe|
+- '<Leader>fw' : |:Fw| with current context
+- '<Leader>fs' : |:Fs| with current context
+- '<Leader>fS' : |:FS|
+- '<Leader>fl' : |:Fl|
+- '<Leader>fi' : |:Fi|
+- '<Leader>fd' : |:Fd|
+- '<Leader>fe' : |:Fe|
 
 Mappings can be disabled by setting |g:foldsearch_disable_mappings| to 1
 
