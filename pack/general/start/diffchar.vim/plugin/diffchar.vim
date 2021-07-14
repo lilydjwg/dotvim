@@ -8,15 +8,15 @@
 " |     || || |   | |   |  |__ |  _  ||  _  || |  | |
 " |____| |_||_|   |_|   |_____||_| |_||_| |_||_|  |_|
 "
-" Last Change:	2020/05/01
-" Version:		8.7
+" Last Change:	2021/04/16
+" Version:		8.9
 " Author:		Rick Howe <rdcxy754@ybb.ne.jp>
-" Copyright:	(c) 2014-2020 by Rick Howe
+" Copyright:	(c) 2014-2021 by Rick Howe
 
 if exists('g:loaded_diffchar') || !has('diff') || v:version < 800
 	finish
 endif
-let g:loaded_diffchar = 8.7
+let g:loaded_diffchar = 8.9
 
 let s:save_cpo = &cpoptions
 set cpo&vim
@@ -63,15 +63,16 @@ endif
 " matching colors for changed units
 if !exists('g:DiffColors')
 	let g:DiffColors = 0		" always 1 color
-	" let g:DiffColors = 1		" 4 colors in fixed order
-	" let g:DiffColors = 2		" 8 colors in fixed order
-	" let g:DiffColors = 3		" 16 colors in fixed order
-	" let g:DiffColors = 100	" all available colors in dynamic random order
+	" let g:DiffColors = 1		" up to 4 colors in fixed order
+	" let g:DiffColors = 2		" up to 8 colors in fixed order
+	" let g:DiffColors = 3		" up to 16 colors in fixed order
+	" let g:DiffColors = 4		" all available colors in fixed order
+	" let g:DiffColors = 100	" all colors in dynamic random order
 endif
 
 " a visibility of corresponding diff units
 if !exists('g:DiffPairVisible')
-	let g:DiffPairVisible = 1	" highlight 
+	let g:DiffPairVisible = 1	" highlight
 	" let g:DiffPairVisible = 2	" highlight + echo
 	" let g:DiffPairVisible = 3	" highlight + popup/floating at cursor pos
 	" let g:DiffPairVisible = 4	" highlight + popup/floating at mouse pos
