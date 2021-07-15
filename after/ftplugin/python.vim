@@ -11,6 +11,9 @@ elseif has("python")
 else
   setlocal omnifunc=syntaxcomplete#Complete
 endif
+
+" it must be 8
+setlocal tabstop=8
 " ---------------------------------------------------------------------
 " load python code, set 'sw' etc {{{1
 " Vim 7.4 from some patch level unconditionally set 'sw' and 'sts' to 4
