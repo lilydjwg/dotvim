@@ -411,6 +411,12 @@ function Lilydjwg_trycycle(dir)
     return ":\<C-U>call Cycle('" . mode . "', " . dir . ", v:count1)\<CR>"
   end
 endfunction
+"  format the whole file [[[2
+function Lilydjwg_formatall()
+  let v = winsaveview()
+  keepjumps normal! gg=G
+  call winrestview(v)
+endfunction
 " set 相关[[[1
 "   一般设置[[[2
 " nvim needs this to enable ftplugin
@@ -661,8 +667,7 @@ nmap <F5> :e!<CR>
 "     t 开头 [[[3
 nmap <silent> tt :tabnew<CR>
 nmap <silent> TT :call Lilydjwg_copy_to_newtab()<CR>
-" format all
-nmap t= mxHmygg=G`yzt`x
+nmap t= :call Lilydjwg_formatall()<CR>
 " select all
 nmap ta ggVG
 nmap <silent> tf :call Lilydjwg_open_url()<CR>
