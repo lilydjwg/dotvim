@@ -1,5 +1,0 @@
-*.py[cod]
-.cache
-.mypy_cache
-.pytest_cache
-vim-themis/
