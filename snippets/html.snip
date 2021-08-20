@@ -22,15 +22,6 @@ snippet myscript
 	  ${1}
 	//-->
 	</script>${2}
-snippet bodywidth
-	<style type="text/css">
-	<!--
-	  body { max-width: 700px; margin: auto; padding: 1em; }
-	-->
-	</style>
-# 中文维基百科链接。FIXME 百分号转义
-snippet wiki
-	<a href="http://zh.wikipedia.org/w/index.php?title=Special:%E6%90%9C%E7%B4%A2&search=${1:word}" title="在维基百科上查看“$1”词条">$1</a>${2}
 snippet en
 	<span lang="en">${1:}</span>${2}
 snippet a
@@ -45,11 +36,6 @@ snippet code
 	<pre class="brush: ${1:css}">
 	${2}
 	</pre>${3}
-snippet xhtml
-	<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-snippet ser
-	<!-- Server: ${1} -->
 snippet <
 	&lt;
 snippet >
@@ -70,3 +56,5 @@ snippet cg
 	</div>
 snippet center
 	style="text-align: center;"
+snippet jinja
+	{# vim: se syntax=html.jinja: #}
