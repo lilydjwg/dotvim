@@ -49,13 +49,7 @@ endfunction
 function s:AddCurrent(file)
   let name = g:dictfilePrefix . a:file
   let word = expand("<cword>")
-  try
-    let f = readfile(name)
-  catch /^Vim\%((\a\+)\)\=:E484/
-    let f = []
-  endtry
-  let f = add(f, word)
-  call writefile(f, name)
+  call writefile([word], name, "a")
   echon word . " has been added to " . a:file
 endfunction
 " ---------------------------------------------------------------------
