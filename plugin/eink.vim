@@ -35,10 +35,14 @@ function! s:AutoEink()
     " vte 0.58.3 always replies (0, 0), see
     " https://gitlab.gnome.org/GNOME/vte/issues/128
     let x = system("python -c 'from X import Display; print(Display().getpos()[0])' 2>/dev/null || true")
+  elseif has('gui_running') && exists('$GDK_SCALE')
+    let x = x * $GDK_SCALE
   endif
 
-  if x >= 1920
+  if x >= g:eink_pos
     call s:Eink('')
   endif
 endfunction
-" autocmd VimEnter * call s:AutoEink()
+if get(g:, 'eink_pos', 0)
+  autocmd VimEnter * call s:AutoEink()
+endif
