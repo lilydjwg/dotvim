@@ -1,0 +1,14 @@
+set nocompatible
+
+filetype off
+
+set runtimepath+=vader.vim
+set runtimepath+=.
+
+set expandtab
+set shiftwidth=2
+set softtabstop=2
+set tabstop=2
+
+filetype plugin indent on
+syntax enable

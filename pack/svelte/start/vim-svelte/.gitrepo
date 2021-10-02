@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:evanleck/vim-svelte.git
+	branch = main
+	commit = 5f88e5a0fe7dcece0008dae3453edbd99153a042
+	parent = 814449bba301e86381473d14c87e17f6bbd10b50
+	method = merge
+	cmdver = 0.4.3
