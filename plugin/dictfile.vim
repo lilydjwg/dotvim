@@ -34,9 +34,7 @@ function SetDictFilePre()
   if &ft =~ '\v^(x?html|php)$'
     call SetDictFile('css')
     call SetDictFile('javascript')
-    call SetDictFile('dom')
   elseif &ft =~ '\v^(javascript|python)$'
-    call SetDictFile('dom')
   endif
 endfunction
 function OpenDict(ft)
