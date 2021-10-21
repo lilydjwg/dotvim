@@ -364,7 +364,7 @@ function Lilydjwg_open_url()
       call system("open '" . s:url . "'")
     else
       " call system("gnome-open " . s:url)
-      call system("setsid firefox '" . s:url . "' &")
+      call system("xdg-open '" . s:url . "' &")
     endif
   endif
   unlet s:url
@@ -516,6 +516,7 @@ endif
 set tabpagemax=50
 " make it unusable so it won't clash
 set termwinkey=<C-\\>
+set backup backupcopy=no
 " Linux 与 Windows 等 [[[2
 if has("gui_macvim")
   set macmeta
