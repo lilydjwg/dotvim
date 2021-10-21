@@ -5,7 +5,7 @@
 function s:TailfCmd(cmd)
   enew
   let buf = bufnr('%')
-  setl buftype=nofile
+  setl buftype=nofile noswapfile
   if type(a:cmd) == v:t_list
     let displaycmd = join(a:cmd)
   elseif type(a:cmd) == v:t_string
@@ -25,7 +25,3 @@ endfunction
 
 command -nargs=+ -complete=shellcmd TailfCmd call s:TailfCmd(<q-args>)
 command -nargs=1 -complete=file Tailf call s:Tailf(<f-args>)
-" ---------------------------------------------------------------------
-" Vim Modeline:
-" vim:fdm=expr:fde=getline(v\:lnum-1)=~'\\v"\\s*-{20,}'?'>1'\:1
-" ---------------------------------------------------------------------
