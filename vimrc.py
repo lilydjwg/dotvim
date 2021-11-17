@@ -12,7 +12,7 @@ def LilyPaste():
   msg = 'Pasting...'
   vimprint(msg)
   curl = subprocess.Popen(
-    ['curl', '--compressed', '-m', '60', '-Ss', '-F', 'vimcn=<-', 'https://cfp.vim-cn.com'],
+    ['curl', '--compressed', '-m', '60', '-Ss', '--data-binary', '@=', 'https://pb.nichi.co/'],
     stdin=subprocess.PIPE, stdout=subprocess.PIPE,
   )
   for l in vim.current.range:
