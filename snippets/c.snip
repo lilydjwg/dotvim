@@ -6,14 +6,10 @@ snippet main
 	}
 snippet dbg
 	printf("${1:HereItIs.}\n");${2}
-snippet sf
-	FILE *log = fopen("/home/centos/scim.log", "a");
-	fprintf(log, "sf: %s:%d:%d ${1}.\n", __FILE__, __LINE__, getpid()${2});
-	fclose(log);
 snippet hii
 	printf("%d: HereItIs.\n", __LINE__);
 snippet err
-	fprintf(stderr, "${1:error}\n");${2}
+	fprintf(stderr, "${1:error}\n");
 # For Loop
 snippet for
 	for(${1:int} ${2:i}=${3:0}; $2<${4:count}; $2${5:++}){
@@ -92,6 +88,3 @@ snippet tde
 # dynamic `...`
 snippet pr
 	printf("${1:%s}\n"${2});${3}
-# fprintf (again, this isn't as nice as TextMate's version, but it works)
-snippet fpr
-	fprintf(${1:stderr}, "${2:%s}\n"${3});${4}
