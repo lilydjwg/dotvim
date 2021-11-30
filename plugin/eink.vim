@@ -22,27 +22,3 @@ function! s:Eink(bang)
   endif
 endfunction
 command! -bang Eink call s:Eink('<bang>')
-
-function! s:AutoEink()
-  if exists('*getwinpos')
-    let x = getwinpos(1000)[0]
-  else
-    let x = getwinposx()
-  endif
-
-  if x == -1 || x == 0
-    " not available or wrong, try using the mouse position
-    " vte 0.58.3 always replies (0, 0), see
-    " https://gitlab.gnome.org/GNOME/vte/issues/128
-    let x = system("python -c 'from X import Display; print(Display().getpos()[0])' 2>/dev/null || true")
-  elseif has('gui_running') && exists('$GDK_SCALE')
-    let x = x * $GDK_SCALE
-  endif
-
-  if x >= g:eink_pos
-    call s:Eink('')
-  endif
-endfunction
-if get(g:, 'eink_pos', 0)
-  autocmd VimEnter * call s:AutoEink()
-endif
