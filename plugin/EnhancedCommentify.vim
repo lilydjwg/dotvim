@@ -767,7 +767,7 @@ function s:GetFileTypeSettings(ft)
 	let b:ECcommentOpen = '"'
 	let b:ECcommentClose = ''
     elseif fileType =~ '^\(lisp\|scheme\|scsh\|amiga\|asm\|asm68k\|bindzone\|'.
-		\ 'def\|dns\|dosini\|dracula\|dsl\|idlang\|iss\|jess\|kix\|'.
+		\ 'def\|dns\|dracula\|dsl\|idlang\|iss\|jess\|kix\|'.
 		\ 'masm\|monk\|nasm\|ncf\|omnimark\|pic\|povini\|rebol\|'.
 		\ 'registry\|samba\|skill\|smith\|tags\|tasm\|tf\|winbatch\|'.
 		\ 'wvdial\|z8a\)$'
@@ -784,7 +784,7 @@ function s:GetFileTypeSettings(ft)
 		\ 'squid\|terminfo\|tidy\|tli\|tsscl\|vgrindefs\|vrml\|'.
 		\ 'fstab\|privoxy\|openvpn\|dnsmasq\|nimrod\|' .
 		\ 'wget\|wml\|xf86conf\|xmath\|nginx\|gas\|debsources\|' .
-                \ 'yaml\|getmailrc\|msmtp\|toml\|sshconfig\|i3config\)$'
+                \ 'yaml\|getmailrc\|msmtp\|toml\|sshconfig\|i3config\|dosini\)$'
 	let b:ECcommentOpen = '#'
 	let b:ECcommentClose = ''
     elseif fileType == 'webmacro'
