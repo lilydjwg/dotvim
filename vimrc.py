@@ -12,7 +12,7 @@ def LilyPaste():
   msg = 'Pasting...'
   vimprint(msg)
   curl = subprocess.Popen(
-    ['curl', '--compressed', '-m', '60', '-Ss', '--data-binary', '@=', 'https://pb.nichi.co/'],
+    ['curl', '--compressed', '-m', '60', '-Ss', '--data-binary', '@-', 'https://pb.nichi.co/'],
     stdin=subprocess.PIPE, stdout=subprocess.PIPE,
   )
   for l in vim.current.range:
@@ -21,9 +21,6 @@ def LilyPaste():
   url = curl.stdout.read().decode('utf-8').strip()
   if not url:
     vimprint('Failed to paste code.', style='ErrorMsg', kind=EchoKind.echon)
-  ft = vim.eval('&ft')
-  if ft:
-    url = '%s/%s' % (url, ft)
   try:
     vim.eval('setreg("*", %r)' % url)
   except vim.error:
