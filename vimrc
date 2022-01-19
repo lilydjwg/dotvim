@@ -637,6 +637,11 @@ if &term =~ '^screen\|^tmux'
     " for getwinpos
     exec "set t_GP=\033Ptmux;\033\033[13t\033\\"
   endif
+  " Enable modified arrow keys, see  :help arrow_modifiers
+  execute "silent! set <xUp>=\<Esc>[@;*A"
+  execute "silent! set <xDown>=\<Esc>[@;*B"
+  execute "silent! set <xRight>=\<Esc>[@;*C"
+  execute "silent! set <xLeft>=\<Esc>[@;*D"
 endif
 " 不同的 Vim 版本 [[[2
 if has("conceal")
