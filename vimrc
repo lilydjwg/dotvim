@@ -869,8 +869,6 @@ command! -bang -nargs=* -complete=file Make AsyncRun -program=make @ <args>
 nmap <M-w> <Plug>(choosewin)
 let g:choosewin_overlay_enable = 1
 let g:choosewin_statusline_replace = 0
-"   mark.vim[[[2
-let g:mwDefaultHighlightingPalette = 'maximum'
 "   extradite.vim[[[2
 let g:extradite_showhash = 1
 "   linediff[[[2
