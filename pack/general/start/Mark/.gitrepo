@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:inkarkat/vim-mark.git
+	branch = master
+	commit = 89274036663c3322c669ff499a128583018604d3
+	parent = e2a8116bf8e638fcba62e4417e6a7327a00dcc5d
+	method = merge
+	cmdver = 0.4.3
