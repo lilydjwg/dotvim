@@ -2,7 +2,7 @@
 "
 " DEPENDENCIES:
 "
-" Copyright: (C) 2013-2019 Ingo Karkat
+" Copyright: (C) 2013-2022 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -64,7 +64,7 @@ function! ingo#dict#FromKeys( keys, ValueExtractor )
 "******************************************************************************
 "* PURPOSE:
 "   Create a Dictionary object from a:keys, with the key taken from the List
-"   elements, and the value obtained through a:KeyExtractor (which can be a
+"   elements, and the value obtained through a:ValueExtractor (which can be a
 "   constant default).
 "* ASSUMPTIONS / PRECONDITIONS:
 "   None.

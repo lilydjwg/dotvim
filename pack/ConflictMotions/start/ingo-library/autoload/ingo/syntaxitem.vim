@@ -1,9 +1,8 @@
 " ingo/syntaxitem.vim: Functions for retrieving information about syntax items.
 "
 " DEPENDENCIES:
-"   - ingo/compat.vim autoload script
 "
-" Copyright: (C) 2011-2019 Ingo Karkat
+" Copyright: (C) 2011-2022 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -32,7 +31,7 @@ function! ingo#syntaxitem#IsOnSyntax( pos, syntaxItemPattern, ... )
 "* EFFECTS / POSTCONDITIONS:
 "   None.
 "* INPUTS:
-"   a:pos	        [bufnum, lnum, col, off] (as returned from |getpos()|)
+"   a:pos		[bufnum, lnum, col, off] (as returned from |getpos()|)
 "   a:syntaxItemPattern Regular expression for the syntax item name.
 "   a:stopItemPattern	Regular expression for a syntax item name that stops
 "			looking further down the syntax stack.
@@ -52,6 +51,27 @@ function! ingo#syntaxitem#IsOnSyntax( pos, syntaxItemPattern, ... )
 	endif
     endfor
     return 0
+endfunction
+
+function! ingo#syntaxitem#HasHighlighting( synID )
+"******************************************************************************
+"* PURPOSE:
+"   Check whether the syntax item with a:synID has visible highlighting.
+"* ASSUMPTIONS / PRECONDITIONS:
+"   None.
+"* EFFECTS / POSTCONDITIONS:
+"   None.
+"* INPUTS:
+"   a:synID ID of the syntax item.
+"* RETURN VALUES:
+"   0 if there's no visible highlighting, 1 if there is.
+"******************************************************************************
+    return ! empty(
+    \   filter(
+    \       map(['fg', 'bg', 'sp'], 'synIDattr(a:synID, "v:val")'),
+    \       '! empty(v:val)'
+    \   )
+    \)
 endfunction
 
 " vim: set ts=8 sts=4 sw=4 noexpandtab ff=unix fdm=syntax :

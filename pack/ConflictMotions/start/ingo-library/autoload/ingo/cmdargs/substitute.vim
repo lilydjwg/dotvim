@@ -3,7 +3,7 @@
 " DEPENDENCIES:
 "   - ingo/list.vim autoload script
 "
-" Copyright: (C) 2012-2018 Ingo Karkat
+" Copyright: (C) 2012-2022 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -45,9 +45,10 @@ function! ingo#cmdargs#substitute#Parse( arguments, ... )
 "   a:options.emptyPattern          Pattern to use when no arguments at all are
 "				    given. Defaults to "", which automatically
 "				    uses the last search pattern in a
-"				    :substitute. You need to escape this
+"				    :substitute. You need to "/"-escape this
 "				    yourself (to be able to pass in @/, which
-"				    already is escaped).
+"				    already is "/"-escaped (the default
+"				    separator is "/")).
 "   a:options.emptyReplacement      Replacement to use when no arguments at all
 "				    are given. Defaults to "~" to use the
 "				    previous replacement in a :substitute.

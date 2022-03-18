@@ -24,6 +24,7 @@ lists/
 lnum/
 matches/
 option/listchars/
+range/merge/
 range/sort/
 regexp/
 regexp/capture/
@@ -34,6 +35,7 @@ regexp/parse/
 regexp/split/
 smartcase/
 str/
+str/remove/
 strdisplaywidth/
 strdisplaywidth/pad/
 subs/BraceCreation/

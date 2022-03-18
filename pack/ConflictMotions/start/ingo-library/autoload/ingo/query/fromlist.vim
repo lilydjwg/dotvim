@@ -7,7 +7,7 @@
 "   - ingo/query/get.vim autoload script
 "   - ingo/query/recall.vim autoload script
 "
-" Copyright: (C) 2014-2018 Ingo Karkat
+" Copyright: (C) 2014-2022 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -91,10 +91,10 @@ function! ingo#query#fromlist#Query( what, list, ... )
 
 	    let l:leadingZeroCnt = (l:choice ==# '0')
 	    while l:maxNum > 10 * l:count
-		let l:char = nr2char(getchar())
+		let l:char = ingo#compat#getcharstr()
 		if l:char ==# "\<CR>"
 		    break
-		elseif l:char !~# '\d'
+		elseif l:char !~# ingo#regexp#Anchored('\d')
 		    redraw | echo ''
 		    return -1
 		endif

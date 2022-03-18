@@ -1,9 +1,8 @@
 " ingo/cmdargs/range.vim: Functions for parsing Ex command ranges.
 "
 " DEPENDENCIES:
-"   - ingo/cmdargs/commandcommands.vim autoload script
 "
-" Copyright: (C) 2012-2019 Ingo Karkat
+" Copyright: (C) 2012-2022 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -31,7 +30,9 @@ function! ingo#cmdargs#range#Parse( commandLine, ... )
 "* INPUTS:
 "   a:commandLine   Ex command line containing a command.
 "   a:options.isAllowEmptyCommand   Flag whether a sole range should be matched.
-"				    True by default.
+"				    A completely empty a:commandLine won't be
+"				    accepted; there has to be a range and/or a
+"				    command. True by default.
 "   a:options.commandExpr           Custom pattern for matching commands /
 "				    anything that follows the range. Mutually
 "				    exclusive with
@@ -68,7 +69,8 @@ function! ingo#cmdargs#range#Parse( commandLine, ... )
     \	'\(' . ingo#cmdargs#commandcommands#GetExpr() . '\)\?' .
     \	'\(' . l:rangeExpr . '\)\s*' .
     \   l:commandExpr
-    return matchlist(a:commandLine, l:parseExpr)[0:4]
+    let l:commandParse = matchlist(a:commandLine, l:parseExpr)[0:4]
+    return (l:commandParse == ['', '', '', '', ''] ? [] : l:commandParse)
 endfunction
 
 function! ingo#cmdargs#range#ParsePrependedRange( arguments, ... )

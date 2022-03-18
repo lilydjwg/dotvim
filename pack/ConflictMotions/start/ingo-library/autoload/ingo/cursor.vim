@@ -2,16 +2,10 @@
 "
 " DEPENDENCIES:
 "
-" Copyright: (C) 2013-2019 Ingo Karkat
+" Copyright: (C) 2013-2022 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
-"
-" REVISION	DATE		REMARKS
-"   1.030.003	10-Feb-2017	Add ingo#cursor#StartInsert() and
-"				ingo#cursor#StartAppend().
-"   1.018.002	10-Apr-2014	Add ingo#cursor#IsAtEndOfLine().
-"   1.016.001	11-Dec-2013	file creation
 
 function! ingo#cursor#Set( lnum, virtcol )
 "******************************************************************************
@@ -58,6 +52,31 @@ function! ingo#cursor#IsAtEndOfLine( ... )
     " This won't work with :set virtualedit=all, when the cursor is after the
     " physical end of the line.
     "return (search('\%#.$', 'cn', line('.')) > 0)
+endfunction
+function! ingo#cursor#IsBeyondEndOfLine( ... )
+"******************************************************************************
+"* PURPOSE:
+"   Tests whether the cursor is behind (possible with 'virtualedit') the last
+"   character of the current line.
+"* ASSUMPTIONS / PRECONDITIONS:
+"   None.
+"* EFFECTS / POSTCONDITIONS:
+"   None.
+"* INPUTS:
+"   a:mark  Optional mark containing the current position; this should be
+"	    located in the current line to make sense!
+"* RETURN VALUES:
+"   1 if beyond the end of the current line, 0 otherwise.
+"******************************************************************************
+    let l:mark = (a:0 ? a:1 : '.')
+    return (col(l:mark) + len(matchstr(getline(l:mark), '.$')) > col('$'))    " I18N: Cannot just add 1; need to consider the byte length of the last character in the line.
+endfunction
+
+function! ingo#cursor#IsOnWhitespace() abort
+    return search('\%#\s', 'cnW', line('.')) != 0
+endfunction
+function! ingo#cursor#IsOnEmptyLine() abort
+    return empty(getline('.'))
 endfunction
 
 

@@ -6,7 +6,7 @@
 "   - ingo/subs/BraceCreation.vim autoload script
 "   - ingo/plugin/rendered/*.vim autoload scripts
 "
-" Copyright: (C) 2018-2021 Ingo Karkat
+" Copyright: (C) 2018-2022 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -241,9 +241,9 @@ function! ingo#plugin#rendered#ListJoinedOrBraceExpression( what, braceOptions, 
     if l:command ==# 'Quit'
 	return [l:command, '']
     elseif l:command ==# 'Yank'
-	call ingo#msg#HighlightMsg('Register ([a-zA-Z0-9"*+] <Enter> for default): ', 'Question')
-	let l:register = ingo#query#get#Char({'validExpr': '[a-zA-Z0-9"*+\r]'})
-	if empty(l:register) | continue | endif
+	call ingo#msg#HighlightMsg('Register ([a-zA-Z0-9"*+-] <Enter> for default): ', 'Question')
+	let l:register = ingo#query#get#WritableRegister({'additionalValidExpr': '\r', 'invalidRegisterExpr': '_'})
+	if empty(l:register) | return ['Quit', ''] | endif
 	let l:register = (l:register ==# "\<C-m>" ? '' : l:register)
 	let [l:command, l:result] = ingo#plugin#rendered#List('yanked ' . a:what, l:renderer, [], l:result)
 	if empty(l:command)

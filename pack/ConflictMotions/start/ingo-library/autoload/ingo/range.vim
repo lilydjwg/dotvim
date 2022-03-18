@@ -2,7 +2,7 @@
 "
 " DEPENDENCIES:
 "
-" Copyright: (C) 2012-2018 Ingo Karkat
+" Copyright: (C) 2012-2022 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -25,10 +25,15 @@ function! ingo#range#Get( range )
     set clipboard= " Avoid clobbering the selection and clipboard registers.
     let l:save_reg = getreg('"')
     let l:save_regmode = getregtype('"')
+    let l:save_search = @/
+    let l:keeppatterns = matchstr(ingo#compat#commands#keeppatterns(), '^keeppatterns$')
     try
-	silent execute a:range . 'yank'
+	silent execute l:keeppatterns a:range . 'yank'
 	let l:contents = @"
     finally
+	if empty(l:keeppatterns) && @/ !=# l:save_search
+	    call histdel('search', -1)
+	endif
 	call setreg('"', l:save_reg, l:save_regmode)
 	let &clipboard = l:save_clipboard
     endtry

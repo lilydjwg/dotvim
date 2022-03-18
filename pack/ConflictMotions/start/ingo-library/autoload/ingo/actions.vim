@@ -2,10 +2,12 @@
 "
 " DEPENDENCIES:
 "
-" Copyright: (C) 2012-2021 Ingo Karkat
+" Copyright: (C) 2012-2022 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
+let s:save_cpo = &cpo
+set cpo&vim
 
 function! ingo#actions#GetValExpr()
     return '\w\@<!v:val\w\@!'
@@ -42,6 +44,12 @@ function! ingo#actions#ExecuteOrFunc( Action, ... )
 	execute a:Action
 	return ''
     endif
+endfunction
+function! ingo#actions#GetExecuteOrFuncCommand( Action, ... ) abort
+    return (type(a:Action) == type(function('tr')) ?
+    \   printf('call call(%s, %s)', string(a:Action), string(a:000)) :
+    \   'execute ' . string(a:Action)
+    \)
 endfunction
 function! ingo#actions#ExecuteWithValOrFunc( Action, ... ) abort
 "******************************************************************************
@@ -137,4 +145,6 @@ function! ingo#actions#EvaluateWithValOrFunc( Action, ... )
     endif
 endfunction
 
+let &cpo = s:save_cpo
+unlet s:save_cpo
 " vim: set ts=8 sts=4 sw=4 noexpandtab ff=unix fdm=syntax :

@@ -2,7 +2,7 @@
 "
 " DEPENDENCIES:
 "
-" Copyright: (C) 2019 Ingo Karkat
+" Copyright: (C) 2019-2022 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -10,8 +10,10 @@
 function! ingo#plugin#register#Set( contents, regtype )
 "******************************************************************************
 "* PURPOSE:
-"   Set the contents of the specified (v:register) register; if the default
-"   register is used, also duplicate the contents to the system clipboard.
+"   Set the contents of the specified (v:register) register. If the default
+"   register is used, also duplicate the contents to the system clipboard. If
+"   the last search register is used, also add the contents to the search
+"   history.
 "* ASSUMPTIONS / PRECONDITIONS:
 "   - Target register is in v:register (as when triggered by a mapping).
 "* EFFECTS / POSTCONDITIONS:
@@ -31,6 +33,8 @@ function! ingo#plugin#register#Set( contents, regtype )
 	    " current buffer's filespec) accessible outside of Vim, and it's
 	    " cumbersome to prefix the mapping with "+.
 	    call setreg('+', a:contents, a:regtype)
+	elseif v:register ==# '/'
+	    call histadd('search', a:contents)
 	endif
     catch /^Vim\%((\a\+)\)\=:/
 	execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
@@ -41,8 +45,9 @@ function! ingo#plugin#register#PutContents( source, contents, regtype, addendum 
 "******************************************************************************
 "* PURPOSE:
 "   Put a:contents and a:addendum (with mode a:regtype) into the specified (via
-"   v:register) register; if the default register is used, also duplicate the
-"   contents to the system clipboard.
+"   v:register) register. If the default register is used, also duplicate the
+"   contents to the system clipboard. If the last search register is used, also
+"   add the contents to the search history.
 "* ASSUMPTIONS / PRECONDITIONS:
 "   - Target register is in v:register (as when triggered by a mapping).
 "* EFFECTS / POSTCONDITIONS:

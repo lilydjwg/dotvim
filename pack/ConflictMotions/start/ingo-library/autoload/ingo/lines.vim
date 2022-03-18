@@ -1,9 +1,8 @@
 " ingo/lines.vim: Functions for line manipulation.
 "
 " DEPENDENCIES:
-"   - ingo/range.vim autoload script
 "
-" Copyright: (C) 2012-2019 Ingo Karkat
+" Copyright: (C) 2012-2022 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -53,6 +52,27 @@ function! ingo#lines#PutBefore( lnum, lines )
 	call ingo#lines#PutWrapper(a:lnum, 'put!',  a:lines)
     endif
 endfunction
+function! ingo#lines#Delete( startLnum, endLnum, ... )
+"******************************************************************************
+"* PURPOSE:
+"   Delete the range of a:startLnum,a:endLnum.
+"* ASSUMPTIONS / PRECONDITIONS:
+"   Current buffer is modifiable.
+"* EFFECTS / POSTCONDITIONS:
+"   None.
+"* INPUTS:
+"   a:startLnum     First line to be replaced. Use ingo#range#NetStart() if
+"		    necessary.
+"   a:endLnum       Last line to be replaced. Use ingo#range#NetEnd() if
+"		    necessary.
+"   a:register      Optional register to store the replaced lines. By default
+"		    goes into black-hole.
+"* RETURN VALUES:
+"   None.
+"******************************************************************************
+    silent execute printf('keepjumps %s,%sdelete %s', a:startLnum, a:endLnum, (a:0 ? a:1 : '_'))
+endfunction
+
 function! ingo#lines#Replace( startLnum, endLnum, lines, ... )
 "******************************************************************************
 "* PURPOSE:
@@ -75,7 +95,7 @@ function! ingo#lines#Replace( startLnum, endLnum, lines, ... )
 "   None.
 "******************************************************************************
     let l:isEntireBuffer = ingo#range#IsEntireBuffer(a:startLnum, a:endLnum)
-    silent execute printf('%s,%sdelete %s', a:startLnum, a:endLnum, (a:0 ? a:1 : '_'))
+    call call('ingo#lines#Delete', [a:startLnum, a:endLnum] + a:000)
     if ! empty(a:lines)
 	silent call ingo#lines#PutBefore(a:startLnum, a:lines)
 	if l:isEntireBuffer

@@ -4,14 +4,10 @@
 "   - ingo/collections/fromsplit.vim autoload script
 "   - ingo/compat.vim autoload script
 "
-" Copyright: (C) 2013-2017 Ingo Karkat
+" Copyright: (C) 2013-2022 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
-"
-" REVISION	DATE		REMARKS
-"   1.025.002	29-Apr-2016	Add ingo#escape#command#mapunescape().
-"   1.012.001	09-Aug-2013	file creation
 
 function! ingo#escape#command#mapescape( command )
 "******************************************************************************
@@ -79,6 +75,6 @@ function! ingo#escape#command#mapeval( mapping )
     \   ''
     \)
     execute 'return "' . l:string . '"'
-endfunctio
+endfunction
 
 " vim: set ts=8 sts=4 sw=4 noexpandtab ff=unix fdm=syntax :

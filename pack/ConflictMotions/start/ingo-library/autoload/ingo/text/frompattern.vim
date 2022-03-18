@@ -2,20 +2,10 @@
 "
 " DEPENDENCIES:
 "
-" Copyright: (C) 2013-2020 Ingo Karkat
+" Copyright: (C) 2013-2022 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
-"
-" REVISION	DATE		REMARKS
-"   1.025.004	06-May-2015	Add ingo#text#frompattern#GetAroundHere(),
-"				inspired by
-"				http://stackoverflow.com/questions/30073662/vim-copy-match-with-cursor-position-atom-to-local-variable
-"   1.024.003	17-Apr-2015	ingo#text#frompattern#GetHere(): Do not move the
-"				cursor (to the end of the matched pattern); this
-"				is unexpected and can be easily avoided.
-"   1.014.002	27-Sep-2013	Add ingo#text#frompattern#GetHere().
-"   1.012.001	03-Sep-2013	file creation
 
 function! ingo#text#frompattern#GetHere( pattern, ... )
 "******************************************************************************
@@ -163,16 +153,20 @@ function! ingo#text#frompattern#Get( firstLine, lastLine, pattern, ... )
 "		    match should be included. Or pass an empty value to accept
 "		    all locations.
 "		    The context object has the following attributes:
+"			cursorPos:  [lnum, col] of the cursor before searching
 "			match:      current matched text
 "			matchStart: [lnum, col] of the match start
 "			matchEnd:   [lnum, col] of the match end (this is also
 "				    the cursor position)
 "			replacement:current replacement text (if passed, else
-"				    equal to match)
+"				    equal to match); this will be added to the
+"				    returned List, so the predicate can modify
+"				    it
 "			matchCount: number of current (unique) match of {pattern}
 "			acceptedCount:
 "				    number of matches already accepted by the
 "				    predicate
+"			a: List of additional argument(s) given to the function
 "			n: number / flag (0 / false)
 "			m: number / flag (1 / true)
 "			l: empty List []
@@ -185,7 +179,7 @@ function! ingo#text#frompattern#Get( firstLine, lastLine, pattern, ... )
     let l:isOnlyFirstMatch = (a:0 >= 2 ? a:2 : 0)
     let l:isUnique = (a:0 >= 3 ? a:3 : 0)
     let l:Predicate = (a:0 >= 4 ? a:4 : 0)
-    let l:context = {'match': '', 'replacement': '', 'matchCount': 0, 'acceptedCount': 0, 'n': 0, 'm': 1, 'l': [], 'd': {}, 's': ''}
+    let l:context = {'cursorPos': getpos('.')[1:2], 'match': '', 'replacement': '', 'matchCount': 0, 'acceptedCount': 0, 'a': a:000[5:], 'n': 0, 'm': 1, 'l': [], 'd': {}, 's': ''}
 
     let l:save_view = winsaveview()
 	let l:matches = []
@@ -213,7 +207,7 @@ function! ingo#text#frompattern#Get( firstLine, lastLine, pattern, ... )
 	    if ! s:PredicateCheck(l:Predicate, l:context, l:originalMatch, l:match, l:startPos, l:endPos)
 		continue
 	    endif
-	    call add(l:matches, l:match)
+	    call add(l:matches, l:context.replacement)
 "****D echomsg '****' string(l:startPos) string(l:endPos) string(l:match)
 	    if l:isOnlyFirstMatch
 		normal! $
@@ -223,12 +217,12 @@ function! ingo#text#frompattern#Get( firstLine, lastLine, pattern, ... )
     return l:matches
 endfunction
 function! s:PredicateCheck( Predicate, context, match, replacement, startPos, endPos ) abort
+    let a:context.replacement = a:replacement
     if empty(a:Predicate) | return 1 | endif
 
     let a:context.match = a:match
     let a:context.matchStart = a:startPos
     let a:context.matchEnd = a:endPos
-    let a:context.replacement = a:replacement
     let a:context.matchCount += 1
 
     let l:isAccepted = call(a:Predicate, [a:context])

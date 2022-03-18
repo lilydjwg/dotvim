@@ -2,16 +2,13 @@
 "
 " DEPENDENCIES:
 "
-" Copyright: (C) 2010-2013 Ingo Karkat
+" Copyright: (C) 2010-2022 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
-"
-" REVISION	DATE		REMARKS
-"   1.011.001	23-Jul-2013	file creation from ingointegration.vim.
 
 let s:autocmdCnt = 0
-function! ingo#ftplugin#onbufwinenter#Execute( command, ... )
+function! ingo#ftplugin#onbufwinenter#Execute( Action, ... )
 "******************************************************************************
 "* MOTIVATION:
 "   You want to execute a command from a ftplugin (e.g. "normal! gg0") that only
@@ -27,26 +24,34 @@ function! ingo#ftplugin#onbufwinenter#Execute( command, ... )
 "* EFFECTS / POSTCONDITIONS:
 "   None.
 "* INPUTS:
-"   a:command	Ex command to be executed.
-"   a:when	Optional configuration of when a:command is executed.
-"		By default, it is only executed on the BufWinEnter event, i.e.
-"		only when the buffer actually is being loaded. If you want to
-"		always execute it (and can live with it being potentially
-"		executed twice), so that it is also executed when the user
-"		changes the filetype of an existing buffer, pass "always" in
-"		here.
+"   a:Action	Ex command or Funcref to be executed.
+"   a:when	Optional configuration of when a:Action is executed.
+"		"": By default, it is only executed on the BufWinEnter event, i.e.
+"		only when the buffer actually is being loaded.
+"		"always": If you want to always execute it (and can live with it
+"		being potentially executed twice), so that it is also executed
+"		when the user changes the filetype of an existing buffer.
+"		"delayed": BufWinEnter is still too early if you need to
+"		consider effects of :edit +cmd; these are only executed after
+"		the buffer is displayed and the autocmds have run. This adds
+"		another wait after BufWinEnter to run a:Action only after the
+"		user started editing for real.
 "* RETURN VALUES:
 "   None.
 "******************************************************************************
     if a:0 && a:1 ==# 'always'
-	execute a:command
+	call ingo#actions#ExecuteOrFunc(a:Action)
     endif
 
     let s:autocmdCnt += 1
     let l:groupName = 'IngoLibraryOnBufWinEnter' . s:autocmdCnt
     execute 'augroup' l:groupName
 	autocmd!
-	execute 'autocmd BufWinEnter <buffer> execute' string(a:command) '| autocmd!' l:groupName '* <buffer>'
+	if a:0 && a:1 ==# 'delayed'
+	    execute 'autocmd BufWinEnter <buffer> autocmd' l:groupName 'BufWinLeave,CursorHold,CursorMoved,InsertEnter,WinLeave <buffer>' ingo#actions#GetExecuteOrFuncCommand(a:Action) '| autocmd!' l:groupName '* <buffer>'
+	else
+	    execute 'autocmd BufWinEnter <buffer>' ingo#actions#GetExecuteOrFuncCommand(a:Action) '| autocmd!' l:groupName '* <buffer>'
+	endif
 	" Remove the run-once autocmd in case the this command was NOT set up
 	" during the loading of the buffer (but e.g. by a :setfiletype in an
 	" existing buffer), so that it doesn't linger and surprise the user

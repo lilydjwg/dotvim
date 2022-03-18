@@ -2,7 +2,7 @@
 "
 " DEPENDENCIES:
 "
-" Copyright: (C) 2019 Ingo Karkat
+" Copyright: (C) 2019-2021 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -74,6 +74,7 @@ function! ingo#file#GetLines( filespec )
 "* RETURN VALUES:
 "   Empty List if the file doesn't exist or is empty. List of lines otherwise.
 "******************************************************************************
+    if empty(a:filespec) | return [] | endif
     let l:filespec = ingo#fs#path#Canonicalize(a:filespec, 1)
     let l:ftime = getftime(l:filespec)
 
@@ -90,7 +91,7 @@ function! ingo#file#GetLines( filespec )
 	let l:lines = readfile(l:filespec)
 	call s:AddToCache(l:filespec, l:lines, l:ftime, getfsize(l:filespec))
 	return l:lines
-    catch /^Vim\%((\a\+)\)\=:E484/ " E484: Can't open file
+    catch /^Vim\%((\a\+)\)\=:E\%(17\|484\):/ " E17: file is a directory; E484: Can't open file
 	call s:RemoveFromCache(l:filespec)
 	return []
     endtry

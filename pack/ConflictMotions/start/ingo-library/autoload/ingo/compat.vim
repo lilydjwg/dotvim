@@ -7,7 +7,7 @@
 "   - ingo/os.vim autoload script
 "   - ingo/strdisplaywidth.vim autoload script
 "
-" Copyright: (C) 2013-2021 Ingo Karkat
+" Copyright: (C) 2013-2022 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -539,6 +539,20 @@ else
 	else
 	    execute 'let' l:ev '= a:val'
 	endif
+    endfunction
+endif
+
+if exists('*getcharstr') && ! has_key(s:compatFor, 'getcharstr')
+    function! ingo#compat#getcharstr( ... ) abort
+	return call('getcharstr', a:000)
+    endfunction
+else
+    function! ingo#compat#getcharstr( ... ) abort
+	let l:char = call('getchar', a:000)
+	if type(l:char) == type(0)
+	    let l:char = nr2char(l:char)
+	endif
+	return l:char
     endfunction
 endif
 

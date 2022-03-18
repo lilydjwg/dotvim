@@ -5,7 +5,7 @@
 "   - ingo/pos.vim autoload script
 "   - ingo/regexp/virtcols.vim autoload script
 "
-" Copyright: (C) 2012-2020 Ingo Karkat
+" Copyright: (C) 2012-2022 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -166,16 +166,94 @@ function! ingo#text#Insert( pos, text )
 	return (setline(l:lnum, a:text . l:line) == 0)
     elseif l:col == len(l:line) + 1
 	return (setline(l:lnum, l:line . a:text) == 0)
-    elseif l:col == len(l:line) + 1
-	return (setline(l:lnum, l:line . a:text) == 0)
     endif
     return (setline(l:lnum, strpart(l:line, 0, l:col - 1) . a:text . strpart(l:line, l:col - 1)) == 0)
 endfunction
+function! ingo#text#Append( pos, text )
+"******************************************************************************
+"* PURPOSE:
+"   Append a:text behind a:pos.
+"* ASSUMPTIONS / PRECONDITIONS:
+"   Buffer is modifiable.
+"* EFFECTS / POSTCONDITIONS:
+"   Changes the buffer.
+"* INPUTS:
+"   a:pos   [line, col]; col is the 1-based byte-index. A column of 0 can be
+"           used to append _before_ the first character in the line (i.e. the
+"           same as inserting at column 1).
+"   a:text  String to insert.
+"* RETURN VALUES:
+"   Start byte index of the appended character; -1 (instead of 0) if the line
+"   was empty; the return value can also be interpreted as a flag whether the
+"   position existed (appending to column 1 of one line beyond the last one is
+"   also okay) and insertion was done.
+"******************************************************************************
+    let [l:lnum, l:col] = a:pos
+    if l:lnum > line('$') + 1
+	return 0
+    endif
+
+    let l:line = getline(l:lnum)
+    if l:col > len(l:line)
+	return 0
+    elseif l:col < 0
+	throw 'Append: Column must be at least 0'
+    elseif l:col == 0
+	return (setline(l:lnum, a:text . l:line) == 0 ? -1 : 0)
+    elseif l:col == len(l:line)
+	let l:lineLen = len(l:line)
+	return (setline(l:lnum, l:line . a:text) == 0 ? l:lineLen : 0)
+    endif
+
+    let l:currentCharLength = len(matchstr(l:line, '\%' . l:col . 'c' . '.'))
+    return (setline(l:lnum, strpart(l:line, 0, l:col + l:currentCharLength - 1) . a:text . strpart(l:line, l:col + l:currentCharLength - 1)) == 0 ? l:col + l:currentCharLength - 1 : 0)
+endfunction
+function! ingo#text#IsInsert( strategy ) abort
+"******************************************************************************
+"* PURPOSE:
+"   Determine whether to insert or append at the cursor position based on the
+"   passed a:strategy configuration.
+"* ASSUMPTIONS / PRECONDITIONS:
+"   None
+"* EFFECTS / POSTCONDITIONS:
+"   None
+"* INPUTS:
+"   a:strategy  Configuration value; one of:
+"   - insert1:  at the beginning of the line if the cursor is in column 1, else
+"               appending after the character the cursor is on.
+"   - append$:  appending after the character if the cursor is at the end of the
+"               line (with 'virtualedit' having "onemore": one beyond the end,
+"               with "all": always insert before the cursor), else inserting
+"               before the character the cursor is on.
+"   - insert:   always inserting before the character the cursor is on
+"   - append:   always appending after the character the cursor is on
+"* RETURN VALUES:
+"   1 if insert, 0 if append.
+"******************************************************************************
+    if a:strategy ==# 'insert1'
+	return (col('.') == 1)
+    elseif a:strategy ==# 'append$'
+	if ingo#option#Contains(&virtualedit, 'all')
+	    return 1
+	else
+	    return ! (ingo#option#Contains(&virtualedit, 'onemore') ? ingo#cursor#IsBeyondEndOfLine() : ingo#cursor#IsAtEndOfLine())
+	endif
+    elseif a:strategy ==# 'insert'
+	return 1
+    elseif a:strategy ==# 'append'
+	return 0
+    else
+	throw 'ASSERT: Invalid a:strategy: ' . a:strategy
+    endif
+endfunction
+if ! exists('g:IngoLibrary_InsertHereStrategy')
+    let g:IngoLibrary_InsertHereStrategy = 'insert1'
+endif
 function! ingo#text#InsertHere( text ) abort
 "******************************************************************************
 "* PURPOSE:
-"   Insert a:text at the cursor position; at the beginning of the line if the
-"   cursor is in column 1, else appending after the character the cursor is on.
+"   Insert a:text at the cursor position; where exactly is determined by
+"   g:IngoLibrary_InsertHereStrategy; cp. ingo#text#IsInsert().
 "* ASSUMPTIONS / PRECONDITIONS:
 "   Buffer is modifiable.
 "* EFFECTS / POSTCONDITIONS:
@@ -186,7 +264,8 @@ function! ingo#text#InsertHere( text ) abort
 "* RETURN VALUES:
 "   None.
 "******************************************************************************
-    execute 'normal!' (col('.') == 1 ? 'i' : 'a') . a:text . "\<C-\>\<C-n>"
+    let l:insertCommand = (ingo#text#IsInsert(g:IngoLibrary_InsertHereStrategy) ? 'i' : 'a')
+    execute 'normal!' l:insertCommand . a:text . "\<C-\>\<C-n>"
 endfunction
 
 function! ingo#text#Replace( pos, len, replacement, ... )

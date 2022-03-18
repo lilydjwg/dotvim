@@ -1,16 +1,13 @@
 " ingo/query/substitute.vim: Functions for confirming a command like :substitute//c.
 "
 " DEPENDENCIES:
-"   - ingo/query.vim autoload script
 "
-" Copyright: (C) 2014-2016 Ingo Karkat
+" Copyright: (C) 2014-2022 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
-"
-" REVISION	DATE		REMARKS
-"   1.025.002	27-Jan-2016	Refactoring: Factor out ingo#query#Question().
-"   1.017.001	04-Mar-2014	file creation
+let s:save_cpo = &cpo
+set cpo&vim
 
 function! s:Question( msg )
     call ingo#query#Question(a:msg . ' (y/n/a/q/l/^E/^Y)?')
@@ -32,7 +29,11 @@ function! ingo#query#substitute#Get( msg )
     call s:Question(a:msg)
 
     while 1
-	let l:choice = ingo#query#get#Char({'isBeepOnInvalid': 0, 'validExpr': "[ynl\<Esc>aq\<C-e>\<C-y>]"})
+	let l:choice = ingo#query#get#Char({
+	\   'isBeepOnInvalid': 0,
+	\   'validExpr': "[ynl\<Esc>aq\<C-e>\<C-y>]",
+	\   'isAllowDigraphs': 0,
+	\})
 	if l:choice ==# "\<C-e>" || l:choice ==# "\<C-y>"
 	    execute 'normal!' l:choice
 	    redraw
@@ -45,4 +46,6 @@ function! ingo#query#substitute#Get( msg )
     endwhile
 endfunction
 
+let &cpo = s:save_cpo
+unlet s:save_cpo
 " vim: set ts=8 sts=4 sw=4 noexpandtab ff=unix fdm=syntax :

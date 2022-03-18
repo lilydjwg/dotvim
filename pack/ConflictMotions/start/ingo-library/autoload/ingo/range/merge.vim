@@ -1,17 +1,11 @@
 " ingo/range/merge.vim: Functions for merging ranges.
 "
 " DEPENDENCIES:
-"   - ingo/collections.vim autoload script
 "
-" Copyright: (C) 2015-2016 Ingo Karkat
+" Copyright: (C) 2015-2022 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
-"
-" REVISION	DATE		REMARKS
-"   1.029.002	23-Dec-2016	Extract ingo#range#merge#FromLnums() from
-"				ingo#range#merge#Merge().
-"   1.023.001	22-Jan-2015	file creation
 let s:save_cpo = &cpo
 set cpo&vim
 
@@ -37,6 +31,7 @@ function! ingo#range#merge#Merge( ranges )
 
     return ingo#range#merge#FromLnums(l:dict)
 endfunction
+
 function! ingo#range#merge#FromLnums( lnumsCollection )
 "******************************************************************************
 "* PURPOSE:
@@ -46,7 +41,7 @@ function! ingo#range#merge#FromLnums( lnumsCollection )
 "* EFFECTS / POSTCONDITIONS:
 "   None.
 "* INPUTS:
-"   a:lnumsCollection   Either Dictionary where each key represens a line
+"   a:lnumsCollection   Either Dictionary where each key represents a line
 "			number, or List (not necessarily unique or sorted) of
 "			line numbers.
 "* RETURN VALUES:

@@ -60,6 +60,32 @@ function! ingo#buffer#IsWritable( ... )
     return 1
 endfunction
 
+function! ingo#buffer#IsScratch( ... )
+"******************************************************************************
+"* PURPOSE:
+"   Test whether the current buffer / a:bufNr is a scratch buffer; i.e. either
+"   is modified but the regular buffer does not exist on disk, or is of one of
+"   the "nofile" or "nowrite" types.
+"* ASSUMPTIONS / PRECONDITIONS:
+"   None.
+"* EFFECTS / POSTCONDITIONS:
+"   None.
+"* INPUTS:
+"   a:bufNr Optional buffer number.
+"* RETURN VALUES:
+"   1 if scratch buffer, 0 if not.
+"******************************************************************************
+    let l:bufNr = (a:0 ? a:1 : '')
+    let l:bufType = getbufvar(l:bufNr, '&buftype')
+    return (
+    \   (
+    \       (index(['nofile', 'nowrite'], l:bufType) != -1) ||
+    \       (getbufvar(l:bufNr, '&modified') && empty(l:bufType))
+    \   ) &&
+    \   ! filereadable(bufname(l:bufNr))
+    \)
+endfunction
+
 function! ingo#buffer#ExistOtherBuffers( targetBufNr )
     return ! empty(filter(range(1, bufnr('$')), 'buflisted(v:val) && v:val != a:targetBufNr'))
 endfunction

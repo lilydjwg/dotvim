@@ -118,6 +118,50 @@ By default, includes any filespec that starts with a "protocol:/" (e.g. scp://
 for |netrw|), and also file:lnum[:column] special filenames if
 https://github.com/bogado/file-line is installed.
 
+					    *g:IngoLibrary_InsertHereStrategy*
+The ingo#text#InsertHere() function is often used to insert text at the cursor
+position by plugins that don't want to offer separate insert / append mappings
+(comparable to |p|/|P| pasting). The function tries to find a meaningful
+insertion point. Its strategy can be tweaked via the following values:
+- insert1:  at the beginning of the line if the cursor is in column 1, else
+            appending after the character the cursor is on.
+- append$:  appending after the character if the cursor is at the end of the
+            line (with 'virtualedit' having "onemore": one beyond the end,
+            with "all": always insert before the cursor), else inserting
+            before the character the cursor is on.
+- insert:   always inserting before the character the cursor is on
+- append:   always appending after the character the cursor is on
+
+				     *g:IngoLibrary_QueryMotionIgnoredMotions*
+If you use some operator-pending mappings as hooks into default motions (e.g.
+|:| or |/|) that still maintain the original functionality,
+ingo#query#get#Motion() can be instructed to ignore those mappings and instead
+treat them as the built-in motions (i.e. still query the command-line or
+search pattern). Define those keys you want ignored as keys in a Dict (values
+don't matter): >
+    let g:IngoLibrary_QueryMotionIgnoredMotions = {':': 1, '/': 1, '?': 1}
+<				      *g:IngoLibrary_QueryMotionCustomMotions*
+If you have custom operator-pending mappings that do some tricks like
+obtaining additional characters until they're done and moving the cursor,
+define those keys as keys, and an appendage pattern as value (or the empty
+String if there're no additional keys).
+The appendage patterns will capture additional keys until either the pattern
+does not match any longer (the motion then is deemed invalid and aborts), or
+until the first capture group is non-empty (the motion then is deemed
+complete). >
+    let g:IngoLibrary_QueryMotionCustomMotions = {'key': 'patter\(n\)'}
+<
+			      *g:IngoLibrary_QueryMotionCustomMotionModifiers*
+Motions can be forced to be character- / line- / blockwise (|forced-motion|).
+If you have mapped alternatives for v / V / CTRL-V, define them as keys in: >
+    let g:IngoLibrary_QueryMotionCustomMotionModifiers = {"\<C-q>": 1}
+<
+					     *g:IngoLibrary_DigraphTriggerKey*
+If you've remapped the |c_CTRL-K| trigger key for digraphs, you can adapt the
+digraph detection by ingo#query#get#CharOrDigraph() and
+ingo#query#get#[Valid]Char() to the changed mapping via: >
+    let g:IngoLibrary_DigraphTriggerKey = "\<C-k>"
+<
 ==============================================================================
 INSTALLATION					   *ingo-library-installation*
 
@@ -156,7 +200,55 @@ https://github.com/inkarkat/vim-ingo-library/issues or email (address below).
 ==============================================================================
 HISTORY							*ingo-library-history*
 
-1.043	RELEASEME
+1.044	RELEASEME
+- Add ingo#cursor#IsBeyondEndOfLine() variant of ingo#cursor#IsAtEndOfLine().
+- ENH: Allow to customize the insertion point of ingo#text#InsertHere() via
+  g:IngoLibrary_InsertHereStrategy.
+- CHG: Split ingo#subst#FirstSubstitution() into
+  ingo#subst#FirstMatchingSubstitution() and
+  ingo#subst#FirstChangingSubstitution().
+- Add ingo#text#IsInsert().
+- ingo#cmdargs#range#Parse(): BUG: Return [] as documented instead of ['', '',
+  '', '', ''] on empty a:commandLine.
+- Add ingo/plugin/historyrecall.vim module.
+- Add ingo/str/remove.vim module.
+- Add ingo#lines#Delete() variant of ingo#lines#Replace().
+- ingo#plugin#register#{Set,PutContents}(): ENH: Also add the register
+  contents to the search history when the target register is "/".
+- Add ingo#query#motion#Get().
+- Add ingo#compat#getcharstr().
+- Add ingo#regexp#Anchored().
+- CHG: ingo#query#get#[Writable]Register(): Turn a:errorRegister and
+  a:invalidRegisterExpr into option Dict values and add
+  a:options.additionalValidExpr
+- Add ingo/digraph.vim module.
+- Add ingo#query#get#CharOrDigraph().
+- ENH: ingo#query#get#[Valid]Char() takes digraphs by default; can be disabled
+  via a:options.isAllowDigraphs = 0.
+- Add ingo#syntaxitem#HasHighlighting() from SameSyntaxMotion.vim.
+- Add ingo#cursor#IsOnWhitespace() and ingo#cursor#IsOnEmptyLine().
+- ingo#{area,text}#frompattern#Get(): ENH: Add cursorPos and additional
+  arguments to context object, allow Predicate to influence returned result.
+- ingo#area#frompattern#Get(): BUG: a:matchCount uninitialized
+- Add ingo/print/highlighted.vim module (formerly unpublished separate
+  EchoLine.vim autoload script).
+- ingo#option#listchars#Render(): ENH: Add a:options.tabWidth.
+- ingo#option#listchars#Render(): CHG: Deprecate a:isTextAtEnd argument, use
+  a:options.isTextAtEnd now.
+- ingo#option#listchars#Render(): FIX: space rendering eclipses trail
+- ingo#option#listchars#Render(): ENH: Add a:options.isTextAtStart and render
+  lead listchars option value (since Vim 8.2.2454).
+- ingo#print#highlighted#Line(): Use 'listchars' to render tabs and spaces,
+  but now only if 'list' is on. Also support "nbsp", "lead", and "eol"
+  options.
+- ingo#range#Get(): Don't clobber the search history.
+- ingo#range#lines#Get(): Allow a:options with fallback to the
+  old single a:isGetAllRanges flag and don't clobber the search history by
+  default, unless a:options.isKeepPatterns = 0.
+- ingo#ftplugin#onbufwinenter#Execute(): ENH: Also allow Funcref a:Action.
+- ingo#ftplugin#onbufwinenter#Execute(): ENH: Add a:when = "delayed".
+
+1.043	04-Feb-2022
 - Minor: Actually support no-argument form of
   ingo#query#get#[Writable]Register(), the documentation already states that
   the a:errorRegister defaults to the empty string.
@@ -186,6 +278,15 @@ HISTORY							*ingo-library-history*
 - Add ingo/buffers.vim module.
 - Add ingo/list/reduce.vim module.
 - Add ingo#compat#getenv() and ingo#compat#setenv().
+- Add ingo#buffer#IsScratch().
+- Add ingo#encoding#IsUnicode().
+- Add ingo/buffer/network.vim module.
+- Add ingo/ranges.vim module (originally from AdvancedSorters.vim).
+- ingo#file#GetLines(): Robustness: Empty a:filespec throws E17
+- Add ingo#subst#Recurringly().
+- Add ingo#text#Append() variant of ingo#text#Insert().
+- Add ingo/text/surroundings.vim modules.
+- Add ingo#regexp#EscapeLiteralReplacement().
 
 1.042	03-Aug-2020
 - BUG: ingo#join#Lines() inserts the separator before the line's last
@@ -1163,7 +1264,7 @@ First published version as separate shared library.
 Started development of shared autoload functionality.
 
 ==============================================================================
-Copyright: (C) 2009-2021 Ingo Karkat
+Copyright: (C) 2009-2022 Ingo Karkat
 Contains URL encoding / decoding algorithms written by Tim Pope.
 The VIM LICENSE applies to this plugin; see |copyright|.
 

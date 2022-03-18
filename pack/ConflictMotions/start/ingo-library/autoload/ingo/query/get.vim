@@ -2,7 +2,7 @@
 "
 " DEPENDENCIES:
 "
-" Copyright: (C) 2012-2020 Ingo Karkat
+" Copyright: (C) 2012-2022 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -30,11 +30,11 @@ function! ingo#query#get#Number( maxNum, ... )
     let l:nr = 0
     let l:leadingZeroCnt = 0
     while 1
-	let l:char = nr2char(getchar())
+	let l:char = ingo#compat#getcharstr()
 
 	if l:char ==# "\<CR>"
 	    return (l:nr == 0 ? (a:0 ? a:1 : -1) : l:nr)
-	elseif l:char !~# '\d'
+	elseif l:char !~# ingo#regexp#Anchored('\d')
 	    return -1
 	endif
 	echon l:char
@@ -53,14 +53,42 @@ function! ingo#query#get#Number( maxNum, ... )
     endwhile
 endfunction
 
-function! s:GetChar()
-    " TODO: Handle digraphs via <C-K>.
-    let l:char = getchar()
-    if type(l:char) == type(0)
-	let l:char = nr2char(l:char)
+if ! exists('g:IngoLibrary_DigraphTriggerKey')
+    let g:IngoLibrary_DigraphTriggerKey = "\<C-k>"
+endif
+function! ingo#query#get#CharOrDigraph( ... )
+"******************************************************************************
+"* PURPOSE:
+"   A drop-in replacement for getcharstr() that also handles digraphs; i.e. a
+"   combination of CTRL-K + char1 + char2. Only supports real two-char digraphs,
+"   not the CTRL-K + {special-key} form.
+"* ASSUMPTIONS / PRECONDITIONS:
+"   None.
+"* EFFECTS / POSTCONDITIONS:
+"   None.
+"* INPUTS:
+"   a:expr  Same as for |getcharstr()|.
+"* RETURN VALUES:
+"   Same as for |getcharstr()|.
+"******************************************************************************
+    let l:char = call('ingo#compat#getcharstr', a:000)
+    if empty(l:char) || empty(g:IngoLibrary_DigraphTriggerKey) || l:char !=# g:IngoLibrary_DigraphTriggerKey
+	return l:char
     endif
-    return l:char
+
+    let l:firstDigraphChar = call('ingo#compat#getcharstr', a:000)
+    if empty(l:firstDigraphChar)
+	return l:char
+    endif
+
+    let l:secondDigraphChar = call('ingo#compat#getcharstr', a:000)
+    if empty(l:secondDigraphChar)
+	return l:char . l:firstDigraphChar
+    endif
+
+    return ingo#digraph#Get(l:firstDigraphChar, l:secondDigraphChar)
 endfunction
+
 function! ingo#query#get#Char( ... )
 "******************************************************************************
 "* PURPOSE:
@@ -72,11 +100,13 @@ function! ingo#query#get#Char( ... )
 "* INPUTS:
 "   a:options.isBeepOnInvalid   Flag whether to beep on invalid pattern (but not
 "				when aborting with <Esc>). Default on.
-"   a:options.validExpr         Pattern for valid characters. Aborting with
-"				<Esc> is always possible, but if you add \e, it
-"				will be returned as ^[.
-"   a:options.invalidExpr       Pattern for invalid characters. Takes precedence
-"				over a:options.validExpr.
+"   a:options.validExpr         Unanchored pattern for valid characters.
+"                               Aborting with <Esc> is always possible, but if
+"                               you add \e, it will be returned as ^[.
+"   a:options.invalidExpr       Unanchored pattern for invalid characters.
+"                               Takes precedence over a:options.validExpr.
+"   a:options.isAllowDigraphs   Flag (default true) whether digraphs (CTRL-K +
+"                               char1 + char2) can be entered as well.
 "* RETURN VALUES:
 "   Either the valid character, or an empty string when aborted or invalid
 "   character.
@@ -85,12 +115,13 @@ function! ingo#query#get#Char( ... )
     let l:isBeepOnInvalid = get(l:options, 'isBeepOnInvalid', 1)
     let l:validExpr = get(l:options, 'validExpr', '')
     let l:invalidExpr = get(l:options, 'invalidExpr', '')
+    let l:GetChar = (get(l:options, 'isAllowDigraphs', 1) ? function('ingo#query#get#CharOrDigraph') : function('ingo#compat#getcharstr'))
 
-    let l:char = s:GetChar()
-    if l:char ==# "\<Esc>" && (empty(l:validExpr) || l:char !~ l:validExpr)
+    let l:char = call(l:GetChar, [])
+    if l:char ==# "\<Esc>" && (empty(l:validExpr) || l:char !~ ingo#regexp#Anchored(l:validExpr))
 	return ''
-    elseif (! empty(l:validExpr) && l:char !~ l:validExpr) ||
-    \   (! empty(l:invalidExpr) && l:char =~ l:invalidExpr)
+    elseif (! empty(l:validExpr) && l:char !~ ingo#regexp#Anchored(l:validExpr)) ||
+    \   (! empty(l:invalidExpr) && l:char =~ ingo#regexp#Anchored(l:invalidExpr))
 	if l:isBeepOnInvalid
 	    execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
 	endif
@@ -111,11 +142,13 @@ function! ingo#query#get#ValidChar( ... )
 "* INPUTS:
 "   a:options.isBeepOnInvalid   Flag whether to beep on invalid pattern (but not
 "				when aborting with <Esc>). Default on.
-"   a:options.validExpr         Pattern for valid characters. Aborting with
-"				<Esc> is always possible, but if you add \e, it
-"				will be returned as ^[.
-"   a:options.invalidExpr       Pattern for invalid characters. Takes precedence
-"				over a:options.validExpr.
+"   a:options.validExpr         Unanchored pattern for valid characters.
+"                               Aborting with <Esc> is always possible, but if
+"                               you add \e, it will be returned as ^[.
+"   a:options.invalidExpr       Unanchored pattern for invalid characters. Takes
+"                               precedence over a:options.validExpr.
+"   a:options.isAllowDigraphs   Flag (default true) whether digraphs (CTRL-K +
+"                               char1 + char2) can be entered as well.
 "* RETURN VALUES:
 "   Either the valid character, or an empty string when aborted.
 "******************************************************************************
@@ -123,14 +156,15 @@ function! ingo#query#get#ValidChar( ... )
     let l:isBeepOnInvalid = get(l:options, 'isBeepOnInvalid', 1)
     let l:validExpr = get(l:options, 'validExpr', '')
     let l:invalidExpr = get(l:options, 'invalidExpr', '')
+    let l:GetChar = (get(l:options, 'isAllowDigraphs', 1) ? function('ingo#query#get#CharOrDigraph') : function('ingo#compat#getcharstr'))
 
     while 1
-	let l:char = s:GetChar()
+	let l:char = call(l:GetChar, [])
 
-	if l:char ==# "\<Esc>" && (empty(l:validExpr) || l:char !~ l:validExpr)
+	if l:char ==# "\<Esc>" && (empty(l:validExpr) || l:char !~ ingo#regexp#Anchored(l:validExpr))
 	    return ''
-	elseif (! empty(l:validExpr) && l:char !~ l:validExpr) ||
-	\   (! empty(l:invalidExpr) && l:char =~ l:invalidExpr)
+	elseif (! empty(l:validExpr) && l:char !~ ingo#regexp#Anchored(l:validExpr)) ||
+	\   (! empty(l:invalidExpr) && l:char =~ ingo#regexp#Anchored(l:invalidExpr))
 	    if l:isBeepOnInvalid
 		execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
 	    endif
@@ -151,17 +185,27 @@ function! ingo#query#get#Register( ... )
 "* EFFECTS / POSTCONDITIONS:
 "   None.
 "* INPUTS:
-"   a:errorRegister     Register name to be returned when aborted or invalid
-"			register. Defaults to the empty string. Use '\' to yield
-"			an empty string (from getreg()) when passing the
-"			function's results directly to getreg().
-"   a:invalidRegisterExpr   Optional pattern for invalid registers.
+"   a:options.errorRegister Optional register name to be returned when aborted
+"                           or invalid register. Defaults to the empty string.
+"                           Use '\' to yield an empty string (from getreg())
+"                           when passing the function's results directly to
+"                           getreg().
+"   a:options.additionalValidExpr   Unanchored pattern for additional valid
+"                                   characters.
+"   a:options.invalidRegisterExpr   Optional pattern for invalid registers.
 "* RETURN VALUES:
-"   Either the register, or an a:errorRegister when aborted or invalid register.
+"   Either the register, an additional allowed character, or an
+"   a:options.errorRegister when aborted or invalid register.
 "******************************************************************************
-    let l:errorRegister = (a:0 ? a:1 : '')
+    let l:options = (a:0 ? a:1 : {})
+    let l:errorRegister = get(l:options, 'errorRegister', '')
+    let l:additionalValidExpr = get(l:options, 'additionalValidExpr', '')
     try
-	let l:register = ingo#query#get#Char({'validExpr': ingo#register#All(), 'invalidExpr': (a:0 >= 2 ? a:2 : '')})
+	let l:register = ingo#query#get#Char({
+	\   'validExpr': ingo#register#All() . (empty(l:additionalValidExpr) ? '' : '\|' . l:additionalValidExpr),
+	\   'invalidExpr': get(l:options, 'invalidRegisterExpr', ''),
+	\   'isAllowDigraphs': 0,
+	\})
 	return (empty(l:register) ? l:errorRegister : l:register)
     catch /^Vim\%((\a\+)\)\=:E523:/ " E523: Not allowed here
 	return l:errorRegister
@@ -176,18 +220,27 @@ function! ingo#query#get#WritableRegister( ... )
 "* EFFECTS / POSTCONDITIONS:
 "   None.
 "* INPUTS:
-"   a:errorRegister     Register name to be returned when aborted or invalid
-"			register. Defaults to the empty string. Use '\' to yield
-"			an empty string (from getreg()) when passing the
-"			function's results directly to getreg().
-"   a:invalidRegisterExpr   Optional pattern for invalid registers.
+"   a:options.errorRegister Optional register name to be returned when aborted
+"                           or invalid register. Defaults to the empty string.
+"                           Use '\' to yield an empty string (from getreg())
+"                           when passing the function's results directly to
+"                           getreg().
+"   a:options.additionalValidExpr   Unanchored pattern for additional valid
+"                                   characters.
+"   a:options.invalidRegisterExpr   Optional pattern for invalid registers.
 "* RETURN VALUES:
-"   Either the writable register, or an a:errorRegister when aborted or invalid
-"   register.
+"   Either the writable, an additional allowed character, or an
+"   a:options.errorRegister when aborted or invalid register.
 "******************************************************************************
-    let l:errorRegister = (a:0 ? a:1 : '')
+    let l:options = (a:0 ? a:1 : {})
+    let l:errorRegister = get(l:options, 'errorRegister', '')
+    let l:additionalValidExpr = get(l:options, 'additionalValidExpr', '')
     try
-	let l:register = ingo#query#get#Char({'validExpr': ingo#register#Writable(), 'invalidExpr': (a:0 >= 2 ? a:2 : '')})
+	let l:register = ingo#query#get#Char({
+	\   'validExpr': ingo#register#Writable() . (empty(l:additionalValidExpr) ? '' : '\|' . l:additionalValidExpr),
+	\   'invalidExpr': get(l:options, 'invalidRegisterExpr', ''),
+	\   'isAllowDigraphs': 0,
+	\})
 	return (empty(l:register) ? l:errorRegister : l:register)
     catch /^Vim\%((\a\+)\)\=:E523:/ " E523: Not allowed here
 	return l:errorRegister
@@ -212,7 +265,8 @@ function! ingo#query#get#Mark( ... )
     try
 	return ingo#query#get#Char({
 	\   'validExpr': '[a-zA-Z0-9''`"[\]<>^.(){}]',
-	\   'invalidExpr': (a:0 ? (a:1 is# 1 ? '[0-9^.(){}]' : a:1) : '')
+	\   'invalidExpr': (a:0 ? (a:1 is# 1 ? '[0-9^.(){}]' : a:1) : ''),
+	\   'isAllowDigraphs': 0,
 	\})
     catch /^Vim\%((\a\+)\)\=:E523:/ " E523: Not allowed here
 	return ''

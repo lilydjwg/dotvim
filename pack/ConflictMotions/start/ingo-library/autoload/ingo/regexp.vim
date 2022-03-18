@@ -2,7 +2,7 @@
 "
 " DEPENDENCIES:
 "
-" Copyright: (C) 2010-2020 Ingo Karkat
+" Copyright: (C) 2010-2022 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -44,6 +44,27 @@ function! ingo#regexp#EscapeLiteralText( text, ... )
 "   Regular expression for matching a:text.
 "*******************************************************************************
     return substitute(escape(a:text, '\' . ingo#regexp#GetSpecialCharacters() . (a:0 ? a:1 : '')), "\n", '\\n', 'g')
+endfunction
+function! ingo#regexp#EscapeLiteralReplacement( text, ... )
+"*******************************************************************************
+"* PURPOSE:
+"   Escape the literal a:text for use as the replacement text in a :substitute
+"   command (which needs additional escape characters (usually '/') and consider
+"   'magic') / substitute() function.
+"
+"* ASSUMPTIONS / PRECONDITIONS:
+"   None.
+"* EFFECTS / POSTCONDITIONS:
+"   None.
+"* INPUTS:
+"   a:text  Literal text.
+"   a:additionalEscapeCharacters    For use with :substitute, pass the separator
+"                                   character (e.g. '/').
+"                                   For use in substitute(), omit the argument.
+"* RETURN VALUES:
+"   Replacement text for replacing a:text.
+"*******************************************************************************
+    return escape(a:text, '\' . (a:0 ? (&magic ? '&~' : '') . a:1 : '&'))
 endfunction
 
 function! ingo#regexp#MakeWholeWordSearch( text, ... )
@@ -250,6 +271,24 @@ function! ingo#regexp#IsValid( expr, ... )
 	call call('ingo#err#SetVimException', a:000)
 	return 0
     endtry
+endfunction
+
+function! ingo#regexp#Anchored( expr, ... ) abort
+"******************************************************************************
+"* PURPOSE:
+"   Anchor the passed a:expr to beginning and end (by wrapping with ^ and $).
+"* ASSUMPTIONS / PRECONDITIONS:
+"   None.
+"* EFFECTS / POSTCONDITIONS:
+"   None.
+"* INPUTS:
+"   a:expr  Regular expression in normal magic format.
+"   a:emptyExpr Return value if a:expr is empty; by default, matches an empty
+"               String / line (^$).
+"* RETURN VALUES:
+"   Embellished a:expr.
+"******************************************************************************
+    return (empty(a:expr) ? (a:0 ? a:1 : '^$') : '^\%(' . a:expr . '\)$')
 endfunction
 
 " vim: set ts=8 sts=4 sw=4 noexpandtab ff=unix fdm=syntax :

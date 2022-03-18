@@ -2,7 +2,7 @@
 "
 " DEPENDENCIES:
 "
-" Copyright: (C) 2019 Ingo Karkat
+" Copyright: (C) 2019-2022 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -44,7 +44,7 @@ function! ingo#option#listchars#GetValue( element ) abort
     return get(ingo#option#listchars#GetValues(), a:element, '')
 endfunction
 
-function! ingo#option#listchars#Render( text, isTextAtEnd, ... ) abort
+function! ingo#option#listchars#Render( text, ... ) abort
 "******************************************************************************
 "* PURPOSE:
 "   Render a:text by replacing any special characters with the settings from
@@ -57,9 +57,13 @@ function! ingo#option#listchars#Render( text, isTextAtEnd, ... ) abort
 "* EFFECTS / POSTCONDITIONS:
 "   None.
 "* INPUTS:
-"   a:text          Input text to be rendered.
-"   a:isTextAtEnd   Flag whether the "eol" and "trail" settings should be
-"                   rendered.
+"   a:text              Input text to be rendered.
+"   a:options.isTextAtStart
+"                       Flag whether the "lead" setting should be rendered. Off
+"                       by default.
+"   a:options.isTextAtEnd
+"                       Flag whether the "eol" and "trail" settings should be
+"                       rendered. Off by default.
 "   a:options.listchars Dict with defined 'listchars' settings as keys and their
 "                       character(s) as values, to take instead of the
 "                       'listchars' values.
@@ -67,28 +71,45 @@ function! ingo#option#listchars#Render( text, isTextAtEnd, ... ) abort
 "                       character(s) as values, to take when 'listchars' /
 "                       a:options.listchars does not contain such key. No
 "                       further processing will be done on those.
+"   a:options.tabWidth  Width of a tab character for rendering.
 "* RETURN VALUES:
 "   a:text with special characters replaced.
 "******************************************************************************
-    let l:options = (a:0 ? a:1 : {})
+    if a:0 == 0
+	let l:isTextAtEnd = 0
+	let l:options = {}
+    elseif a:0 == 1 && type(a:1) == type({})
+	let l:options = a:1
+	let l:isTextAtEnd = get(l:options, 'isTextAtEnd', 0)
+    else    " Deprecated: a:isTextAtEnd argument
+	let l:isTextAtEnd = a:1
+	let l:options = (a:0 >= 2 ? a:2 : {})
+    endif
     let l:listcharValues = get(l:options, 'listchars', ingo#option#listchars#GetValues())
     let l:fallbackValues = get(l:options, 'fallback', {})
+    let l:isTextAtStart = get(l:options, 'isTextAtStart', 0)
     if has_key(l:listcharValues, 'tab')
+	let l:tabWidth = get(l:options, 'tabWidth', &tabstop)
 	let l:thirdTabValue = matchstr(l:listcharValues.tab, '^..\zs.')
-	let l:listcharValues.tab = matchstr(l:listcharValues.tab, '^.') . repeat(matchstr(l:listcharValues.tab, '^.\zs.'), &tabstop - 1 - (! empty(l:thirdTabValue))) . l:thirdTabValue
+	let l:listcharValues.tab = (empty(l:thirdTabValue) || l:tabWidth > 1 ? matchstr(l:listcharValues.tab, '^.') : '') .
+	\   repeat(matchstr(l:listcharValues.tab, '^.\zs.'), l:tabWidth - 1 - (! empty(l:thirdTabValue))) .
+	\   l:thirdTabValue
     endif
 
     let l:text = a:text
 
     for [l:setting, l:pattern] in [
     \   ['tab', '\t'],
-    \   ['space', ' '],
     \   ['nbsp', '\%xa0\|\%u202f']
-    \] + (a:isTextAtEnd ? [
+    \] + (l:isTextAtEnd ? [
     \       ['trail', ' \( *$\)\@='],
     \       ['eol', '$']
     \   ] : []
-    \)
+    \) + (l:isTextAtStart ? [
+    \       ['lead', '\(^ *\)\@<= '],
+    \   ] : []
+    \) +
+    \   [['space', ' ']]
 	if has_key(l:listcharValues, l:setting)
 	    let l:replacement = l:listcharValues[l:setting]
 	elseif has_key(l:fallbackValues, l:setting)
