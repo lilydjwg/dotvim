@@ -869,8 +869,6 @@ command! -bang -nargs=* -complete=file Make AsyncRun -program=make @ <args>
 nmap <M-w> <Plug>(choosewin)
 let g:choosewin_overlay_enable = 1
 let g:choosewin_statusline_replace = 0
-"   extradite.vim[[[2
-let g:extradite_showhash = 1
 "   linediff[[[2
 let g:linediff_buffer_type = 'scratch'
 "   rst_tables[[[2
@@ -928,9 +926,6 @@ let g:cycle_default_groups = [
 "   Erlang[[[2
 let g:erlangHighlightBif = 1
 let g:erlangFold = 1
-"   colorizer.vim[[[2
-let g:colorizer_nomap = 1
-let g:colorizer_startup = 0
 "   grep.vim[[[2
 let g:Grep_Default_Options = '--binary-files=without-match'
 "   NERDTree[[[2
