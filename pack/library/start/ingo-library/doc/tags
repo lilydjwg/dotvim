@@ -1,7 +1,12 @@
 g:IngoLibrary_DateCommand	ingo-library.txt	/*g:IngoLibrary_DateCommand*
+g:IngoLibrary_DigraphTriggerKey	ingo-library.txt	/*g:IngoLibrary_DigraphTriggerKey*
 g:IngoLibrary_FileCacheMaxSize	ingo-library.txt	/*g:IngoLibrary_FileCacheMaxSize*
+g:IngoLibrary_InsertHereStrategy	ingo-library.txt	/*g:IngoLibrary_InsertHereStrategy*
 g:IngoLibrary_Marks	ingo-library.txt	/*g:IngoLibrary_Marks*
 g:IngoLibrary_PreferredDateFormat	ingo-library.txt	/*g:IngoLibrary_PreferredDateFormat*
+g:IngoLibrary_QueryMotionCustomMotionModifiers	ingo-library.txt	/*g:IngoLibrary_QueryMotionCustomMotionModifiers*
+g:IngoLibrary_QueryMotionCustomMotions	ingo-library.txt	/*g:IngoLibrary_QueryMotionCustomMotions*
+g:IngoLibrary_QueryMotionIgnoredMotions	ingo-library.txt	/*g:IngoLibrary_QueryMotionIgnoredMotions*
 g:IngoLibrary_SpecialFilePredicates	ingo-library.txt	/*g:IngoLibrary_SpecialFilePredicates*
 g:IngoLibrary_SpecialWindowPredicates	ingo-library.txt	/*g:IngoLibrary_SpecialWindowPredicates*
 g:IngoLibrary_TruncateEllipsis	ingo-library.txt	/*g:IngoLibrary_TruncateEllipsis*
