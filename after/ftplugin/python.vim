@@ -40,6 +40,3 @@ if exists('*job_start')
   call job_start([pyfile, expand('%')], {"out_cb": "Python_setsw", "err_cb": "Python_err"})
 endif
 " ---------------------------------------------------------------------
-" Vim Modeline:
-" vim:fdm=expr:fde=getline(v\:lnum-1)=~'\\v"\\s*-{20,}'?'>1'\:1
-" ---------------------------------------------------------------------
