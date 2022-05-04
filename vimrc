@@ -608,19 +608,7 @@ elseif has('win32') && exists('$CONEMUBUILD')
   let &t_AF="\e[38;5;%dm"
   set cursorline
 endif
-" delay colorschem command for eink.vim
-if exists('*timer_start')
-  function s:Colorscheme(t)
-    exe "colorscheme" g:colors_name
-    if !has('gui_running')
-      exe "doautoall ColorScheme" g:colors_name
-    endif
-  endfunction
-  " XXX: This will cause a redraw on startup
-  autocmd VimEnter * call timer_start(1, function('s:Colorscheme'))
-else
-  exe "colorscheme" g:colors_name
-endif
+exe "colorscheme" g:colors_name
 " bracketed paste mode support for tmux
 if &term =~ '^screen\|^tmux' && exists('&t_BE')
   let &t_BE = "\033[?2004h"
