@@ -1,6 +1,7 @@
 Execute (Setup):
   Save g:traces_preserve_view_state, g:traces_substitute_preview,
-  \ &listchars, &hlsearch, &cursorline, &cursorline, &encoding
+  \ &listchars, &hlsearch, &cursorline, &cursorline, &encoding,
+  \ &winminwidth, &winminheight
   let g:traces_preserve_view_state = 0
   let g:traces_substitute_preview  = 1
   let g:traces_normal_preview  = 1
@@ -255,6 +256,12 @@ Execute (Range, test invalid pattern):
   6
   call traces#init('?bazbar', {})
   Assert line('.') == 6
+
+Execute (Substitute, no range):
+  11
+  call traces#init('s/bar', {})
+  Assert line('.') == 11
+  Assert col('.') == 9
 
 Given (Ten lines):
   1   one
@@ -538,6 +545,22 @@ Expect:
   two word
   three word
 
+Execute (Normal with an error):
+  3d
+  call traces#init('%normal! isomething:asdf', {})
+  call traces#cmdl_leave()
+  u
+
+Expect:
+  one
+  two
+  three
+
+Execute (Normal with an error):
+  call traces#init('%normal! vfX', {})
+  call traces#cmdl_leave()
+  AssertEqual 'n', mode()
+
 #######################
 # Test substitute     #
 #######################
@@ -667,6 +690,11 @@ Given (Three lines):
   one
   two
   three
+
+Execute (Test winminwidth):
+  let &winminwidth = 0
+  let &winminheight = 0
+  call traces#init('%s/.', {})
 
 Execute (Test eol):
   let &listchars = ''

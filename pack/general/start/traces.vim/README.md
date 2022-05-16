@@ -2,21 +2,18 @@
 
 ## Overview
 This plugin highlights patterns and ranges for Ex commands in Command-line mode.
-It also provides live preview for `:substitute` and `:normal`.
+It also provides live preview for `:substitute`.
 
 ## Requirements
 ### Vim 8.1
 or
 ### Neovim 0.2.3
- - this plugin is not compatible with [inccommand](https://neovim.io/doc/user/options.html#'inccommand'), please turn it off if you want to use this plugin
-
 
 ## Feature comparison
 **Note**: some of the features provided by this plugin are already present in Vim/Neovim.
 
 |                                                              | traces.vim   | Vim               | Neovim            |
 |--------------------------------------------------------------| :----------: | :---------------: | :---------------: |
-| `:normal` preview                                            | ✓            |                   |                   |
 | `:substitute` preview                                        | ✓            |                   | ✓                 |
 | pattern preview for `:substitute`                            | ✓            | ✓<sup>[1]</sup>   | ✓                 |
 | pattern preview for `:global`, `:vglobal`, `:sort`           | ✓            | ✓<sup>[1]</sup>   | ✓<sup>[2]</sup>   |

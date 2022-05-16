@@ -556,7 +556,7 @@ function! s:pos_pattern(pattern, range, delimiter, type) abort
   else
     call cursor(s:buf[s:nr].cur_init_pos)
     if a:type && empty(a:range)
-      let stopline = s:buf[s:nr].cur_init_pos
+      let stopline = s:buf[s:nr].cur_init_pos[0]
     endif
   endif
   if a:delimiter ==# '?'
@@ -601,8 +601,8 @@ function! s:highlight(group, pattern, priority) abort
   if a:group ==# 'TracesSearch' || a:group ==# 'TracesReplace'
     noautocmd let &hlsearch = 0
   endif
-  noautocmd let &winwidth = &winminwidth
-  noautocmd let &winheight = &winminheight
+  noautocmd let &winwidth = max([1, &winminwidth])
+  noautocmd let &winheight = max([1, &winminheight])
 
   let windows = filter(win_findbuf(s:nr), {_, val -> win_id2win(val)})
 
@@ -676,15 +676,9 @@ function! s:format_range(cmdl) abort
   elseif len(a:cmdl.range.abs) == 1
     let range_str .= a:cmdl.range.abs[0]
   else
-    if substitute(a:cmdl.cmd.args.pattern_org, '\\\\', '', 'g') =~# '\v(\\n|\\_\.|\\_\[|\\_[iIkKfFpPsSdDxXoOwWhHaAlLuU])'
-      let range_str .= a:cmdl.range.abs[-2]
-      let range_str .= ';'
-      let range_str .= a:cmdl.range.abs[-1]
-    else
-      let range_str .= max([a:cmdl.range.abs[-2], line("w0")])
-      let range_str .= ';'
-      let range_str .= min([a:cmdl.range.abs[-1], line("w$")])
-    end
+    let range_str .= max([a:cmdl.range.abs[-2], line("w0")])
+    let range_str .= ';'
+    let range_str .= min([a:cmdl.range.abs[-1], line("w$")])
   endif
   return range_str
 endfunction
@@ -912,6 +906,9 @@ function! s:clear_cursors() abort
 endfunction
 
 function! s:preview_normal(cmdl) abort
+  if !empty(getcmdwintype())
+    return
+  endif
   let str = a:cmdl.cmd.args.string[0]
   if !g:traces_normal_preview || &readonly || !&modifiable || empty(str)
         \ || (!has("patch-8.2.2961") && !has('nvim'))
@@ -940,8 +937,13 @@ function! s:preview_normal(cmdl) abort
   let winid = win_getid()
   let view = winsaveview()
   let ul = &l:undolevels
-  noautocmd let &l:undolevels = 0
-  silent execute 'noautocmd keepjumps' range . cmd str . "\<cmd>call add(g:traces_cursors, matchaddpos('TracesCursor', [getcurpos()[1:2]], 101))\<cr>"
+  noautocmd let &l:undolevels = 1
+  try
+    execute 'silent noautocmd keepjumps' range . cmd str . "\<cmd>call add(g:traces_cursors, matchaddpos('TracesCursor', [getcurpos()[1:2]], 101))\<cr>"
+  catch
+  finally
+    execute "noautocmd keepjumps normal! \<esc>\<esc>"
+  endtry
   noautocmd call win_gotoid(winid)
   noautocmd let &l:undolevels = ul
   call winrestview(view)
@@ -1178,13 +1180,6 @@ function! s:skip_modifiers(cmdl) abort
 endfunction
 
 function! traces#init(cmdl, view) abort
-  if &buftype ==# 'terminal' || (has('nvim') && !empty(&inccommand))
-    if exists('s:track_cmdl_timer')
-      call timer_stop(s:track_cmdl_timer)
-    endif
-    return
-  endif
-
   let s:nr =  bufnr('%')
   if !exists('s:buf[s:nr]')
     call s:cmdl_enter(a:view)
