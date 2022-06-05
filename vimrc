@@ -1099,6 +1099,10 @@ if has("cscope")
 endif
 " 最后 [[[1
 if exists(':packadd')
+  if exists('$VIMINIT')
+    " .vim at another place; we need to manually update 'packpath'
+    let &packpath = g:vimfiles . ',' . &packpath . ',' . g:vimfiles . '/after'
+  endif
   " insert after the first one so spell changes won't go
   " into our config directory.
   let rtp = split(&runtimepath, ',')
