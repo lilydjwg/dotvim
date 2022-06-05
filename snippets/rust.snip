@@ -9,27 +9,6 @@ snippet s
 	self
 snippet u
         unwrap()
-snippet error
-options head
-	#[macro_use] extern crate error_chain;
-	
-	mod errors;
-	
-	use errors::*;
-snippet main2
-options head
-	fn main2() -> Result<(),Error> {
-	  ${1}
-	
-	  Ok(())
-	}
-	
-	fn main() {
-	  if let Err(e) = main2() {
-	    eprintln!("Error: {:?}", e);
-            ::std::process::exit(1);
-	  }
-	}
 snippet main
 options head
 	fn main() -> Result<(),Error> {
@@ -43,3 +22,9 @@ snippet c
         const
 snippet P
         P: AsRef<Path>>
+snippet O
+        Ok(())
+snippet af
+        async fn
+snippet a
+        await
