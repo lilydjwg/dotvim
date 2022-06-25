@@ -807,6 +807,8 @@ endif
 if exists('##TerminalWinOpen')
   autocmd TerminalWinOpen * setlocal nonumber
 endif
+" don't show q: hints
+augroup vimHints | exe 'au!' | augroup END
 " 自定义命令[[[1
 " 对齐 xxx: xxx （两栏）
 " .vimrc 有可能是软链接
