@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:ZSaberLv0/ZFVimJob.git
+	branch = master
+	commit = 215c65e4314a8f61992dca4f92714ad974797af4
+	parent = 7d2a9cb4ea4a2df733ee3df5c6a4c00d5ffac0e8
+	method = merge
+	cmdver = 0.4.3
