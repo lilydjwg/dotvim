@@ -594,10 +594,6 @@ elseif has("unix")
     else
       " 暂时只有这个配色比较适合了
       let g:colors_name = 'default'
-      " 在终端下，如果码表存在，则自动加载vimim输入法
-      if len(split(globpath(&rtp, 'so/vimim.wubi.txt'), '\n')) > 0
-        autocmd VimEnter * runtime so/vimim.vim
-      endif
     endif
   endif
 elseif has('win32') && exists('$CONEMUBUILD')
@@ -1016,8 +1012,6 @@ let g:VEConf_fileHotkey.help = '<F1>'
 let g:VEConf_treeHotkey = {}
 let g:VEConf_treeHotkey.help = '<F1>'
 let g:VEConf_treeHotkey.toggleNode = '<Space>'
-"   Vimim[[[2
-let g:vimim_map = 'c-bslash,c-space'
 "   vimwiki[[[2
 let g:vimwiki_list = [{'path': '~/.vimwiki/'}]
 let g:vimwiki_camel_case = 0

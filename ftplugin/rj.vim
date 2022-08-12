@@ -11,7 +11,6 @@ let b:did_ftplugin = 1
 " 插入模式下回车后自动空四格，第二次时取消上一行的空格
 inoremap <buffer> <CR> <C-R>=Lilydjwg_rj_cr()<CR>
 " 删除行首的空格
-"   FIXME 这样会造成 Vimim 不正常
 inoremap <buffer> <silent> <BS> <C-R>=Lilydjwg_rj_bs()<CR>
 " 用 Shift-Enter 代替原来的 Enter
 inoremap <buffer> <S-CR> <CR>
@@ -92,5 +91,3 @@ if !exists('*Lilydjwg_rj_tag')
     endif
   endfunction
 endif
-
-" vim:fdm=expr:fde=getline(v\:lnum)=~'^\\s*$'&&getline(v\:lnum+1)=~'\\S'?'<1'\:1
