@@ -1,0 +1,5 @@
+Well, it may still works
+
+if I disable neocomplete and/or update 'completeopt' like for ZFVimIM
+in 59ca4d7f1ab98a61a2fa180606ebb00c062791d9. But VimIM is unmaintained
+anyway.
