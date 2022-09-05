@@ -1,0 +1,205 @@
+*stargate.txt*               modern alternative to easymotion plugin
+
+Author: monkoose <https://github.com/monkoose>
+License: The Unlicense
+
+==============================================================================
+CONTENTS                                                   *stargate-contents*
+
+    Introduction                   |stargate-introduction|
+    Usage                          |stargate-usage|
+    Configuration                  |stargate-configuration|
+    Highlights                     |stargate-highlight-groups|
+
+==============================================================================
+INTRODUCTION                                           *stargate-introduction*
+
+Stargate allows to jump to a visible character on the screen with lesser
+keystrokes. It is modern and simplified alternative to easymotion plugin.
+
+==============================================================================
+USAGE                                                         *stargate-usage*
+
+Stargate provides two public functions that you can map to any key to use it.
+
+stargate#OKvim({mode})                                      *stargate#OKvim()*
+
+        {mode} is a unsigned number or a string. When it is number stargate
+        waits for the user to type as much consecutive characters and then
+        search for this characters in the current window.
+>
+        " For 1 character to search before showing hints
+        noremap <leader>f <Cmd>call stargate#OKvim(1)<CR>
+        " For 2 consecutive characters to search
+        noremap <leader>F <Cmd>call stargate#OKvim(2)<CR>
+<
+        Instead of 1 or 2 you can use any higher nubmer, but it isn't that
+        much practical and it is easier to use |/| and |?| for such search.
+
+        When {mode} is a string it processed as just vim regexp for search in
+        the current window.
+>
+        " for the start of a word
+        noremap <leader>w <Cmd>call stargate#OKvim("\\<")<CR>
+        " for the end of a word
+        noremap <leader>e <Cmd>call stargate#OKvim("\\>")<CR>
+        " for the start of a line if it is visible
+        noremap <leader>l <Cmd>call stargate#OKvim("\\_^")<CR>
+        " for the end of a line if it is visible and non blank
+        noremap <leader>$ <Cmd>call stargate#OKvim("\\S$")<CR>
+        " for any bracket, parentheses or curly bracket
+        noremap <leader>[ <Cmd>call stargate#OKvim("\[(){}[\\]]")<CR>
+<
+        As you can see from this examples possible jump locations are limited
+        only by your knowledge of vim |regexp|.
+
+        Notice that |noremap| is used (do not mix up it with |nnoremap|).
+        With |noremap| you can use stargate not only in normal, but also in
+        visual and operator-pending modes.
+        Also notice that |<Cmd>|call is used instead of `:call ...`. It is
+        required, without it the plugin in visual mode will behave not as
+        expected.
+
+stargate#Galaxy()                                          *stargate#Galaxy()*
+
+        Used to invoke window switching mode of the stargate plugin outside of
+        the main function.
+>
+        nnoremap <leader>w <Cmd>call stargate#Galaxy()<CR>
+<
+        Notice that for this function |nnoremap| is used  this time because
+        there is no sense to change window in visual or operator-pending
+        modes.
+
+To change current window when |stargate#OKvim()| was called you can press
+`<C-w>` so |stargate#Galaxy()| will be invoked.
+
+To exit stargate at any moment hit `<Esc>` or `<C-c>`.
+
+                                                              *stargate-error*
+Some changes to your plugin mappings are required. It happens because autoload
+Vim9 functions now must be capitalized. Please read |stargate-usage| and
+appropriately rename required functions:
+>
+        stargate#ok_vim() -> stargate#OKvim()
+        stargate#galaxy() -> stargate#Galaxy()
+<
+
+==============================================================================
+CONFIGURATION                                         *stargate-configuration*
+
+g:stargate_ignorecase                                  *g:stargate_ignorecase*
+
+        Should searches ignore case of characters.
+        `Default is v:true`
+
+g:stargate_limit                                            *g:stargate_limit*
+
+        Maximum number of popups that can be showed for the hints. This limit
+        is required, because spawning a lot of popups is slow in vim. You can
+        increase it if you have found that it sometimes limits your search
+        results, but for any practical usage default value is enough. If your
+        search exceeds this limit the error "Vim:stargate: too much popups to
+        show - (number of popups)" will be shown in echo area.
+        `Default is 300`
+
+g:stargate_chars                                            *g:stargate_chars*
+
+        Characters used to display hints.
+        `Default is 'fjdklshgaewiomc'`
+
+g:stargate_name                                              *g:stargate_name*
+
+        How fictional AI VIM9000 should call you.
+        `Default is 'Human'`
+
+g:stargate_keymaps                                        *g:stargate_keymaps*
+
+        Dictionary where |keys| are keyboard character that you press in
+        current locale and |values| (string) are all characters you want to
+        include in a search beside the key character.
+        As example for Russian language
+>
+        let g:stargate_keymaps = {
+              \ "~": "Ё",
+              \ "Q": "Й", "W": "Ц", "E": "У", "R": "К", "T": "Е", "Y": "Н", "U": "Г", "I": "Ш", "O": "Щ", "P": "З", "{": "Х", "}": "Ъ",
+              \  "A": "Ф", "S": "Ы", "D": "В", "F": "А", "G": "П", "H": "Р", "J": "О", "K": "Л", "L": "Д", ":": "Ж", '"': "Э",
+              \   "Z": "Я", "X": "Ч", "C": "С", "V": "М", "B": "И", "N": "Т", "M": "Ь", "<": "Б", ">": "Ю",
+              \ "`": "ё",
+              \ "q": "й", "w": "ц", "e": "у", "r": "к", "t": "е", "y": "н", "u": "г", "i": "ш", "o": "щ", "p": "з", "[": "х", "]": "ъ",
+              \  "a": "ф", "s": "ы", "d": "в", "f": "а", "g": "п", "h": "р", "j": "о", "k": "л", "l": "д", ";": "ж", "'": "э",
+              \   "z": "я", "x": "ч", "c": "с", "v": "м", "b": "и", "n": "т", "m": "ь", ",": "б", ".": "ю"
+              \ }
+<
+        `Default is {}`
+
+------------------------------------------------------------------------------
+HIGHLIGHTS                                         *stargate-highlight-groups*
+
+Stargate provides some highlight groups that can be used to improve feel and
+look with any color scheme.
+
+StargateFocus                                                  *StargateFocus*
+
+        Text highlight for a visible text in the current window when stargate
+        plugin is invoked. Makes it easiear to track which window is currently
+        selected and notify the user that stargate plugin have started.
+        `Default is guifg=#958c6a`
+
+StargateDesaturate                                        *StargateDesaturate*
+
+        Text highlight for a visible text in the current window when hints are
+        shown. Makes it easier to read hint labels.
+        `Default is guifg=#49423f`
+
+StargateError                                                  *StargateError*
+
+        Text highlight for a visible text in the current window when error
+        invoked (no searched pattern in the current window or wrong hint
+        character pressed).
+        `Default is guifg=#d35b4b`
+
+StargateLabels                                                *StargateLabels*
+
+        Hihglight for labels when your are in window switching mode.
+        `Default is guifg=#caa247 guibg=#171e2c`
+
+StargateErrorLabels                                      *StargateErrorLabels*
+
+        Highlight for labels when your are in window switching mode and
+        pressed wrong label character.
+        `Default is guifg=#caa247 guibg=#551414`
+
+StargateMain                                                    *StargateMain*
+
+        Default highlight for the hints.
+        `Default is guifg=#f2119c gui=bold cterm=bold`
+
+StargateSecondary                                          *StargateSecondary*
+
+        Highlight for hints that are close to another one.
+        `Default is guifg=#11eb9c gui=bold cterm=bold`
+
+StargateShip                                                    *StargateShip*
+
+        Highlight for cursor position in the current window.
+        `Default is guifg=#111111 guibg=#caa247`
+
+StargateVIM9000                                              *StargateVIM9000*
+
+        Highlight for fictional AI companion name that shown in the
+        command-line.
+        `Default is guifg=#111111 guibg=#b2809f gui=bold cterm=bold`
+
+StargateMessage                                              *StargateMessage*
+
+        Highlight for a standard message from VIM9000.
+        `Default is guifg=#a5b844`
+
+StargateErrorMessage                                    *StargateErrorMessage*
+
+        Highlight for a message from VIM9000 when error invoked.
+        `Default is guifg=#e36659`
+
+==============================================================================
+vim:tw=78:ft=help:norl:fen:
