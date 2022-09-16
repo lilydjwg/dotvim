@@ -559,6 +559,9 @@ let g:undodir = g:mytmpdir . "/.vimundo"
 let &errorfile= g:mytmpdir . "/.error"
 " 图形与终端 [[[2
 let g:colors_name = 'lilypink'
+let &t_EI = "\e[2 q"
+let &t_SI = "\e[6 q"
+let &t_SR = "\e[4 q"
 if has("gui_running")
   set mousemodel=popup
   " 有些终端不能改变大小
