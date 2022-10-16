@@ -23,6 +23,7 @@ def Highlight()
     highlight default StargateVIM9000 guifg=#111111 guibg=#b2809f gui=bold cterm=bold
     highlight default StargateMessage guifg=#a5b844
     highlight default StargateErrorMessage guifg=#e36659
+    highlight default link StargateVisual Visual
 enddef
 
 

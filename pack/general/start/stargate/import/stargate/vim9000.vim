@@ -5,9 +5,10 @@ import './galaxies.vim'
 import './messages.vim' as msg
 import './workstation.vim' as ws
 
-var start_mode: string
 var in_visual_mode: bool
 var is_hlsearch: bool
+var stargate_visual: list<dict<any>>
+var stargate_showmode: bool
 const match_paren_enabled = exists(':DoMatchParen') == 2 ? true : false
 
 
@@ -56,24 +57,33 @@ enddef
 
 
 def Saturate()
+    prop_remove({ type: 'sg_error' }, g:stargate_near, g:stargate_distant)
     prop_remove({ type: 'sg_desaturate' }, g:stargate_near, g:stargate_distant)
 enddef
 
 
+def HideStarsHints()
+    for v in values(g:stargate_popups)
+        popup_hide(v)
+    endfor
+enddef
+
 def Greetings()
     g:stargate_winview = winsaveview()
-    start_mode = mode()
-    in_visual_mode = start_mode != 'n'
+
+    in_visual_mode = mode() != 'n'
     if in_visual_mode
-        execute "normal! \<C-c>"
+        stargate_showmode = &showmode
+        &showmode = 0
+        stargate_visual = hlget('Visual')
+        hlset([{name: 'Visual', cleared: true, linksto: 'StargateVisual'}])
     endif
 
     [g:stargate_near, g:stargate_distant] = ws.ReachableOrbits()
 
-    is_hlsearch = false
-    if v:hlsearch
-        is_hlsearch = true
-        setwinvar(0, '&hlsearch', 0)
+    is_hlsearch = v:hlsearch
+    if is_hlsearch
+        &hlsearch = 0
     endif
 
     if match_paren_enabled
@@ -86,10 +96,7 @@ enddef
 
 
 def Goodbye()
-    for v in values(g:stargate_popups)
-        popup_hide(v)
-    endfor
-    prop_remove({ type: 'sg_error' }, g:stargate_near, g:stargate_distant)
+    HideStarsHints()
     Saturate()
     ws.ClearScreen()
 
@@ -97,11 +104,12 @@ def Goodbye()
     doautocmd CursorMoved
 
     if is_hlsearch
-        setwinvar(0, '&hlsearch', 1)
+        &hlsearch = 1
     endif
 
     if in_visual_mode
-        execute 'normal! ' .. start_mode .. '`<o'
+        &showmode = stargate_showmode
+        hlset(stargate_visual)
     endif
 enddef
 

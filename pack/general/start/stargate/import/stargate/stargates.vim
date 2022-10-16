@@ -1,6 +1,5 @@
 vim9script
 
-import './messages.vim' as msg
 import './workstation.vim' as ws
 
 
@@ -36,9 +35,9 @@ enddef
 
 def OrbitalStars(pattern: string, flags: string, orbit: number): list<list<number>>
     cursor(orbit, 1)
-    var stars = []
+    var stars: list<list<number>>
     var star = searchpos(pattern, flags, orbit)
-    while !!star[0]
+    while star[0] != 0
         stars->add(star)
         const first = '\%>' .. star[1] .. 'c'
         star = searchpos(first .. pattern, flags, orbit)

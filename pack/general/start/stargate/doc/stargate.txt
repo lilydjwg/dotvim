@@ -40,15 +40,17 @@ stargate#OKvim({mode})                                      *stargate#OKvim()*
         the current window.
 >
         " for the start of a word
-        noremap <leader>w <Cmd>call stargate#OKvim("\\<")<CR>
+        noremap <leader>w <Cmd>call stargate#OKvim('\<')<CR>
         " for the end of a word
-        noremap <leader>e <Cmd>call stargate#OKvim("\\>")<CR>
-        " for the start of a line if it is visible
-        noremap <leader>l <Cmd>call stargate#OKvim("\\_^")<CR>
-        " for the end of a line if it is visible and non blank
-        noremap <leader>$ <Cmd>call stargate#OKvim("\\S$")<CR>
+        noremap <leader>e <Cmd>call stargate#OKvim('\S\>')<CR>
+        " for the start of a line
+        noremap <leader>l <Cmd>call stargate#OKvim('\_^')<CR>
+        " for the last character on the line
+        noremap <leader>E <Cmd>call stargate#OKvim('\S\s*$')<CR>
+        " for the end of a line
+        noremap <leader>$ <Cmd>call stargate#OKvim('$')<CR>
         " for any bracket, parentheses or curly bracket
-        noremap <leader>[ <Cmd>call stargate#OKvim("\[(){}[\\]]")<CR>
+        noremap <leader>[ <Cmd>call stargate#OKvim('\[(){}[\]]')<CR>
 <
         As you can see from this examples possible jump locations are limited
         only by your knowledge of vim |regexp|.
@@ -75,15 +77,6 @@ To change current window when |stargate#OKvim()| was called you can press
 `<C-w>` so |stargate#Galaxy()| will be invoked.
 
 To exit stargate at any moment hit `<Esc>` or `<C-c>`.
-
-                                                              *stargate-error*
-Some changes to your plugin mappings are required. It happens because autoload
-Vim9 functions now must be capitalized. Please read |stargate-usage| and
-appropriately rename required functions:
->
-        stargate#ok_vim() -> stargate#OKvim()
-        stargate#galaxy() -> stargate#Galaxy()
-<
 
 ==============================================================================
 CONFIGURATION                                         *stargate-configuration*
@@ -200,6 +193,13 @@ StargateErrorMessage                                    *StargateErrorMessage*
 
         Highlight for a message from VIM9000 when error invoked.
         `Default is guifg=#e36659`
+
+StargateVisual                                                *StargateVisual*
+
+        Highlight for visual selection when stargate is active.
+        Change it if visual selection of the current colorscheme has bad
+        contrast with other stargate highlights.
+        `Default links to Visual`
 
 ==============================================================================
 vim:tw=78:ft=help:norl:fen:

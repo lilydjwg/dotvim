@@ -34,7 +34,7 @@ noremap <leader>F <Cmd>call stargate#OKvim(2)<CR>
 " Instead of 1 or 2 you can use any higher number, but it isn't much practical
 " and it is easier to use `/` or `?` for that
 ```
-Notice that it is `noremap` (not `nnoremap`) this allows stargate to work not
+**Notice** that it is `noremap` (not `nnoremap`) this allows stargate to work not
 only in normal mode, but also in visual and operator-pending modes. Do not use
 `:call ...` (`<Cmd>call ...` is required) or plugin will behave not as you want
 it to.
@@ -57,19 +57,21 @@ word, or start of a line etc. You can use `stargate#OKvim()` with a string as
 its only argument. This string is just some vim regexp.
 ```vim
 " for the start of a word
-noremap <leader>w <Cmd>call stargate#OKvim("\\<")<CR>
+noremap <leader>w <Cmd>call stargate#OKvim('\<')<CR>
 " for the end of a word
-noremap <leader>e <Cmd>call stargate#OKvim("\\S\\>")<CR>
-" for the start of a line if it is visible
-noremap <leader>l <Cmd>call stargate#OKvim("\\_^")<CR>
-" for the end of a line if it is visible and non blank
-noremap <leader>$ <Cmd>call stargate#OKvim("\\S$")<CR>
-noremap <leader>o <Cmd>call stargate#OKvim("$")<CR>
+noremap <leader>e <Cmd>call stargate#OKvim('\S\>')<CR>
+" for the start of a line
+noremap <leader>l <Cmd>call stargate#OKvim('\_^')<CR>
+" for the last character on the line
+noremap <leader>E <Cmd>call stargate#OKvim('\S\s*$')<CR>
+" for the end of a line
+noremap <leader>$ <Cmd>call stargate#OKvim('$')<CR>
 " for any bracket, parentheses or curly bracket
-noremap <leader>[ <Cmd>call stargate#OKvim("\[(){}[\\]]")<CR>
+noremap <leader>[ <Cmd>call stargate#OKvim('[(){}[\]]')<CR>
 ```
 As you can see possible jump locations are limited only by your knowledge of
-vim regexp.
+vim regexp. **Note** make sure to use single quotes (literal strings) or you
+would need to escape every backslash in a pattern.
 
 ## Configuration
 
@@ -131,6 +133,7 @@ your color scheme.
 | StargateVIM9000       | color for VIM9000 name in the command line                |
 | StargateMessage       | color of the standard message from VIM9000                |
 | StargateErrorMessage  | color of the error message from VIM9000                   |
+| StargateVisual        | color of the visual selection when stargate is active     |
 
 Defaults are
 ```vim
@@ -145,10 +148,14 @@ highlight default StargateShip guifg=#111111 guibg=#caa247
 highlight default StargateVIM9000 guifg=#111111 guibg=#b2809f gui=bold cterm=bold
 highlight default StargateMessage guifg=#a5b844
 highlight default StargateErrorMessage guifg=#e36659
+highlight default link StargateVisual Visual
 ```
 
 Remove `default` from this list and add any highlight group you want to change
 into your vimrc.
+
+Change StargateVisual when visual selection highlight of the current
+colorscheme has bad contrast with other stargate colors.
 
 ## FAQ
 
