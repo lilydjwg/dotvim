@@ -8,7 +8,7 @@ syntax match tlogWarning  /^\[W\>[^]]\+\]/
 syntax match tlogError    /^\[E\>[^]]\+\]/
 syntax match tlogCritical /^\[C\>[^]]\+\]/
 
-highlight tlogDebug    ctermfg=4 guifg=#0000aa
+highlight tlogDebug    ctermfg=4 guifg=#2660ff
 highlight tlogInfo     ctermfg=2 guifg=#00aa00
 highlight tlogWarning  ctermfg=3 guifg=#aa5500
 highlight tlogError    ctermfg=1 guifg=#aa0000
