@@ -6,7 +6,7 @@
 [subrepo]
 	remote = git@github.com:monkoose/vim9-stargate.git
 	branch = main
-	commit = b669d00f66b206d22091b3fe248f0b212e14bf5f
+	commit = 34ef05f421d2f8fffcb9b8581c32d943b005d73f
 	parent = 8f814e57507c8455834c30045c3fd854099032c1
 	method = merge
 	cmdver = 0.4.5

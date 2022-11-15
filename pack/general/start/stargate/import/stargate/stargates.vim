@@ -10,7 +10,7 @@ enddef
 
 
 def Designations(length: number): list<string>
-    const ds = ws.LabelLists(g:stargate_chars, length)
+    final ds = ws.LabelLists(g:stargate_chars, length)
 
     # remove unwanted labels from start and end of the label list
     var slice = ds.labels[ds.start_row : ds.end_row]
