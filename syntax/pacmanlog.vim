@@ -1,18 +1,17 @@
 " Vim syntax file
 " FileType:     pacman.log
 " Author:       lilydjwg <lilydjwg@gmail.com>
-" Version:      1.2
+" Version:      1.3
 
 syntax clear
-syntax case ignore
 
 syn match pacmanlogTime		/\v^\[[^]]+\]/
 syn match pacmanlogInstall	/\v(\]\s)@<=%(re)?installed\s\S+/
 syn match pacmanlogUpgrade	/\v(\]\s)@<=upgraded\s\S+/
 syn match pacmanlogDowngrade	/\v(\]\s)@<=downgraded\s\S+/
 syn match pacmanlogRemove	/\v(\]\s)@<=removed\s\S+/
-syn match pacmanlogError	/\v(\]\s)@<=ERROR:.*$/
-syn match pacmanlogWarning	/\v(\]\s)@<=WARNING:.*$/
+syn match pacmanlogError	/\v\c(\]\s)@<=ERROR:.*$/
+syn match pacmanlogWarning	/\v\c(\]\s)@<=WARNING:.*$/
 syn match pacmanlogProg 	/\v(\]\s)@<=\[[^]]+\]/
 
 hi link pacmanlogTime		Constant
