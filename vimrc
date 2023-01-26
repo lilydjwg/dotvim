@@ -705,7 +705,6 @@ nmap <M-g> :LustyBufferGrep<CR>
 nmap <M-l> :LustyFilesystemExplorerFromHere<CR>
 let g:LustyExplorerSuppressRubyWarning = 1
 "     其它开头的 [[[3
-nmap <silent> <C-Tab> :tabnew<CR>
 nmap <BS> <C-O>
 nmap <C-D> <C-W>q
 nnoremap <Space> za
