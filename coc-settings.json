@@ -1,3 +1,4 @@
 {
-  "rust-client.disableRustup": true
+  "suggest.noselect": true,
+  "inlayHint.display": false
 }
