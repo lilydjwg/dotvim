@@ -1,8 +1,5 @@
 snippet ec
         extern crate 
-snippet debug
-options head
-        debug!("${1} = {:?}", $1);
 snippet .
 	self.
 snippet s
@@ -11,7 +8,7 @@ snippet u
         unwrap()
 snippet main
 options head
-	fn main() -> Result<(),Error> {
+	fn main() -> Result<(), Error> {
 	  ${1}
 	
 	  Ok(())
