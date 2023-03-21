@@ -20,11 +20,9 @@ export def OkVIM(mode: any)
         Greetings()
         var destinations: dict<any>
         if type(mode) == v:t_number
-            g:stargate_mode = true
             destinations = ChooseDestinations(mode)
         else
-            g:stargate_mode = false
-            destinations = sg.GetDestinations(mode)
+            destinations = sg.GetDestinations(mode, true)
         endif
         if !empty(destinations)
             normal! m'
@@ -36,12 +34,12 @@ export def OkVIM(mode: any)
             endif
         endif
     catch
-        winrestview(g:stargate_winview)
-        if v:exception =~ "^\s*stargate:"
+        winrestview(ws.winview)
+        if v:exception =~ '^\s*stargate:'
             msg.Warning(v:exception)
         else
             redraw
-            execute 'echoerr "' .. v:exception .. '"'
+            exe $'echoerr "{v:exception}"'
         endif
     finally
         Goodbye()
@@ -57,19 +55,20 @@ enddef
 
 
 def Saturate()
-    prop_remove({ type: 'sg_error' }, g:stargate_near, g:stargate_distant)
-    prop_remove({ type: 'sg_desaturate' }, g:stargate_near, g:stargate_distant)
+    ws.RemoveMatchHighlight(ws.win['StargateError'])
+    ws.RemoveMatchHighlight(ws.win['StargateDesaturate'])
 enddef
 
 
 def HideStarsHints()
-    for v in values(g:stargate_popups)
+    for v in values(ws.label_windows)
         popup_hide(v)
     endfor
 enddef
 
+
 def Greetings()
-    g:stargate_winview = winsaveview()
+    ws.winview = winsaveview()
 
     in_visual_mode = mode() != 'n'
     if in_visual_mode
@@ -79,7 +78,7 @@ def Greetings()
         hlset([{name: 'Visual', cleared: true, linksto: 'StargateVisual'}])
     endif
 
-    [g:stargate_near, g:stargate_distant] = ws.ReachableOrbits()
+    ws.UpdateWinBounds()
 
     is_hlsearch = v:hlsearch
     if is_hlsearch
@@ -87,11 +86,11 @@ def Greetings()
     endif
 
     if match_paren_enabled
-        silent! call matchdelete(3)
+        ws.RemoveMatchHighlight(3)
     endif
 
     ws.SetScreen()
-    msg.StandardMessage(g:stargate_name .. ', choose a destination.')
+    msg.StandardMessage($'{g:stargate_name}, choose a destination.')
 enddef
 
 
@@ -116,7 +115,7 @@ enddef
 
 def ShowFiltered(stargates: dict<any>)
     for [label, stargate] in items(stargates)
-        const id = g:stargate_popups[label]
+        const id = ws.label_windows[label]
         const scr_pos = screenpos(0, stargate.orbit, stargate.degree)
         popup_move(id, { line: scr_pos.row, col: scr_pos.col })
         popup_setoptions(id, { highlight: stargate.color, zindex: stargate.zindex })
@@ -147,7 +146,7 @@ def UseStargate(destinations: dict<any>)
         endfor
 
         if empty(filtered)
-            msg.Error('Wrong stargate, ' .. g:stargate_name .. '. Choose another one.')
+            msg.Error($'Wrong stargate, {g:stargate_name}. Choose another one.')
         elseif len(filtered) == 1
             msg.BlankMessage()
             cursor(filtered[''].orbit, filtered[''].degree)
@@ -165,6 +164,7 @@ enddef
 def ChooseDestinations(mode: number): dict<any>
     var to_galaxy = false
     var destinations = {}
+    var pattern: string
     while true
         var nrs = []
         for _ in range(mode)
@@ -186,11 +186,11 @@ def ChooseDestinations(mode: number): dict<any>
         if to_galaxy
             to_galaxy = false
             if in_visual_mode || ws.InOperatorPendingMode()
-                msg.Error('It is impossible to do now, ' .. g:stargate_name .. '.')
+                msg.Error($'It is impossible to do now, {g:stargate_name}.')
             elseif !galaxies.ChangeGalaxy(false)
                 return {}
             endif
-            g:stargate_winview = winsaveview()
+            ws.winview = winsaveview()
 
             # if current window after the jump is in terminal or insert modes - quit stargate
             if match(mode(), '[ti]') == 0
@@ -199,11 +199,12 @@ def ChooseDestinations(mode: number): dict<any>
             continue
         endif
 
-        destinations = sg.GetDestinations(nrs
-                                            ->mapnew((_, v) => nr2char(v))
-                                            ->join(''))
+        pattern = nrs
+                    ->mapnew((_, v) => nr2char(v))
+                    ->join('')
+        destinations = sg.GetDestinations(pattern, false)
         if empty(destinations)
-            msg.Error("We can't reach there, " .. g:stargate_name .. '.')
+            msg.Error($"We can't reach there, {g:stargate_name}.")
             continue
         endif
         break

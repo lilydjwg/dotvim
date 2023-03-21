@@ -14,7 +14,7 @@ func workstation.after_each()
 endfunc
 
 func workstation.DisplayLeftEdge()
-  let g:stargate_winview = winsaveview()
+  let ws.winview = winsaveview()
 
   call s:assert.equals(s:ws.DisplayLeftEdge(), 1,
         \ 'without sign and linenr columns')
@@ -33,13 +33,16 @@ func workstation.DisplayLeftEdge()
 endfunc
 
 
-func workstation.ReachableOrbits()
-  call setline(1, repeat(['line'], 30))
+func workstation.UpdateWinBounds()
+  call setline(1, repeat(['line'], 20))
   normal 10ggzt
-  call s:assert.equals(s:ws.ReachableOrbits()[0], line('w0'),
-        \ 'first visible line number')
-  call s:assert.equals(s:ws.ReachableOrbits()[1], line('w$'),
-        \ 'last visible line number')
+  call s:ws.UpdateWinBounds()
+  call s:assert.equals(s:ws.win.topline, line('w0'),
+        \ 'first visible line number ')
+  call setline(1, repeat(['line'], 20))
+  normal 10ggzt
+  call s:assert.equals(s:ws.win.botline, line('w$'),
+        \ 'last visible line number ')
 endfunc
 
 
@@ -52,8 +55,8 @@ func workstation.OrbitalArc()
         \ 'last visible virtual column for empty buffer')
 
   call setline(1, repeat('word ', 200))
-  execute 'normal ' .. win_width .. 'l'
-  let g:stargate_winview = winsaveview()
+  exe 'normal ' .. win_width .. 'l'
+  let ws.winview = winsaveview()
   call s:assert.equals(s:ws.OrbitalArc().first, win_width + 1,
         \ 'first virtual column for shifted text')
   call s:assert.equals(s:ws.OrbitalArc().last, 2 * win_width,

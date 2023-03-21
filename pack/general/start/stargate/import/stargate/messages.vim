@@ -5,10 +5,10 @@ import './workstation.vim' as ws
 
 def Message(text: string, color: string)
     redraw
-    execute 'echohl StargateVIM9000'
+    exe 'echohl StargateVIM9000'
     echo ' VIM9000 '
-    execute 'echohl ' .. color
-    echon ' ' .. text .. ' '
+    exe $'echohl {color}'
+    echon $' {text} '
     echohl None
 enddef
 
@@ -25,15 +25,13 @@ enddef
 
 export def Error(message: string)
     def RemoveError(t: number)
-        prop_remove({ type: 'sg_error' }, g:stargate_near, g:stargate_distant + 1)
+        ws.RemoveMatchHighlight(ws.win['StargateError'])
+        # redraw required, because while getchar() is active
+        # the screen is not redrawn normally
         redraw
     enddef
 
-    prop_add(g:stargate_near, 1, {
-        end_lnum: g:stargate_distant,
-        end_col: ws.max_col,
-        type: 'sg_error'
-    })
+    ws.AddMatchHighlight('StargateError', 1002)
     ErrorMessage(message)
     timer_start(150, RemoveError)
 enddef

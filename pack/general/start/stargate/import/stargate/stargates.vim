@@ -4,8 +4,7 @@ import './workstation.vim' as ws
 
 
 def Desaturate()
-    prop_add(g:stargate_near, 1, {
-        end_lnum: g:stargate_distant, end_col: ws.max_col, type: 'sg_desaturate' })
+    ws.AddMatchHighlight('StargateDesaturate', 1001)
 enddef
 
 
@@ -39,7 +38,7 @@ def OrbitalStars(pattern: string, flags: string, orbit: number): list<list<numbe
     var star = searchpos(pattern, flags, orbit)
     while star[0] != 0
         stars->add(star)
-        const first = '\%>' .. star[1] .. 'c'
+        const first = $'\%>{star[1]}c'
         star = searchpos(first .. pattern, flags, orbit)
     endwhile
     return stars
@@ -51,9 +50,8 @@ def CollectStars(orbits: list<number>, cur_loc: list<number>, pat: string): list
     var stars = []
     for orbit in orbits
         if strdisplaywidth(getline(orbit)) > ws.max_col
-            throw "stargate: detected a line that is longer than "
-                            .. ws.max_col .. " characters."
-                            .. " It can be slow, so plugin disabled."
+            throw $'stargate: detected a line that is longer than {ws.max_col}' ..
+                ' characters. It can be slow, so plugin disabled.'
         endif
 
         var orbital_stars = OrbitalStars(pat, 'Wnc', orbit)
@@ -75,19 +73,19 @@ def GalaxyStars(pattern: string): list<list<number>>
     const arc = ws.OrbitalArc()
     var degrees = {first: '', last: ''}
     if !&wrap
-        degrees.first = '\%>' .. (arc.first - 1) .. 'v'
-        degrees.last = '\%<' .. (arc.last + 1) .. 'v'
+        degrees.first = $'\%>{arc.first - 1}v'
+        degrees.last = $'\%<{arc.last + 1}v'
     endif
 
     const pat = degrees.first .. degrees.last .. pattern
     const cur_loc = [
-        g:stargate_winview.lnum,
-        g:stargate_winview.col + 1
+        ws.winview.lnum,
+        ws.winview.col + 1
     ]
-    const stars = ws.OrbitsWithoutBlackmatter(g:stargate_near, g:stargate_distant)
+    const stars = ws.OrbitsWithoutBlackmatter(ws.win.topline, ws.win.botline)
                      ->CollectStars(cur_loc, pat)
 
-    winrestview(g:stargate_winview)
+    winrestview(ws.winview)
     return stars
 enddef
 
@@ -110,11 +108,11 @@ def ShowStargates(destinations: list<list<number>>): dict<any>
 
     # Check if some outside force closed some of stargate popups
     # mostly for popup_clear(), will fail on some manual popup_remove(id)
-    if empty(popup_getpos(g:stargate_popups[g:stargate_chars[0]]))
-        for id in values(g:stargate_popups)
+    if empty(popup_getpos(ws.label_windows[g:stargate_chars[0]]))
+        for id in values(ws.label_windows)
             popup_close(id)
         endfor
-        ws.CreatePopups()
+        ws.CreateLabelWindows()
     endif
 
     const galaxy_distant_orbit = win_screenpos(0)[0] - 1 + winheight(0)
@@ -126,7 +124,7 @@ def ShowStargates(destinations: list<list<number>>): dict<any>
             break
         endif
         const name = names[i]
-        const id = g:stargate_popups[name]
+        const id = ws.label_windows[name]
         const color = ChooseColor(prev, orbit, degree)
         const zindex = 100 + i
         popup_move(id, { line: scr_pos.row, col: scr_pos.col })
@@ -140,8 +138,8 @@ def ShowStargates(destinations: list<list<number>>): dict<any>
 enddef
 
 
-export def GetDestinations(pattern: string): dict<any>
-    var destinations = GalaxyStars(ws.TransformPattern(pattern))
+export def GetDestinations(pattern: string, is_regex: bool): dict<any>
+    var destinations = GalaxyStars(ws.TransformPattern(pattern, is_regex))
     const length = len(destinations)
 
     var stargates: dict<any>
@@ -150,7 +148,7 @@ export def GetDestinations(pattern: string): dict<any>
     elseif length == 1
         stargates = {jump: {orbit: destinations[0][0], degree: destinations[0][1]}}
     elseif length > g:stargate_limit
-        throw "stargate: too much popups to show - " .. length
+        throw $'stargate: too much popups to show - {length}'
     else
         Desaturate()
         stargates = destinations->ShowStargates()

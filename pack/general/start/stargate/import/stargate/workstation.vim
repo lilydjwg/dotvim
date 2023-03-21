@@ -1,7 +1,35 @@
 vim9script
 
 export const max_col = 5000
-const in_gvim = has('gui_running')
+export var label_windows: dict<number>
+export var winview: dict<any>
+export var win: dict<any> = {
+    topline: 0,
+    botline: 0,
+    lines_range: [],
+    StargateFocus: 0,
+    StargateDesaturate: 0,
+    StargateError: 0,
+}
+var conceal_level: number
+var fake_cursor_match_id: number
+
+
+# Creates plugin highlights
+export def CreateHighlights()
+    highlight default StargateFocus guifg=#958c6a
+    highlight default StargateDesaturate guifg=#49423f
+    highlight default StargateError guifg=#d35b4b
+    highlight default StargateLabels guifg=#caa247 guibg=#171e2c
+    highlight default StargateErrorLabels guifg=#caa247 guibg=#551414
+    highlight default StargateMain guifg=#f2119c gui=bold cterm=bold
+    highlight default StargateSecondary guifg=#11eb9c gui=bold cterm=bold
+    highlight default StargateShip guifg=#111111 guibg=#caa247
+    highlight default StargateVIM9000 guifg=#111111 guibg=#b2809f gui=bold cterm=bold
+    highlight default StargateMessage guifg=#a5b844
+    highlight default StargateErrorMessage guifg=#e36659
+    highlight default link StargateVisual Visual
+enddef
 
 
 # Returns first window column number after signcolumn
@@ -17,6 +45,20 @@ def ListcharsHasPrecedes(): bool
 enddef
 
 
+# Creates new matchadd highlight and additionally removes any leftover
+# highlights from the previous highlighting of this `match_group`
+# Useful when adding match highlight with the `timer_start()`
+export def AddMatchHighlight(match_group: string, priority: number)
+    const id = matchaddpos(match_group, win.lines_range, priority)
+    RemoveMatchHighlight(win[match_group])
+    win[match_group] = id
+enddef
+
+# Silently removes match highlight with `match_id`
+export def RemoveMatchHighlight(match_id: number)
+    silent! call matchdelete(match_id)
+enddef
+
 # Returns first and last visible virtual columns of the buffer in the current window
 export def OrbitalArc(): dict<number>
     const edge = DisplayLeftEdge()
@@ -31,9 +73,11 @@ export def OrbitalArc(): dict<number>
 enddef
 
 
-# Returns top and bottom visible lines numbers of the current window
-export def ReachableOrbits(): list<number>
-    return [line('w0'), line('w$')]
+# Sets some new values for global `win` dictionary
+export def UpdateWinBounds()
+    win.topline = line('w0')
+    win.botline = line('w$')
+    win.lines_range = range(win.topline, win.botline)
 enddef
 
 
@@ -66,7 +110,7 @@ def ProcessKeymap(pattern: string): string
         if empty(rhs)
             pat ..= char
         else
-            pat ..= '\[' .. char .. rhs .. ']'
+            pat ..= $'\[{char}{rhs}]'
         endif
     endfor
 
@@ -79,9 +123,10 @@ export def InOperatorPendingMode(): bool
     return state()[0] == 'o'
 enddef
 
+
 # Returns modified pattern so it can be processed by searchpos()
-export def TransformPattern(pattern: string): string
-    if !g:stargate_mode
+export def TransformPattern(pattern: string, is_regex: bool): string
+    if is_regex
         return pattern
     elseif pattern == ' '
         return '\S\zs\s'
@@ -161,50 +206,55 @@ export def SafeGetChar(): list<any>
 enddef
 
 
-export def CreatePopups()
-    var popups = {}
+export def CreateLabelWindows()
+    label_windows = {}
     const labels = LabelLists(g:stargate_chars, g:stargate_limit).labels->flattennew(1)
     for ds in labels
-        popups[ds] = popup_create(ds, { line: 0, col: 0, hidden: true, wrap: false })
+        label_windows[ds] = popup_create(ds, { line: 0, col: 0, hidden: true, wrap: false })
     endfor
-    g:stargate_popups = popups
 enddef
 
 
-export def HideCursor()
-    if in_gvim
-        g:stargate_cursor = hlget('Cursor')
+export var HideCursor: func()
+export var ShowCursor: func()
+# Hiding the cursor when awaiting for char of getchar() function
+# done differently in gui and terminal
+if has('gui_running')
+    var cursor_state: list<dict<any>>
+    HideCursor = () => {
+        cursor_state = hlget('Cursor')
         hlset([{name: 'Cursor', cleared: true}])
-    else
-        g:stargate_cursor = &t_ve
+    }
+    ShowCursor = () => {
+        hlset(cursor_state)
+    }
+else
+    var cursor_state: string
+    HideCursor = () => {
+        cursor_state = &t_ve
         &t_ve = ''
-    endif
-enddef
-
-
-export def ShowCursor()
-    if in_gvim
-        hlset(g:stargate_cursor)
-    else
-        &t_ve = g:stargate_cursor
-    endif
-enddef
+    }
+    ShowCursor = () => {
+        &t_ve = cursor_state
+    }
+endif
 
 
 export def SetScreen()
-    g:stargate_conceallevel = &conceallevel
+    conceal_level = &conceallevel
     &conceallevel = 0
     HideCursor()
-    prop_add(line('.'), col('.'), { type: 'sg_ship' })
-    prop_add(g:stargate_near, 1, { end_lnum: g:stargate_distant, end_col: max_col, type: 'sg_focus' })
+
+    fake_cursor_match_id = matchaddpos('StargateShip', [[line('.'), col('.')]], 1010)
+    AddMatchHighlight('StargateFocus', 1000)
 enddef
 
 
 export def ClearScreen()
-    prop_remove({ type: 'sg_focus' }, g:stargate_near, g:stargate_distant)
-    prop_remove({ type: 'sg_ship' }, g:stargate_near, g:stargate_distant)
+    RemoveMatchHighlight(win['StargateFocus'])
+    RemoveMatchHighlight(fake_cursor_match_id)
     ShowCursor()
-    &conceallevel = g:stargate_conceallevel
+    &conceallevel = conceal_level
 enddef
 
 # vim: sw=4
