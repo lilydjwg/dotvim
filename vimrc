@@ -421,9 +421,6 @@ function Lilydjwg_formatall()
 endfunction
 " set 相关[[[1
 "   一般设置[[[2
-" nvim needs this to enable ftplugin
-filetype plugin on
-filetype indent on
 " maybe necessary when root
 syntax on
 set number
