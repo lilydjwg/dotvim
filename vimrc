@@ -552,8 +552,12 @@ let g:dictfilePrefix = g:vimfiles . "/dict/"
 if has("python3")
   exe "py3file" g:vimfiles . "/vimrc.py"
 endif
-let g:undodir = g:mytmpdir . "/.vimundo"
-let &errorfile= g:mytmpdir . "/.error"
+if isdirectory(expand("/run/user/$UID"))
+  let g:undodir = expand("/run/user/$UID/vimundo")
+else
+  let g:undodir = g:mytmpdir . "/.vimundo"
+endif
+let &errorfile = g:mytmpdir . "/.error"
 " 图形与终端 [[[2
 let g:colors_name = 'lilypink'
 let &t_EI = "\e[2 q"
