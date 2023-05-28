@@ -1,0 +1,49 @@
+!1.13
+announceAdvancements
+commandBlockOutput
+disableElytraMovementCheck
+doDaylightCycle
+doEntityDrops
+doTileDrops
+doFireTick
+doLimitedCrafting
+doMobLoot
+doMobSpawning
+doWeatherCycle
+immediateRespawn
+keepInventory
+logAdminCommands
+maxCommandChainLength   /UInt/
+maxEntityCramming       /UInt/
+mobGriefing
+naturalRegeneration
+randomTickSpeed         /\<\([1-3]\?\d\{1,3\}\|409[0-6]\|40[0-8]\d\)\>/
+reducedDebugInfo
+sendCommandFeedback
+showDeathMessages
+spawnRadius             /UInt/
+spectatorsGenerateChunks
+
+!1.14.3p3
+disableRaids
+
+!19w36a
+doInsomnia
+doImmediateRespawn
+drowningDamage
+fallDamage
+fireDamage
+
+!1.15.2p1
+doPatrolSpawning
+doTraderSpawning
+
+!1.16p1
+forgiveDeadPlayers
+universalAnger
+
+!20w48a
+freezeDamage
+
+!20w51a
+playersSleepingPercentage   /\<1?\d{0,2}\>/

@@ -1,0 +1,714 @@
+" things file
+" aka blocks, items, (select) recipes, and entities because there are several of
+" each, and several that are in multiple categories
+"
+" legend:
+" b: a block, and only a block
+" B: a block tag, specified in-game with a #, as in `/fill ... replace #slabs`
+" c: craftable item, because it's both an item and a recipe
+" e: an entity
+" E: entity tag
+" i: an item
+" I: item tag
+" m: mob, more accurately any entity that has an associated spawn egg, as the 
+"    spawn egg is in fact a different name. There is no short version for
+"    something that is both an item and an entity as there's very few of them.
+" r (not yet used outside of things that originally did not have a recipe but it
+"    was later added, and needs a lot of work anyways, assuming it ever gets
+"    implemented, because who really needs this part): soley a recipe
+"
+" These markers can be combined in any way
+"
+" The syntax should be fairly simple to figure out beyond that, a ! denotes that
+" everything below it was introduced in that exact version, more accurately,
+" the system adds everything above the first version it finds that is past the
+" desired version. This needs a lot of work to accomidate multiple branches, as
+" it currently assumes only a single release branch. All other branches are
+" hardcoded.
+" 
+" If something was previously available but then removed, ![removal version] is
+" added at the end of the line. Everything is considered regex, as it adds word
+" boundaries to them. The regex is matched as a vim regex with "very magic".
+" Parentheses are modified so as to not capture groups, so as many can be used
+" as one wishes
+" 
+" Note that some things are set to be removed at a later version, despite not 
+" actually being removed. This is to improve regex, eg for the addition of
+" copper and deepslate ores. This is not always done, however, it is mainly
+" only done if it affects a major release version (ie the ores are only
+" redefined when all deepslate ores are introduced, as that is the when it will
+" affect the versions people will use the most).
+"
+" In case it isn't clear, " means comment, and blank lines are acceptable.
+" Comments at the end of a line are supported, though not encouraged
+
+
+!1.13
+b (attatched_)?(melon|pumpkin)_stem
+b (cave|void)_air
+b (tube|brain|fire|horn|bubble)_coral_wall_fan
+b (nether|end)_portal
+b (red|pink|magenta|purple|blue|cyan|(light_)?(blue|gray)|green|lime|yellow|orange|brown|black|white)_wall_banner
+b (wither_)?skeleton_wall_skull
+b (zombie|creeper|player|dragon)_wall_head
+b carrots|potatoes
+b end_gateway
+b fire
+b kelp_plant
+b lava
+b moving_piston
+b piston_head
+b potted_(poppy|dandelion|((dark_)?oak|spruce|birch|jungle|acacia)_sapling|(red|brown)_mushroom|dead_bush|cactus|fern|blue_orchid|allium|azure_bluet|(red|orange|white|pink)_tulip|oxeye_daisy)
+b redstone_wire
+b restone_wall_torch
+b tall_seagrass
+b tripwire
+b wall_sign !18w43a
+b wall_torch
+b water
+b wheat
+bc ((dark_)?oak|spruce|birch|jungle|acacia)_(planks|sappling|wood|slab|pressure_plate|button|fence(_gate)?|(trap_)?door)
+bc ((red_)?nether_|stone_)?bricks
+bc (chiseled_)?quartz_block
+bc (chiseled_|cut_)?(red_)?sandstone
+bc (cobblestone|(nether_|stone_)?brick|quartz|(red_)?sandstone|dark_prismarine|prismarine(_brick)?|purpur)_(slab|stairs)
+bc (iron|gold|coal|diamond|lapis|redstone|emerald|purpur|hay|slime|magma|nether_wart|bone)_block
+bc (light|heavy)_weighted_pressure_plate
+bc (mossy_)?cobblestone_wall
+bc (mossy|cracked|chiseled)_stone_bricks
+bc (packed|blue)_ice
+bc (polished_)?(gran|dior|andes)ite
+bc (powered_|detector_|activator_)?rail
+bc (quartz|purpur)_pillar
+bc (red|pink|magenta|purple|blue|cyan|(light_)?(blue|gray)|green|lime|yellow|orange|brown|black|white)_(banner|bed|carpet|concrete(_powder)?|(glazed_)terracotta|shulker_box|stained_glass(_pane)?|wool)
+bc (sticky_)?piston
+bc (trapped_|ender_)?chest
+bc anvil
+bc beacon
+bc bookshelf
+bc brewing_stand
+bc cake
+bc cauldron
+bc coarse_dirt
+bc conduit
+bc crafting_table
+bc dark_prismarine|prismarine(_bricks)?
+bc daylight_detector
+bc dispenser
+bc dried_kelp_block
+bc dropper
+bc enchanting_table
+bc end_rod
+bc end_stone_bricks
+bc flower_pot
+bc furnace
+bc glass(_pane)?
+bc glowstone
+bc hopper
+bc iron_(bars|(trap_)?door)
+bc jack_o_lantern
+bc jukebox
+bc ladder
+bc lever
+bc melon
+bc nether_brick_fence
+bc note_block
+bc observer
+bc redstone_(torch|lamp)
+bc repeater|comparator
+bc sea_lantern
+bc shulker_box
+bc sign 18w43a
+bc smooth_(quartz|((red_)?sand)?stone)
+bc snow(_block)?
+bc stone(_slab|_pressure_plate|_button)?
+bc terracotta
+bc torch
+bc tripwire_hook
+bc wet_sponge
+bi ((dark_)?oak|spruce|birch|jungle|acacia)_leaves
+bi (brown|red)_mushroom(_block)?
+bi (carved_)?pumpkin
+bi (chain_|repeating_)?command_block
+bi (chipped|damaged)_anvil
+bi (tube|brain|fire|horn|bubble)_coral(_block|_fan)?
+bi (iron|gold|coal|diamond|lapis|redstone|emerald)_ore !21w10a
+bi nether_quartz_ore !20w11a
+bi (mossy_)?cobblestone
+bi (red_)?sand
+bi (stripped_)?((dark_)?oak|spruce|birch|jungle|acacia)_log
+bi (wither_)?skeleton_skull
+bi (zombie|creeper|player|dragon)_head
+bi air
+bi barrier
+bi bedrock
+bi cactus
+bi chorus_(plant|flower)
+bi cobweb
+bi dandelion|poppy|blue_orchid|allium|azure_bluet|oxeye_daisy|(red|orange|white|pink)_tulip
+bi dead_bush
+bi dirt
+bi end_portal_frame
+bi end_stone
+bi farmland
+bi fern
+bi grass_block
+bi grass_path !20w45a
+bi gravel
+bi ice
+bi infested_((cobble)?stone|(mossy_|cracked_|chiseled_)?stone_bricks)
+bi kelp
+bi lily_pad
+bi mushroom_stem
+bi mycelium
+bi nether(_wart|rack)
+bi petrified_oak_slab
+bi podzol
+bi sea(grass|_pickle)
+bi soul_sand
+bi spawner
+bi sponge
+bi structure_(block|void)
+bi sugar_cane
+bi sunflower|lilac|rose_bush|peony|tall_grass|large_fern
+bi turtle_egg
+bi vine
+c ((dark_)?oak|spruce|birch|jungle|acacia)_boat
+c (iron|gold)_(ingot|nugget)
+c (iron|wooden|stone|golden|diamond)_(sword|shovel|(pick)?axe|hoe)
+c (leather|chainmail|iron|golden|diamond)_(boots|leggings|chestplate|helmet)
+c (melon|pumpkin)_seeds
+c (mushroom|rabbit|beetroot)_stew
+c (nether_)?brick
+c (pink|magenta|purple|cyan|light_blue|lime|orange|black|(light_)?gray|white)_dye
+c (splash_|lingering_)?potion
+c baked_potato
+c blaze_powder
+c book
+c bowl
+c bread
+c bucket
+c carrot_on_a_stick
+c clock
+c compass
+c cooked_(porkchop|beef|chicken|mutton|rabbit|cod|salmon)
+c cookie
+c dried_kelp
+c emerald
+c fermented_spider_eye
+c firework_star
+c fishing_rod
+c flint_and_steel
+c glass_bottle
+c glistering_melon_slice
+c golden_(apple|carrot)
+c lead
+c magma_cream
+c map
+c paper
+c popped_chorus_fruit
+c pumpkin_pie
+c redstone
+c rose_red|cactus_green|dandelion_yellow !18w43a
+c lapis_lazuli|bone_meal
+c shears
+c shield
+c slime_ball
+c stick
+c sugar
+c turtle_helmet
+c writ(ten|able)_book
+e (dragon_|small_)?fireball
+e (iron|snow)_golem
+e area_effect_cloud
+e boat
+e ender_dragon
+e evoker_fangs
+e experience_orb
+e falling_block
+e giant
+e illusioner
+e item
+e leash_knot
+e llama_spit
+e potion
+e shulker_bullet
+e spawner_minecart
+e wither_skull
+ebc tnt
+ec (chest_|furnace_|tnt_|hopper_|command_block_)?minecart
+ec (tipped_|spectral_)?arrow
+ec armor_stand
+ec end_crystal
+ec ender_eye
+ec firework_rocket
+ec item_frame
+ei egg
+ei ender_pearl
+ei experience_bottle
+ei painting
+ei trident
+i (enchanted_golden_)?apple
+i (iron|golden|diamond)_horse_armor
+i (water|lava|milk|pufferfish|salmon|cod|tropical_fish)_bucket
+i (wheat|beetroot)(_seeds)?
+i blaze_rod
+i bone
+i carrot|(poisonous_)?potato
+i charcoal
+i chorus_fruit
+i clay_ball
+i cocoa_beans
+i debug_stick
+i dragon_breath
+i elytra
+i enchanted_book
+i feather
+i filled_map
+i fire_charge
+i flint
+i ghast_tear
+i glowstone_dust
+i gunpowder
+i ink_sack
+i melon_slice
+i music_disc_(1[13]|cat|blocks|chirp|far|mall|mellohi|stal|strad|ward|wait)
+i name_tag
+i nautilus_shell
+i nether_star
+i phantom_membrane
+i porkchop|beef|ckicken|mutton|rabbit|cod|salmon
+i prismarine_(shard|crystals)
+i pufferfish|tropical_fish
+i quartz
+i rabbit_(foot|hide)
+i rotten_flesh
+i saddle
+i scute
+i shulker_shell
+i snowball
+i spider_eye
+i stew
+i totem_of_undying
+m (cave_)?spider
+m (elder_)?guardian
+m (puff|silv)erfish
+m (wither_)?skeleton
+m (zombie_|skeleton_)horse
+m bat
+m blaze
+m chicken
+m co[dw]
+m creeper
+m dolphin
+m donkey
+m drowned
+m enderm(an|ite)
+m evoker
+m ghast
+m husk
+m llama
+m magma_cube
+m mooshroom
+m mule
+m ocelot
+m parrot
+m phantom
+m pig
+m polar_bear
+m rabbit
+m salmon
+m sheep
+m shulker
+m slime
+m squid
+m stray
+m tropical_fish
+m turtle
+m vex
+m villager
+m vindicator
+m witch
+m wolf
+m zombie(_villager)?
+m zombie_pigman !20w09a
+BI planks|wool|carpets
+BI (wooden_)?(button|door|slab|stair)s
+BI ((dark_)?oak_|spruce_|birch_|jungle_|acacia_)?logs
+BI saplings|stone_bricks|banners|wooden_pressure_plates|rails|sand
+BI coral(_plants)?
+B wall_coral|impermeable
+BI leaves
+B flower_pots|anvil|enderman_holdable|boats|fishes
+
+!18w31a
+B underwater_bonemeals
+
+!18w32a
+bi dead_(tube|brain|fire|horn|bubble)_coral(_block|_fan)?
+b dead_(tube|brain|fire|horn|bubble)_coral_wall_fan
+
+!18w43a
+b ((dark_)?oak|spruce|birch|jungle|acacia)_wall_sign
+bc (((mossy_|end_)?stone_|(red_)?nether_)?brick|(andes|dior|gran)ite|(red_)?sandstone|prismarine)_wall
+bc ((dark_)?oak|spruce|birch|jungle|acacia)_sign
+bc ((polished_)?(andes|gran|dior)ite|smooth_((red_)?sandstone|quartz)|mossy_cobblestone|(red_nether|end|mossy)_stone_brick)_(stairs|slab)
+bc smooth_stone_slab
+bc stone_stairs
+b bamboo(_sapling)?
+i bamboo
+bi cornflower|wither_rose|lily_of_the_valley|loom
+c (mojang|creeper|skull|flower)_banner_pattern
+c (red|green|yellow|black|white|brown|blue)_dye
+c crossbow
+c suspicious_stew
+m illager_beast !19w05a
+m panda
+m pillager
+B bamboo_plantable_on|(standing_|wall_)?signs|small_flowers|walls
+I music_discs|small_flowers|signs|walls
+B dirtlike !19w41a
+E skeletons
+
+!18w44a
+bc barrel|bell|blast_furnace|smoker
+bc (cartography|fletching|smithing)_table
+bc grindstone|lectern
+m cat
+BI beds
+
+!18w45a
+bc scaffolding
+
+!18w46a
+bc lantern
+bi jigsaw
+
+!18w49a
+bi sweet_berry_bush
+i sweet_berries
+
+!19w02a
+bc campfire
+
+!19w03a
+bc composter
+
+!19w05a
+m wandering_trader
+m trader_llama
+m ravager
+B (dragon|wither)_immune
+
+!19w07a
+m fox
+
+!19w08a
+i leather_horse_armor
+
+!19w09a
+I arrows
+
+!19w11a
+i globe_banner_pattern
+B points_of_interest|((meeting|job)_site|(armor|butch|cartograph|farm|fletch|leatherwork)er|(tool|weapon)smith|cleric|fisherman|librarian|mason|shepherd)_poi !1.14p1
+
+!19w12a
+bc cut_(red_)?sandstone_slab
+
+!19w13b
+E raiders
+
+!19w34a
+bi bee_nest
+bc bee_hive
+bi honey(_bottle|comb)
+m bee
+B bee(_growables|hives)|crops|
+BI (tall_)?flowers
+
+!19w36a
+E beehive_inhabitors
+
+!19w41a
+bc honey(comb)?_block
+
+!19w42a
+I lectern_books
+
+!19w44a
+B shulker_boxes
+r honey_bottle
+
+!19w45a
+E arrows
+
+!1.15p2
+B portals
+
+!20w06a
+bi ancient_debris
+bi basalt !21w08a
+bc netherite_block
+bi (crimson|warped)_(fungus|nylium|planks|roots|stem|sign)
+b (crimson|warped)_wall_sign
+bi stripped_(crimson|warped)_stem
+bi shroomlight|
+bi soul_(fire|soil)
+bi soul_fire_(lantern|torch) !20w17a
+bc warped_wart_block
+bi weeping_vines
+b weeping_vines_plant
+c netherite_(boots|chestplate|leggings|helmet|ingot|(pick)?axe|hoe|sword|shovel|scrap)
+m hoglin
+bi nether_sprouts
+B fire|nylium
+BI (crimson|warped)_stems
+
+!20w07a
+m piglin
+B beacon_base_blocks|wall_post_override|wither_summon_base_blocks
+I beacon_payment_items
+
+!20w09a
+bi crying_obsidian|target
+r (warped|crimson)_sign
+B climbable
+E impact_projectiles
+b potted_(warped|crimson)_(fungus|roots)
+" The sad one :(
+m zombified_piglin
+
+!20w10a
+bi (crimson|warped)_hyphae
+B (pi|ho)glin_repellents
+
+!20w11a
+bi nether_(gold|quartz)_ore
+bi twisting_vines
+b twisting_vines_plant
+BI gold_ores !21w10a
+I piglin_repellents
+B soul_speed_blocks
+
+!20w12a
+bc polished_basalt !21w08a
+bc respawn_anchor
+B soul_fire_base_blocks
+
+!20w13a
+bc lodestone
+c warped_fungus_on_a_stick
+m strider
+BI logs_that_burn
+BI non_flammable_wood
+B strider_warm_blocks
+
+!20w14a
+m zoglin
+
+!20w15a
+bi (gilded_)?blackstone
+bc (blackstone|polished_blackstone(_brick)?)_(slab|stairs|wall)
+bc polished_blackstone(_bricks|_button|_pressure_plate)?
+bc chiseled_polished_blackstone
+bc cracked_polished_blackstone(_bricks)?
+bc ((chiseled|cracked)_nether|quartz)_bricks
+bc soul_campfire
+i piglin_banner_pattern
+B campfires|guarded_by_piglins
+I (furnace|stone_tool)_materials !20w28a
+I soul_fire_base_blocks
+
+!20w16a
+bc chains
+i music_disc_pigstep
+I creeper_drop_music_discs
+
+!20w17a
+bi soul_(torch|lantern)
+B (stone_)?pressure_plates
+
+!20w19a
+B preven_mob_standing_inside
+
+!20w20a
+I piglin_loved
+
+!20w22a
+C fench_gates|unstable_bottom_center
+
+!1.16p3
+B infiniburn_(overworld|nether|end)
+
+!20w27a
+B mushroom_grow_block
+
+!20w28a
+B base_stone_(nether|overworld)
+B stone_craftine_materials
+
+!20w45a
+bi (small|medium|large)_amethyst_bud
+bi budding_amethyst
+bi amethyst_(block|cluster)
+bi calcite
+b (lava|powder_snow|water)_cauldron
+bc ((red|pink|magenta|purple|blue|cyan|(light_)?(blue|gray)|green|lime|yellow|orange|brown|black|white)_)?candle(_cake)?
+bi copper_ore !20w10a
+
+" There's a good chance that this is incorrect
+bi (((waxed_)?(lightly_|semi_))?weathered_)|waxed_)?(copper_block|cut_copper_(block|slab|stairs)) !21w05a
+
+r (copper_block|cut_copper_(block|slab|stairs))
+bc lightning_rod
+bc tinted_glass
+bi tuff
+bi dirt_path
+i amthyst_shard
+c bundle
+c copper_ingot
+c spyglass
+B candle(_cake)?s
+B cauldrons
+B crystal_sound_blocks
+I candles
+I ignored_by_piglin_babies
+I piglin_food
+
+!20w46a
+b powder_snow
+i powder_snow_bucket
+B snow_step_sound_blocks !20w48a
+E powder_snow_walkable_mobs
+
+!20w48a
+bi dripstone_block
+bi pointed_dripstone
+I freeze_immune_wearables
+B inside_step_sound_block
+
+!20w49a
+bi sculk_sensor
+B dripstone_replaceable_blocks
+B occludes_vibration_signals
+
+!20w51a
+i axolotl_bucket
+m axolotl
+I axolotl_tempt_items
+I occludes_vibration_signals
+E axolotl_always_hostiles
+E axolotl_tempted_hostiles !21w13a
+
+!21w03a
+ei glow_item_frame
+bi glow_lichen
+i glow_ink_sac
+m glow_squid
+r dripstone_block
+
+!21w05a
+bi (flowering_)?azalea !1.17p2
+bi azalea_leaves(_flowers)? !1.17p2
+b cave_vines_(head|body) !21w11a
+i glow_beries
+bi (big|small)_dripleaf
+b big_dripleaf_stem
+bi hanging_roots
+bi moss_block
+bc moss_carpet
+bi rooted_dirt
+bi spore_blossom
+B (azalea_log|lush_plants)_replaceable !21w10a
+B cave_vines
+B fox_food
+bi (((waxed_)?(exposed_|weathered_))|oxidized_)?(copper_block|cut_copper(_slab|_stairs)) !21w05b
+bi waxed_(exposed_|weathered_)?(copper_block|cut_copper(_slab|_stairs)) !21w05b
+
+!21w05b
+bi (waxed_)?copper_block
+bi ((waxed_)?(exposed|weathered)?|oxidized)_copper !21w14a
+bi ((waxed_)?(exposed_|weathered_)?|oxidized_)?(cut_copper(_slab|_stairs)) !21w14a
+
+!21w07a
+bc chiseled_grimstone !21w08a
+bc grimstone_(tile|brick)(s|_slab|_stairs|_wall) !21w08a
+bi (polished_)?grimstone(_slab|_stairs|_wall)? !21w08a
+r (polished_)?grimstone(_slab|_stairs|_wall) !21w08a
+
+!21w08a
+bc chiseled_deepslate
+bc deepslate(_(tile|brick)(s|_slab|_stairs|_wall))?
+bc (polished|cobbled)deepslate(_slab|_stairs|_wall)?
+bi deepslate_(diamond|gold|iron|lapis|redstone)_ore !21w10a
+bi (smooth_|polished_)?basalt
+r (smooth|polished)_basalt
+BI (deepslate|stone)_ore_replaceables
+BI (diamond|iron|lapis|redstone)_ores !21w10a
+
+!21w10a
+bi (deepslate_)?(coal|copper|diamond|emerald|gold|iron|lapis|redstone)_ore
+BI (coal|copper|diamond|emerald|gold|iron|lapis|redstone)_ores
+bc cracked_deepslate_(brick|tile)s
+bi infested_deepslate
+BI lush_(plants|ground)_replaceable
+
+!21w11a
+bi cave_vines(_plant)?
+B cluster_max_harvestables
+
+!21w13a
+bi light_block
+m goat
+B dirt
+B snow
+E axolotl_hunt_targets
+E freeze_(hurts_extra|immune_entity)_types
+
+!21w14a
+bi (waxed_)?(exposed|weathered|oxidized)_copper
+bi (waxed_)?(exposed_|weathered_|oxidized_)?(cut_copper(_slab|_stairs))
+i raw_(copper|iron|gold) !21w15a
+
+!21w15a
+i raw_(copper|iron|gold)(_block)?
+i raw_(copper|iron|gold)_block
+e marker
+
+!21w16a
+B moss_replaceable
+
+!21w17a
+B small_dripleaf_placeable
+
+!21w19a
+B mineable/((pick)?axe|hoe|shovel)
+B needs_(stone|iron|diamond)_tool
+
+!21w20a
+B features_cannot_place
+
+!1.17p1
+B lava_pool_stone_replaceables
+B geode_invalid_blocks
+
+!1.17p2
+bi (flowering_)?azalea(_leaves)?
+
+!21w42a
+i music_disc_otherside
+
+!21w43a
+B big_dripleaf_placeable
+
+!21w44a
+B (animals|axolotls|foxes|goats|mooshrooms|parrots|rabbits|wolves)_spawnable_on
+B polar_bears_spawnable_on_in_frozen_ocean
+
+!1.18p5
+B azalea_(grows_on|root_replaceable)
+B replaceable_plants
+BI terracotta
+I dirt
+

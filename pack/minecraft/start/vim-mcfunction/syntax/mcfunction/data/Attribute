@@ -1,0 +1,3 @@
+generic\.(max_health|follow_range|knockback_resistance|(movement|flying)_speed|attack_(damage|knockback)|armor(_toughness)?|luck)
+horse\.jump_strength
+zombie\.spawn_reinforcements

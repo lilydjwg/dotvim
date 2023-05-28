@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/ingydotnet/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:rubixninja314/vim-mcfunction.git
+	branch = master
+	commit = f8ad1bfccb97f8f8e7ee0c52024eac3a8e491a85
+	parent = d518961cd082d6b87ae86385b296e377612abb46
+	method = merge
+	cmdver = 0.4.6

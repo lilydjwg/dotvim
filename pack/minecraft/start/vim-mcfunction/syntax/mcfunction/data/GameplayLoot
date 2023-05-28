@@ -1,0 +1,9 @@
+cat_morning_gift
+fishing(/fish|/junk|/treasure)?
+
+
+!1.14p2
+hero_of_the_village/((armor|butch|cartograph|farm|fletch|leatherwork)er|(tool|weapon)smith|cleric|fisherman|librarian|mason|shepherd)_gift
+
+!20w07a
+piglin_bartering
