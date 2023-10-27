@@ -430,6 +430,7 @@ set expandtab
 set visualbell t_vb=
 " when will this cause problems?
 set ttyfast
+set title
 " 不要包含标准错误，但是允许 Vim 初始化其默认值
 autocmd VimEnter * set shellredir=>
 autocmd GUIEnter * set t_vb=
@@ -571,10 +572,6 @@ if has("gui_running")
   set cursorline
 elseif has("unix")
   set ambiwidth=single
-  " 防止退出时终端乱码
-  " 这里两者都需要。只前者标题会重复，只后者会乱码
-  exec "set t_fs=\033(B\007"
-  exec "set t_IE=\033(B\007"
   if $COLORTERM == 'truecolor'
     set cursorline
     set termguicolors
