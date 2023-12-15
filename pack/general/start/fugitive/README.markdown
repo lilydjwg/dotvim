@@ -86,7 +86,8 @@ For more information, see `:help fugitive`.
 
 ## Installation
 
-Install using your favorite package manager, or use Vim's built-in package support:
+Install using your favorite package manager, or use Vim's built-in package
+support:
 
     mkdir -p ~/.vim/pack/tpope/start
     cd ~/.vim/pack/tpope/start
@@ -99,14 +100,20 @@ Install using your favorite package manager, or use Vim's built-in package suppo
 > `:Gfetch`?
 
 This behavior was divisive, confusing, and complicated inputting passwords, so
-it was removed.  Use `:Dispatch git push` for effectively the same behavior,
-or provide your own asynchronous `:Gpush` and `:Gfetch` by adding the
-following to your vimrc:
+it was removed.  Use `:Git! push` to use Fugitive's own asynchronous
+execution, or retroactively make `:Git push` asynchronous by pressing
+`CTRL-D`.
 
-    command! -bang -bar -nargs=* Gpush execute 'Dispatch<bang> -dir=' .
-          \ fnameescape(FugitiveGitDir()) 'git push' <q-args>
-    command! -bang -bar -nargs=* Gfetch execute 'Dispatch<bang> -dir=' .
-          \ fnameescape(FugitiveGitDir()) 'git fetch' <q-args>
+> Why am I getting `core.worktree is required when using an external Git dir`?
+
+Git generally sets `core.worktree` for you automatically when necessary, but
+if you're doing something weird, or using a third-party tool that does
+something weird, you may need to set it manually:
+
+    git config core.worktree "$PWD"
+
+This may be necessary even when simple `git` commands seem to work fine
+without it.
 
 > So I have a symlink and...
 
