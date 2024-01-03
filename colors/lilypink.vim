@@ -3,7 +3,7 @@
 " See http://www.vim.org/scripts/script.php?script_id=2778 for more info
 " Vim colorscheme: a dark one
 " Maintainer:  lilydjwg <lilydjwg@gmail.com>
-" Version:     1.3
+" Version:     1.4
 " License:     Vim license, see :help 'license'
 " http://www.vim.org/scripts/script.php?script_id=3323
 
@@ -80,3 +80,8 @@ highlight DiffAdd guibg=#003300 ctermbg=22
 highlight DiffDelete guifg=#731b00 guibg=#400f00 ctermfg=88 ctermbg=52
 highlight DiffChange guibg=#1b0042 ctermbg=17
 highlight DiffText guibg=#003c4c ctermbg=24
+
+" revert to old colors; the above are for diff mode, not diff filetype.
+hi link diffRemoved		Special
+hi link diffChanged		PreProc
+hi link diffAdded		Identifier
