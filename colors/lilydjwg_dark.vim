@@ -1,7 +1,7 @@
 " local syntax file - set colors on a per-machine basis:
 " vim: tw=0 ts=4 sw=4
 " Vim color file
-" Version:		1.2
+" Version:		1.3
 " Maintainer:	lilydjwg <lilydjwg@gmail.com>
 
 set background=dark
@@ -61,7 +61,7 @@ hi Todo gui=bold,underline guifg=#FF4444 guibg=#333300 cterm=bold,underline cter
 hi Type guifg=#FFA500 guibg=#2d2211 ctermfg=214
 hi Underlined gui=underline guifg=#0088c5 guibg=#222d3d ctermfg=32
 hi VertSplit gui=reverse guifg=#00C4FF guibg=#0000FF cterm=reverse ctermfg=45 ctermbg=21
-hi Visual guibg=#3D3D3D ctermfg=237
+hi Visual guibg=#3D3D3D ctermfg=NONE ctermbg=237
 hi VisualNOS gui=None cterm=None
 hi WarningMsg guifg=#FFA500 guibg=#000080 ctermfg=214 ctermbg=18
 hi WildMenu gui=None cterm=None
