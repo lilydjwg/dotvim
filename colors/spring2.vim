@@ -8,7 +8,7 @@
 "                 blossom in Spring.
 " Author:         CHE Wenlong <chewenlong AT buaa.edu.cn>
 " Contributor:    lilydjwg <lilydjwg@gmail.com>
-" Version:        1.1
+" Version:        1.2
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -26,7 +26,7 @@ let colors_name = "spring2"
 
 " Common
 highlight Normal ctermbg=194 cterm=none guibg=#cce8cf gui=none ctermfg=16 guifg=#000000
-highlight Visual guibg=#ccffff gui=none ctermbg=195 cterm=none
+highlight Visual guibg=#ccffff gui=none ctermbg=195 cterm=none ctermfg=NONE
 highlight Cursor ctermbg=23 cterm=none guibg=#2f4f4f gui=none ctermfg=223 guifg=#f5deb3
 highlight CursorLine guibg=#ccffff ctermbg=195 cterm=none
 highlight CursorLineNr guifg=#1060a0 guibg=#ccffff ctermfg=25 ctermbg=195 cterm=none

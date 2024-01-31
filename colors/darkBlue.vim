@@ -1,6 +1,6 @@
 " vim: tw=0 ts=4 sw=4
 " Vim color file
-" Version: 1.1
+" Version: 1.2
 " Maintainer:	lilydjwg <lilydjwg@gmail.com>
 
 set background=dark
@@ -59,7 +59,7 @@ highlight Todo guifg=#ff0000 guibg=#112233 gui=bold,underline ctermfg=196 ctermb
 highlight Type guifg=#ff9933 ctermfg=208
 highlight Underlined gui=underline cterm=underline
 highlight VertSplit guifg=#00c4ff guibg=#0000ff gui=reverse ctermfg=81 ctermbg=21 cterm=reverse
-highlight Visual guibg=#223344 ctermbg=236
+highlight Visual guibg=#223344 ctermbg=236 ctermfg=NONE
 highlight VisualNOS gui=NONE cterm=NONE
 highlight WarningMsg guifg=#ffa500 guibg=#000080 ctermfg=214 ctermbg=18
 highlight WildMenu gui=NONE cterm=NONE

@@ -3,7 +3,7 @@ scriptencoding utf-8
 " Colorscheme created with ColorSchemeEditor v1.2.2
 " Name: pink
 " Maintainer: lilydjwg <lilydjwg@gmail.com>
-" Version: 1.2
+" Version: 1.3
 
 set background=light
 if version > 580
@@ -57,7 +57,7 @@ highlight StatusLine guifg=#000000 guibg=#ffafff gui=NONE ctermfg=16 ctermbg=219
 highlight StatusLineNC guifg=#444444 guibg=#ffafff gui=NONE ctermfg=238 ctermbg=219 cterm=none
 highlight Title guifg=#00008f gui=bold ctermfg=18 ctermbg=none cterm=bold
 highlight VertSplit guifg=#FFAFFF guibg=#FFAFFF gui=NONE ctermfg=219 ctermbg=219 cterm=none
-highlight Visual guibg=#ffd700 gui=NONE ctermfg=16 ctermbg=220 cterm=none
+highlight Visual guibg=#ffd700 gui=NONE ctermfg=16 ctermbg=220 cterm=none ctermfg=NONE
 highlight VisualNOS gui=bold,underline ctermfg=16 ctermbg=225 cterm=bold,underline
 highlight WarningMsg guifg=#000000 guibg=#ffff00 gui=NONE ctermfg=16 ctermbg=226 cterm=none
 highlight WildMenu guifg=#5fffff guibg=#00af5f gui=bold ctermfg=87 ctermbg=35 cterm=bold

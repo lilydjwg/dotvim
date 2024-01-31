@@ -3,7 +3,7 @@
 " See http://www.vim.org/scripts/script.php?script_id=2778 for more info
 " Vim colorscheme: a dark one
 " Maintainer:  lilydjwg <lilydjwg@gmail.com>
-" Version:     1.4
+" Version:     1.5
 " License:     Vim license, see :help 'license'
 " http://www.vim.org/scripts/script.php?script_id=3323
 
@@ -39,7 +39,7 @@ highlight NonText guifg=#99968b guibg=#242424 gui=NONE ctermfg=246 ctermbg=235 c
 highlight LineNr guifg=#444444 guibg=#242424 gui=NONE ctermfg=238 ctermbg=235 cterm=NONE
 highlight VertSplit guifg=#1c1c1c guibg=#1c1c1c gui=NONE ctermfg=234 ctermbg=234 cterm=NONE
 highlight Title guifg=#f6f3e8 guibg=NONE gui=bold ctermfg=255 cterm=bold
-highlight Visual guifg=NONE guibg=#000000 gui=NONE ctermbg=16 cterm=NONE
+highlight Visual guifg=NONE guibg=#000000 gui=NONE ctermbg=16 cterm=NONE ctermfg=NONE
 highlight Ignore guifg=bg gui=NONE ctermfg=235 cterm=NONE
 
 highlight StatusLine guifg=#a0a0a0 guibg=#1c1c1c gui=NONE ctermfg=247 ctermbg=234 cterm=NONE
