@@ -25,3 +25,11 @@ snippet af
         async fn
 snippet a
         await
+snippet display
+options head
+	impl std::fmt::Display for ${1} {
+	  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
+            ${2}
+            write!(f, "{}", ${3})
+	  }
+	}
