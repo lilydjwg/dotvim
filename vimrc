@@ -1030,6 +1030,12 @@ if executable("curl")
   let g:netrw_http_cmd  = "curl"
   let g:netrw_http_xcmd = "-L --compressed -o"
 endif
+" don't use pscp if scp is available
+" pscp could be "parallel scp"
+" https://github.com/vim/vim/pull/14739
+if executable("scp")
+  let g:netrw_scp_cmd = "scp -q"
+endif
 " cscope setting [[[1
 if has("cscope")
   " support GNU Global [[[2
