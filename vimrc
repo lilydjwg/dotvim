@@ -999,7 +999,6 @@ let hs_highlight_more_types = 1
 let python_highlight_all = 1
 "   syntax/vim.vim 默认会高亮 s:[a-z] 这样的函数名为错误[[[2
 let g:vimsyn_noerror = 1
-let g:netrw_list_hide = '^\.[^.].*'
 "   tasklist[[[2
 let g:tlTokenList = ["FIXME", "TODO", "XXX", "NotImplemented", "unimplemented!()"]
 "   vimExplorer[[[2
@@ -1024,7 +1023,9 @@ let g:vimwiki_html_header_numbering = 2
 let g:vimwiki_conceallevel = 2
 "   xml.vim，使所有的标签都关闭[[[2
 let xml_use_xhtml = 1
-"   netrw，elinks不行，使用curl吧
+"   netrw[[[2
+let g:netrw_list_hide = '^\.[^.].*'
+" 不要用 elinks
 if executable("curl")
   let g:netrw_http_cmd  = "curl"
   let g:netrw_http_xcmd = "-L --compressed -o"
