@@ -442,7 +442,6 @@ set delcombine " 组合字符一个个地删除
 set laststatus=2 " 总是显示状态栏
 " 首先尝试最长的，接着轮换补全项
 set wildmode=longest:full,full
-set ambiwidth=double
 set shiftround
 set diffopt+=vertical,context:3,foldcolumn:0
 if &diffopt =~ 'internal'
