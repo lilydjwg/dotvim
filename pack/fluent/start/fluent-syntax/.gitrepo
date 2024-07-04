@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/ingydotnet/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:projectfluent/fluent.vim.git
+	branch = master
+	commit = 2278e05ec7fbb48e06b5d26319385e1c09325760
+	parent = f0b9caf103d92d5a827e1eb1f54c89e34c2fcd48
+	method = merge
+	cmdver = 0.4.6
