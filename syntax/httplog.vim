@@ -14,7 +14,7 @@ syn match httplogPage	/\v\s\zs"(GET|POST|HEAD|PUT|DELETE|CONNECT|OPTIONS|PATCH|T
 syn match httplogResult	/\v\s\zs[1-4]\d{2}\ze\s%(\d+|-)/
 syn match httplogError	/\v\s\zs5\d{2}\ze\s%(\d+|-)/
 syn match httplogRef	/\v\s\zs"(http[^"]+|-)"\ze\s/
-syn match httplogUA	/\v\s\zs"[^"]+"$/ contains=httplogBrowser
+syn match httplogUA	/\v"@<=\s\zs"[^"]+"\ze($| )/ contains=httplogBrowser
 syn match httplogBrowser	/\<UCWEB\d\@=/
 syn match httplogBrowser	'\v(".*Chrome.*)@<!<Safari>%(.*%(MicroMessenger|weibo|XiaoMi/MiuiBrowser).*")@!'
 " OPR is new Opera
