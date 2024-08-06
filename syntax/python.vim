@@ -108,6 +108,13 @@ else
     syn cluster pythonExpression contains=pythonStatement,pythonRepeat,pythonConditional,pythonOperator,pythonNumber,pythonHexNumber,pythonOctNumber,pythonBinNumber,pythonFloat,pythonString,pythonFString,pythonRawString,pythonRawFString,pythonBytes,pythonBoolean,pythonNone,pythonSingleton,pythonBuiltinObj,pythonBuiltinFunc,pythonBuiltinType,pythonClassVar
 endif
 
+" Soft keywords
+" These keywords do not mean anything unless used in the right context.
+" See https://docs.python.org/3/reference/lexical_analysis.html#soft-keywords
+" for more on this.
+syn match   pythonConditional   "^\s*\zscase\%(\s\+.*:.*$\)\@="
+syn match   pythonConditional   "^\s*\zsmatch\%(\s\+.*:\s*\%(#.*\)\=$\)\@="
+
 
 "
 " Operators
