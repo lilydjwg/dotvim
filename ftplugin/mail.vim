@@ -3,6 +3,7 @@
 " Author:       lilydjwg <lilydjwg@gmail.com>
 
 setlocal formatoptions=tcroqn2m1B
+setlocal textwidth=70
 
 imap <buffer> <BS> <C-R>=Lilydjwg_checklist_bs('\v^\>+ +$')<CR>
 
