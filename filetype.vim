@@ -6,12 +6,10 @@ augroup filetypedetect
   au BufNewFile,BufRead *.rj				setf rj
   au BufNewFile,BufRead *.jsm				setf javascript
   au BufNewFile,BufRead *.json				setf json
-  au BufNewFile,BufRead *.lrc				setf lrc
   au BufNewFile,BufRead *.s,*.S				setf gas
   au BufNewFile,BufRead *.asm,*.ASM			setf masm
   au BufNewFile,BufRead *.asy				setf asy
   au BufRead		*access[._]log*,*/nginx/*[._]log[.-]*	setf httplog
-  au BufRead		*/.getmail/*rc			setf getmailrc
   au BufRead		.msmtprc			setf msmtp
   au BufNewFile,BufRead .htaccess.*			setf apache
   au BufRead		pacman.log			setf pacmanlog
@@ -44,13 +42,4 @@ augroup filetypedetect
   au BufNewFile,BufRead supervisor*.conf                setf dosini
   au BufRead		*procmaillog			setf mail
   au BufNewFile,BufRead *.i				setf swig
-
-  " Websites
-  au BufRead		forum.ubuntu.org.cn_*,bbs.archlinuxcn.org_post.php*.txt		setf bbcode
-  au BufRead		*fck_source.html*		setf html
-  au BufRead		*docs.google.com_Doc*		setf html
-  au BufNewFile,BufRead	*postmore/wiki/*.wiki		setf googlecodewiki
-  au BufRead		lilydjwg.is-programmer.com_edit*		setf html
-  au BufNewFile,BufRead	*.mw,*wpTextbox*.txt,*wiki__text*.txt		setf wiki
-  au BufRead		/tmp/segmentfault.com_*-input*	setf markdown
 augroup END
