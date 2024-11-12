@@ -28,7 +28,11 @@ function s:ffmetadataRead(file)
 endfunction
 function s:ffmetadataWrite(file)
   let newfile = fnamemodify(a:file, ':r') . '.tmp' . '.' . fnamemodify(a:file, ':e')
-  exe 'sil w !ffmpeg -loglevel error -i ''' . a:file . '''' '-i - -map_metadata 1 -codec copy' '''' . newfile . ''''
+  if ['ogg', 'opus']->index(fnamemodify(a:file, ':e')) >= 0
+    exe 'sil w !ffmpeg -loglevel error -i ''' . a:file . '''' '-i - -map_metadata:s 1 -codec copy' '''' . newfile . ''''
+  else
+    exe 'sil w !ffmpeg -loglevel error -i ''' . a:file . '''' '-i - -map_metadata 1 -codec copy' '''' . newfile . ''''
+  endif
   call rename(newfile, a:file)
   set nomodified
   doautocmd BufWritePost
