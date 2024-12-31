@@ -1,39 +1,39 @@
-" License:	Vim License  (see vim's :help license)
-" ---------------------------------------------------------------------
-" Load Once:
+vim9script
+# License:	Vim License  (see vim's :help license)
+# ---------------------------------------------------------------------
+# Load Once:
 if &cp || exists("g:loaded_colorlog")
   finish
 endif
-let s:keepcpo = &cpo
-let g:loaded_colorlog = 1
+var keepcpo = &cpo
+g:loaded_colorlog = 1
 set cpo&vim
-" ---------------------------------------------------------------------
-" Check:
-"   check for our executable zhist
+# ---------------------------------------------------------------------
+# Check:
+#   check for our executable zhist
 if !executable('colorlog')
   finish
 endif
-" ---------------------------------------------------------------------
-" Function:
-function s:colorlog_read(file)
-  let props = tempname()
-  exe 'sil r!colorlog --vim-props' props '< ''' . a:file . ''''
-  1d
-  " for mru.vim
+# ---------------------------------------------------------------------
+# Function:
+def Colorlog_read(file: string)
+  var props = tempname()
+  exe 'sil r!colorlog --vim-props' props '< ''' .. file .. ''''
+  :1d
+  # for mru.vim
   doautocmd BufReadPost
-  call s:highlight(props)
-endfunction
-function s:colorlog_read_buffer()
-  let props = tempname()
+  Highlight(props)
+enddef
+def Colorlog_read_buffer()
+  var props = tempname()
   exe '%!colorlog --vim-props' props
-  " for mru.vim
-  doautocmd BufReadPost
-  call s:highlight(props)
-endfunction
+  # for mru.vim
+  Highlight(props)
+enddef
 
-let s:prop_types_added = 0
-function s:highlight(props)
-  if s:prop_types_added == 0
+var prop_types_added = 0
+def Highlight(props: string)
+  if prop_types_added == 0
     hi Colorlog_Error ctermfg=darkred
     hi Colorlog_HTTP_Good ctermfg=darkgreen
     hi Colorlog_HTTP_ClientError ctermfg=darkyellow
@@ -51,45 +51,44 @@ function s:highlight(props)
     hi Colorlog_Size ctermfg=gray
     hi Colorlog_Referrer ctermfg=darkcyan
 
-    call prop_type_add('Colorlog_HTTP_Good', {'highlight': 'Colorlog_HTTP_Good'})
-    call prop_type_add('Colorlog_HTTP_ClientError', {'highlight': 'Colorlog_HTTP_ClientError'})
-    call prop_type_add('Colorlog_HTTP_ServerError', {'highlight': 'Colorlog_HTTP_ServerError'})
-    call prop_type_add('Colorlog_Time_Good', {'highlight': 'Colorlog_Time_Good'})
-    call prop_type_add('Colorlog_Time_Moderate', {'highlight': 'Colorlog_Time_Moderate'})
-    call prop_type_add('Colorlog_Time_Slow', {'highlight': 'Colorlog_Time_Slow'})
-    call prop_type_add('Colorlog_IP', {'highlight': 'Colorlog_IP'})
-    call prop_type_add('Colorlog_IP_Local', {'highlight': 'Colorlog_IP_Local'})
-    call prop_type_add('Colorlog_GeoLocation', {'highlight': 'Colorlog_GeoLocation'})
-    call prop_type_add('Colorlog_UserAgent', {'highlight': 'Colorlog_UserAgent'})
-    call prop_type_add('Colorlog_UserAgent_Highlight', {'highlight': 'Colorlog_UserAgent_Highlight'})
-    call prop_type_add('Colorlog_Timestamp', {'highlight': 'Colorlog_Timestamp'})
-    call prop_type_add('Colorlog_Request', {'highlight': 'Colorlog_Request'})
-    call prop_type_add('Colorlog_Size', {'highlight': 'Colorlog_Size'})
-    call prop_type_add('Colorlog_Referrer', {'highlight': 'Colorlog_Referrer'})
-    call prop_type_add('Colorlog_Error', {'highlight': 'Colorlog_Error'})
-    let s:prop_types_added = 1
+    prop_type_add('Colorlog_HTTP_Good', {highlight: 'Colorlog_HTTP_Good'})
+    prop_type_add('Colorlog_HTTP_ClientError', {highlight: 'Colorlog_HTTP_ClientError'})
+    prop_type_add('Colorlog_HTTP_ServerError', {highlight: 'Colorlog_HTTP_ServerError'})
+    prop_type_add('Colorlog_Time_Good', {highlight: 'Colorlog_Time_Good'})
+    prop_type_add('Colorlog_Time_Moderate', {highlight: 'Colorlog_Time_Moderate'})
+    prop_type_add('Colorlog_Time_Slow', {highlight: 'Colorlog_Time_Slow'})
+    prop_type_add('Colorlog_IP', {highlight: 'Colorlog_IP'})
+    prop_type_add('Colorlog_IP_Local', {highlight: 'Colorlog_IP_Local'})
+    prop_type_add('Colorlog_GeoLocation', {highlight: 'Colorlog_GeoLocation'})
+    prop_type_add('Colorlog_UserAgent', {highlight: 'Colorlog_UserAgent'})
+    prop_type_add('Colorlog_UserAgent_Highlight', {highlight: 'Colorlog_UserAgent_Highlight'})
+    prop_type_add('Colorlog_Timestamp', {highlight: 'Colorlog_Timestamp'})
+    prop_type_add('Colorlog_Request', {highlight: 'Colorlog_Request'})
+    prop_type_add('Colorlog_Size', {highlight: 'Colorlog_Size'})
+    prop_type_add('Colorlog_Referrer', {highlight: 'Colorlog_Referrer'})
+    prop_type_add('Colorlog_Error', {highlight: 'Colorlog_Error'})
+    prop_types_added = 1
   endif
 
-  setl ft=
-  call prop_clear(1, line('$'))
-  let lines = readfile(a:props)
+  setl ft=colorlog
+  prop_clear(1, line('$'))
+  var lines = readfile(props)
   for line in lines
-    let prop = json_decode(line)
-    call prop_add(prop.lnum, prop.col,
+    var prop = json_decode(line)
+    prop_add(prop.lnum, prop.col,
           \ {"type": 'Colorlog_' .. prop.type, "length": prop.length})
   endfor
 
-  call delete(a:props)
-endfunction
-" ---------------------------------------------------------------------
-" Autocmds And Command:
+  delete(props)
+enddef
+# ---------------------------------------------------------------------
+# Autocmds And Command:
 augroup colorlog
  au!
- au BufReadCmd access*.log call s:colorlog_read(expand("<afile>"))
+ au BufReadCmd access*.log Colorlog_read(expand("<afile>"))
 augroup END
-command! Colorlog call s:colorlog_read_buffer()
-" ---------------------------------------------------------------------
-" Restoration And Modelines:
-let &cpo = s:keepcpo
-unlet s:keepcpo
-" ---------------------------------------------------------------------
+command! Colorlog Colorlog_read_buffer()
+# ---------------------------------------------------------------------
+# Restoration And Modelines:
+&cpo = keepcpo
+# ---------------------------------------------------------------------
