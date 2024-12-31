@@ -45,9 +45,9 @@ function s:highlight(props)
     hi Colorlog_IP_Local ctermfg=darkcyan
     hi Colorlog_GeoLocation ctermfg=darkyellow
     hi Colorlog_UserAgent ctermfg=darkmagenta
-    hi Colorlog_UserAgent_Highlight ctermfg=lightgreen
+    hi Colorlog_UserAgent_Highlight ctermfg=green
     hi Colorlog_Timestamp ctermfg=darkred
-    hi Colorlog_Request ctermfg=lightblue
+    hi Colorlog_Request ctermfg=blue
     hi Colorlog_Size ctermfg=gray
     hi Colorlog_Referrer ctermfg=darkcyan
 
