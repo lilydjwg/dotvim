@@ -26,7 +26,7 @@ def Colorlog_read(file: string)
 enddef
 def Colorlog_read_buffer()
   var props = tempname()
-  exe '%!colorlog --vim-props' props
+  exe ':%!colorlog --vim-props' props
   # for mru.vim
   Highlight(props)
 enddef
