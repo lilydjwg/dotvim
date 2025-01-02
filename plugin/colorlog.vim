@@ -75,8 +75,8 @@ def Highlight(props: string)
   var lines = readfile(props)
   for line in lines
     var prop = json_decode(line)
-    prop_add(prop.lnum, prop.col,
-          \ {"type": 'Colorlog_' .. prop.type, "length": prop.length})
+    prop_add(prop[1], prop[2],
+          \ {"type": 'Colorlog_' .. prop[0], "length": prop[3]})
   endfor
 
   delete(props)
