@@ -34,22 +34,22 @@ enddef
 var prop_types_added = 0
 def Highlight(props: string)
   if prop_types_added == 0
-    hi Colorlog_Error ctermfg=darkred
-    hi Colorlog_HTTP_Good ctermfg=darkgreen
-    hi Colorlog_HTTP_ClientError ctermfg=darkyellow
-    hi Colorlog_HTTP_ServerError ctermfg=white ctermbg=darkred
-    hi Colorlog_Time_Good ctermfg=white
-    hi Colorlog_Time_Moderate ctermfg=darkyellow
-    hi Colorlog_Time_Slow ctermfg=lightred
-    hi Colorlog_IP ctermfg=darkgreen
-    hi Colorlog_IP_Local ctermfg=darkcyan
-    hi Colorlog_GeoLocation ctermfg=darkyellow
-    hi Colorlog_UserAgent ctermfg=darkmagenta
-    hi Colorlog_UserAgent_Highlight ctermfg=green
-    hi Colorlog_Timestamp ctermfg=darkred
-    hi Colorlog_Request ctermfg=blue
-    hi Colorlog_Size ctermfg=gray
-    hi Colorlog_Referrer ctermfg=darkcyan
+    hi Colorlog_Error ctermfg=darkred guifg=#aa0000
+    hi Colorlog_HTTP_Good ctermfg=darkgreen guifg=#00aa00
+    hi Colorlog_HTTP_ClientError ctermfg=darkyellow guifg=#cfcf00
+    hi Colorlog_HTTP_ServerError ctermfg=white ctermbg=darkred guifg=#ffffff guibg=#aa0000
+    hi Colorlog_Time_Good ctermfg=white guifg=#ffffff
+    hi Colorlog_Time_Moderate ctermfg=darkyellow guifg=#cfcf00
+    hi Colorlog_Time_Slow ctermfg=lightred guifg=#ff5555
+    hi Colorlog_IP ctermfg=darkgreen guifg=#00aa00
+    hi Colorlog_IP_Local ctermfg=darkcyan guifg=#00aaaa
+    hi Colorlog_GeoLocation ctermfg=darkyellow guifg=#cfcf00
+    hi Colorlog_UserAgent ctermfg=darkmagenta guifg=#a900aa
+    hi Colorlog_UserAgent_Highlight ctermfg=green guifg=#55ff55
+    hi Colorlog_Timestamp ctermfg=darkred guifg=#aa0000
+    hi Colorlog_Request ctermfg=blue guifg=#2660ff
+    hi Colorlog_Size ctermfg=gray guifg=#aaaaaa
+    hi Colorlog_Referrer ctermfg=darkcyan guifg=#00aaaa
 
     prop_type_add('Colorlog_HTTP_Good', {highlight: 'Colorlog_HTTP_Good'})
     prop_type_add('Colorlog_HTTP_ClientError', {highlight: 'Colorlog_HTTP_ClientError'})
