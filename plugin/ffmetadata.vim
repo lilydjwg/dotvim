@@ -20,6 +20,10 @@ endif
 function s:ffmetadataRead(file)
   if ['ogg', 'opus']->index(fnamemodify(a:file, ':e')) >= 0
     exe 'sil r!ffmpeg -loglevel error -i ''' . a:file . '''' '-map_metadata 0:s -f ffmetadata -'
+    if line('$') == 5
+      %del _
+      exe 'sil r!ffmpeg -loglevel error -i ''' . a:file . '''' '-f ffmetadata -'
+    endif
   else
     exe 'sil r!ffmpeg -loglevel error -i ''' . a:file . '''' '-f ffmetadata -'
   endif
