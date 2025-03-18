@@ -18,26 +18,29 @@ endif
 " ---------------------------------------------------------------------
 " Function:
 function s:ffmetadataRead(file)
-  if ['ogg', 'opus']->index(fnamemodify(a:file, ':e')) >= 0
-    exe 'sil r!ffmpeg -loglevel error -i ''' . a:file . '''' '-map_metadata 0:s -f ffmetadata -'
+  let f = a:file->substitute("'", "'\"'\"'", 'g')
+  if ['ogg', 'opus']->index(fnamemodify(f, ':e')) >= 0
+    exe 'sil r!ffmpeg -loglevel error -i ''' . f . '''' '-map_metadata 0:s -f ffmetadata -'
     if line('$') == 5
       %del _
-      exe 'sil r!ffmpeg -loglevel error -i ''' . a:file . '''' '-f ffmetadata -'
+      exe 'sil r!ffmpeg -loglevel error -i ''' . f . '''' '-f ffmetadata -'
     endif
   else
-    exe 'sil r!ffmpeg -loglevel error -i ''' . a:file . '''' '-f ffmetadata -'
+    exe 'sil r!ffmpeg -loglevel error -i ''' . f . '''' '-f ffmetadata -'
   endif
   1d
   doautocmd BufReadPost
 endfunction
 function s:ffmetadataWrite(file)
-  let newfile = fnamemodify(a:file, ':r') . '.tmp' . '.' . fnamemodify(a:file, ':e')
-  if ['ogg', 'opus']->index(fnamemodify(a:file, ':e')) >= 0
-    exe 'sil w !ffmpeg -loglevel error -i ''' . a:file . '''' '-i - -map_metadata:s 1 -codec copy' '''' . newfile . ''''
+  let f = a:file->substitute("'", "'\"'\"'", 'g')
+  let newfile_raw = fnamemodify(a:file, ':r') . '.tmp' . '.' . fnamemodify(f, ':e')
+  let newfile = fnamemodify(f, ':r') . '.tmp' . '.' . fnamemodify(f, ':e')
+  if ['ogg', 'opus']->index(fnamemodify(f, ':e')) >= 0
+    exe 'sil w !ffmpeg -loglevel error -i ''' . f . '''' '-i - -map_metadata:s 1 -codec copy' '''' . newfile . ''''
   else
-    exe 'sil w !ffmpeg -loglevel error -i ''' . a:file . '''' '-i - -map_metadata 1 -codec copy' '''' . newfile . ''''
+    exe 'sil w !ffmpeg -loglevel error -i ''' . f . '''' '-i - -map_metadata 1 -codec copy' '''' . newfile . ''''
   endif
-  call rename(newfile, a:file)
+  call rename(newfile_raw, a:file)
   set nomodified
   doautocmd BufWritePost
 endfunction
