@@ -63,7 +63,7 @@ highlight WarningMsg guifg=#000000 guibg=#ffff00 gui=NONE ctermfg=16 ctermbg=226
 highlight WildMenu guifg=#5fffff guibg=#00af5f gui=bold ctermfg=87 ctermbg=35 cterm=bold
 highlight link Boolean Constant
 highlight link Character Constant
-highlight Comment guifg=#FC6FE8 guibg=bg gui=italic ctermfg=206 ctermbg=225 cterm=NONE
+highlight Comment guifg=#fe02e8 guibg=bg gui=italic ctermfg=206 ctermbg=225 cterm=NONE
 highlight link Conditional Statement
 highlight Constant guifg=#ff00a0 gui=NONE ctermfg=199 ctermbg=225 cterm=none
 highlight link Debug Special
