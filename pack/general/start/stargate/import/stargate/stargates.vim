@@ -127,7 +127,7 @@ def ShowStargates(destinations: list<list<number>>): dict<any>
         const id = ws.label_windows[name]
         const color = ChooseColor(prev, orbit, degree)
         const zindex = 100 + i
-        popup_move(id, { line: scr_pos.row, col: scr_pos.col })
+        popup_move(id, { line: scr_pos.row, col: scr_pos.curscol })
         popup_setoptions(id, { highlight: color, zindex: zindex })
         popup_show(id)
         stargates[name] = { id: id, orbit: orbit, degree: degree, color: color, zindex: zindex }

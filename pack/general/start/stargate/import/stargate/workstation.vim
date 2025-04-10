@@ -210,7 +210,7 @@ export def CreateLabelWindows()
     label_windows = {}
     const labels = LabelLists(g:stargate_chars, g:stargate_limit).labels->flattennew(1)
     for ds in labels
-        label_windows[ds] = popup_create(ds, { line: 0, col: 0, hidden: true, wrap: false })
+        label_windows[ds] = popup_create(ds, { line: 0, col: 0, hidden: true, wrap: false, tabpage: -1 })
     endfor
 enddef
 
