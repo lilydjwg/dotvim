@@ -9,6 +9,7 @@ StargateMessage	stargate.txt	/*StargateMessage*
 StargateSecondary	stargate.txt	/*StargateSecondary*
 StargateShip	stargate.txt	/*StargateShip*
 StargateVIM9000	stargate.txt	/*StargateVIM9000*
+StargateVisual	stargate.txt	/*StargateVisual*
 g:stargate_chars	stargate.txt	/*g:stargate_chars*
 g:stargate_ignorecase	stargate.txt	/*g:stargate_ignorecase*
 g:stargate_keymaps	stargate.txt	/*g:stargate_keymaps*
@@ -18,7 +19,6 @@ stargate#Galaxy()	stargate.txt	/*stargate#Galaxy()*
 stargate#OKvim()	stargate.txt	/*stargate#OKvim()*
 stargate-configuration	stargate.txt	/*stargate-configuration*
 stargate-contents	stargate.txt	/*stargate-contents*
-stargate-error	stargate.txt	/*stargate-error*
 stargate-highlight-groups	stargate.txt	/*stargate-highlight-groups*
 stargate-introduction	stargate.txt	/*stargate-introduction*
 stargate-usage	stargate.txt	/*stargate-usage*
