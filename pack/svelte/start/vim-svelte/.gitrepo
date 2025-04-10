@@ -6,7 +6,7 @@
 [subrepo]
 	remote = git@github.com:evanleck/vim-svelte.git
 	branch = main
-	commit = 5f88e5a0fe7dcece0008dae3453edbd99153a042
-	parent = 814449bba301e86381473d14c87e17f6bbd10b50
+	commit = 0e93ec53c3667753237282926fec626785622c1c
+	parent = 8d0c2a8e3ebe2c5368fb673f3b999b634ee56382
 	method = merge
-	cmdver = 0.4.3
+	cmdver = 0.4.9
