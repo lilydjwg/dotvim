@@ -6,7 +6,7 @@
 [subrepo]
 	remote = git@github.com:rickhowe/diffchar.vim.git
 	branch = master
-	commit = 844a47c80e5d036013a38f0a02d1ee5fff828ed2
+	commit = ccf4c238a71d834ad1e21834f08be274bc0f05a3
 	parent = 299ada32dbd00f541aa38a1f93c69e4fec106615
 	method = merge
-	cmdver = 0.4.3
+	cmdver = 0.4.9

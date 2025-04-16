@@ -10,111 +10,138 @@
 |____| |_||_|   |_|   |_____||_| |_||_| |_||_|  |_|
 ```
 
-#### Introduction
-
 This plugin has been developed in order to make diff mode more useful. Vim
 highlights all the text in between the first and last different characters on
 a changed line. But this plugin will find the exact differences between them,
 character by character - so called *DiffChar*.
 
-For example, in diff mode:  
+For example, in diff mode:
 ![example1](example1.png)
 
-This plugin will exactly show the changed and added units:  
+This plugin will exactly show the changed and added units:
 ![example2](example2.png)
 
+#### Sync with diff mode
 This plugin will synchronously show/reset the highlights of the exact
 differences as soon as the diff mode begins/ends. And the exact differences
 will be kept updated while editing.
 
-This plugin shows the differences based on a `g:DiffUnit`. Its default is
-'Word1' and it handles a `\w\+` word and a `\W` character as a difference unit.
-There are other types of word provided and you can also set 'Char' to compare
-character by character.
+#### Diff unit
+This plugin shows the diffs based on a `g:DiffUnit`. Its default is 'Word1'
+and it handles a `\w\+` word and a `\W` character as a diff unit. There are other
+types of word provided and you can also set 'Char' to compare character by
+character. In addition, you can specify one or more diff unit delimiters, such
+as comma (','), colon (':'), tab ("\t"), and HTML tag symbols ('<' and '>'),
+and also specify a custom pattern in the `g:DiffUnit`.
 
+#### Diff matching colors
 In diff mode, the corresponding `hl-DiffChange` lines are compared between two
-windows. You can set a number of matching colors to a `g:DiffColors` to make
-it easy to find the corresponding units between two windows. As a default, all
-the changed units are highlighted with `hl-DiffText`. In addition,
-`hl-DiffAdd` is always used for the added units and both the previous and next
-character of the deleted units are shown in bold/underline.
+windows. As a default, all the changed units are highlighted with
+`hl-DiffText`. You can set `g:DiffColors` to use more than one matching color
+to make it easy to find the corresponding units between two windows. The
+number of colors depends on the color scheme. In addition, `hl-DiffAdd` is
+always used for the added units and both the previous and next character of
+the deleted units are shown in bold/underline.
 
-While showing the exact differences, when the cursor is moved on a difference
-unit, you can see its corresponding unit highlighted with `hl-Cursor`,
+#### Diff pair visible
+While showing the exact differences, when the cursor is moved on a diff unit,
+you can see its corresponding unit highlighted with `hl-Cursor`,
 `hl-TermCursor`, or similar one in another window, based on a
 `g:DiffPairVisible`. If you change its default, the corresponding unit is
 echoed in the command line or displayed in a popup/floating window just below
-the cursor position or at the mouse position.
+the cursor position or at the mouse position. Those options take effect on
+`:diffupdate` command as well.
 
+#### Jump to next/prev diff unit
 You can use `]b` or `]e` to jump cursor to start or end position of the next
-difference unit, and `[b` or `[e` to the start or end position of the previous
-unit. Those keymaps are configurable in your vimrc and so on.
+diff unit, and `[b` or `[e` to the start or end position of the previous unit.
 
+#### Get/put a diff unit
 Like line-based `:diffget`/`:diffput` and `do`/`dp` vim commands, you can use
-`<Leader>g` and `<Leader>p` commands in normal mode to get and put each
-difference unit, where the cursor is on, between 2 buffers and undo its
-difference.
+`<Leader>g` and `<Leader>p` commands in normal mode to get and put each diff
+unit, where the cursor is on, between 2 buffers and undo its difference. Those
+keymaps are configurable in your vimrc and so on.
 
+#### Check diff lines locally
 When the diff mode begins, this plugin locally checks the `hl-DiffChange`
 lines in the limited range of the current visible and its upper/lower lines of
-a window. And each time a cursor is moved on to a different range upon
-scrolling or searching, the new `hl-DiffChange` lines will be incrementally
-checked in that range. Which means, independently of the file size, the number
-of lines to be checked and then the time consumed are always constant.
+a window. And each time a cursor is moved on to another range upon scrolling
+or searching, those diff lines will be checked in that range. Which means,
+independently of the file size, the number of lines to be checked and then the
+time consumed are always constant.
 
+#### Tab page individual
 This plugin works on each tab page individually. You can use a tab page
 variable (t:), instead of a global one (g:), to specify different options on
 each tab page. Note that this plugin can not handle more than two diff mode
 windows in a tab page. If it would happen, to prevent any trouble, all the
 highlighted units are to be reset in the tab page.
 
+#### Follow 'diffopt' option
+This plugin supports `icase`, `iwhite`, `iwhiteall`, and `iwhiteeol` in the
+`diffopt` option. In addition, when `indent-heuristic` is specified,
+positioning of the added/deleted diff units is adjusted to reduce the number
+of diff hunks and make them easier to read.
+
+#### Comparison algorithm
 To find the exact differences, this plugin uses "An O(NP) Sequence Comparison
 Algorithm" developed by S.Wu, et al., which always finds an optimum sequence.
 But it takes time to check a long and dissimilar line. To improve the
-performance, if there are so many diff units included in a line or it has
-taken much time in a diff session, this plugin tries to use the external diff
-command together if available.
+performance, the algorithm is also implemented in Vim9 script. In addition,
+if available, this plugin uses a builtin diff function (`diff()` in vim
+patch-9.1.0071 and Lua `vim.diff()` in nvim 0.6.0) and makes it much faster.
 
-#### Options
+#### See also
+For a range and area selectable partial comparison, see
+[spotdiff.vim](https://github.com/rickhowe/spotdiff.vim) plugin.
 
-* `g:DiffUnit`, `t:DiffUnit`:
-  A type of difference unit
-  * 'Char'   : any single character
-  * 'Word1'  : `\w\+` word and any `\W` single character (default)
-  * 'Word2'  : non-space and space words
-  * 'Word3'  : `\<` or `\>` character class boundaries
-  * 'CSV(,)' : separated by characters such as ',', ';', and '\t'
+### Options
 
-* `g:DiffColors`, `t:DiffColors`:
-  Matching colors for changed units
-  * 0   : `hl-DiffText` (default)
-  * 1   : `hl-DiffText` + up to 3 other highlights
-  * 2   : `hl-DiffText` + up to 7 other highlights
-  * 3   : `hl-DiffText` + up to 15 other highlights
+* `g:DiffUnit`, `t:DiffUnit`: A type of difference unit
 
-* `g:DiffPairVisible`, `t:DiffPairVisible`:
-  Visibility of corresponding diff units
-  * 0 : disable
-  * 1 : highlight with `hl-Cursor` (default)
-  * 2 : highlight with `hl-Cursor` + echo in the command line
-  * 3 : highlight with `hl-Cursor` + popup/floating window at cursor position
-  * 4 : highlight with `hl-Cursor` + popup/floating window at mouse position
+  | Value | Description |
+  | --- | --- |
+  | 'Char' | any single character |
+  | 'Word1' | `\w\+` word and any `\W` single character (default) |
+  | 'Word2' | non-space and space words |
+  | 'Word3' | `\<` or `\>` character class boundaries (set by `iskeyword` option) |
+  | 'word' | see `word` |
+  | 'WORD' | see `WORD` |
+  | '[{del}]' | one or more diff unit delimiters (e.g. "[,:\t<>]") |
+  | '/{pat}/' | a pattern to split into diff units (e.g. '/.\{4}\zs/') |
 
-#### Keymaps
+* `g:DiffColors`, `t:DiffColors`: Matching colors for changed units
 
-* `<Plug>JumpDiffCharPrevStart` (default: `[b`)
-  * Jump cursor to the start position of the previous difference unit
-* `<Plug>JumpDiffCharNextStart` (default: `]b`)
-  * Jump cursor to the start position of the next difference unit
-* `<Plug>JumpDiffCharPrevEnd` (default: `[e`)
-  * Jump cursor to the end position of the previous difference unit
-* `<Plug>JumpDiffCharNextEnd` (default: `]e`)
-  * Jump cursor to the end position of the next difference unit
-* `<Plug>GetDiffCharPair` (default: `<Leader>g`)
-  * Get a corresponding difference unit from another buffer to undo difference
-* `<Plug>PutDiffCharPair` (default: `<Leader>p`)
-  * Put a corresponding difference unit to another buffer to undo difference
+  | Value | Description |
+  | --- | --- |
+  | 0 | `hl-DiffText` (default) |
+  | 1 | `hl-DiffText` + a few (3, 4, ...) highlight groups |
+  | 2 | `hl-DiffText` + several (7, 8, ...) highlight groups |
+  | 3 | `hl-DiffText` + many (11, 12, ...) highlight groups |
+  | 100 | all available highlight groups in random order |
+  | [{hlg}] | a list of your favorite highlight groups |
 
-#### Demo
+* `g:DiffPairVisible`, `t:DiffPairVisible`: Visibility of corresponding diff units
+
+  | Value | Description |
+  | --- | --- |
+  | 0 | disable |
+  | 1 | highlight with `hl-Cursor` (default) |
+  | 2 | highlight with `hl-Cursor` + echo in the command line |
+  | 3 | highlight with `hl-Cursor` + popup/floating window at cursor position |
+  | 4 | highlight with `hl-Cursor` + popup/floating window at mouse position |
+
+### Keymaps
+
+| Mapping | Default Key | Description |
+| --- | --- | --- |
+| `<Plug>JumpDiffCharPrevStart` | `[b` | Jump cursor to the start position of the previous diff unit |
+| `<Plug>JumpDiffCharNextStart` | `]b` | Jump cursor to the start position of the next diff unit |
+| `<Plug>JumpDiffCharPrevEnd` | `[e` | Jump cursor to the end position of the previous diff unit |
+| `<Plug>JumpDiffCharNextEnd` | `]e` | Jump cursor to the end position of the next diff unit |
+| `<Plug>GetDiffCharPair` | `<Leader>g` | Get a corresponding diff unit from another buffer to undo difference |
+| `<Plug>PutDiffCharPair` | `<Leader>p` | Put a corresponding diff unit to another buffer to undo difference |
+
+### Demo
 
 ![demo](demo.gif)
