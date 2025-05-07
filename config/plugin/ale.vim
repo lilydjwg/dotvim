@@ -20,8 +20,11 @@ endfunction
 
 let &statusline = substitute(&statusline, '%=', '%{MyAleStatus()}&', '')
 
+" disable rust linters so that it doesn't override --features setting and
+" recompile the world.
 let g:ale_linters = {
       \   'python': ['pyflakes'],
+      \   'rust': [],
       \ }
 
 let g:ale_set_loclist = 0
