@@ -220,11 +220,11 @@ endfu
 
 fu! csv#RemoveAutoHighlight() "{{{3
     exe "aug CSV_HI".bufnr('')
-        exe "au! CursorMoved <buffer=".bufnr('').">"
+        exe "au! "
     aug end
     exe "aug! CSV_HI".bufnr('')
     " Remove any existing highlighting
-    HiColumn!
+    call csv#HiCol('', 1)
 endfu
 
 fu! csv#DoAutoCommands() "{{{3
@@ -242,9 +242,8 @@ fu! csv#DoAutoCommands() "{{{3
     endif
     " undo autocommand:
     let b:undo_ftplugin .= '| exe "sil! au! CSV_HI'.bufnr('').' CursorMoved <buffer> "'
-    let b:undo_ftplugin .= '| exe "sil! aug! CSV_HI'.bufnr('').'"'
+    let b:undo_ftplugin .= '| call csv#RemoveAutoHighlight()'
     let b:undo_ftplugin = 'exe "sil! HiColumn!" |' . b:undo_ftplugin
-
     if has("gui_running") && !exists("#CSV_Menu#FileType")
         augroup CSV_Menu
             au!
@@ -439,10 +438,14 @@ fu! csv#HiCol(colnr, bang) "{{{3
         if exists("s:matchid")
             " ignore errors, that come from already deleted matches
             sil! call matchdelete(s:matchid)
+            if a:bang
+              unlet! s:matchid
+              return
+            endif
         endif
         " Additionally, filter all matches, that could have been used earlier
         let matchlist=getmatches()
-        call filter(matchlist, 'v:val["group"] !~ s:hiGroup')
+        call filter(matchlist, 'v:val["group"] !~? s:hiGroup')
         call setmatches(matchlist)
         if a:bang
             return
@@ -451,6 +454,10 @@ fu! csv#HiCol(colnr, bang) "{{{3
     elseif !a:bang
         exe ":2match " . s:hiGroup . ' /' . pat . '/'
     endif
+    " Remove Highlighting once switching away from the buffer
+    exe "aug CSV_HI".bufnr('')
+        exe "au BufWinLeave <buffer=".bufnr('')."> call csv#RemoveAutoHighlight()"
+    aug end
 endfu
 fu! csv#GetDelimiter(first, last, ...) "{{{3
     " This depends on the locale. Hopefully it works
@@ -478,12 +485,16 @@ fu! csv#GetDelimiter(first, last, ...) "{{{3
         " :silent :s does not work with lazyredraw
         let _lz  = &lz
         set nolz
+	" substitute without output when cmdheight=0
+        let _cmdheight = &cmdheight
+        set cmdheight=1
         for i in values(Delim)
             redir => temp[i]
             " use very non-magic
             exe ":silent! :". first. ",". last. 's/\V' . i . "/&/nge"
             redir END
         endfor
+	let &cmdheight = _cmdheight
         let &lz = _lz
         let Delim = map(temp, 'matchstr(substitute(v:val, "\n", "", ""), "^\\s*\\d\\+")')
         let Delim = filter(temp, 'v:val=~''\d''')
@@ -775,9 +786,12 @@ fu! csv#CalculateColumnWidth(row, silent) "{{{3
     " does not work with fixed width columns
     " row for the row for which to calculate the width
     let b:col_width=[]
+    let vts_save=""
     if has( 'vartabs' ) && b:delimiter == "\t"
-        let vts_save=&vts
-        set vts=
+        if &l:vts
+            let vts_save=&vts
+        endif
+        setlocal vts=
     endif
     try
         if exists("b:csv_headerline")
@@ -797,8 +811,8 @@ fu! csv#CalculateColumnWidth(row, silent) "{{{3
     " delete buffer content in variable b:csv_list,
     " this was only necessary for calculating the max width
     unlet! b:csv_list s:columnize_count s:decimal_column
-    if has( 'vartabs' ) && b:delimiter == "\t"
-        let &vts=vts_save
+    if vts_save
+        let &l:vts=vts_save
     endif
 endfu
 fu! csv#Columnize(field) "{{{3
@@ -826,8 +840,8 @@ fu! csv#Columnize(field) "{{{3
     let colnr = s:columnize_count % s:max_cols
     let width = get(b:col_width, colnr, 20)
     let align = 'r'
-    if exists('b:csv_arrange_align')
-        let align=b:csv_arrange_align
+    if exists('b:csv_arrange_align') || exists('g:csv_arrange_align')
+        let align=get(b:, 'csv_arrange_align', g:csv_arrange_align)
         let indx=match(align, '\*')
         if indx > 0
             let align = align[0:(indx-1)]. repeat(align[indx-1], len(b:col_width)-indx)
@@ -867,7 +881,7 @@ fu! csv#Columnize(field) "{{{3
         if get(s:decimal_column, colnr, 0) == 0
             call csv#CheckHeaderLine()
             call csv#NumberFormat()
-            let data = csv#CopyCol('', colnr+1, '')[s:csv_fold_headerline : -1]
+            let data = csv#CopyCol('', colnr+1, '', 0)[s:csv_fold_headerline : -1]
             let pat1 = escape(s:nr_format[1], '.').'\zs[^'.s:nr_format[1].']*\ze'.
                         \ (has_delimiter ? b:delimiter : '').'$'
             let pat2 = '\d\+\ze\%(\%('.escape(s:nr_format[1], '.'). '\d\+\)\|'.
@@ -934,6 +948,11 @@ fu! csv#GetColPat(colnr, zs_flag) "{{{3
 endfu
 fu! csv#SetupAutoCmd(window,bufnr) "{{{3
     " Setup QuitPre autocommand to quit cleanly
+    if a:bufnr == 0
+        " something went wrong,
+        " how can this happen?
+        return
+    endif
     aug CSV_QuitPre
         au!
         exe "au QuitPre * call CSV_CloseBuffer(".winbufnr(a:window).")"
@@ -996,9 +1015,9 @@ fu! csv#SplitHeaderLine(lines, bang, hor) "{{{3
             setl scrollopt=ver scrollbind cursorbind
             noa 0
             if a:lines[-1:] is? '!'
-                let a=csv#CopyCol('',a:lines,'')
+                let a=csv#CopyCol('',a:lines,'', 0)
             else
-                let a=csv#CopyCol('',1, a:lines-1)
+                let a=csv#CopyCol('',1, a:lines-1, 0)
             endif
             " Does it make sense to use the preview window?
             "vert sil! pedit |wincmd w | enew!
@@ -1024,7 +1043,7 @@ fu! csv#SplitHeaderLine(lines, bang, hor) "{{{3
         " disable airline
         let w:airline_disabled = 1
         let win = winnr()
-        setl scrollbind buftype=nowrite bufhidden=wipe noswapfile nobuflisted
+        setl scrollbind buftype=nofile bufhidden=wipe noswapfile nobuflisted
         noa wincmd p
         let b:csv_SplitWindow = win
         aug CSV_Preview
@@ -1235,7 +1254,7 @@ fu! csv#Sort(bang, line1, line2, colnr) range "{{{3
         \' r'. flag. ' /' . pat . '/'
     call winrestview(wsv)
 endfun
-fu! csv#CopyCol(reg, col, cnt) "{{{3
+fu! csv#CopyCol(reg, col, cnt, bang) "{{{3
     " Return Specified Column into register reg
     let col = a:col == "0" ? csv#WColumn() : a:col+0
     let mcol = csv#MaxColumns()
@@ -1249,11 +1268,18 @@ fu! csv#CopyCol(reg, col, cnt) "{{{3
         let cnt_cols = col + a:cnt - 1
     endif
     let a = []
+		let first = 1
+		call csv#CheckHeaderLine()
+    if a:bang && first <= s:csv_fold_headerline
+        " don't take the header line into consideration
+        let first = s:csv_fold_headerline + 1
+    endif
+
     " Don't get lines, that are currently filtered away
     if !exists("b:csv_filter") || empty(b:csv_filter)
-        let a=getline(1, '$')
+        let a=getline(first, '$')
     else
-        for line in range(1, line('$'))
+        for line in range(first, line('$'))
             if foldlevel(line)
                 continue
             else
@@ -1442,6 +1468,7 @@ fu! csv#AddColumn(start, stop, ...) range "{{{3
     " skipping comment lines (we could do it with a single :s statement,
     " but that would fail for the first and last column.
 
+    let commentpat = ''
     if b:csv_cmt != ['','']
         let commentpat = '\%(\%>'.(a:start-1).'l\V'.
                     \ escape(b:csv_cmt[0], '\\').'\m\)'. '\&\%(\%<'.
@@ -1462,6 +1489,19 @@ fu! csv#AddColumn(start, stop, ...) range "{{{3
     endif
     call winrestview(wsv)
 endfu
+fu! csv#ExtractValue(item) "{{{3
+    let formatThousands = '\d\+\zs\V' . s:nr_format[0] . '\m\ze\d'
+    let formatDecimal   = '\(^-\?\|\d\+\)\zs\V' . s:nr_format[1] . '\m\ze\d'
+    try
+        let nr = substitute(a:item, formatThousands, '', 'g')
+        if s:nr_format[1] != '.'
+            let nr = substitute(nr, formatDecimal, '.', '')
+        endif
+        return matchstr(nr, '\c\v^-?(0+|0?\.\d+|[1-9]\d*(\.\d+)?(e[+-]?\d+)?)$')
+    catch
+        return '0'
+    endtry
+endfu
 fu! csv#SumColumn(list) "{{{3
     " Sum a list of values, but only consider the digits within each value
     " parses the digits according to the given format (if none has been
@@ -1476,21 +1516,11 @@ fu! csv#SumColumn(list) "{{{3
             if empty(item)
                 continue
             endif
-            let nr = matchstr(item, '-\?\d\(.*\d\)\?$')
-            let format1 = '^-\?\d\+\zs\V' . s:nr_format[0] . '\m\ze\d'
-            let format2 = '\d\+\zs\V' . s:nr_format[1] . '\m\ze\d'
-            try
-                let nr = substitute(nr, format1, '', '')
-                if s:nr_format[1] != '.'
-                    let nr = substitute(nr, format2, '.', '')
-                endif
-            catch
-                let nr = '0'
-            endtry
+            let nr = csv#ExtractValue(item)
             let sum += str2float(nr)
         endfor
         let b:csv_result = sum
-        return printf("%.2f", sum)
+        return sum
     endif
 endfu
 fu! csv#AvgColumn(list) "{{{3
@@ -1504,17 +1534,7 @@ fu! csv#AvgColumn(list) "{{{3
             if empty(item)
                 continue
             endif
-            let nr = matchstr(item, '-\?\d\(.*\d\)\?$')
-            let format1 = '^-\?\d\+\zs\V' . s:nr_format[0] . '\m\ze\d'
-            let format2 = '\d\+\zs\V' . s:nr_format[1] . '\m\ze\d'
-            try
-                let nr = substitute(nr, format1, '', '')
-                if s:nr_format[1] != '.'
-                    let nr = substitute(nr, format2, '.', '')
-                endif
-            catch
-                let nr ='0'
-            endtry
+            let nr = csv#ExtractValue(item)
             let sum += str2float(nr)
             let cnt += 1
         endfor
@@ -1533,17 +1553,7 @@ fu! csv#VarianceColumn(list, is_population) "{{{3
             if empty(item)
                 continue
             endif
-            let nr = matchstr(item, '-\?\d\(.*\d\)\?$')
-            let format1 = '^-\?\d\+\zs\V' . s:nr_format[0] . '\m\ze\d'
-            let format2 = '\d\+\zs\V' . s:nr_format[1] . '\m\ze\d'
-            try
-                let nr = substitute(nr, format1, '', '')
-                if s:nr_format[1] != '.'
-                    let nr = substitute(nr, format2, '.', '')
-                endif
-            catch
-                let nr = '0'
-            endtry
+            let nr = csv#ExtractValue(item)
             let nr = str2float(nr)
             let sum += pow((nr-avg), 2)
             let cnt += 1
@@ -1600,48 +1610,93 @@ fu! csv#PopStdDevColumn(list) "{{{2
     endif
 endfu
 
+fu! csv#MedianCol(list) "{{{2
+    let list = sort(map(filter(a:list, {_,v -> !empty(v)}), {_,v -> str2float(csv#ExtractValue(v))}), 'n')
+    if empty(list)
+        return 0
+    endif
+
+    let i = len(list) / 2
+    return len(list) % 2 == 0 ? (list[i-1] + list[i]) / 2.0 : list[i]
+endfu
+
+fu! csv#HistogramCol(list) "{{{2
+    let list = sort(map(filter(a:list, {_,v -> !empty(v)}), {_,v -> str2float(csv#ExtractValue(v))}), 'n')
+    if empty(list)
+        return 'No numeric values found.'
+    endif
+
+    " Step Size Calculation   credit: https://stackoverflow.com/a/545960/510067
+    let ticks = min([float2nr(sqrt(len(list))), 10])
+    let minValue = list[0]
+    let maxValue = list[-1]
+    let step = maxValue == minValue ? 1 : (maxValue - minValue) / ticks
+    let magnitude = pow(10, floor(log10(step)))
+    let factor = filter([2, 2.5, 5, 7.5, 10], {_,v -> v >= (l:step / l:magnitude)})[0]
+    let step = magnitude * factor
+
+    " Create and fill the bins.
+    let start = float2nr(floor(minValue/step))
+    let end = float2nr(ceil(maxValue/step))-1
+
+    let bins = {}
+    for label in range(start, end)
+        let bins[label*step] = 0
+    endfor
+    for label in list
+        let bins[floor(label/step)*step] += 1
+    endfor
+
+    " Stuff the rendered histogram into a List and return it.
+    let result = []
+    call add(result, repeat('-', &columns/2))
+    call add(result, 'Count = ' . len(list) . '  Min = ' . minValue . '  Max = ' . maxValue)
+    call add(result, repeat('-', &columns/2))
+
+    let labelwidth = max(map(keys(bins), {_,v -> len(v)}))
+    let maxcount = max(values(bins))
+    let countwidth = float2nr(log10(maxcount)) + 1
+    for label in sort(keys(bins),{x1,x2 -> str2float(x1)==str2float(x2) ? 0 : str2float(x1)<str2float(x2) ? -1 : 1})
+        let count = bins[label]
+        let width = maxcount < &columns / 3 ? count : float2nr(1.0 * count * (&columns/3) / maxcount)
+        call add(result, printf('≥ %*s| %*d|%s  %d', labelwidth, label, countwidth, count, repeat(get(g:, 'csv_histogram_cell', '▇'), width), count))
+    endfor
+    return join(result,"\n")
+endfu
+
 fu! csv#MaxColumn(list) "{{{3
-    " Sum a list of values, but only consider the digits within each value
-    " parses the digits according to the given format (if none has been
-    " specified, assume POSIX format (without thousand separator) If Vim
-    " does not support floats, simply sum up only the integer part
+    " Show top/bottom 10 in a list of values, but only consider the digits
+    " within each value parses the digits according to the given format (if
+    " none has been specified, assume POSIX format (without thousand
+    " separator) If Vim does not support floats, simply sum up only the
+    " integer part
     if empty(a:list)
         return 0
-    else
-        let result = []
-        for item in a:list
-            if empty(item)
-                continue
-            endif
-            let nr = matchstr(item, '-\?\d\(.*\d\)\?$')
-            let format1 = '^-\?\d\+\zs\V' . s:nr_format[0] . '\m\ze\d'
-            let format2 = '\d\+\zs\V' . s:nr_format[1] . '\m\ze\d'
-            try
-                let nr = substitute(nr, format1, '', '')
-                if s:nr_format[1] != '.'
-                    let nr = substitute(nr, format2, '.', '')
-                endif
-            catch
-                let nr = '0'
-            endtry
-            call add(result, str2float(nr))
-        endfor
-        let result = sort(result, s:csv_numeric_sort ? 'N' : 'csv#CSVSortValues')
-        let ind = len(result) > 9 ? 9 : len(result)
-        if has_key(get(s:, 'additional', {}), 'distinct') && s:additional['distinct']
-          if exists("*uniq")
-            let result=uniq(result)
-          else
+    endif
+
+    let result = []
+    for item in a:list
+        if empty(item)
+            continue
+        endif
+        let nr = csv#ExtractValue(item)
+        call add(result, str2float(nr))
+    endfor
+    call sort(result, s:csv_numeric_sort ? 'n' : 'csv#CSVSortValues')
+    if get(s:additional, 'distinct', 0) == 1
+        if exists("*uniq")
+            call uniq(result)
+        else
             let l = {}
             for item in result
-              let l[item] = get(l, 'item', 0)
+                let l[item] = 0
             endfor
             let result = keys(l)
-          endif
         endif
-        return s:additional.ismax ? reverse(result)[:ind] : result[:ind]
     endif
+    return s:additional.ismax ? reverse(result)[:9] : result[:9]
 endfu
+
 fu! csv#CountColumn(list) "{{{3
     if empty(a:list)
         return 0
@@ -1651,7 +1706,7 @@ fu! csv#CountColumn(list) "{{{3
       else
         let l = {}
         for item in a:list
-          let l[item] =  get(l, 'item', 0) + 1
+          let l[item] = 0
         endfor
         return len(keys(l))
       endif
@@ -1681,7 +1736,7 @@ fu! csv#DoForEachColumn(start, stop, bang) range "{{{3
     endif
 
     for item in range(a:start, a:stop, 1)
-        if foldlevel(line)
+        if foldlevel(item)
           " Filter out folded lines (from dynamic filter)
           continue
         endif
@@ -1714,7 +1769,7 @@ fu! csv#DoForEachColumn(start, stop, bang) range "{{{3
             endfor
         endif
         for j in range(1, columns, 1)
-            let t=substitute(t, '%s', fields[j-1], '')
+            let t=substitute(t, '%s', get(fields, j-1, ''), '')
         endfor
         call add(result, t)
     endfor
@@ -1733,7 +1788,7 @@ fu! csv#PrepareDoForEachColumn(start, stop, bang) range"{{{3
     let post = exists("g:csv_post_convert") ? g:csv_post_convert : ''
     let g:csv_post_convert=input('Post convert text: ', post)
     let convert = exists("g:csv_convert") ? g:csv_convert : ''
-    let g:csv_convert=input("Converted text, use %s for column input:\n", convert)
+    let g:csv_convert=input("How to convert data (use %s for column input):\n", convert)
     call csv#DoForEachColumn(a:start, a:stop, a:bang)
 endfun
 fu! csv#EscapeValue(val) "{{{3
@@ -1981,7 +2036,7 @@ fu! csv#AnalyzeColumn(...) "{{{3
 
     " Initialize csv#fold_headerline
     call csv#CheckHeaderLine()
-    let data = csv#CopyCol('', colnr, '')[s:csv_fold_headerline : -1]
+    let data = csv#CopyCol('', colnr, '', 0)[s:csv_fold_headerline : -1]
     let qty = len(data)
     let res = {}
     for item in data
@@ -2254,100 +2309,47 @@ fu! csv#CSVMappings() "{{{3
     endif
 endfu
 fu! csv#CommandDefinitions() "{{{3
-    call csv#LocalCmd("WhatColumn", ':echo csv#WColumn(<bang>0)',
-        \ '-bang')
-    call csv#LocalCmd("NrColumns", ':call csv#NrColumns(<q-bang>)', '-bang')
-    call csv#LocalCmd("HiColumn", ':call csv#HiCol(<q-args>,<bang>0)',
-        \ '-bang -nargs=?')
-    call csv#LocalCmd("SearchInColumn",
-        \ ':call csv#SearchColumn(<q-args>)', '-nargs=*')
-    call csv#LocalCmd("DeleteColumn", ':call csv#DeleteColumn(<q-args>)',
-        \ '-nargs=? -complete=custom,csv#SortComplete')
-    call csv#LocalCmd("ArrangeColumn",
-        \ ':call csv#ArrangeCol(<line1>, <line2>, <bang>0, -1, <q-args>)',
-        \ '-range -bang -bar -nargs=?')
-    call csv#LocalCmd("SmplVarCol",
-        \ ':echo csv#EvalColumn(<q-args>, "csv#SmplVarianceColumn", <line1>,<line2>)',
-        \ '-nargs=? -range=% -complete=custom,csv#SortComplete')
-    call csv#LocalCmd("PopVarCol",
-        \ ':echo csv#EvalColumn(<q-args>, "csv#PopVarianceColumn", <line1>,<line2>)',
-        \ '-nargs=? -range=% -complete=custom,csv#SortComplete')
-    call csv#LocalCmd("SmplStdCol",
-        \ ':echo csv#EvalColumn(<q-args>, "csv#SmplStdDevColumn", <line1>,<line2>)',
-        \ '-nargs=? -range=% -complete=custom,csv#SortComplete')
-    call csv#LocalCmd("PopStdCol",
-        \ ':echo csv#EvalColumn(<q-args>, "csv#PopStdDevColumn", <line1>,<line2>)',
-        \ '-nargs=? -range=% -complete=custom,csv#SortComplete')
-    call csv#LocalCmd("UnArrangeColumn",
-        \':call csv#PrepUnArrangeCol(<line1>, <line2>)',
-        \ '-bar -range')
-    call csv#LocalCmd("CSVInit", ':call csv#Init(<line1>,<line2>,<bang>0)',
-        \ '-bang -range=%')
-    call csv#LocalCmd('Header',
-        \ ':call csv#SplitHeaderLine(<q-args>,<bang>0,1)',
-        \ '-nargs=? -bang')
-    call csv#LocalCmd('VHeader',
-        \ ':call csv#SplitHeaderLine(<q-args>,<bang>0,0)',
-        \ '-nargs=? -bang')
-    call csv#LocalCmd("HeaderToggle",
-        \ ':call csv#SplitHeaderToggle(1)', '')
-    call csv#LocalCmd("VHeaderToggle",
-        \ ':call csv#SplitHeaderToggle(0)', '')
-    call csv#LocalCmd("Sort",
-        \ ':call csv#Sort(<bang>0, <line1>,<line2>,<q-args>)',
-        \ '-nargs=* -bang -range=% -complete=custom,csv#SortComplete')
-    call csv#LocalCmd("Column",
-        \ ':call csv#CopyCol(empty(<q-reg>)?''"'':<q-reg>,<q-count>,<q-args>)',
-        \ '-count -register -nargs=?')
-    call csv#LocalCmd("MoveColumn",
-        \ ':call csv#MoveColumn(<line1>,<line2>,<f-args>)',
-        \ '-range=% -nargs=* -complete=custom,csv#SortComplete')
-    call csv#LocalCmd("SumCol",
-        \ ':echo csv#EvalColumn(<q-args>, "csv#SumColumn", <line1>,<line2>)',
-        \ '-nargs=? -range=% -complete=custom,csv#SortComplete')
-    call csv#LocalCmd("MaxCol",
-        \ ':echo csv#EvalColumn(<q-args>, "csv#MaxColumn", <line1>,<line2>, 1)',
-        \ '-nargs=? -range=% -complete=custom,csv#SortComplete')
-    call csv#LocalCmd("MinCol",
-        \ ':echo csv#EvalColumn(<q-args>, "csv#MaxColumn", <line1>,<line2>, 0)',
-        \ '-nargs=? -range=% -complete=custom,csv#SortComplete')
-    call csv#LocalCmd("CountCol",
-        \ ':echo csv#EvalColumn(<q-args>, "csv#CountColumn", <line1>,<line2>)',
-        \ '-nargs=? -range=% -complete=custom,csv#SortComplete')
-    call csv#LocalCmd("AvgCol",
-        \ ':echo csv#EvalColumn(<q-args>, "csv#AvgColumn", <line1>,<line2>)',
-        \ '-nargs=? -range=% -complete=custom,csv#SortComplete')
-    call csv#LocalCmd('SumRow', ':call csv#SumCSVRow(<q-count>, <q-args>)',
-        \ '-nargs=? -range')
-    call csv#LocalCmd("ConvertData",
-        \ ':call csv#PrepareDoForEachColumn(<line1>,<line2>,<bang>0)',
-        \ '-bang -nargs=? -range=%')
-    call csv#LocalCmd("Filters", ':call csv#OutputFilters(<bang>0)',
-        \ '-nargs=0 -bang')
-    call csv#LocalCmd("Analyze", ':call csv#AnalyzeColumn(<f-args>)',
-        \ '-nargs=*' )
-    call csv#LocalCmd("VertFold", ':call csv#Vertfold(<bang>0,<q-args>)',
-        \ '-bang -nargs=? -range=% -complete=custom,csv#SortComplete')
+    call csv#LocalCmd("AddColumn", ':call csv#AddColumn(<line1>,<line2>,<f-args>)', '-range=% -nargs=* -complete=custom,csv#SortComplete')
+    call csv#LocalCmd("Analyze", ':call csv#AnalyzeColumn(<f-args>)', '-nargs=*' )
+    call csv#LocalCmd("ArrangeColumn", ':call csv#ArrangeCol(<line1>, <line2>, <bang>0, -1, <q-args>)', '-range -bang -bar -nargs=?')
+    call csv#LocalCmd("AvgCol", ':echo csv#EvalColumn(<q-args>, "csv#AvgColumn", <line1>,<line2>)', '-nargs=? -range=% -complete=custom,csv#SortComplete')
     call csv#LocalCmd("CSVFixed", ':call csv#InitCSVFixedWidth()', '')
-    call csv#LocalCmd("NewRecord", ':call csv#NewRecord(<line1>,
-        \ <line2>, <q-args>)', '-nargs=? -range')
-    call csv#LocalCmd("NewDelimiter", ':call csv#NewDelimiter(<q-args>, 1, line(''$''))',
-        \ '-nargs=1')
-    call csv#LocalCmd("Duplicates", ':call csv#CheckDuplicates(<q-args>)',
-        \ '-nargs=? -complete=custom,csv#CompleteColumnNr')
-    call csv#LocalCmd('Transpose', ':call csv#Transpose(<line1>, <line2>)',
-        \ '-range=%')
-    call csv#LocalCmd('CSVTabularize', ':call csv#Tabularize(<bang>0,<line1>,<line2>)',
-        \ '-bang -range=%')
-    call csv#LocalCmd("AddColumn",
-        \ ':call csv#AddColumn(<line1>,<line2>,<f-args>)',
-        \ '-range=% -nargs=* -complete=custom,csv#SortComplete')
-    call csv#LocalCmd("DupColumn",
-        \ ':call csv#DupColumn(<line1>,<line2>,<f-args>)',
-        \ '-range=% -nargs=* -complete=custom,csv#SortComplete')
-    call csv#LocalCmd('Substitute', ':call csv#SubstituteInColumn(<q-args>,<line1>,<line2>)',
-        \ '-nargs=1 -range=%')
+    call csv#LocalCmd("CSVInit", ':call csv#Init(<line1>,<line2>,<bang>0)', '-bang -range=%')
+    call csv#LocalCmd("Column", ':call csv#CopyCol(empty(<q-reg>)?''"'':<q-reg>,<q-count>,<q-args>, <bang>0)', '-bang -count -register -nargs=?')
+    call csv#LocalCmd("ConvertData", ':call csv#PrepareDoForEachColumn(<line1>,<line2>,<bang>0)', '-bang -nargs=0 -range=%')
+    call csv#LocalCmd("CountCol", ':echo csv#EvalColumn(<q-args>, "csv#CountColumn", <line1>,<line2>)', '-nargs=? -range=% -complete=custom,csv#SortComplete')
+    call csv#LocalCmd("DeleteColumn", ':call csv#DeleteColumn(<q-args>)', '-nargs=? -complete=custom,csv#SortComplete')
+    call csv#LocalCmd("DupColumn", ':call csv#DupColumn(<line1>,<line2>,<f-args>)', '-range=% -nargs=* -complete=custom,csv#SortComplete')
+    call csv#LocalCmd("Duplicates", ':call csv#CheckDuplicates(<q-args>)', '-nargs=? -complete=custom,csv#CompleteColumnNr')
+    call csv#LocalCmd("Filters", ':call csv#OutputFilters(<bang>0)', '-nargs=0 -bang')
+    call csv#LocalCmd("HeaderToggle", ':call csv#SplitHeaderToggle(1)', '')
+    call csv#LocalCmd("HistogramCol", ':echo csv#EvalColumn(<q-args>, "csv#HistogramCol", <line1>,<line2>)', '-range=% -nargs=?')
+    call csv#LocalCmd("HiColumn", ':call csv#HiCol(<q-args>,<bang>0)', '-bang -nargs=?')
+    call csv#LocalCmd("MaxCol", ':echo csv#EvalColumn(<q-args>, "csv#MaxColumn", <line1>,<line2>, 1)', '-nargs=? -range=% -complete=custom,csv#SortComplete')
+    call csv#LocalCmd("MedianCol", ':echo csv#EvalColumn(<q-args>, "csv#MedianCol", <line1>,<line2>)', '-range=% -nargs=?')
+    call csv#LocalCmd("MinCol", ':echo csv#EvalColumn(<q-args>, "csv#MaxColumn", <line1>,<line2>, 0)', '-nargs=? -range=% -complete=custom,csv#SortComplete')
+    call csv#LocalCmd("MoveColumn", ':call csv#MoveColumn(<line1>,<line2>,<f-args>)', '-range=% -nargs=* -complete=custom,csv#SortComplete')
+    call csv#LocalCmd("NewDelimiter", ':call csv#NewDelimiter(<q-args>, 1, line(''$''))', '-nargs=1')
+    call csv#LocalCmd("NewRecord", ':call csv#NewRecord(<line1>, <line2>, <q-args>)', '-nargs=? -range')
+    call csv#LocalCmd("NrColumns", ':call csv#NrColumns(<q-bang>)', '-bang')
+    call csv#LocalCmd("PopStdCol", ':echo csv#EvalColumn(<q-args>, "csv#PopStdDevColumn", <line1>,<line2>)', '-nargs=? -range=% -complete=custom,csv#SortComplete')
+    call csv#LocalCmd("PopVarCol", ':echo csv#EvalColumn(<q-args>, "csv#PopVarianceColumn", <line1>,<line2>)', '-nargs=? -range=% -complete=custom,csv#SortComplete')
+    call csv#LocalCmd("SearchInColumn", ':call csv#SearchColumn(<q-args>)', '-nargs=*')
+    call csv#LocalCmd("SmplStdCol", ':echo csv#EvalColumn(<q-args>, "csv#SmplStdDevColumn", <line1>,<line2>)', '-nargs=? -range=% -complete=custom,csv#SortComplete')
+    call csv#LocalCmd("SmplVarCol", ':echo csv#EvalColumn(<q-args>, "csv#SmplVarianceColumn", <line1>,<line2>)', '-nargs=? -range=% -complete=custom,csv#SortComplete')
+    call csv#LocalCmd("Sort", ':call csv#Sort(<bang>0, <line1>,<line2>,<q-args>)', '-nargs=* -bang -range=% -complete=custom,csv#SortComplete')
+    call csv#LocalCmd("SumCol", ':echo csv#EvalColumn(<q-args>, "csv#SumColumn", <line1>,<line2>)', '-nargs=? -range=% -complete=custom,csv#SortComplete')
+    call csv#LocalCmd("UnArrangeColumn", ':call csv#PrepUnArrangeCol(<line1>, <line2>)', '-bar -range')
+    call csv#LocalCmd("VHeaderToggle", ':call csv#SplitHeaderToggle(0)', '')
+    call csv#LocalCmd("VertFold", ':call csv#Vertfold(<bang>0,<q-args>)', '-bang -nargs=? -range=% -complete=custom,csv#SortComplete')
+    call csv#LocalCmd("WhatColumn", ':echo csv#WColumn(<bang>0)', '-bang')
+    call csv#LocalCmd('CSVTabularize', ':call csv#Tabularize(<bang>0,<line1>,<line2>)', '-bang -range=%')
     call csv#LocalCmd('ColumnWidth', ':call csv#ColumnWidth()', '')
+    call csv#LocalCmd('Header', ':call csv#SplitHeaderLine(<q-args>,<bang>0,1)', '-nargs=? -bang')
+    call csv#LocalCmd('Substitute', ':call csv#SubstituteInColumn(<q-args>,<line1>,<line2>)', '-nargs=1 -range=%')
+    call csv#LocalCmd('SumRow', ':call csv#SumCSVRow(<q-count>, <q-args>)', '-nargs=? -range')
+    call csv#LocalCmd('Transpose', ':call csv#Transpose(<line1>, <line2>)', '-range=%')
+    call csv#LocalCmd('VHeader', ':call csv#SplitHeaderLine(<q-args>,<bang>0,0)', '-nargs=? -bang')
 endfu
 fu! csv#ColumnWidth()
     let w=CSVWidth()
@@ -2631,21 +2633,21 @@ fu! csv#Tabularize(bang, first, last) "{{{3
     endif
     let _c = winsaveview()
     " Table delimiter definition "{{{4
-    if !exists("s:td")
-        let s:td = {
-            \ 'hbar': (&enc =~# 'utf-8' ? '─' : '-'),
-            \ 'vbar': (&enc =~# 'utf-8' ? '│' : '|'),
-            \ 'scol': (&enc =~# 'utf-8' ? '├' : '|'),
-            \ 'ecol': (&enc =~# 'utf-8' ? '┤' : '|'),
-            \ 'ltop': (&enc =~# 'utf-8' ? '┌' : '+'),
-            \ 'rtop': (&enc =~# 'utf-8' ? '┐' : '+'),
-            \ 'lbot': (&enc =~# 'utf-8' ? '└' : '+'),
-            \ 'rbot': (&enc =~# 'utf-8' ? '┘' : '+'),
-            \ 'cros': (&enc =~# 'utf-8' ? '┼' : '+'),
-            \ 'dhor': (&enc =~# 'utf-8' ? '┬' : '-'),
-            \ 'uhor': (&enc =~# 'utf-8' ? '┴' : '-')
+		let use_unicode = &enc =~# 'utf-8' && get(g:, 'csv_table_use_ascii', 0) == 0
+		let s:td = {
+            \ 'hbar': (use_unicode ? '─' : '-'),
+            \ 'vbar': (use_unicode ? '│' : '|'),
+            \ 'scol': (use_unicode ? '├' : '|'),
+            \ 'ecol': (use_unicode ? '┤' : '|'),
+            \ 'ltop': (use_unicode ? '┌' : '+'),
+            \ 'rtop': (use_unicode ? '┐' : '+'),
+            \ 'lbot': (use_unicode ? '└' : '+'),
+            \ 'rbot': (use_unicode ? '┘' : '+'),
+            \ 'cros': (use_unicode ? '┼' : '+'),
+            \ 'dhor': (use_unicode ? '┬' : '-'),
+            \ 'uhor': (use_unicode ? '┴' : '-')
             \ }
-    endif "}}}4
+    "}}}4
     if match(getline(a:first), '^'.s:td.ltop) > -1
         " Already tabularized, done
         call csv#Warn("Looks already Tabularized, aborting!")
@@ -2720,7 +2722,7 @@ fu! csv#Tabularize(bang, first, last) "{{{3
     if getline(a:first)[-1:] isnot? b:delimiter
         let b:col_width[-1] += 1
     endif
-    let marginline = s:td.scol. join(map(copy(b:col_width), 'repeat(s:td.hbar, v:val)'), s:td.cros). s:td.ecol
+    let marginline = s:td.scol. join(map(copy(b:col_width), 'repeat(s:td.hbar, v:val-1)'), s:td.cros). s:td.ecol
 
     call csv#NewDelimiter(s:td.vbar, 1, line('$'))
     "exe printf('sil %d,%ds/%s/%s/ge', a:first, (a:last+adjust_last),
@@ -2925,10 +2927,8 @@ fu! csv#GetCells(list) "{{{3
     let column=a:list
     " Delete delimiter
     call map(column, 'substitute(v:val, b:delimiter . "$", "", "g")')
-    " Revmoe trailing whitespace
-    call map(column, 'substitute(v:val, ''^\s\+$'', "", "g")')
-    " Remove leading whitespace
-    call map(column, 'substitute(v:val, ''^\s\+'', "", "g")')
+    " Remove leading and trailing whitespace
+    call map(column, 'trim(v:val)')
     return column
 endfu
 fu! CSV_CloseBuffer(buffer) "{{{3
@@ -2989,7 +2989,7 @@ fu! csv#EvalColumn(nr, func, first, last, ...) range "{{{3
         let stop  += s:csv_fold_headerline
     endif
 
-    let column = csv#CopyCol('', col, '')[start : stop]
+    let column = csv#CopyCol('', col, '', 0)[start : stop]
     let column = csv#GetCells(column)
     " Delete empty values
     " Leave this up to the function that does something
@@ -3004,7 +3004,7 @@ fu! csv#EvalColumn(nr, func, first, last, ...) range "{{{3
         try
             let s = []
             " parse the optional number format
-            let str = matchstr(format, '/\zs[^/]*\ze/', 0, start)
+            let str = matchstr(format, '/\zs[^/]*\ze/')
             let s = matchlist(str, '\(.\)\?:\(.\)\?')[1:2]
             if empty(s)
                 " Number format wrong
@@ -3071,7 +3071,7 @@ fu! csv#SumCSVRow(line, nr) "{{{3
         try
             let s = []
             " parse the optional number format
-            let str = matchstr(format, '/\zs[^/]*\ze/', 0, start)
+            let str = matchstr(format, '/\zs[^/]*\ze/')
             let s = matchlist(str, '\(.\)\?:\(.\)\?')[1:2]
             if empty(s)
                 " Number format wrong
@@ -3108,7 +3108,7 @@ fu! CSVField(x, y, ...) "{{{3
     let orig = !empty(a:0)
     let y = (y < 0 ? 0 : y)
     let x = (x > (csv#MaxColumns()) ? (csv#MaxColumns()) : x)
-    let col = csv#CopyCol('',x,'')
+    let col = csv#CopyCol('',x,'',0)
     if !orig
     " remove leading and trainling whitespace and the delimiter
         return matchstr(col[y], '^\s*\zs.\{-}\ze\s*'.b:delimiter.'\?$')
