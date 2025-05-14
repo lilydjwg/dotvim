@@ -29,6 +29,7 @@ function Lilydjwg_copy_to_newtab()
     exec "mkview" temp
     tabnew
     silent exec "source" temp
+    exec "buffer " nr
   finally
     call delete(temp)
   endtry
