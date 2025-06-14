@@ -1,0 +1,97 @@
+*lumen.txt*	System-wide dark mode preference support
+*lumen*
+
+CONTENTS						*lumen-contents*
+
+Introduction					|lumen-introduction|
+Dependencies					|lumen-dependencies|
+Configuration					|lumen-configure|
+Autocommands					|lumen-autocommands|
+
+==============================================================================
+INTRODUCTION						*lumen-introduction*
+
+This plugin enables vim to follow the global system-wide dark mode preference
+of your platform.
+Supported platforms are Linux, MacOS and Windows.
+
+Once a system dark mode preference change is detected, the |background|
+variable will be changed, which will automatically cause the current
+colorscheme to be reloaded if the colorscheme supports live reloading.
+
+All platform implementations are interrupt-based and do not use any resources
+in the background because they avoid polling and use the proper system APIs
+instead.
+
+Note that this plugin has become obsolete with Vim implementing support for
+DEC mode 2031.
+You can now use the native support for theme changes simply by listening to
+`autocmd OptionSet background`, as long as the entire chain of your terminal
+emulator, terminal multiplexer and your version of vim support it.
+For more information read:
+- https://contour-terminal.org/vt-extensions/color-palette-update-notifications/
+- https://github.com/neovim/neovim/pull/31350
+
+------------------------------------------------------------------------------
+DEPENDENCIES						*lumen-dependencies*
+
+On Linux it is required to have `gdbus` and one of the following installed:
+
+- KDE Plasma 5.24 or later
+- Gnome 42 or later
+- https://gitlab.com/WhyNotHugo/darkman
+- https://gitlab.gnome.org/exalm/color-scheme-simulator
+
+Make sure that the `xdg-desktop-portal` is running.
+
+
+On MacOS it is required that Swift is available, which is shipped with Xcode
+for example.
+
+
+On Windows at least Windows 10 1903 is required. No further installed
+components are needed.
+
+------------------------------------------------------------------------------
+CONFIGURATION						*lumen-configure*
+
+	g:lumen_startup_overwrite			*g:lumen_startup_overwrite*
+		By default, |lumen| will overrule vim's own mechanism to
+		detect the correct value for |background| at startup. If you
+		disable this option with `let g:lumen_startup_overwrite = 0`,
+		this plugin will only listen for changes during runtime and
+		will no longer influence vim's internal detection mechanism at
+		startup.
+
+	g:lumen_light_colorscheme			*g:lumen_light_colorscheme*
+		This variable defines the colorscheme to change to (if any),
+		when the system switches to light mode. For a more generic
+		callback, consult |User_LumenLight|.
+		For example `let g:lumen_light_colorscheme = 'retrobox'` is
+		equivalent to `autocmd User LumenLight colorscheme retrobox`,
+		also see |g:lumen_dark_colorscheme|.
+
+	g:lumen_dark_colorscheme			*g:lumen_dark_colorscheme*
+		This variable defines the colorscheme to change to (if any),
+		when the system switches to dark mode. For a more generic
+		callback, consult |User_LumenDark|.
+		For example `let g:lumen_dark_colorscheme = 'retrobox'` is
+		equivalent to `autocmd User LumenDark colorscheme retrobox`,
+		also see |g:lumen_light_colorscheme|.
+
+------------------------------------------------------------------------------
+AUTOCOMMANDS						*lumen-autocommands*
+
+A handful of |User| |autocommands| are provided to allow extending this
+plugin's functionality. Example usage:
+>
+	autocmd User LumenDark let $BAT_THEME="gruvbox-dark"
+<
+							*User_LumenLight*
+LumenLight		After switching |background| to `light`.
+
+							*User_LumenDark*
+LumenDark		After switching |background| to `dark`.
+
+==============================================================================
+	vim:tw=78:sw=4:ts=8:ft=help:norl:noet:

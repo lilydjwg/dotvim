@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# This is a fake gdbus for testing purposes
+# This simulates: gdbus monitor --session --dest org.freedesktop.portal.Desktop --object-path /org/freedesktop/portal/desktop
+# It will print a change message every time a value is writen to $SOCKET
+
+SOCKET=/tmp/socket
+
+# return directly if only a oneshot read was requested
+if [[ "$*" =~ org\.freedesktop\.portal\.Settings\.Read ]]; then
+	echo '(<<uint32 0>>,)'
+	exit
+fi
+
+while inotifywait -qqe close_write "$SOCKET"; do
+	echo "/org/freedesktop/portal/desktop: org.freedesktop.portal.Settings.SettingChanged ('org.freedesktop.appearance', 'color-scheme', <uint32 $(cat "$SOCKET")>)"
+done

@@ -1,0 +1,4 @@
+*.swp
+*.log
+/doc/tags
+autoload/lumen/platforms/macos/watcher

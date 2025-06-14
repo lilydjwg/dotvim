@@ -1,0 +1,33 @@
+name: Guided bug report
+description: "File a bug report. If you know what you are doing, feel free to open a blank issue below."
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the bug
+      placeholder: A clear and concise description of what the bug is.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: To reproduce
+      placeholder: Steps to reproduce the behavior.
+    validations:
+      required: false
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      placeholder: A clear and concise description of what you expected to happen.
+    validations:
+      required: false
+  - type: textarea
+    id: debug
+    attributes:
+      label: Debug output
+      description: "Please copy and paste the output of `:echo lumen#debug#info()` inside vim, if relevant."
+      placeholder: ":echo lumen#debug#info()"
+      render: Text
+    validations:
+      required: false

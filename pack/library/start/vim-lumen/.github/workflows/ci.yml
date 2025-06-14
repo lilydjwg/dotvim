@@ -1,0 +1,13 @@
+name: Testing suite
+on: [push, pull_request]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build the Docker image
+      run: docker build -t vim-lumen -f tests/Dockerfile .
+    - name: Run tests with vim
+      run: docker run -t vim-lumen make tests_vim
+    - name: Run tests with neovim
+      run: docker run -t vim-lumen make tests_neovim

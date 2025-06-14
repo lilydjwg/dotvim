@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/ingydotnet/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:vimpostor/vim-lumen.git
+	branch = master
+	commit = 97157aac9f0d24c144a3defdfe5057ee61e18dcb
+	parent = 5f969f94f30872bba81361df0e952a6ee0438207
+	method = merge
+	cmdver = 0.4.9
