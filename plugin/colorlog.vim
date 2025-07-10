@@ -31,25 +31,29 @@ def Colorlog_read_buffer()
   Highlight(props)
 enddef
 
+def Do_hi_cmds()
+  hi Colorlog_Error ctermfg=darkred guifg=#aa0000
+  hi Colorlog_HTTP_Good ctermfg=darkgreen guifg=#00aa00
+  hi Colorlog_HTTP_ClientError ctermfg=darkyellow guifg=#cfcf00
+  hi Colorlog_HTTP_ServerError ctermfg=white ctermbg=darkred guifg=#ffffff guibg=#aa0000
+  hi Colorlog_Time_Good ctermfg=white guifg=#ffffff
+  hi Colorlog_Time_Moderate ctermfg=darkyellow guifg=#cfcf00
+  hi Colorlog_Time_Slow ctermfg=lightred guifg=#ff5555
+  hi Colorlog_IP ctermfg=darkgreen guifg=#00aa00
+  hi Colorlog_IP_Local ctermfg=darkcyan guifg=#00aaaa
+  hi Colorlog_GeoLocation ctermfg=darkyellow guifg=#cfcf00
+  hi Colorlog_UserAgent ctermfg=darkmagenta guifg=#a900aa
+  hi Colorlog_UserAgent_Highlight ctermfg=green guifg=#55ff55
+  hi Colorlog_Timestamp ctermfg=darkred guifg=#aa0000
+  hi Colorlog_Request ctermfg=blue guifg=#2660ff
+  hi Colorlog_Size ctermfg=gray guifg=#aaaaaa
+  hi Colorlog_Referrer ctermfg=darkcyan guifg=#00aaaa
+enddef
+
 var prop_types_added = 0
 def Highlight(props: string)
   if prop_types_added == 0
-    hi Colorlog_Error ctermfg=darkred guifg=#aa0000
-    hi Colorlog_HTTP_Good ctermfg=darkgreen guifg=#00aa00
-    hi Colorlog_HTTP_ClientError ctermfg=darkyellow guifg=#cfcf00
-    hi Colorlog_HTTP_ServerError ctermfg=white ctermbg=darkred guifg=#ffffff guibg=#aa0000
-    hi Colorlog_Time_Good ctermfg=white guifg=#ffffff
-    hi Colorlog_Time_Moderate ctermfg=darkyellow guifg=#cfcf00
-    hi Colorlog_Time_Slow ctermfg=lightred guifg=#ff5555
-    hi Colorlog_IP ctermfg=darkgreen guifg=#00aa00
-    hi Colorlog_IP_Local ctermfg=darkcyan guifg=#00aaaa
-    hi Colorlog_GeoLocation ctermfg=darkyellow guifg=#cfcf00
-    hi Colorlog_UserAgent ctermfg=darkmagenta guifg=#a900aa
-    hi Colorlog_UserAgent_Highlight ctermfg=green guifg=#55ff55
-    hi Colorlog_Timestamp ctermfg=darkred guifg=#aa0000
-    hi Colorlog_Request ctermfg=blue guifg=#2660ff
-    hi Colorlog_Size ctermfg=gray guifg=#aaaaaa
-    hi Colorlog_Referrer ctermfg=darkcyan guifg=#00aaaa
+    Do_hi_cmds()
 
     prop_type_add('Colorlog_HTTP_Good', {highlight: 'Colorlog_HTTP_Good'})
     prop_type_add('Colorlog_HTTP_ClientError', {highlight: 'Colorlog_HTTP_ClientError'})
@@ -86,6 +90,7 @@ enddef
 augroup colorlog
  au!
  au BufReadCmd access*.log Colorlog_read(expand("<afile>"))
+ au ColorScheme * Do_hi_cmds()
 augroup END
 command! Colorlog Colorlog_read_buffer()
 # ---------------------------------------------------------------------
