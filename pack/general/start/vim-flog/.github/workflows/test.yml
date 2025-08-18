@@ -1,0 +1,41 @@
+name: "test status"
+on:
+  - "push"
+jobs:
+  test:
+    runs-on: "ubuntu-22.04"
+    strategy:
+      matrix:
+        include:
+          - vim_type: "Vim"
+            vim_version: "v8.2.4212"
+            lua_version: "luajit-openresty"
+          - vim_type: "Vim"
+            vim_version: "head"
+            lua_version: "luajit-openresty"
+          - vim_type: "Neovim"
+            vim_version: "v0.9.5"
+          - vim_type: "Neovim"
+            vim_version: "stable"
+    steps:
+      - name: "checkout"
+        uses: "actions/checkout@v2"
+        with:
+          fetch-depth: 5
+      - name: "install lua"
+        uses: "leafo/gh-actions-lua@v10.0.0"
+        with:
+          luaVersion: "${{ matrix.lua_version }}"
+        if: "${{ matrix.lua_version }}"
+      - name: "install ${{ matrix.vim_type }}"
+        uses: "thinca/action-setup-vim@v1"
+        with:
+          vim_version: "${{ matrix.vim_version }}"
+          vim_type: "${{ matrix.vim_type }}"
+      - name: "run tests"
+        run: |
+          if [ "${{ matrix.vim_type }}" = "Neovim" ]; then
+            NVIM=true ./t/run.sh
+          else
+            NVIM=false ./t/run.sh
+          fi

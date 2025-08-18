@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/ingydotnet/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:rbong/vim-flog.git
+	branch = master
+	commit = 665b16ac8915f746bc43c9572b4581a5e9047216
+	parent = 1222c1b898a0b68b1aa26fbb7ffac674e257dd7f
+	method = merge
+	cmdver = 0.4.9

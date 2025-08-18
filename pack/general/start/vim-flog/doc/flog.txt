@@ -1,0 +1,1349 @@
+*flog.txt*  A git branch viewer for Vim
+Flog                                                                    *flog*
+
+Author:  Roger Bongers <https://github.com/rbong>
+License: Same terms as Vim itself (see |license|)
+
+==============================================================================
+INTRODUCTION                                                      *flog-intro*
+
+Flog is a fast, beautiful, and powerful git branch viewer for Vim/Neovim.
+It integrates with the |fugitive| git plugin.
+
+==============================================================================
+PREREQUISITES                                                   *flog-prereqs*
+
+Flog supports Vim 8, Vim 9, and Neovim.
+
+Flog requires the |fugitive| git plugin to be installed.
+
+In Vim 8/9, Flog requires LuaJIT 2.1 to be installed on the system.
+
+See also |g:flog_lua_bin|, |g:flog_use_internal_lua|,
+|g:flog_check_lua_version|.
+
+==============================================================================
+COMMANDS                                                       *flog-commands*
+
+------------------------------------------------------------------------------
+FLOG OPEN COMMANDS                                        *flog-open-commands*
+
+These commands open Flog.
+
+The options shown here can be configured via |g:flog_default_opts| and
+|g:flog_permanent_default_opts|.
+
+Arguments to :Flog on the command line must be escaped if they contain spaces.
+Quotes are not supported for completion reasons.
+
+:Flog                                                                  *:Flog*
+
+  Open Flog in a new tab, showing the git branch graph. This command can be
+  run from any file in a git repository. Any |fugitive-commands| can be run
+  from the buffer.
+
+  When opened in visual mode or passed a range, the selected range and
+  filename is passed to |:Flog_-limit|.
+
+  When called with range "0", passes the entire file to |:Flog_-limit|.
+
+  The first time this is called, runs "git commit-graph write". This can be
+  changed with |g:flog_write_commit_graph|.
+
+:Flog -all                                                        *:Flog_-all*
+:Flog -no-all                                                  *:Flog_-no-all*
+
+  When enabled, pass the "--all" argument to "git log".
+  Disabled when |:Flog_-limit| is set.
+  Disabled by default.
+
+:Flog -auto-update                                        *:Flog_-auto-update*
+:Flog -no-auto-update                                  *:Flog_-no-auto-update*
+
+  When enabled, watch the Git directory and update the buffer when it changes.
+
+  On Linux, it may be useful to increase the maximum number of watched files:
+>
+  sudo sysctl fs.inotify.max_user_watches=524288
+<
+
+  When disabled, attempt to update when using |:Floggit|.
+  This will not always succeed.
+
+  Only available in Neovim.
+  Disabled by default.
+
+:Flog -bisect                                                  *:Flog_-bisect*
+:Flog -no-bisect                                            *:Flog_-no-bisect*
+
+  When enabled, pass the "--bisect" argument to "git log".
+  Disabled by default.
+
+:Flog -default-collapsed                            *:Flog_-default-collapsed*
+:Flog -default-expanded                              *:Flog_-default-expanded*
+
+  Control whether multiline commit bodies are collapsed by default.
+  See also |flog-collapse-mappings|.
+  Expanded by default.
+
+:Flog -first-parent                                      *:Flog_-first_parent*
+:Flog -no-first-parent                                *:Flog_-no-first-parent*
+
+  When enabled, pass the "--first-parent" argument to "git log".
+  Disabled by default.
+
+:Flog -merges                                                  *:Flog_-merges*
+:Flog -no-merges                                            *:Flog_-no-merges*
+
+  When disabled, pass the "--no-merges" argument to "git log".
+  Enabled by default.
+
+:Flog -reflog                                                  *:Flog_-reflog*
+:Flog -no-reflog                                            *:Flog_-no-reflog*
+
+  When enabled, pass the "--reflog" argument to "git log".
+  Disabled by default.
+
+:Flog -related                                                *:Flog_-related*
+:Flog -no-related                                          *:Flog_-no-related*
+
+  When enabled, pass refs related to target revisions to "git log".
+  Target revisions are set by |:Flog_-rev| and default to "HEAD".
+
+  A related ref is any ref with the same name on a different remote.
+  In the case of "HEAD", any ref name at "HEAD" is used.
+
+  When disabled, do not pass any additional refs to "git log".
+  When |:Flog_-limit| is specified, this flag is unused.
+
+  Disabled by default.
+
+:Flog -reverse                                                *:Flog_-reverse*
+:Flog -no-reverse                                          *:Flog_-no-reverse*
+
+  When enabled, pass the "--reverse" argument to "git log".
+  Requires |:Flog_-no-graph|.
+  Disabled by default.
+
+:Flog -patch                                                    *:Flog_-patch*
+:Flog -no-patch                                              *:Flog_-no-patch*
+
+  When enabled, pass the "--patch" argument to "git log".
+  When disabled, pass the "--no-patch" argument to "git log".
+  By default, pass neither flag.
+
+  This option can be set to default with "Flog -patch=" (nothing after "=").
+
+:Flog -graph                                                    *:Flog_-graph*
+:Flog -no-graph                                              *:Flog_-no-graph*
+
+  When disabled, do not draw the git branch graph.
+  The git branch cannot be drawn when |:Flog_-reverse| is set.
+  Enabled by default.
+
+:Flog -author=<author>                                         *:Flog_-author*
+
+  Passes the "--author=<author>" argument to "git log".
+
+:Flog -date=<date>                                               *:Flog_-date*
+
+  Passes the "--date=<date>" argument to "git log".
+  All named formats are supported.
+
+:Flog -format=<format>                                         *:Flog_-format*
+
+  Passes the "--pretty=format:<format>" argument to "git log".
+  Multiline formats are supported.
+
+  When |g:flog_enable_dynamic_commit_hl| is enabled, defaults to
+  "%ad %h %an%d %s".
+
+  When |g:flog_enable_dynamic_commit_hl| is not enabled, defaults to
+  "%ad [%h] {%an}%d %s". The extra characters in the output enable
+  syntax-based highlighting. See |flog-highlight-groups| for details.
+
+  See "format:<format-string>" in "git log --help" for supported placeholders.
+
+:Flog -limit=<limit>                                            *:Flog_-limit*
+
+  Passes the "-L=<limit>" argument to "git log".
+  Implies |:Flog_-patch|.
+
+  You can also specify this argument by passing a range to |:Flog|.
+
+  You can also visually select lines and run |:Flog|.
+  This will use the selected file/lines for the limit.
+
+:Flog -max-count=<number>                                   *:Flog_-max-count*
+
+  Passes the "--max-count=<number>" argument to "git log".
+  Defaults to 5000.
+
+  See also: |flog-]]|, |flog-[[|.
+
+:Flog -order=<type>                                             *:Flog_-order*
+:Flog -sort=<type>                                               *:Flog_-sort*
+
+  Sort by one of <type>, where type is in "date", "author", or "topo".
+
+  These pass either the argument "--date-order", "--author-order", or
+  "--topo-order" to "git log", respectfully.
+
+  Defaults to "topo" when |:Flog_-graph| is enabled and "date" otherwise.
+
+  The "--topo-order" option is always enabled when |:Flog_-graph| is enabled
+  ("git log" supports multiple order options).
+
+:Flog -skip=<number>                                             *:Flog_-skip*
+
+  Passes the "--skip=<number>" argument to "git log".
+
+:Flog -search=<pattern>                                        *:Flog_-search*
+:Flog -grep=<pattern>                                            *:Flog_-grep*
+
+  Passes the "--grep=<pattern>" argument to "git log".
+
+:Flog -patch-search=<pattern>                            *:Flog_-patch-search*
+:Flog -patch-grep=<pattern>                                *:Flog_-patch-grep*
+
+  Passes the "-G=<pattern>" argument to "git log".
+
+:Flog -rev=<rev>                                                  *:Flog_-rev*
+
+  A git revision to pass to "git log".
+  Can be specified more than once.
+
+  When |:Flog_-limit| is specified, only the first revision is used.
+
+:Flog -path=<path>                                               *:Flog_-path*
+
+  A path to pass to "git log".
+  This option can be specified multiple times for multiple paths.
+
+  When |:Flog_-limit| is specified, this is not used.
+
+:Flog -open-cmd=<cmd>                                        *:Flog_-open-cmd*
+
+  The command to use to open the window containing the graph.
+  Must give initial focus to the window.
+
+  Defaults to |:edit| when the tab is empty.
+  Otherwise, defaults to |:tabedit|.
+
+:Flog -raw-args=<args>                                       *:Flog_-raw-args*
+
+  Additional args to pass to "git log".
+  No args passed in using this option are guaranteed to work.
+  Can be specified multiple times.
+
+:Flog --                                                            *:Flog_--*
+
+  Parse the remaining arguments as if they were passed to |:Flog_-raw-args|.
+  Does not require escaping spaces.
+
+:Flogsp                                                 *:Flogsp* *:Flogsplit*
+:Flogsplit
+
+  Open Flog in a split. Supports |<mods>|. Behaves the same as |:Flog|
+  otherwise.
+
+------------------------------------------------------------------------------
+FLOG GIT COMMANDS                                          *flog-git-commands*
+
+:Floggit                                                   *:Floggit* *:Flogg*
+:Flogg
+
+  Run a git command using |:Git|.
+  All arguments supported by |:Git| are supported.
+
+  Revision, file, and option completion is available for this command.
+
+  While in the |:Flog| window, contextual completion is available.
+  This completes commit refs under the cursor or in the selected visual range.
+
+  This command updates the |:Flog| window after returning to it by default.
+
+  If called outside of a |:Flog| window, calls |:Git| and ignores anything
+  relating to Flog.
+
+:Floggit!                                                          *:Floggit!*
+
+  Same as |:Floggit|, but use |:Git!|.
+
+:Floggit --blur                                *:Floggit_--blur* *:Floggit_-b*
+:Floggit --static                            *:Floggit_--static* *:Floggit_-s*
+:Floggit --tmp                                  *:Floggit_--tmp* *:Floggit_-t*
+
+  These options are passed to |flog#Exec()| to control the command behavior
+  if the command is run from the |:Flog| window.
+
+------------------------------------------------------------------------------
+FLOG BUFFER COMMANDS                                    *flog-buffer-commands*
+
+These commands only work in the |:Flog| buffer.
+
+:Flogset                                             *:Flogset* *:Flogsetargs*
+:Flogsetargs
+
+  Update the arguments passed to |:Flog| or |:Flogsplit|. Can only be run in a
+  |:Flog| window. Merges new arguments with the current arguments.
+
+:Flogset!                                         *:Flogset!:* *:Flogsetargs!*
+:Flogsetargs!
+
+  Same as |:Flogset|, but overwrite all of the current arguments instead
+  of updating them.
+
+:Flogspc                                         *:Flogspc* *:Flogsplitcommit*
+:Flogsplitcommit
+
+  Open a commit under the cursor using |:Gsplit| in a |flog-temp-window|. Can
+  only be run in the |:Flog| window.
+
+  Sets |flog-'!|.
+
+==============================================================================
+MAPPINGS                                                       *flog-mappings*
+
+All mappings are available only from the |:Flog| window.
+
+------------------------------------------------------------------------------
+MISC. MAPPINGS                                            *flog-misc-mappings*
+
+                                                            *<Plug>(FlogHelp)*
+g?                                                                   *flog-g?*
+
+  Show these mappings.
+
+                                               *<Plug>(FlogVSplitCommitRight)*
+<CR>                                                               *flog-<CR>*
+
+  Open the commit under the cursor in a temporary |flog-side-window|.
+  Sets |flog-'!| to the commit under the cursor.
+
+                                           *<Plug>(FlogVSplitCommitRightPath)*
+<Tab>                                                             *flog-<Tab>*
+
+  Same as |flog-<CR>|, but use the "-path" or "-limit" argument to only show
+  the diff for the currently selected paths.
+
+                                                             *<Plug>(FlogGit)*
+git                                                                 *flog-git*
+
+  Enter in the characters ":Floggit" from normal or visual mode in order to
+  quickly begin a |:Floggit| command.
+
+                                                    *<Plug>(FlogStartCommand)*
+.                                                                     *flog-.*
+
+  Start a |:| command line with the commit under the cursor populated.
+
+  In visual mode, fills in all the commits under the cursor.
+
+                                                            *<Plug>(FlogYank)*
+y<C-G>                                                           *flog-y<C-G>*
+
+  In normal mode, copy the short commit hash under the cursor to a register.
+  Accepts a count.
+
+  In visual mode, copies the selected commit hashes to a register.
+
+                                                        *<Plug>(FlogYankText)*
+y<C-T>                                                           *flog-y<C-T>*
+
+  Yanks sanitized text, removing the graph and hidden commit characters added
+  for |g:flog_enable_dynamic_commit_hl|.
+
+  In normal mode, copy the line under the cursor to a register.
+  Accepts a count.
+
+  In visual mode, copies the selected lines to a register.
+  Lines with no commit output are skipped in visual mode.
+
+                                               *<Plug>(FlogYankTextWithGraph)*
+y<C-X>                                                           *flog-y<C-X>*
+
+  Yanks sanitized text, removing hidden commit characters added for
+  |g:flog_enable_dynamic_commit_hl|. Includes the graph.
+
+  In normal mode, copy the line under the cursor to a register.
+  Accepts a count.
+
+  In visual mode, copies the selected lines to a register.
+
+                                                          *<Plug>(FlogUpdate)*
+u                                                                     *flog-u*
+
+  Update/reload the |:Flog| window.
+
+                                                    *<Plug>(FlogVSplitStaged)*
+gs                                                                   *flog-gs*
+
+  Show the currently staged changes.
+
+                                                 *<Plug>(FlogVSplitUntracked)*
+gu                                                                   *flog-gu*
+
+  Show the currently untracked and unstaged changes.
+
+                                                  *<Plug>(FlogVSplitUnstaged)*
+gU                                                                   *flog-gU*
+
+  Show the currently unstaged changes.
+
+                                                     *<Plug>(FlogCloseTmpWin)*
+dq                                                                   *flog-dq*
+
+  Close all temporary |flog-side-window|s.
+
+                                                            *<Plug>(FlogQuit)*
+gq                                                                   *flog-gq*
+ZZ                                                                   *flog-ZZ*
+
+  Quit Flog.
+
+------------------------------------------------------------------------------
+NAVIGATION MAPPINGS                                 *flog-navigation-mappings*
+
+                                               *<Plug>(FlogJumpToCommitStart)*
+^                                                                     *flog-^*
+
+  Move the cursor to the start of the current commit branch.
+
+  If the cursor is already on or before the commit branch, jumps to the column
+  which marks the start of the commit content.
+
+                                                      *<Plug>(FlogNextCommit)*
+)                                                                     *flog-)*
+
+  Jump to the next commit.
+
+  Accepts a count.
+  Sets |flog-''| to the last commit under the cursor.
+  Pushes the last commit to the |flog-jump-history|.
+
+                                                      *<Plug>(FlogPrevCommit)*
+(                                                                     *flog-(*
+
+  Same as |flog-)|, but jump backwards.
+
+                                                *<Plug>(FlogVNextCommitRight)*
+<C-N>                                                            *flog-CTRL-N*
+
+  Jump to the next commit and open it in a temporary |flog-side-window|.
+
+  Accepts a count.
+  Sets |flog-''| to the last commit under the cursor.
+  Sets |flog-'!| to the new commit under the cursor.
+  Pushes the last commit to the |flog-jump-history|.
+
+                                                *<Plug>(FlogVPrevCommitRight)*
+<C-P>                                                            *flog-CTRL-P*
+
+  Same as |flog-<C-N>|, but jump backwards.
+
+                                                   *<Plug>(FlogVNextRefRight)*
+]r                                                                   *flog-]r*
+
+  Jump to the next commit with a ref name.
+
+  Accepts a count.
+  Sets |flog-''| to the last commit under the cursor.
+  Pushes the last commit to the |flog-jump-history|.
+
+                                                   *<Plug>(FlogVPrevRefRight)*
+[r                                                                   *flog-[r*
+
+  Same as |flog-]r|, but jump backwards.
+
+                                                    *<Plug>(FlogJumpToParent)*
+}                                                                     *flog-}*
+
+  Jump to the nth parent of the commit under the cursor.
+
+  Accepts a count.
+  Sets |flog-''| to the last commit under the cursor.
+  Pushes the last commit to the |flog-jump-history|.
+
+                                                     *<Plug>(FlogJumpToChild)*
+{                                                                     *flog-{*
+
+  Same as |flog-}|, but jumps to the nth child.
+
+                                                     *<Plug>(FlogJumpToOlder)*
+CTRL-O                                                           *flog-CTRL-O*
+
+  Jump back in the |flog-jump-history|.
+
+  Accepts a count.
+  Sets |flog-''| to the last commit under the cursor.
+
+                                                     *<Plug>(FlogJumpToNewer)*
+CTRL-I                                                           *flog-CTRL-I*
+
+  Jump forwards in the |flog-jump-history|.
+
+  Accepts a count.
+  Sets |flog-''| to the last commit under the cursor.
+
+                                                       *<Plug>(FlogSkipAhead)*
+]]                                                                   *flog-]]*
+
+  Go forwards in the commit history by |:Flog_-max-count| commits, if that
+  option is set, by updating |:Flog_-skip|.
+
+  Accepts a count.
+
+                                                        *<Plug>(FlogSkipBack)*
+[[                                                                   *flog-[[*
+
+  Go backwards in the commit history by |:Flog_-max-count| commits, if that
+  option is set, by updating |:Flog_-skip|.
+
+  Accepts a count.
+
+                                                         *<Plug>(FlogSetSkip)*
+gcg                                                                 *flog-gcg*
+
+  Skip to the commit given by the count, or 0 if no count is given.
+
+                                                          *<Plug>(FlogSetRev)*
+gct                                                                 *flog-gct*
+
+  Set |:Flog_-rev| to the commit under the cursor and clear |:Flog_-skip|.
+  Similar to |zt|, this will set the commit to the top of the output.
+
+                                                        *<Plug>(FlogClearRev)*
+gcc                                                                 *flog-gcc*
+
+  Unset |:Flog_-rev|.
+
+------------------------------------------------------------------------------
+COMMIT MARK MAPPINGS                                      *flog-mark-mappings*
+
+                                                   *<Plug>(FlogSetCommitMark)*
+m{a-zA-Z'}                                                            *flog-m*
+
+  Mark the current commit under the cursor.
+  See also |flog-commit-marks|.
+
+                                                *<Plug>(FlogJumpToCommitMark)*
+'{a-zA-Z'}                                                            *flog-'*
+
+  Jump to the marked commit.
+  Sets |flog-''| to the last commit under the cursor.
+
+  See also |flog-commit-marks|.
+
+------------------------------------------------------------------------------
+COLLAPSE MAPPINGS                                     *flog-collapse-mappings*
+
+Collapse mappings only apply when a multiline log format is used, or if an
+option which includes multiline output like |:Flog_-patch| is used.
+
+                                                  *<Plug>(FlogCollapseCommit)*
+ <                                                                    *flog-<*
+
+  Collapse the body of the commit under the cursor.
+  In visual mode, collapses the body of all commits under the cursor.
+
+                                                     *<Plug>(FlogCollapseAll)*
+g<                                                                   *flog-g<*
+
+  Clear all collapsed/expanded commits and set |:Flog_-default-collapsed|.
+
+                                                    *<Plug>(FlogExpandCommit)*
+>                                                                     *flog->*
+
+  Expand the body of the commit under the cursor.
+  In visual mode, expands the body of all commits under the cursor.
+
+                                                       *<Plug>(FlogExpandAll)*
+g>                                                                   *flog-g>*
+
+  Clear all collapsed/expanded commits and set |:Flog_-default-expanded|.
+
+                                            *<Plug>(FlogToggleCollapseCommit)*
+=                                                                     *flog-=*
+
+  Toggle collapsing the body of the commit under the cursor.
+  In visual mode, toggle collapsing the body of all commits under the cursor.
+
+------------------------------------------------------------------------------
+ARGUMENT MODIFIER MAPPINGS                            *flog-argument-mappings*
+
+                                                       *<Plug>(FlogToggleAll)*
+a                                                                     *flog-a*
+
+  Toggle |:Flog_-all|.
+
+                                                    *<Plug>(FlogToggleBisect)*
+gb                                                                   *flog-gb*
+
+  Toggle |:Flog_-bisect|.
+
+                                             *<Plug>(FlogToggleNoFirstParent)*
+gP                                                                   *flog-gP*
+
+  Toggle |:Flog_-first-parent|.
+
+                                                  *<Plug>(FlogToggleNoMerges)*
+gm                                                                   *flog-gm*
+
+  Toggle |:Flog_-merges|.
+
+                                                    *<Plug>(FlogToggleReflog)*
+gr                                                                   *flog-gr*
+
+  Toggle |:Flog_-reflog|.
+
+                                                   *<Plug>(FlogToggleNoGraph)*
+gx                                                                   *flog-gx*
+
+  Toggle |:Flog_-graph|.
+
+                                                   *<Plug>(FlogToggleNoPatch)*
+gp                                                                   *flog-gp*
+
+  Toggle |:Flog_-patch|.
+
+                                                          *<Plug>(FlogSearch)*
+g/                                                                   *flog-g/*
+
+  Open the command line with ":Flogsetargs -search=".
+  See also |:Flog_-search|.
+
+                                                     *<Plug>(FlogPatchSearch)*
+g\                                                                   *flog-g\*
+
+  Open the command line with ":Flogsetargs -patch-search=".
+  See also |:Flog_-patch-search|.
+
+                                                      *<Plug>(FlogCycleOrder)*
+goo                                                                 *flog-goo*
+
+  Cycle through the different |:Flog_-order| options.
+  The order of sort types can be changed with |g:flog_order_types|.
+
+                                                       *<Plug>(FlogOrderDate)*
+god                                                                 *flog-god*
+
+  Set |:Flog_-order| to "date".
+
+                                                     *<Plug>(FlogOrderAuthor)*
+goa                                                                 *flog-goa*
+
+  Set |:Flog_-order| to "author".
+
+                                                       *<plug>(FlogOrderTopo)*
+got                                                                 *flog-got*
+
+  Set |:Flog_-order| to "topo".
+
+                                                   *<Plug>(FlogToggleReverse)*
+gor                                                                 *flog-gor*
+
+  Toggle |:Flog_-reverse|.
+
+------------------------------------------------------------------------------
+DIFF MAPPINGS                                             *flog-diff-mappings*
+
+                                                 *<Plug>(FlogVDiffSplitRight)*
+dd                                                                   *flog-dd*
+dv                                                                   *flog-dv*
+
+  In normal mode, open a diff in a temporary |flog-side-window| comparing the
+  commit under the cursor with the current HEAD.
+
+  In normal mode, also sets |flog-'!| to the commit under the cursor.
+
+  In visual mode, open a diff in a temporary |flog-side-window| comparing the
+  commits at the top and bottom of the visual selection.
+
+                                            *<Plug>(FlogVDiffSplitPathsRight)*
+dp                                                                   *flog-dp*
+DD                                                                   *flog-DD*
+DV                                                                   *flog-DV*
+
+  Same as |flog-dd|, but use the "-path" or "-limit" argument to only show the
+  diff for the currently selected paths.
+
+                                       *<Plug>(FlogVDiffSplitLastCommitRight)*
+d!                                                                   *flog-d!*
+
+  Diff the commit under the cursor and the last used commit in a temporary
+  |flog-side-window|.
+
+  See also |flog-'!|.
+
+                                  *<Plug>(FlogVDiffSplitLastCommitPathsRight)*
+D!                                                                   *flog-D!*
+
+  Same as |flog-d!|, but use the "-path" or "-limit" argument to only show the
+  diff for the currently selected paths.
+
+                                                        *<Plug>(FlogDiffHelp)*
+d?                                                                   *flog-d?*
+
+  Show these mappings.
+
+------------------------------------------------------------------------------
+COMMIT AND BRANCH MAPPINGS                              *flog-commit-mappings*
+
+                                                          *<Plug>(FlogCommit)*
+cc                                                                   *flog-cc*
+
+  Create a commit.
+
+                                                           *<Plug>(FlogAmend)*
+ca                                                                   *flog-ca*
+
+  Amend the current HEAD commit and edit the message.
+
+                                                     *<Plug>(FlogAmendNoEdit)*
+ce                                                                   *flog-ce*
+
+  Amend the current HEAD commit without editing the message.
+
+                                                           *<Plug>(FlogFixup)*
+cf                                                                   *flog-cf*
+
+  Create a "--fixup" commit for the commit under the cursor.
+  See also "git commit --help".
+
+                                                     *<Plug>(FlogFixupRebase)*
+cF                                                                   *flog-cF*
+
+  Same as |flog-cf|, but immediately perform a "rebase --autosquash".
+  See also "git rebase --help".
+
+                                                          *<Plug>(FlogSquash)*
+cs                                                                   *flog-cs*
+
+  Create a "--squash" commit for the commit under the cursor.
+  See also "git commit --help".
+
+                                                    *<Plug>(FlogSquashRebase)*
+cS                                                                   *flog-cS*
+
+  Same as |flog-cs|, but immediately perform a "rebase --autosquash".
+  See also "git rebase --help".
+
+                                                      *<Plug>(FlogSquashEdit)*
+
+cA                                                                   *flog-cA*
+
+  Same as |flog-cs|, but edit the commit message.
+
+                                                          *<Plug>(FlogRevert)*
+crc                                                                 *flog-crc*
+
+  Revert the commit under the cursor. In visual mode, revert all selected
+  commits.
+
+                                                    *<Plug>(FlogRevertNoEdit)*
+crn                                                                 *flog-crn*
+
+  Same as |flog-crc|, but use the "--no-edit" flag.
+  See also "git rebase --help".
+
+                                                        *<Plug>(FlogCheckout)*
+coo                                                                 *flog-coo*
+
+  Checkout the commit under the cursor.
+
+                                                  *<Plug>(FlogCheckoutBranch)*
+cob                                                                 *flog-cob*
+
+  Checkout the first branch name under the cursor, prioritizing local
+  branches.
+
+                                             *<Plug>(FlogCheckoutLocalBranch)*
+col                                                                 *flog-col*
+
+  Checkout the first local branch name under the cursor, or checkout the first
+  remote branch with the remote name trimmed from the ref.
+
+  This will cause remote branches to be tracked locally if they are not
+  already.
+
+                                                       *<Plug>(FlogGitCommit)*
+c<Space>                                                       *flog-c<Space>*
+
+  Start a command line with ":Floggit commit ".
+  See also |:Floggit|.
+
+                                                       *<Plug>(FlogGitRevert)*
+cr<Space>                                                     *flog-cr<space>*
+
+  Start a command line with ":Floggit revert ".
+  See also |:Floggit|.
+
+                                                        *<Plug>(FlogGitMerge)*
+cm<Space>                                                     *flog-cm<space>*
+
+  Start a command line with ":Floggit merge ".
+  See also |:Floggit|.
+
+                                                     *<Plug>(FlogGitCheckout)*
+co<Space>                                                     *flog-co<Space>*
+
+  Start a command line with ":Floggit checkout ".
+  See also |:Floggit|.
+
+                                                       *<Plug>(FlogGitBranch)*
+cb<Space>                                                     *flog-cb<Space>*
+
+  Start a command line with ":Floggit branch ".
+  See also |:Floggit|.
+
+                                                      *<Plug>(FlogCommitHelp)*
+c?                                                                   *flog-c?*
+
+  Show these mappings.
+
+------------------------------------------------------------------------------
+REBASE MAPPINGS                                         *flog-rebase-mappings*
+
+Note that all rebase mappings target the commit under the cursor unless
+otherwise noted.
+
+This is different from how |fugitive-maps| work, which target the parent of
+the commit under the cursor by default.
+
+This is because targetting the parent of a commit would make targetting the
+tip of other branches impossible. Fugitive cannot target other branches.
+
+                                               *<Plug>(FlogRebaseInteractive)*
+ri                                                                   *flog-ri*
+
+  Start an interactive rebase using the root of the commit under the cursor,
+  if it is available.
+
+  See also "git rebase --help".
+
+                                     *<Plug>(FlogRebaseInteractiveAutosquash)*
+rf                                                                   *flog-rf*
+
+  Perform an autosquash rebase without editing the TODO list.
+  See also "git rebase --help".
+
+                                       *<Plug>(FlogRebaseInteractiveUpstream)*
+ru                                                                   *flog-ru*
+
+  Perform an interactive rebase against "@{upstream}".
+  See also "git rebase --help".
+
+                                           *<Plug>(FlogRebaseInteractivePush)*
+rp                                                                   *flog-rp*
+
+  Perform an interactive rebase against "@{push}".
+  See also "git rebase --help".
+
+                                                  *<Plug>(FlogRebaseContinue)*
+rr                                                                   *flog-rr*
+
+  Run "git rebase --continue".
+  See also "git rebase --help".
+
+                                                      *<Plug>(FlogRebaseSkip)*
+rs                                                                   *flog-rs*
+
+  Run "git rebase --skip".
+  See also "git rebase --help".
+
+                                                     *<Plug>(FlogRebaseAbort)*
+ra                                                                   *flog-ra*
+
+  Run "git rebase --abort".
+  See also "git rebase --help".
+
+                                                  *<Plug>(FlogRebaseEditTodo)*
+re                                                                   *flog-re*
+
+  Run "git rebase --edit-todo".
+  See also "git rebase --help".
+
+                                         *<Plug>(FlogRebaseInteractiveReword)*
+rw                                                                   *flog-rw*
+
+  Start an interactive rebase with the commit under the cursor set to
+  "reword".
+
+  The rebase will target the first parent of the commit under the cursor.
+  This command does not work on the root commit of a branch.
+
+  See also "git rebase --help".
+
+                                           *<Plug>(FlogRebaseInteractiveEdit)*
+rm                                                                   *flog-rm*
+
+  Start an interactive rebase with the commit under the cursor set to "edit".
+
+  The rebase will target the first parent of the commit under the cursor.
+  This command does not work on the root commit of a branch.
+
+  See also "git rebase --help".
+
+                                           *<Plug>(FlogRebaseInteractiveDrop)*
+rd                                                                   *flog-rd*
+
+  Start an interactive rebase with the commit under the cursor set to "drop".
+
+  The rebase will target the first parent of the commit under the cursor.
+  This command does not work on the root commit of a branch.
+
+  See also "git rebase --help".
+
+                                                       *<Plug>(FlogGitRebase)*
+r<Space>                                                       *flog-r<Space>*
+
+  Start a command line with ":Floggit rebase ".
+
+  See also: |:Floggit|, "git rebase --help".
+
+                                                      *<Plug>(FlogRebaseHelp)*
+r?                                                                   *flog-r?*
+
+  Show these mappings.
+
+==============================================================================
+SETTINGS                                                       *flog-settings*
+
+g:flog_default_opts                                      *g:flog_default_opts*
+
+  A |dict| containing the default values for arguments to |:Flog|.
+
+  Keys in the dictionary use underscores instead of dashes.
+  For example, the key for |:Flog_-max-count| is "max_count", not "max-count".
+
+  Boolean args are always positive.
+  For example, the key for |:Flog_-merges| is "merges", not "no_merges".
+
+  Example:
+>
+  let g:flog_default_opts = { 'max_count': 2000, 'all': v:true }
+<
+
+g:flog_permanent_default_opts                  *g:flog_permanent_default_opts*
+
+  Similar to |g:flog_default_opts|, but the arguments are used as internal
+  defaults when clearing arguments using |:Flogsetargs| or |:Flogsetargs!|.
+
+  Has lower precedence than |g:flog_default_arguments|.
+
+g:flog_write_commit_graph                          *g:flog_write_commit_graph*
+
+  When true, the first time |:Flog| is run for a repo, will run
+  "git commit-graph write" in order to speed up subsequent calls.
+
+  The arguments are controlled via |g:flog_write_commit_graph_args|.
+
+  Defaults to true.
+
+g:flog_write_commit_graph_args                *g:flog_write_commit_graph_args*
+
+  The arguments to pass to "git commit-graph write" when
+  |g:flog_write_commit_graph| is enabled.
+
+  Defaults to ["--reachable", "--progress"].
+
+  See also "git commit-graph --help".
+
+g:flog_override_default_mappings            *g:flog_override_default_mappings*
+
+  A list of default Vim movement bindings to override.
+
+  Overridden bindings will add the commit under the cursor to the
+  |flog-commit-jumplist| and will set |flog-''| to the commit.
+
+  Defaults to:
+>
+  ["gg", "G", "<C-U>", "<C-D>"]
+<
+
+g:flog_check_lua_version                            *g:flog_check_lua_version*
+
+  When enabled, check that the installed version of Lua is supported.
+  Defaults to true.
+
+g:flog_lua_bin                                                *g:flog_lua_bin*
+
+  The Lua interpretter to use when |g:flog_use_internal_lua| is disabled.
+  Defaults to "luajit".
+
+g:flog_use_internal_lua                              *g:flog_use_internal_lua*
+
+  When enabled, use the version of Lua included with Vim rather than calling
+  Lua directly. This setting is always true when using Neovim.
+
+  In most cases, when using Vim, this requires compiling Vim with:
+>
+  ./configure \
+    ...
+    --enable-luainterp=dynamic \
+    --with-luajit
+<
+
+  You must have both LuaJIT and the LuaJIT development files installed on your
+  system to use this setting. For example, on Ubuntu run:
+>
+  apt-get install luajit libluajit-5.1-dev
+<
+
+  See |install| for information on compiling Vim.
+  See also "./configure --help".
+
+  Defaults to false.
+
+g:flog_get_author_args                                *g:flog_get_author_args*
+
+  The arguments to use when completing authors with "git shortlog".
+
+  Defaults to ["--all", "--no-merges", "--max-count=100000"].
+
+  See also "git shortlog --help".
+
+g:flog_enable_extended_chars                    *g:flog_enable_extended_chars*
+
+  Whether to enable experimental extra characters in the commit graph.
+
+  These are special Unicode characters starting at U+F5D0 made specifically
+  for drawing Git branches.
+
+  For best results, requires terminal support. Currently supported by the Kitty
+  terminal.
+
+  Defaults to false.
+
+g:flog_enable_extra_padding                      *g:flog_enable_extra_padding*
+
+  Whether to add an extra line of padding after commits with no merges.
+  Defaults to false.
+
+g:flog_enable_dynamic_branch_hl              *g:flog_enable_dynamic_branch_hl*
+
+  When enabled, dynamic branch colors are used. Color follows branches when
+  moving through the graph, and horizontal lines are colored based on relevant
+  branches. Branches of the same color aren't placed next to each other.
+
+  When disabled, more rudimentary branch colors are used. Branch color is
+  based solely on the column of the branch. Branch color does not follow
+  branches when they move. Horizontal line color is based on start column.
+
+  Only available in Neovim.
+  Defaults to true.
+
+g:flog_enable_dynamic_commit_hl              *g:flog_enable_dynamic_commit_hl*
+
+  When disabled, base highlighting on syntactic characters in |:Flog_-format|.
+  Special items must go at the start of the format. See the default format for
+  an example.
+
+  When enabled, inject hidden characters into the output for highlighting.
+
+  Available in both Vim and Neovim.
+  Defaults to false.
+
+g:flog_num_branch_colors                            *g:flog_num_branch_colors*
+
+  The number of unique branch colors to cycle through. This can be used when
+  customizing highlight groups. At a minimum, 4 branch colors are required.
+
+  Defaults to 8.
+
+  See also |hl-flogBranchX|.
+
+g:flog_commit_start_token                          *g:flog_commit_start_token*
+
+  The internal token to use to find commit start. Provided as a setting in
+  case your commit messages contain the default token alone on a line.
+
+  Defaults to "__START".
+
+g:flog_order_types                                        *g:flog_order_types*
+
+  An array of dicts describing the different order types.
+
+  Can be set to change the order of order options with |flog-goo|.
+
+  Defaults to:
+>
+  [
+    \ { name: 'date', args: '--date-order' },
+    \ { name: 'author', args: '--author-date-order' },
+    \ { name: 'topo', args: '--topo-order' },
+    \ ]
+<
+
+  See also |:Flog_-order|.
+
+==============================================================================
+FUNCTIONS                                                     *flog-functions*
+
+                                                                 *flog#Exec()*
+                                                                 *flog.exec()*
+flog#Exec({command}[, opts])
+lua require("flog").exec({command}[, opts])
+
+  Runs {command}.
+
+  If the command is run from the |:Flog| window, use the options shown here.
+  If the command is run from any other window, simply execute the command.
+
+  When {opts.blur} is true, return to the |:Flog| window after running.
+  Defaults to false.
+
+  When {opts.static} is true, don't update |:Flog| after running the command.
+  Has no effect if |:Flog_-auto-update| is enabled.
+  Defaults to false.
+
+  When {opts.tmp} is true, set any windows opened to temp |flog-side-window|s.
+  Other temp windows are closed before running the command.
+  Defaults to false.
+
+  Example:
+>
+    flog#Exec('Git fetch')
+<
+
+                                                              *flog#ExecTmp()*
+                                                             *flog.exec_tmp()*
+flog#ExecTmp({command}[, opts])
+lua require("flog").exec_tmp({command}[, opts])
+
+  Same as |flog#Exec()|, but default {opts.tmp} to true.
+
+                                                               *flog#Format()*
+                                                               *flog.format()*
+flog#Format({command})
+lua require("flog").format({command})
+
+  Format a command according to |flog-command-format|.
+
+  Example:
+>
+    :exec flog#Format('Floggit show %h')
+    :call flog#Exec(flog#Format('<mods> Gsplit %h'))
+<
+
+==============================================================================
+AUTOCOMMANDS                                               *flog-autocommands*
+
+                                                             *User_FlogUpdate*
+FlogUpdate                On updating a |:Flog| window.
+
+                                                       *User_FlogSideWinSetup*
+FlogSideWinSetup          On initializing any |flog-side-window|.
+
+                                                    *User_FlogTmpSideWinSetup*
+FlogTmpSideWinSetup       On initializing a temporary |flog-side-window|.
+                          Called after |User_FlogSideWinSetup|.
+
+                                                 *User_FlogNonTmpSideWinSetup*
+FlogNonTmpSideWinSetup    On initializing a non-temporary |flog-side-window|.
+                          Called after |User_FlogSideWinSetup|.
+
+==============================================================================
+ABOUT                                                             *flog-about*
+
+------------------------------------------------------------------------------
+SIDE WINDOWS                                                *flog-side-window*
+
+Flog can open windows beside the commit branch graph to show more commit
+info.
+
+Side windows are opened with |flog#Exec()| or |:Floggit|.
+
+These windows can be set to temporary. Temporary windows will close before
+other temporary windows are opened. Temporary windows close when Flog
+closes.
+
+------------------------------------------------------------------------------
+COMMIT MARKS                                               *flog-commit-marks*
+
+Flog allows marking commits. Marked commits persist even when the |:Flog|
+buffer updates.
+
+Marked commits can be referenced using |flog-command-format|. Marked commits
+can be created with |flog-m|. A commit mark can be jumped to with |flog-'|.
+
+Marking a commit adds it to the |flog-jump-history|.
+
+The following special commit marks exist:
+
+                                                                     *flog-''*
+  ''                    The last commit before jumping to another commit.
+                        This mark is set by various commands and mappings.
+
+                                                                     *flog-'<*
+  '<                    The start of the visual selection.
+
+                                                                     *flog-'>*
+  '>                    The end of the visual selection.
+
+                                                                     *flog-'@*
+  '@                    The current HEAD.
+
+                                                           *flog-'~* *flog-'^*
+  '~ '^                 The parent of the current HEAD.
+
+                                                                     *flog-'!*
+  '!                    The commit last used in a command with |flog-%h|.
+                        This mark is set by various commands and mappings.
+                        Can be thought of as the "last used commit".
+
+------------------------------------------------------------------------------
+COMMIT JUMP HISTORY                                        *flog-jump-history*
+
+Flog keeps track of which commits you have jumped to using the commit
+jump history. This feature is based on the Vim |jumplist|.
+
+Using a number of |flog-navigation-mappings| counts as a jump.
+
+Setting a |flog-commit-mark| will also add the marked commit to the commit
+jump history.
+
+Using |flog-CTRL-O| and |flog-CTRL-I|, you can jump backwards and forwards in
+commit jump history.
+
+The commit jump history persists when the |:Flog| buffer updates.
+
+------------------------------------------------------------------------------
+COMMAND FORMAT                                           *flog-command-format*
+
+When using |flog#Format()|, a special syntax similar to |printf| is used to
+transform the string.
+
+Items prefixed by the "%" character are resolved into commit information and
+Flog options.
+
+If any items cannot be resolved, such as if the |:Flog| buffer is empty or
+the item contains only an option like "-path" that was not set, returns an
+empty string. This command will do nothing if called with |:exec| or
+|flog#Exec()|.
+
+The following items are supported:
+
+                                                                     *flog-%%*
+  %%                    A literal "%" character.
+
+                                                                     *flog-%h*
+  %h                    The hash of the commit under the cursor, if any.
+                        Using this in a command sets |flog-'!| to the commit.
+
+                                                                     *flog-%H*
+  %H                    Same as %h, but do not set |flog-'!|.
+
+                                                                 *flog-%(h'x)*
+  %(h'x)                The hash at the given commit mark "x".
+                        See also |flog-commit-marks|.
+
+                                                               *flog%(h'x,'y)*
+  %(h'x,'y)             The hashes in the commit mark range of "x" and "y".
+
+                        Hashes are separated by spaces.
+                        The order of the marks matters.
+                        The visual range can be selected with "%h('<,'>)".
+
+                        See also |flog-commit-marks|.
+
+                                                                     *flog-%b*
+  %b                    The first branch of the commit under the cursor, if
+                        any. Local branches prioritized first. Useful for
+                        checking out branches.
+
+                                                                 *flog-%(b'x)*
+  %(b'x)                The branch at the given commit mark "x".
+
+                                                                     *flog-%l*
+  %l                    The first branch of the commit under the cursor, if
+                        any. Local branches prioritized first. If a remote
+                        commit is used, trim the remote name from the branch.
+                        Useful for checking out commits for tracking.
+
+                                                                 *flog-%(l'x)*
+  %(l'x)                The local branch at the given mark "x".
+
+                                                                     *flog-%p*
+  %p                    If |:Flog_-limit| is set, resolves to the path passed
+                        to the limit, escaping it.
+
+                        Otherwise, resolves to the paths passed to
+                        |:Flog_-path|, if any, escaping them and joining them
+                        with spaces.
+
+                                                                     *flog-%P*
+  %P                    Same as |flog-%p|, but include "--" at the start.
+                        Separates Git command arguments from paths.
+                        Still returns "--" if no path or limit is specified.
+
+                                                                     *flog-%t*
+  %t                    A tree for the current index. When this is used, a new
+                        tree will be created for the current index using
+                        "git write-tree" before the command is run. This is
+                        useful for diffing unstaged files with "git add -N".
+
+==============================================================================
+HIGHLIGHT GROUPS                                       *flog-highlight-groups*
+
+These highlight groups can be modified to change the appearance of the graph.
+
+See also: |g:flog_enable_dynamic_commit_hl|,
+|g:flog_enable_dynamic_branch_hl|.
+
+Dynamic highlighting does not change what highlight groups are available.
+
+                                                               *hl-flogBranch*
+flogBranchX                                                   *hl-flogBranchX*
+
+  The highlight groups "flogBranch1", "flogBranch2", "flogBranch3", etc.
+  determine the color of the branches and merges in the commit graph.
+
+  The number of branches can be controlled with |g:flog_num_branch_colors|.
+
+flogHash                                                         *hl-flogHash*
+
+  Determines the color of the commit hash.
+
+  When |g:flog_enable_dynamic_commit_hl| is off, the hash must be surrounded
+  in square brackets.
+
+flogAuthor                                                     *hl-flogAuthor*
+
+  Determines the color of the commit author name.
+
+  When |g:flog_enable_dynamic_commit_hl| is off, the hash must be surrounded
+  in curly brackets.
+
+flogDate                                                         *hl-flogDate*
+
+  Determines the color of the commit date.
+
+flogRef                                                           *hl-flogRef*
+
+  Determines the overall color of the commit ref.
+  For example: "(branch1, branch2, tag: my-tag)"
+
+flogRefTag                                                     *hl-flogRefTag*
+
+  Determines the color of tags in the commit ref.
+
+flogRefRemote                                               *hl-flogRefRemote*
+
+  Determines the color of remotes in the commit ref.
+  For example: in "remotes/my-remote", "my-remote" is highlighted.
+
+flogRefHead                                                   *hl-flogRefHead*
+
+  Determines the color of the "HEAD" text in the commit ref.
+
+flogRefHeadArrow                                         *hl-flogRefHeadArrow*
+
+  Determines the color of the arrow after "HEAD" in the commit ref.
+
+flogRefHeadBranch                                       *hl-flogRefHeadBranch*
+
+  Determines the color of the branch after "HEAD ->" in the commit ref.
+
+ vim:tw=78:ts=8:ft=help
