@@ -515,6 +515,9 @@ set tabpagemax=50
 " make it unusable so it won't clash
 set termwinkey=<C-\\>
 set backup backupcopy=no
+if has('&splitkeep')
+  set splitkeep=screen
+endif
 " Linux 与 Windows 等 [[[2
 if has("gui_macvim")
   set macmeta
