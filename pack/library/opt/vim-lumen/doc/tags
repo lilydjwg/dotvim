@@ -1,0 +1,12 @@
+User_LumenDark	lumen.txt	/*User_LumenDark*
+User_LumenLight	lumen.txt	/*User_LumenLight*
+g:lumen_dark_colorscheme	lumen.txt	/*g:lumen_dark_colorscheme*
+g:lumen_light_colorscheme	lumen.txt	/*g:lumen_light_colorscheme*
+g:lumen_startup_overwrite	lumen.txt	/*g:lumen_startup_overwrite*
+lumen	lumen.txt	/*lumen*
+lumen-autocommands	lumen.txt	/*lumen-autocommands*
+lumen-configure	lumen.txt	/*lumen-configure*
+lumen-contents	lumen.txt	/*lumen-contents*
+lumen-dependencies	lumen.txt	/*lumen-dependencies*
+lumen-introduction	lumen.txt	/*lumen-introduction*
+lumen.txt	lumen.txt	/*lumen.txt*
