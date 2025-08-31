@@ -784,7 +784,7 @@ function s:GetFileTypeSettings(ft)
 		\ 'squid\|terminfo\|tidy\|tli\|tsscl\|vgrindefs\|vrml\|'.
 		\ 'fstab\|privoxy\|openvpn\|dnsmasq\|nimrod\|' .
 		\ 'wget\|wml\|xf86conf\|xmath\|nginx\|gas\|debsources\|' .
-                \ 'yaml\|getmailrc\|msmtp\|toml\|sshconfig\|i3config\|dosini\|PKGBUILD\|gitconfig\' .
+                \ 'yaml\|getmailrc\|msmtp\|toml\|sshconfig\|i3config\|dosini\|PKGBUILD\|gitconfig\|' .
                 \ 'nftables\)$'
 	let b:ECcommentOpen = '#'
 	let b:ECcommentClose = ''
