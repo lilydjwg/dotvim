@@ -8,10 +8,10 @@
  |     || || |   | |   |  |__ |  _  ||  _  || |  | |
  |____| |_||_|   |_|   |_____||_| |_||_| |_||_|  |_|
 <
-Last Change: 2024/02/14
-Version:     9.7 (on or after patch-8.1.1418 and nvim-0.5.0)
+Last Change: 2025/10/01
+Version:     10.0 (on or after vim 9.0 and nvim 0.7.0)
 Author:      Rick Howe (Takumi Ohtani) <rdcxy754@ybb.ne.jp>
-Copyright:   (c) 2014-2024 Rick Howe
+Copyright:   (c) 2014-2025 Rick Howe
 License:     MIT
 
 -----------------------------------------------------------------------------
@@ -22,32 +22,35 @@ highlights all the text in between the first and last different characters on
 a changed line. But this plugin will find the exact differences between them,
 character by character - so called DiffChar.
 
-For example, in diff mode: (`-`:`hl-DiffText` / |+|:|hl-DiffAdd|)
+For example, in diff mode: (`^`:`DiffText`, |#|:|DiffAdd|, |@|:|DiffDelete|)
     +-------------------------------------------------+
     |The `quick brown fox jumps over the lazy` dog.     |
-    |    `-----------------------------------`          |
+    |    `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`          |
     |~                                                |
     +-------------------------------------------------+
     |The `lazy fox jumps over the quick brown` dog.     |
-    |    `-----------------------------------`          |
+    |    `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`          |
     |~                                                |
     +-------------------------------------------------+
 
-This plugin will exactly show the changed and added units:
+This plugin will exactly show the changed/added/deleted units:
     +-------------------------------------------------+
-    |The `quick` |brown| fox jumps over the `lazy` dog.     |
-    |    `-----` |++++++|                   `----`          |
+    |The `quick` |brown| fox jumps over the `lazy`  dog.    |
+    |    `^^^^^` |######|                   `^^^^` |@|        |
     |~                                                |
     +-------------------------------------------------+
-    |The `lazy` fox jumps over the `quick` |brown| dog.     |
-    |    `----`                    `-----` |++++++|         |
+    |The `lazy`  fox jumps over the `quick` |brown| dog.    |
+    |    `^^^^` |@|                   `^^^^^` |######|        |
     |~                                                |
     +-------------------------------------------------+
 
 Sync with diff mode ~
 This plugin will synchronously show/reset the highlights of the exact
 differences as soon as the diff mode begins/ends. And the exact differences
-will be kept updated while editing.
+will be kept updated while editing. Note that this plugin does nothing if an
+"inline" item is set in the 'doffopt' option and its value is other than
+"simple". On plugin loading, the item is removed only if set by default so
+that this plugin can work.
 
 Diff unit ~
 This plugin shows the diffs based on a |g:DiffUnit|. Its default is 'Word1'
@@ -62,9 +65,10 @@ In diff mode, the corresponding |hl-DiffChange| lines are compared between two
 windows. As a default, all the changed units are highlighted with
 |hl-DiffText|. You can set |g:DiffColors| to use more than one matching color
 to make it easy to find the corresponding units between two windows. The
-number of colors depends on the color scheme. In addition, |hl-DiffAdd| is
-always used for the added units and both the previous and next character of
-the deleted units are shown in bold/underline.
+number of colors depends on the color scheme. In addition, an added unit is
+always highlighted with |hl-DiffAdd| and the position of the corresponding
+deleted unit is shown with bold/underline or a virtual blank column,
+depending on a |g:DiffDelPosVisible|.
 
 Diff pair visible ~
 While showing the exact differences, when the cursor is moved on a diff unit,
@@ -115,8 +119,15 @@ if available, this plugin uses a builtin diff function (|diff()| in vim
 patch-9.1.0071 and Lua |vim.diff()| in nvim 0.6.0) and makes it much faster.
 
 See also ~
-For a range and area selectable partial comparison, see |spotdiff.vim|
-(https://github.com/rickhowe/spotdiff.vim) plugin.
+There are other diff related plugins available:
+- |spotdiff.vim|: A range and area selectable `:diffthis` to compare partially
+  (https://github.com/rickhowe/spotdiff.vim)
+- |wrapfiller|: Align each wrapped line virtually between windows
+  (https://github.com/rickhowe/wrapfiller)
+- |difffilter|: Selectively compare lines as you want in diff mode
+  (https://github.com/rickhowe/difffilter)
+- |diffunitsyntax|: Highlight word or character based diff units in diff format
+  (https://github.com/rickhowe/diffunitsyntax)
 
 -----------------------------------------------------------------------------
 OPTIONS                                                *diffchar-options*
@@ -126,7 +137,7 @@ OPTIONS                                                *diffchar-options*
     'Char'    : any single character
     'Word1'   : \w\+ word and any \W single character (default)
     'Word2'   : non-space and space words
-    'Word3'   : \< or \> character class boundaries (set by 'iskeyword' option)
+    'Word3'   : \< or \> character class boundaries (set by 'iskeyword')
     'word'    : see `word`
     'WORD'    : see `WORD`
     '[{del}]' : one or more diff unit delimiters (e.g. "[,:\t<>]")
@@ -148,6 +159,14 @@ OPTIONS                                                *diffchar-options*
     2 : highlight with |hl-Cursor| + echo in the command line
     3 : highlight with |hl-Cursor| + popup/floating window at cursor position
     4 : highlight with |hl-Cursor| + popup/floating window at mouse position
+
+|g:DiffDelPosVisible|, |t:DiffDelPosVisible|
+    Visibility of the position of deleted units
+    0 : disable
+    1 : highlight previous/next chars of a deleted unit in bold/underline
+        (default if inline |virtual-text| is not available)
+    2 : virtually show a blank column (set by "space" item in 'listchars')
+        with |hl-DiffDelete| (default if inline |virtual-text| is available)
 
 -----------------------------------------------------------------------------
 KEYMAPS                                                *diffchar-keymaps*
@@ -173,37 +192,59 @@ KEYMAPS                                                *diffchar-keymaps*
 -----------------------------------------------------------------------------
 CHANGE HISTORY                                         *diffchar-history*
 
-Update : 9.7
+10.0
+* Added |g:DiffDelPosVisible| option to show the position of deleted units.
+* Implemented to remove an "inline" item from the 'diffopt' option on initial
+  loading so that this plugin can work.
+* Made this plugin available on or after vim 9.0 and nvim 0.7.0.
+
+9.9
+* Improved to remain previous diff lines highlighted upon scrolling if
+  possible and not to check them later again.
+* Implemented a few more functions in Vim9 script to make them faster.
+
+9.8
+* Improved to follow "linematch", which is run to realign diff lines when
+  displayed on screen, if specified in the 'diffopt' option (default on nvim
+  0.11). Accordingly, fixed errors such as E684 and E716 on nvim.
+* Changed to disable this plugin to avoid a conflict with character/word-wise
+  "inline" diff (patch-9.1.1243), if specified in the 'diffopt' option.
+* Changed to overwrite nvim default mappings to set plugin specific ones on
+  plugin loading. As of nvim 0.11, `[b` and `]b` keys are duplicated.
+* Fixed to handle tab and space as a same whitespace character if "iwhite" or
+  "iwhiteall" are specified in the 'diffopt' options.
+
+9.7
 * Implemented to use a new builtin |diff()| function (available on
   patch-9.1.0071) to compare diff units and make it faster in vim.
 
-Update : 9.6, 9.61
+9.6, 9.61
 * Changed to locally but not incrementally check the limited number of the
   |hl-DiffChange| lines upon scrolling or searching.
 * Fixed not to use |hl-DiffText| as the first highlight group if [{hlg}] is
   specified in the |g:DiffColors| option.
 
-Update : 9.5
+9.5
 * Improved not to update diff unit highlighting on unchanged diff lines on the
   DiffUpdated event.
 * Fixed the E421 error when 'termguicolors' is off on nvim.
 
-Update : 9.4
+9.4
 * Implemented to use a builtin Lua |vim.diff()| function to compare diff units
   and make it faster in nvim.
 
-Update : 9.3
+9.3
 * Improved to follow the 'wincolor' option and show the colors accordingly.
 * Fixed to work on some color scheme in which the "g:colors_name" variable is
   different from its file name.
 
-Update : 9.2
+9.2
 * Fixed the plugin error when 3 or more windows turn to be diff mode.
 * Fixed the issue which the new diff lines can not be incrementally found upon
   scrolling on patch-9.0.0913 or later.
 * Made it faster to find diff lines in a file with many lines folded.
 
-Update : 9.1
+9.1
 * Added vim original 'word' and 'WORD' units, one or more unit delimiters, and
   a custom pattern to split into diff units in |g:DiffUnit| option.
 * Improved to redraw diff units whenever the ColorScheme event happens when
@@ -212,10 +253,10 @@ Update : 9.1
   numbers of matching colors, depending on the loaded color scheme.
 * Added a list of your favorite highlight groups in |g:DiffColors| option.
 
-Update : 9.01
+9.01
 * Fixed to work on a |hl-Diff| highlighting group even if it is linked.
 
-Update : 9.0
+9.0
 * Enhanced to make diff units easier to read when "indent-heuristic" is
   specified in the 'diffopt' option.
 * Improved to update diff units using `:diffupdate` command when |g:DiffUnit|,
@@ -225,85 +266,5 @@ Update : 9.0
 * Implemented the comparison algorithm and diff unit highlighting in Vim9
   script and made them 10 times faster on patch-8.2.3965 or later.
 * Made this plugin available on or after patch-8.1.1418 and nvim-0.5.0.
-
-Update : 8.91
-* Updated to check a new WinClosed event (patch-8.2.3591) to appropriately
-  reset or repair the highlighted DiffChar units when a window is closed.
-
-Update : 8.9
-* Fixed not to overrule syntax highlighting.
-* Fixed to successfully sync with diff mode even without patch-8.1.414.
-* Changed the highlighting groups used in |g:DiffColors| option.
-
-Update : 8.8
-* Changed the highlighting groups used in |g:DiffColors| option, to completely
-  highlight a changed diff unit and to make each unit more visible.
-* Changed to use |hl-Cursor|, |hl-TermCursor|, or similar one, as appropriate,
-  to highlight a corresponding diff unit, for |g:DiffPairVisible| option.
-* Fixed to use proper |hl-Diff| highlighting groups even if they are linked.
-* Optimized how to draw each unit and then improved performance.
-
-Update : 8.7
-* Enhanced |g:DiffPairVisible| option to show a corresponding diff unit as
-  well in a floating window on nvim, if its value is 3, and show a popup (not
-  a balloon) window at the mouse position, if its value is 4.
-* Improved performance, use the external diff command together if available,
-  if there are so many diff units included in a line or it has taken much time
-  in a diff session.
-* Removed |g:DiffMaxLines| option, and locally checks the limited number of
-  the |hl-DiffChange| lines and incrementally checks them upon scrolling or
-  searching.
-* Removed |g:DiffModeSync| option, and always synchronize with the diff mode.
-* `:SDChar`, `:RDChar`, `:TDChar`, and `:EDChar` commands are still available
-  but deprecated.
-
-Update : 8.6
-* Enhanced |g:DiffPairVisible| option to show a corresponding diff unit as a
-  popup-window just below the cursor position (available on patch-8.1.1391).
-  And changed its default as 1 (diff unit highlighting only).
-* Fixed not to stop monitoring the changes of text and 'diffopt' option,
-  even if there is no |hl-DiffChange| line, when |g:DiffModeSync| option is
-  enabled.
-
-Update : 8.5
-* Enhanced to show a balloon on GUI and display a corresponding diff unit,
-  where the mouse is pointing, if |g:DiffPairVisible| option is enabled
-  (patch-8.1.647 is required to correctly display multibyte characters).
-* Fixed to correctly handle |hl-DiffChange| lines while editing.
-
-Update : 8.4
-* Extended |g:DiffMaxLines| option to allow a negative value as multiples of
-  the window height and changed its default as -3.
-* Fixed to reset all highlighted DiffChar units when more than two windows
-  become diff mode in a tab page.
-* Deleted |g:DiffSplitTime| option.
-
-Update : 8.3
-* Fixed not to detect more |hl-DiffChange| lines than |g:DiffMaxLines| option.
-
-Update : 8.2
-* Fixed to correctly update the highlighted DiffChar units while editing when
-  a new internal diff is not specified in 'diffopt' option (patch-8.1.360).
-
-Update : 8.1
-* Fixed to properly detect |hl-DiffChange| lines even when all visible lines
-  of current window are in a closed fold if a |g:DiffMaxLines| option is
-  enabled.
-
-Update : 8.0
-* Introduced a |g:DiffMaxLines| option to dynamically detect a limited number
-  of |hl-DiffChange| lines, when the diff mode begins and whenever a cursor is
-  moved onto an undetected line. It enables to always take a minimum constant
-  time, independently of the file size.
-* Enhanced to check a new DiffUpdated event (patch-8.1.397) to follow diff
-  updates and some changes of 'diffopt' option.
-* Enhanced to support new iwhiteall and iwhiteeol of 'diffopt' option
-  (patch-8.1.360).
-* Removed |g:DiffUpdate| option and merged it into |g:DiffModeSync|.
-* Removed keymap for <F7> and <F8>, which toggle to show/reset the highlights.
-* Changed to work in diff mode, not in non-diff mode.
-* Removed a support for vim version 7.x.
-* Changed not to set 'diffexpr' option when a new internal diff is specified
-  in 'diffopt' (patch-8.1.360).
 
  vim:tw=78:ts=8:ft=help:norl:
