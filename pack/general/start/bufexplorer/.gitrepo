@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/ingydotnet/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:jlanzarotta/bufexplorer.git
+	branch = master
+	commit = b96d275811b92e86ee52be3112e1de735ba08fb9
+	parent = da922ffa3c21eec0ce75d0e61e8344eaab81d3ec
+	method = merge
+	cmdver = 0.4.9
