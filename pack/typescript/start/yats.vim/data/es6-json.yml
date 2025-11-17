@@ -1,6 +1,0 @@
-typescriptGlobal:
-  - JSON
-
-typescriptJSONStaticMethod:
-  - parse
-  - stringify

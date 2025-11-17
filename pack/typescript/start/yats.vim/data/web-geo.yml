@@ -1,8 +1,0 @@
-typescriptGlobal:
-    - Geolocation
-
-typescriptGeolocationMethod:
-    - getCurrentPosition
-    - watchPosition
-    - clearWatch
-

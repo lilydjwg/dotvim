@@ -1,6 +1,0 @@
-set nocompatible
-filetype off
-let &rtp = expand('%:p:h:h').','.&rtp
-let &rtp = expand('%:p:h').'/vader.vim,'.&rtp
-filetype plugin indent on
-syntax enable
