@@ -3,14 +3,9 @@
 " Author:       lilydjwg <lilydjwg@gmail.com>
 
 " ---------------------------------------------------------------------
-"  自带的配置会在任何时候都设置为 pythoncomplete#Complete
-if has("python3")
-  setlocal omnifunc=python3complete#Complete
-elseif has("python")
-  setlocal omnifunc=pythoncomplete#Complete
-else
-  setlocal omnifunc=syntaxcomplete#Complete
-endif
+"  Don't use python3complete#Complete, which imports modules and can have side
+"  effects, e.g. importing GTK 4.
+setlocal omnifunc=syntaxcomplete#Complete
 
 " it must be 8
 setlocal tabstop=8
