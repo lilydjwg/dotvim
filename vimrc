@@ -17,6 +17,10 @@ try
 catch /.*/
   runtime macros/matchit.vim
 endtry
+try
+  packadd! hlyank
+catch /.*/
+endtry
 runtime vimrc_example.vim
 "]]]
 " 我的设置
