@@ -1,0 +1,9 @@
+[submodule "spec/support/rust.vim"]
+	path = spec/support/rust.vim
+	url = https://github.com/rust-lang/rust.vim
+[submodule "spec/support/vim-repeat"]
+	path = spec/support/vim-repeat
+	url = https://github.com/tpope/vim-repeat
+[submodule "spec/support/vim-clojure-static"]
+	path = spec/support/vim-clojure-static
+	url = https://github.com/guns/vim-clojure-static

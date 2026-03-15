@@ -1,0 +1,1018 @@
+*switch.txt*	Switch segments of text with predefined replacements
+
+==============================================================================
+CONTENTS                                                *switch* *switch-contents*
+
+    Installation................................: |switch-installation|
+    Usage.......................................: |switch-usage|
+    Advanced usage..............................: |switch-advanced-usage|
+    Customization...............................: |switch-customization|
+    Builtins....................................: |switch-builtins|
+    Settings....................................: |switch-settings|
+    Internals...................................: |switch-internals|
+    Similar plugins.............................: |switch-similar-plugins|
+    Issues......................................: |switch-issues|
+
+
+==============================================================================
+INSTALLATION                                               *switch-installation*
+
+There are several ways to install the plugin. The recommended one is by using
+Tim Pope's pathogen (http://www.vim.org/scripts/script.php?script_id=2332). In
+that case, you can clone the plugin's git repository like so:
+>
+    git clone git://github.com/AndrewRadev/switch.vim.git ~/.vim/bundle/switch
+<
+If your vim configuration is under git version control, you could also set up
+the repository as a submodule, which would allow you to update more easily.
+The command is (provided you're in ~/.vim):
+>
+    git submodule add git://github.com/AndrewRadev/switch.vim.git bundle/switch
+<
+
+Another way is to simply copy all the essential directories inside the ~/.vim
+directory: plugin, autoload, doc.
+
+==============================================================================
+USAGE                                      *switch-usage* *:Switch* *:SwitchReverse*
+
+The main entry point of the plugin is a single command, |:Switch|. When the
+command is executed, the plugin looks for one of a few specific patterns under
+the cursor and performs a substitution depending on the pattern. For example,
+if the cursor is on the "true" in the following code:
+>
+    flag = true
+<
+Then, upon executing |:Switch|, the "true" will turn into "false".
+
+There's a default mapping to trigger the command, `gs`. Note that this is
+already a Vim built-in (|gs|), but it doesn't seem particularly useful.
+
+If you'd like to change the mapping, change the value of |g:switch_mapping|.
+For example, to map it to "-", place the following in your .vimrc:
+>
+    let g:switch_mapping = "-"
+<
+To avoid the default mapping completely, set the variable to an empty string:
+>
+    let g:switch_mapping = ""
+<
+See |switch-customization| below for information on how to create several
+mappings with different definitions.
+
+The same holds true for the secondary command, |:SwitchReverse|. For
+definitions that are built as lists (for example, ["one", "two", "three"]),
+this command works the same way in the opposite direction. So, with the
+example definition, executing |:Switch| on "two" would result in "three", but
+executing |:SwitchReverse| on "two" would change it to "one.
+
+Again, for dictionary switches, this command will work exactly like |:Switch|.
+
+The mapping that controls the reverse switch is |g:switch_reverse_mapping|,
+and it's unset by default (no mapping is defined).
+>
+    let g:switch_reverse_mapping = '+'
+<
+								*switch-plugs*
+You can also map the <Plug>s directly, for example:
+>
+    nmap - <Plug>(Switch)
+    nmap + <Plug>(SwitchReverse)
+<
+Using mappings brings the benefit that the commands become repeatable with `.`
+
+There are three main principles that the substitution follows:
+
+1. The cursor needs to be on the match. Regardless of the pattern, the plugin
+   only performs the substitution if the cursor is positioned in the matched
+   text.
+
+2. When several patterns match, the shortest match is performed. For example,
+   in markdown, the following switch is defined:
+>
+    - [ ] Implement true/false switching
+
+    switches into:
+
+    - [x] Implement true/false switching
+<
+   This works if the cursor is positioned anywhere on the line except if it's
+   on top of "true" or "false". In that case, the abovementioned true -> false
+   substitution will be performed instead. If you want to perform a "larger"
+   substitution instead, you could move your cursor away from the "smaller"
+   match. In this case, move the cursor away from the "true" or "false" words.
+
+3. When several patterns with the same size match, the order of the
+   definitions is respected. For instance, in eruby, the following code can be
+   transformed:
+>
+    <% if foo? %>
+
+    could switch into:
+
+    <%# if foo? %>
+
+    but instead, it would switch into:
+
+    <% if true or (foo?) %>
+<
+   The second switch will be performed, simply because in the definition list,
+   the pattern was placed at a higher spot. In this case, this seems to make
+   sense to prioritize one over the other. If it's needed to prioritize in a
+   different way (or simply to remove unneeded switches), the definition list
+   should be redefined by the user -- see |switch-customization|.
+
+If you don't like the "smallest match" algorithm described on top, and you'd
+rather just attempt all matches in order, set the value of
+|g:switch_find_smallest_match| to 0.
+                                                               *:SwitchExtend*
+
+This command provides an easy way to extend your current buffer's custom
+definitions (|b:switch_custom_definitions|). If this variable doesn't exist
+yet, it will be created as a copy of the global custom definitions
+(|g:switch_custom_definitions|), and then extended.
+
+Called without arguments, it prints the current value of this buffer variable,
+that is your custom definitions for the current buffer.
+
+If called with a list or a dictionary as argument, it will extend the custom
+definitions for the current buffer. Multiple definitions are accepted:
+>
+    SwitchExtend ['on', 'off'], {'\Cif': 'elseif', '\Celseif': 'if'}
+<
+
+==============================================================================
+ADVANCED USAGE                                           *switch-advanced-usage*
+
+Instead of using the `:Switch` and `:SwitchReverse` commands, you can use the
+autoloaded function `switch#Switch`. Calling it without any arguments is the
+same as calling the `:Switch` command:
+>
+    :call switch#Switch()
+    " equivalent to:
+    :Switch
+<
+However, you can also call the function with a |Dict| of options. Instead of
+`:SwitchReverse`, you can invoke it with the `reverse` option:
+>
+    :call switch#Switch({'reverse': 1})
+    " or,
+    :call switch#Switch({'reverse': v:true})
+    " equivalent to:
+    :SwitchReverse
+<
+The other option you can provide is `definitions` to set an explicit list of
+definitions that are different from the built-ins.
+>
+    :call switch#Switch({'definitions': list_of_definitions})
+<
+The `switch#Switch()` function returns 1 if it succeeded, and 0 if it failed.
+You can use the return value to decide if you'd like to apply some other mapping.
+
+See below in |switch-customization| for more details and examples on how to
+write use this function.
+
+==============================================================================
+CUSTOMIZATION                                             *switch-customization*
+
+There are two variables that hold the global definition list and the
+buffer-local definition list -- |g:switch_definitions| and
+|b:switch_definitions|, respectively. These contain the definitions for the
+built-ins provided by the plugin. In order to add the switches you want, you
+should override |g:switch_custom_definitions| and
+|b:switch_custom_definitions| instead.
+
+Use the `g:` version of the variable for global definitions, and the `b:`
+version for specific filetypes. For instance, here is how you would define
+switches only for ruby:
+>
+    autocmd FileType ruby let b:switch_custom_definitions =
+        \ [
+        \   ...
+        \ ]
+<
+
+The format of all of these variables is a simple List of items. Each item can
+be either a List or a Dict.
+
+List definitions ~
+>
+    let g:switch_custom_definitions =
+        \ [
+        \   ['foo', 'bar', 'baz']
+        \ ]
+<
+With this definition list, if the plugin encounters "foo" under the cursor, it
+will be changed to "bar". If it sees "bar", it will change it to "baz", and
+"baz" would be turned into "foo". This is the simple case of a definition that
+is implemented (in a slightly different way) by the "toggle.vim" plugin.
+
+You might want this to work for different capitalizations, like with `true`
+and `True` and `TRUE`. You might also want to also affect only word
+boundaries. While you could use the more complicated dict definition, a simple
+way to tackle these scenarios is with modifier functions:
+
+- `switch#NormalizedCase`
+- `switch#Words`
+- `switch#NormalizedCaseWords`
+
+Here's how you might use these:
+>
+    let g:switch_custom_definitions =
+        \ [
+        \   switch#NormalizedCase(['one', 'two']),
+        \   switch#Words(['three', 'four']),
+        \   switch#NormalizedCaseWords(['five', 'six']),
+        \ ]
+<
+The result of this is that:
+- The first definition would switch between "one" and "two", between "One" and
+  "Two", and between "ONE" and "TWO".
+- The second definition would switch between "three" and "four" only at word
+  boundaries, as if the patterns have |\<| and |\>| modifiers added to them.
+- The third would switch between "five"/"six", "Five"/"Six", "FIVE"/"SIX" only
+  at word boundaries with a combination of the above.
+
+See |switch-internals| for some information on the underlying data format if
+you'd like to use a different method to generate definitions (like, say,
+loading JSON).
+
+Leaving lists aside, the more complicated (and more powerful) way to define a
+switch pattern is by using a Dict. In fact, a list definition is processed
+into three dict definitions, one for each pair of switches.
+
+Dict definitions ~
+>
+    autocmd FileType eruby let b:switch_custom_definitions =
+        \ [
+        \   {
+        \     ':\(\k\+\)\s\+=>': '\1:',
+        \     '\<\(\k\+\):':     ':\1 =>',
+        \   },
+        \ ]
+<
+When in the eruby filetype, the hash will take effect. The plugin will look
+for something that looks like ":foo =>" and replace it with "foo: ", or the
+reverse -- "foo: ", so it could turn it into ":foo =>". The search string is
+fed to the |search()| function, so all special patterns like |\%l| have effect
+in it. And the replacement string is used in the |:substitute| command, so all
+of its replacement patterns work as well.
+
+Notice the use of "autocmd FileType eruby" to set the buffer-local variable
+whenever an eruby file is loaded. The same effect could be achieved by placing
+the "let" clause in ftplugin/eruby.vim instead.
+
+Another interesting example is the following definition:
+>
+    autocmd FileType php let b:switch_custom_definitions =
+        \ [
+        \   {
+        \     '<?php echo \(.\{-}\) ?>':        '<?php \1 ?>',
+        \     '<?php \%(echo\)\@!\(.\{-}\) ?>': '<?php echo \1 ?>',
+        \   }
+        \ ]
+<
+In this case, when in the "php" filetype, the plugin will attempt to remove
+the "echo" in "<?php echo 'something' ?>" or vice-versa. However, the second
+pattern wouldn't work properly if it didn't contain "\%(echo\)\@!". This
+pattern asserts that, in this place of the text, there is no "echo".
+Otherwise, the second pattern would match as well. Using the |\@!| pattern in
+strategic places is important in many cases.
+
+There's other ways to define how to replace the matched string.
+
+Function call replacements ~
+
+The value of the dict keys can be a |Funcref|. For example, a lambda:
+>
+    let g:switch_custom_definitions =
+        \ [
+        \   {
+        \     '\d{10} ': {m -> trim(system("date +%Y%m%d_%H%M%S -d@".m[0])).' '}
+        \   }
+        \ ]
+<
+This would match a 10-digit number and pass it along to the external `date`
+command, replacing it with the result. The lambda (in this case) takes one
+argument, which a list of the full match, and each individual subgroup. So,
+`m[0]` would be the entire match, while `m[2]` would be the second group, the
+equivalent of `\2` in a |subsitute()| call.
+
+The lambda can take up to three arguments:
+
+- The match, as described
+- A flag, either 0 or 1 for whether a "reverse" switch was triggered
+- A count, so if you'd like, you can pick your replacement from a list
+
+Instead of a lambda, it could also be a named function, giving you more space
+to add more complicated logic:
+>
+    function! SwitchTimestamp(match, reverse, count)
+      let result = trim(system('...', a:match[0]))
+
+      if v:shell_error
+        echoerr result
+        return a:match[0]
+      endif
+
+      return result
+    endfunction
+
+    let g:switch_custom_definitions =
+        \ [
+        \   {
+        \     '\d{10} ': function('SwitchTimestamp')
+        \   }
+        \ ]
+<
+Note that in the explicit function case, you need to handle the full list of
+three arguments that the function receives, where in a lambda you could skip
+the ones you don't need. You could, alternatively, define the function with
+variable arguments and take what you need with |a:1|, |a:000|, etc, see
+|function-argument| for more details.
+
+
+Nested dict definitions ~
+
+The following expression replaces underscored identifier names with their
+camelcased versions:
+>
+    let g:switch_custom_definitions = [
+        \   {
+        \     '\<[a-z0-9]\+_\k\+\>': {
+        \       '_\(.\)': '\U\1'
+        \     },
+        \     '\<[a-z0-9]\+[A-Z]\k\+\>': {
+        \       '\([A-Z]\)': '_\l\1'
+        \     },
+        \   }
+        \ ]
+<
+
+If the cursor is on "foo_bar_baz", then switching would produce "fooBarBaz"
+and vice-versa. The logic is as follows:
+
+    - The keys of the dict are patterns, just like the "normal" dict version.
+    - The values of the dict are dicts with patterns for keys and replacements
+      for values.
+
+The goal of this form is to enable substituting several different kinds of
+patterns within the limits of another one. In this example, there's no way to
+define this switch using the simpler form, since there's an unknown number of
+underscores in the variable name and all of them need to be replaced in order
+to make the switch complete.
+
+The nested patterns differ from the simple one in that each one of them is
+replaced globally, only within the limits of the "parent" pattern.
+
+Note that this particular example is NOT included as a built-in, since it may
+overshadow other ones and is probably not that useful, either (it's rare that
+a language would require changing between the two forms). An example usage may
+be within javascript, if your server-side variables are underscored and the
+client-side ones need to be camelcased. For something more complete, you can
+take a look at this gist: https://gist.github.com/othree/5655583.
+
+You could also use a separate mapping for that.
+
+Separate mappings ~
+
+While there's a default mapping for |:Switch|, you could actually define
+several mappings with your own custom definitions:
+>
+    let g:variable_style_switch_definitions = [
+        \   {
+        \     '\<[a-z0-9]\+_\k\+\>': {
+        \       '_\(.\)': '\U\1'
+        \     },
+        \     '\<[a-z0-9]\+[A-Z]\k\+\>': {
+        \       '\([A-Z]\)': '_\l\1'
+        \     },
+        \   }
+        \ ]
+    nnoremap + :call switch#Switch({'definitions': g:variable_style_switch_definitions})<cr>
+    nnoremap - :Switch<cr>
+<
+With this, typing "-" would invoke the built-in switch definitions, while
+typing "+" would switch between camelcase and underscored variable styles.
+This may be particularly useful if you have several clashing switches on
+patterns that match similar things.
+
+More complicated mappings ~
+
+By using the `switch#Switch()` function, you can also write more complicated
+mappings that check if a switch succeeded, and apply some fallback if it
+didn't. The function returns 1 for success and 0 for failure.
+
+For example, if you want to switch, or fall back to activating the
+"speeddating" plugin, you could map <c-a> and <c-x> like so:
+>
+    nnoremap <c-a> :if !switch#Switch() <bar>
+          \ call speeddating#increment(v:count1) <bar> endif<cr>
+    nnoremap <c-x> :if !switch#Switch({'reverse': 1}) <bar>
+          \ call speeddating#increment(-v:count1) <bar> endif<cr>
+<
+
+Builtins ~
+
+If you want to only use some built-in definitions, you can set the
+|g:switch_no_builtins| variable to 1 and then just use your
+|g:switch_custom_definitions| and |b:switch_custom_definitions| variables to
+re-use the built-in definitions. To make this easier, you can use the
+patterns from the |g:switch_builtins| list:
+>
+    autocmd FileType ruby let b:switch_definitions =
+        \ [
+        \   g:switch_builtins.ruby_hash_style,
+        \
+        \   { 'my_own_pattern': 'my_own_replacement' },
+        \
+        \   g:switch_builtins.rspec_should,
+        \ ]
+<
+See the section below, |switch-builtins| for information on the built-in
+patterns, including their names in the |g:switch_builtins| dictionary.
+
+==============================================================================
+BUILTINS                                                       *switch-builtins*
+
+Here's a list of all the built-in switch definitions. To see the actual
+definitions with their patterns and replacements, look at the file
+plugin/switch.vim.
+
+Global ~
+
+Boolean conditions (g:switch_builtins.ampersands):
+>
+    foo && bar
+    foo || bar
+<
+Boolean constants (g:switch_builtins.true_false):
+>
+    flag = true
+    flag = false
+<
+Capitalized boolean constants (g:switch_builtins.capital_true_false):
+>
+    flag = True
+    flag = False
+<
+
+Ruby ~
+
+Hash style (g:switch_builtins.ruby_hash_style):
+>
+    foo = { :one => 'two', :three => 'four'  }
+    foo = { one: 'two', :three => 'four'  }
+<
+Cursor: in the hash, on a single hash element.
+
+Oneline Hash (g:switch_builtins.ruby_oneline_hash):
+>
+    foo = { :one => 'two', :three => 'four' }
+    foo = { one: 'two', three: 'four' }
+<
+Cursor: in the hash, not on any one element -- opening `{` would work.
+
+Lambdas (g:switch_builtins.ruby_lambda):
+>
+    lambda { |x, y| whatever(x, y) }
+    ->(x, y) { whatever(x, y) }
+<
+If-clauses (g:switch_builtins.ruby_if_clause):
+>
+    if predicate?
+      puts 'Hello, World!'
+    end
+
+    if true or (predicate?)
+      puts 'Hello, World!'
+    end
+
+    if false and (predicate?)
+      puts 'Hello, World!'
+    end
+<
+RSpec should/should_not (g:switch_builtins.rspec_should):
+>
+    1.should eq 1
+    1.should_not eq 1
+<
+RSpec expect (with the cursor on "expect") (g:switch_builtins.rspec_expect):
+>
+    expect(1).to eq 1
+    expect(1).not_to eq 1
+<
+RSpec to_/not_to (with the cursor on "to/not_to") (g:switch_builtins.rspec_to):
+>
+    expect { raise "OK" }.to raise_error
+    expect { raise "OK" }.not_to raise_error
+<
+RSpec be_truthy/be_falsey (g:switch_builtins.rspec_be_truthy_falsey):
+>
+    expect(true).to be_truthy
+    expect(true).to be_falsey
+<
+Ruby keyword string style (no spaces) (g:switch_builtins.ruby_keyword_string):
+>
+    foo = 'bar'
+    foo = "baz"
+    foo = :baz
+<
+Ruby string style (g:switch_builtins.ruby_keyword_string):
+>
+    foo = 'foo bar'
+    foo = "foo bar"
+<
+Ruby block shorthands (g:switch_builtins.ruby_short_blocks):
+>
+    do_something { |x| x.some_work! }
+    do_something(&:some_work!)
+<
+Ruby array shorthands (g:switch_builtins.ruby_array_shorthand):
+>
+    ['one', 'two', 'three']
+    %w(one two three)
+
+    [:one, :two, :three]
+    %i(one two three)
+<
+In this case, be careful to not have the cursor on one of the strings/symbols,
+or you'll trigger the string switch as seen above.
+
+Ruby fetch invocation (g:switch_builtins.ruby_fetch):
+>
+    foo['bar']
+    foo.fetch('bar')
+<
+Ruby assert checks on nil (g:switch_builtins.ruby_assert_nil):
+>
+    assert_nil some_value
+    assert_equal nil, some_value
+<
+
+PHP ~
+
+"Echo" in tags (g:switch_builtins.php_echo):
+>
+    <?php "Text" ?>
+    <?php echo "Text" ?>
+<
+
+Eruby ~
+
+If-clauses (g:switch_builtins.eruby_if_clause):
+>
+    <% if predicate? %>
+      <%= 'Hello, World!' %>
+    <% end %>
+
+    <% if true or (predicate?) %>
+      <%= 'Hello, World!' %>
+    <% end %>
+
+    <% if false and (predicate?) %>
+      <%= 'Hello, World!' %>
+    <% end %>
+>
+Tag type (g:switch_builtins.eruby_tag_type):
+>
+    <% something %>
+    <%# something %>
+    <%= something %>
+<
+Hash style (g:switch_builtins.ruby_hash_style):
+>
+    <% foo = { :one => 'two', :three => 'four'  } %>
+    <% foo = { one: 'two', :three => 'four'  } %>
+<
+Cursor: in the hash, on a single hash element.
+
+Oneline Hash (g:switch_builtins.ruby_oneline_hash):
+>
+    <% foo = { :one => 'two', :three => 'four' } %>
+    <% foo = { one: 'two', three: 'four' } %>
+<
+Cursor: in the hash, not on any one element -- opening `{` would work.
+
+Haml/Slim ~
+
+If-clauses (g:switch_builtins.ruby_if_clause):
+>
+    - if predicate?
+      Hello, World!
+
+    - if true or (predicate?)
+      Hello, World!
+
+    - if false and (predicate?)
+      Hello, World!
+<
+Hash style (g:switch_builtins.ruby_hash_style):
+>
+    %a{:href => '/example', :title => 'this is a link'}
+    %a{href: '/example', :title => 'this is a link'}
+<
+Cursor: in the hash, on a single hash element.
+
+Oneline Hash (g:switch_builtins.ruby_oneline_hash):
+>
+    %a{:href => '/example', :title => 'this is a link'}
+    %a{href: '/example', title: 'this is a link'}
+<
+Cursor: in the hash, not on any one element -- opening `{` would work.
+
+C++ ~
+
+Pointer dots/arrows (g:switch_builtins.cpp_pointer):
+>
+    Object* foo = bar.baz;
+    Object* foo = bar->baz;
+<
+
+JavaScript ~
+
+Function definitions (g:switch_builtins.javascript_function)
+>
+    function example(one, two) { }
+    var example = function(one, two) { }
+<
+ES6-style arrow functions (g:switch_builtins.javascript_arrow_function)
+>
+    var example = function(one, two) { }
+    var example = (one, two) => { }
+<
+ES6-style variable declaraions (g:switch_builtins.javascript_es6_declarations)
+>
+    var example
+    let example
+    const example
+    // var -> let
+    // let -> const
+    // const -> let
+<
+Switching to var from const or let is unsupported, since it's assumed to be an unlikely case.
+
+String styles (g:switch_builtings.javascript_string_style)
+>
+    const foo = "${bar}/baz"
+    const foo = `${bar}/baz`
+    const foo = '${bar}/baz'
+<
+
+Coffeescript ~
+
+Arrows (g:switch_builtins.coffee_arrow):
+>
+    functionCall (foo) ->
+    functionCall (foo) =>
+<
+Dictionary shorthand (g:switch_builtins.coffee_dictionary_shorthand):
+>
+    foo = {one, two}
+    foo = {one: one, two}
+<
+
+Clojure ~
+
+String style (g:switch_builtins.clojure_string):
+>
+    "baz"
+    'bar
+    :baz
+<
+Note that it only works for single-word strings, such as baz, b-a-z, or **.
+
+If-clauses (g:switch_builtins.clojure_if_clause):
+>
+    (if predicate?
+      (prn "Hello, world!")
+      (prn "oh..."))
+
+    (if (or true predicate?)
+      (prn "Hello, world!")
+      (prn "oh..."))
+
+    (if (and false predicate?)
+      (prn "Hello, world!")
+      (prn "oh..."))
+<
+Note that it also works for if-not, when, and when-not.
+
+Scala ~
+
+String style (g:switch_builtins.scala_string):
+>
+    "foo bar"
+    s"foo bar"
+    f"foo bar"
+    """foo bar"""
+    s"""foo bar"""
+    f"""foo bar"""
+<
+
+Git Rebase ~
+
+Git Rebase Commands:
+>
+    pick -> fixup -> reword -> edit -> squash -> exec -> break -> drop -> …
+    -> label -> reset -> merge -> (loops back to pick)
+
+    p -> fixup
+    f -> reword
+    r -> edit
+    e -> squash
+    s -> exec
+    x -> break
+    b -> drop
+    d -> label
+    l -> reset
+    t -> merge
+    m -> pick
+
+Elixir ~
+
+Charlist -> Binary -> Atom (g:switch_builtins.ruby_keyword_string)
+>
+    foo = 'bar'
+    foo = "bar"
+    foo = :bar
+<
+Elixir list shorthands (g:switch_builtins.elixir_list_shorthand)
+>
+    ["one", "two", "three"]
+    ~w(one two three)
+
+    [:one, :two, :three]
+    ~w(one two three)a
+<
+Rust ~
+
+Void typecheck (g:switch_builtins.rust_void_typecheck)
+>
+    let value = complicated_expression();
+    let value: () = complicated_expression();
+<
+Turbofish (g:switch_builtins.rust_turbofish)
+>
+    let value = iterator.collect();
+    let value = iterator.collect::<Todo>();
+<
+The type inserted is a placeholder, but it should be relatively easy to jump
+to it and edit it with a `cw`. In the future, this might be improved.
+
+String type (g:switch_builtins.rust_string)
+>
+    let hello = "Hello, World";
+    let hello = r"Hello, World";
+    let hello = r#"Hello, World"#;
+<
+Option is_some/is_none (g:switch_builtins.rust_is_some)
+>
+    list.get(1).is_some()
+    list.get(1).is_none()
+<
+Equality assertion (g:switch_builtins.rust_assert_eq)
+>
+    assert_eq!(foo, bar);
+    assert_ne!(foo, bar);
+<
+TOML ~
+
+Particularly for files named `Cargo.toml` with the `toml` filetype (not
+built-in, but there are plugins for it):
+>
+    structopt = "0.3.5"
+    structopt = { version = "0.3.5" }
+<
+Markdown ~
+
+Task items (g:switch_builtins.markdown_task_item)
+>
+    - [ ] Task 1
+    - [x] Task 1
+<
+Python ~
+
+Dict access (g:switch_builtins.python_dict_get)
+>
+    spam['eggs']
+    spam.get('eggs')
+<
+String style (g:switch_builtins.python_string_style)
+>
+    'Ham'
+    "Ham"
+    f"Ham"
+<
+Dictionary style (g:switch_builtins.python_dict_style)
+>
+    {'foo': 'bar', 'bar': 'baz'}
+    dict(foo='bar', bar='baz')
+<
+Note that this will only work for simple dictionaries. Nesting and more complicated expressions break this, because it uses a single regex. A future dedicated implementation using my "sideways" plugin might work better here.
+
+Jinja ~
+
+Tag type (g:switch_builtins.jinja_tag_type)
+>
+    {{ content }}
+    {% content %}
+    {# content #}
+<
+Vimscript~
+
+Script-local functions (g:switch_builtins.vim_script_local_function)
+>
+    call s:TestFunction()
+    call <SID>TestFunction()
+<
+String styles (g:switch_builtins.vim_string_style)
+>
+    let foo = "{bar}/baz"
+    let foo = $"{bar}/baz"
+    let foo = '{bar}/baz'
+<
+
+==============================================================================
+SETTINGS                                                       *switch-settings*
+
+                                                              *g:switch_mapping*
+>
+    let g:switch_mapping = '-'
+<
+
+Default value: "gs"
+
+This variable is the default mapping the plugin will use. Set it to "" to
+avoid setting a default mapping. You can then use the |:Switch| command, or
+create a mapping manually.
+
+                                                      *g:switch_reverse_mapping*
+>
+    let g:switch_reverse_mapping = '+'
+<
+
+Default value: ""
+
+This variable is the mapping to switch "in reverse", whenever that makes sense
+(only for list definitions). This is not set by default, so no mapping is
+defined. You can use |:SwitchReverse| even without the mapping.
+
+
+                                                   *g:switch_custom_definitions*
+>
+    g:switch_custom_definitions
+<
+
+This variable contains your custom switch definitions -- patterns that are
+attempted against every filetype. Changing the contents of this variable would
+make the plugin attempt these patterns in addition to the built-ins.
+
+Example:
+
+Putting the following in .vimrc would make the plugin switch between "on" and
+"off":
+>
+    let g:switch_custom_definitions = [
+          \   ['on', 'off']
+          \ ]
+<
+
+                                                  *b:switch_custom_definitions*
+>
+    b:switch_custom_definitions
+<
+
+This variable contains your custom buffer-local switch definitions.
+
+Example:
+
+Putting the following in ftplugin/html.vim would switch between single-line
+<div> and <span> tags, though it probably won't work in complicated cases.
+>
+    let b:switch_custom_definitions =
+          \ [
+          \   {
+          \     '<div\(.\{-}\)>\(.\{-}\)</div>': '<span\1>\2</span>',
+          \     '<span\(.\{-}\)>\(.\{-}\)</span>': '<div\1>\2</div>',
+          \   }
+          \ ]
+<
+
+                                                             *g:switch_builtins*
+>
+    g:switch_builtins
+<
+
+This variable contains all built-in switch definitions. It makes it simple to
+re-use definitions for different filetypes and to cherry-pick original
+functionality if needed.
+
+For example, g:switch_builtins.ruby_hash_style contains a pattern that can be
+used for ruby, eruby, slim and haml.
+
+
+                                                          *g:switch_no_builtins*
+>
+    g:switch_no_builtins
+<
+If this variable is set, no builtins will be set by the plugin. This might be
+useful to avoid any surprising switch definitions outside of your control. You
+can still set your own definitions, of course, and you can re-use some
+built-ins by taking them from the |g:switch_builtins| dict.
+
+
+                                                  *g:switch_find_smallest_match*
+>
+    let g:switch_find_smallest_match = 0
+<
+This variable controls whether the plugin will attempt to find the smallest
+match for the area under the cursor. If it's set to 0, all the different
+matches will simply be attempted in the order they're defined.
+
+==============================================================================
+INTERNALS                                                     *switch-internals*
+
+All List definitions are transformed into Dict definitions. So, for instance,
+if you have this kind of list:
+>
+    let g:switch_custom_definitions =
+        \ [
+        \   ['foo', 'bar', 'baz']
+        \ ]
+<
+This is exactly equivalent to:
+>
+    let g:switch_custom_definitions =
+        \ [
+        \   {'\Vfoo\m': 'bar'},
+        \   {'\Vbar\m': 'baz'},
+        \   {'\Vbaz\m': 'foo'},
+        \ ]
+<
+The modifier helper functions prepare a different set of transformations. If
+we have a list like this:
+>
+    let g:switch_custom_definitions =
+        \ [
+        \   switch#NormalizedCase(['one', 'two']),
+        \   switch#Words(['three', 'four']),
+        \   switch#NormalizedCaseWords(['five', 'six']),
+        \ ]
+<
+That's first transformed into this format:
+>
+    let g:switch_custom_definitions =
+        \ [
+        \   {
+        \     '_type': 'normalized_case',
+        \     '_definition': ['one', 'two'],
+        \   },
+        \   {
+        \     '_type': 'words',
+        \     '_definition': ['three', 'four'],
+        \   },
+        \   {
+        \     '_type': 'normalized_case_words',
+        \     '_definition': ['five', 'six'],
+        \   }
+        \ ]
+<
+Which then the plugin recognizes as a special set of cases and processes like this:
+>
+    let g:switch_custom_definitions =
+        \ [
+        \   {'\Cone': 'two'}, {'\Ctwo': 'one'},
+        \   {'\COne': 'Two'}, {'\CTwo': 'One'},
+        \   {'\CONE': 'TWO'}, {'\CTWO': 'ONE'},
+        \   {'\<three\>': 'four'}, {'\<four\>': 'three'},
+        \   {'\C\<five\>': 'six'}, {'\C\<six\>': 'five'},
+        \   {'\C\<Five\>': 'Six'}, {'\C\<Six\>': 'Five'},
+        \   {'\C\<FIVE\>': 'SIX'}, {'\C\<SIX\>': 'FIVE'},
+        \ ]
+<
+The plan is to have multiple different `_type` parameters which determine what
+kind of processing to perform on the matchers.
+
+
+==============================================================================
+SIMILAR PLUGINS                                         *switch-similar-plugins*
+
+This plugin is very similar to two other ones:
+  - toggle.vim: http://www.vim.org/scripts/script.php?script_id=895
+  - cycle.vim: https://github.com/zef/vim-cycle
+
+Both of these work on replacing a specific word under the cursor with a
+different one. The benefit of switch.vim is that it works for much more
+complicated patterns. The drawback is that this makes extending it more
+involved. I encourage anyone that doesn't need the additional power in
+switch.vim to take a look at one of these two.
+
+==============================================================================
+ISSUES                                                           *switch-issues*
+
+Any other issues and suggestions are very welcome on the github bugtracker:
+https://github.com/AndrewRadev/switch.vim/issues
+
+
+vim:tw=78:sw=4:ft=help:norl:
