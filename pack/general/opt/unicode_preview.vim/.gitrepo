@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/ingydotnet/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:gouwazi/unicode_preview.vim.git
+	branch = master
+	commit = a2b69f2902bf58b97234576e3f05507a544caa07
+	parent = 537017a1a7a77fe3e1dc9cd7d9b601df3e6e643c
+	method = merge
+	cmdver = 0.4.9
