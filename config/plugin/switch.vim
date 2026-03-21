@@ -19,3 +19,11 @@ nnoremap <expr> <silent> <C-X> Lilydjwg_tryswitch('x')
 vnoremap <expr> <silent> <C-X> Lilydjwg_tryswitch('x')
 nnoremap <expr> <silent> <C-A> Lilydjwg_tryswitch('a')
 vnoremap <expr> <silent> <C-A> Lilydjwg_tryswitch('a')
+
+" disable default mapping (gs)
+let g:switch_mapping = ''
+
+let g:switch_custom_definitions =
+      \ [
+      \   ['insert', 'delete']
+      \ ]
