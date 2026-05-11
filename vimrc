@@ -1071,4 +1071,4 @@ runtime abbreviate.vim
 runtime local.vim
 " don't load menu.vim; it takes time
 let did_install_default_menus = 1
-" vim:fdm=marker:fmr=[[[,]]]
+au BufRead ~/.vim/vimrc setl fdm=marker fmr=[[[,]]]
